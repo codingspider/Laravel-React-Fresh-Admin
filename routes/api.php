@@ -3,9 +3,11 @@
 use App\Http\Controllers\API\Admin\AddonController;
 use App\Http\Controllers\API\Admin\BusinessController as AdminBusinessController;
 use App\Http\Controllers\API\Admin\CategoryController;
-use App\Http\Controllers\API\Admin\RoleController;
+use App\Http\Controllers\API\Admin\LocationController;
 use App\Http\Controllers\API\Admin\ProductController;
+use App\Http\Controllers\API\Admin\RoleController;
 use App\Http\Controllers\API\Admin\UnitController;
+use App\Http\Controllers\API\Admin\UserManagementController;
 use App\Http\Controllers\API\Admin\VariationController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BranchController;
@@ -17,29 +19,28 @@ use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VatController;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
-
+use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
+use Illuminate\Http\Request;
 
 Route::controller(RegisterController::class)->group(function(){
-    Route::post('register', 'register');
-    Route::post('login', 'login');
-    Route::post('forgot-password', 'forgotPassword');
-    Route::post('reset-password', 'resetPassword');
-    Route::post('store/business/info', 'storeBusinessInfo');
+    Route::post('register', 'register')->middleware(['web']);
+    Route::post('login', 'login')->middleware(['web']);
+    Route::post('forgot-password', 'forgotPassword')->middleware(['web']);
+    Route::post('reset-password', 'resetPassword')->middleware(['web']);
+    Route::post('store/business/info', 'storeBusinessInfo')->middleware(['web']);
 });
 
-Route::middleware(['auth:sanctum'])->prefix('superadmin')->group(function () {
+Route::middleware(['auth:sanctum', EnsureFrontendRequestsAreStateful::class])->prefix('superadmin')->group(function () {
     // Add more super admin routes here
     Route::get('users', [UserController::class, 'index']);
     Route::post('user/store', [UserController::class, 'store']);
     Route::resource('plans', PLanController::class);
     Route::resource('business', BusinessController::class);
-
     Route::get('get/all/plans', [GeneralController::class, 'getAllPlan']);
-
-    Route::post('/logout', [AuthController::class, 'logout']);
+    
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business'])->prefix('admin')->group(function () {
+Route::middleware(['auth:sanctum', 'check_active_business', EnsureFrontendRequestsAreStateful::class])->group(function () {
     Route::apiResource('branches', BranchController::class);
     Route::apiResource('vats', VatController::class);
     Route::apiResource('categories', CategoryController::class);
@@ -48,6 +49,7 @@ Route::middleware(['auth:sanctum', 'check_active_business'])->prefix('admin')->g
     Route::apiResource('products', ProductController::class);
     Route::apiResource('units', UnitController::class);
     Route::apiResource('roles', RoleController::class);
+    Route::apiResource('user-management', UserManagementController::class);
     
 
     Route::get('owner/business', [AdminBusinessController::class, 'index']);
@@ -61,10 +63,24 @@ Route::middleware(['auth:sanctum', 'check_active_business'])->prefix('admin')->g
     Route::get('get/all/categories', [CategoryController::class, 'getAllCategory']);
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business'])->group(function () {
+Route::middleware(['auth:sanctum', 'check_active_business', 'cookie.filter'])->group(function () {
     Route::get('get/branches', [BranchController::class, 'getBranch']);
     Route::get('get/currencies', [GeneralController::class, 'getCurrency']);
     Route::get('get/timezones', [GeneralController::class, 'getTimezone']);
+    Route::get('get/locations', [LocationController::class, 'getAllLocations']);
+    Route::get('get/roles', [RoleController::class, 'getAllRole']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/set-permission', [AuthController::class, 'giveAllPermissionsToAdmin']);
+
+    
+});
+
+Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Request $request) {
+    return response()->json([
+        'user' => $request->user(),
+        'permissions' => $request->user()->getAllPermissions()->pluck('name')
+    ]);
 });
 
 

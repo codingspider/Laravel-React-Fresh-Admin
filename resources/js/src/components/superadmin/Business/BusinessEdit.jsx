@@ -25,7 +25,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { PLAN_LIST_PATH, SUPERADMIN_DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { PLAN_LIST_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { GET_EDIT_PLAN, UPDATE_PLAN } from "../../../routes/apiRoutes";
 
 const BusinessEdit = () => {
@@ -107,7 +107,7 @@ const BusinessEdit = () => {
                         <BreadcrumbItem>
                             <BreadcrumbLink
                                 as={ReactRouterLink}
-                                to={SUPERADMIN_DASHBOARD_PATH}
+                                to={DASHBOARD_PATH}
                             >
                                 {t("dashboard")}
                             </BreadcrumbLink>

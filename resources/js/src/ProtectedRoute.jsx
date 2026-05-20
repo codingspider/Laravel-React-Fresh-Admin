@@ -1,24 +1,43 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { LOGIN, UNAUTHORIZED } from './routes/commonRoutes';
+import api from './axios';
 
 const ProtectedRoute = ({ role, children }) => {
-  const token = localStorage.getItem('auth_token');
-  const userRole = localStorage.getItem('role');
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
 
-  if (!token) {
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const res = await api.get('/user');
+        setUser(res.data);
+      } catch (err) {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+
+  // Not authenticated
+  if (!user) {
     return <Navigate to={LOGIN} replace />;
   }
 
+  // Check role if provided
   if (role) {
     const allowedRoles = Array.isArray(role) ? role : [role];
-    if (!allowedRoles.includes(userRole)) {
+    if (!allowedRoles.includes(user.role)) {
       return <Navigate to={UNAUTHORIZED} replace />;
     }
   }
 
-  // Everything is good, allow access
   return children;
 };
 
-export default ProtectedRoute
+export default ProtectedRoute;

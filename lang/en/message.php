@@ -237,6 +237,10 @@ return [
     "name" => "Name",
     "price" => "Price",
     "add" => "Add",
+    "surname" => "Surname",
+    "first_name" => "First Name",
+    "last_name" => "Last Name",
+    "select_status" => "Select Status",
 
     // ACTION BUTTONS
     "create_go_back" => "Create & Go Back",
@@ -248,5 +252,6 @@ return [
     "selection_summary" => "Selection Summary",
     "role_name" => "Role Name",
     "assign_permissions" => "Assign Permissions",
+    "allow_login" => "Allow login",
 
 ];

@@ -30,7 +30,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { BUSINESS_LIST_PATH, SUPERADMIN_DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { BUSINESS_LIST_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { GET_ALL_PLANS, GET_CURRENCIES, GET_TIMEZONES, STORE_BUSINESS } from "../../../routes/apiRoutes";
 
 const BusinessCreate = () => {
@@ -120,7 +120,7 @@ const BusinessCreate = () => {
                         <BreadcrumbItem>
                             <BreadcrumbLink
                                 as={ReactRouterLink}
-                                to={SUPERADMIN_DASHBOARD_PATH}
+                                to={DASHBOARD_PATH}
                             >
                                 {t("dashboard")}
                             </BreadcrumbLink>

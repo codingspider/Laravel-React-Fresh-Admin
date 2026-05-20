@@ -14,7 +14,15 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'check_active_business' => \App\Http\Middleware\CheckBusinessIsActive::class,
+            'cookie.filter' => \App\Http\Middleware\CookieFilter::class,
         ]);
+
+        $middleware->priority([
+            \App\Http\Middleware\CookieFilter::class,
+            \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        ]);
+
+        $middleware->statefulApi();
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

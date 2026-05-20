@@ -21,7 +21,7 @@ import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
-import { ROLE_ADD_PATH, ROLE_EDIT_PATH, SUPERADMIN_DASHBOARD_PATH} from './../../../routes/superAdminRoutes';
+import { ROLE_ADD_PATH, ROLE_EDIT_PATH, DASHBOARD_PATH} from './../../../routes/superAdminRoutes';
 import { DELETE_ROLE, LIST_ROLE } from "../../../routes/apiRoutes";
 
 export default function List() {
@@ -149,7 +149,7 @@ export default function List() {
                         <BreadcrumbItem>
                             <BreadcrumbLink
                                 as={ReactRouterLink}
-                                to={SUPERADMIN_DASHBOARD_PATH}
+                                to={DASHBOARD_PATH}
                             >
                                 {t("dashboard")}
                             </BreadcrumbLink>

@@ -42,15 +42,11 @@ function ProfileMenu() {
     // logout function
     const handleLogout = async () => {
         try {
-            const res = await api.post("/superadmin/logout");
-
-            // frontend cleanup
-            localStorage.removeItem("role");
-            localStorage.removeItem("auth_token");
-
-            navigate(LOGIN, { replace: true });
-        } catch (error) {
+            await api.post("/logout");
+        } catch (err) {
             console.log("Logout failed, clearing frontend anyway");
+        } finally {
+            navigate(LOGIN, { replace: true });
         }
     };
 

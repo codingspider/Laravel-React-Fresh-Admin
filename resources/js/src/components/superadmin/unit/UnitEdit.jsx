@@ -24,7 +24,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { SUPERADMIN_DASHBOARD_PATH, UNIT_LIST_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH, UNIT_LIST_PATH } from "../../../routes/superAdminRoutes";
 import { GET_EDIT_UNIT, UPDATE_UNIT } from "../../../routes/apiRoutes";
 
 const UnitEdit = () => {
@@ -118,7 +118,7 @@ const UnitEdit = () => {
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
-                                    to={SUPERADMIN_DASHBOARD_PATH}
+                                    to={DASHBOARD_PATH}
                                     fontWeight="medium"
                                     _hover={{ color: "teal.500" }}
                                 >

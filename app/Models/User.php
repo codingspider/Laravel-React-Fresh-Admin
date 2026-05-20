@@ -23,7 +23,7 @@ class User extends Authenticatable
      * @var list<string>
      */
 
-    protected $guard_name = 'sanctum';
+    protected $guard_name = 'web';
     
     protected $guarded = ['id'];
 

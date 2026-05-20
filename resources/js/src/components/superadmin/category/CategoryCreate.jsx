@@ -23,7 +23,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { CATEGORY_LIST_PATH, SUPERADMIN_DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { CATEGORY_LIST_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { STORE_CATEGORY } from "../../../routes/apiRoutes";
 
 const CategoryCreate = () => {
@@ -103,7 +103,7 @@ const CategoryCreate = () => {
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
-                                    to={SUPERADMIN_DASHBOARD_PATH}
+                                    to={DASHBOARD_PATH}
                                     fontWeight="medium"
                                     _hover={{ color: "teal.500" }}
                                 >

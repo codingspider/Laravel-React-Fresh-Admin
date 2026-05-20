@@ -9,7 +9,7 @@ import ErrorPage from "./components/pages/ErrorPage";
 import Register from "./components/auth/Register";
 import Dashboard from "./components/dashboard/Dashboard";
 import { superAdminRoutes } from "./routes/superAdminRoutes";
-import { SUPER_ADMIN_BASE, LOGIN, ROOT, UNAUTHORIZED, FORGOT, RESET_PASSWORD, ADMIN_BASE, REGISTER, DASHBOARD } from "./routes/commonRoutes";
+import { SUPER_ADMIN_BASE, LOGIN, ROOT, UNAUTHORIZED, FORGOT, RESET_PASSWORD, ADMIN_BASE, REGISTER } from "./routes/commonRoutes";
 import { adminRoutes } from "./routes/adminRoutes";
 import ProtectedRoute from "./ProtectedRoute";
 
@@ -20,28 +20,16 @@ const router = createBrowserRouter([
   { path: UNAUTHORIZED, element: <Unauthorized /> },
   { path: FORGOT, element: <Forgot /> },
   { path: RESET_PASSWORD, element: <ResetPassword /> },
-  { path: DASHBOARD, element: <Dashboard /> },
 
   // SUPER ADMIN ROUTES
   {
-    path: SUPER_ADMIN_BASE,
+    path: "/",
     element: (
-      <ProtectedRoute role="superadmin">
-        <MainLayout />
-      </ProtectedRoute>
+      <MainLayout />
     ),
     errorElement: <ErrorPage />,
     children: superAdminRoutes,
-  },
-
-
-  // Admin Routes 
-  {
-    path: ADMIN_BASE,
-    element: <MainLayout />,
-    errorElement: <ErrorPage />,
-    children: adminRoutes,
-  },
+  }
 ]);
 
 export default router;

@@ -30,7 +30,7 @@ class RoleController extends BaseController
     public function getAllRole(Request $request)
     {
         try {
-            $roles = Role::all();
+            $roles = Role::where('business_id', user_business_id())->get();
             return $this->sendResponse($roles, 'Role retrieved successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Server Error: '.$e->getMessage());
@@ -76,7 +76,7 @@ class RoleController extends BaseController
             $role = new role();
             $role->name = $request->name;
             $role->business_id = user_business_id();
-            $role->guard_name = 'sanctum';
+            $role->guard_name = 'web';
             $role->is_default = 0;
             $role->is_service_staff = 0;
             $role->save();
@@ -85,7 +85,7 @@ class RoleController extends BaseController
             $permissions = [];
 
             foreach ($request->permissions as $perm) {
-                $permissions[] = Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'sanctum']);
+                $permissions[] = Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
             }
 
             // Assign permissions to role

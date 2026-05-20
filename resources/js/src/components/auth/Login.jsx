@@ -1,5 +1,5 @@
-import {React, useState, useEffect} from 'react';
-'use client'
+import React, { useState, useEffect } from 'react';
+'use client';
 import {
   Flex,
   Box,
@@ -10,23 +10,20 @@ import {
   Stack,
   Button,
   Heading,
-  Text,
   useColorModeValue,
   InputRightElement,
   InputGroup,
   useToast,
-  VStack,
   HStack,
-
 } from '@chakra-ui/react';
-
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { Link as ChakraLink } from '@chakra-ui/react';
-import { loginUser } from '../../services/authService';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import { ADMIN_BASE, DASHBOARD, FORGOT, REGISTER, STAFF_BASE, SUPER_ADMIN_BASE, USER_BASE } from '../../routes/commonRoutes';
+import { FORGOT, REGISTER } from '../../routes/commonRoutes';
 import { usePermission } from '../../context/PermissionContext';
+import api from '../../axios';
+import { DASHBOARD_PATH } from './../../routes/superAdminRoutes';
 
 export default function Login() {
   const [show, setShow] = useState(false);
@@ -35,136 +32,126 @@ export default function Login() {
   const navigate = useNavigate();
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setUserPermission } = usePermission();
+  const [checkedAuth, setCheckedAuth] = useState(false);
 
-  const {setUserPermission} = usePermission();
-
+  // Check if user is already logged in
   useEffect(() => {
-      const storedToken = localStorage.getItem('auth_token');
-      const role = localStorage.getItem('role');
-      if (storedToken && role === 'superadmin') {
-          navigate(`${SUPER_ADMIN_BASE}/${DASHBOARD}`);
-      } else if (storedToken && role === 'admin') {
-          navigate(`${ADMIN_BASE}/${DASHBOARD}`);
-      } else if (storedToken && role === 'user') {
-          navigate(`${USER_BASE}/${DASHBOARD}`);
-      } else if (storedToken && role === 'staff') {
-          navigate(`${STAFF_BASE}/${DASHBOARD}`);
-      }
+    const fetchUser = async () => {
+      try {
+        await api.get("/sanctum/csrf-cookie");
+        const res = await api.get('/user');
 
-  }, [navigate]);
-
-  const onSubmit = async (data) => {
-        setIsSubmitting(true);
-        const { login, password } = data;
-        try {
-            const res = await loginUser(login, password);
-            localStorage.setItem('auth_token', res.data.token);
-            localStorage.setItem('role', res.data.role);
-            localStorage.setItem('map_api_key', "AIzaSyDjb20izAR-trpI_UePYVNMeZkIOn1q6Ws");
-            toast({
-                position: 'bottom-right',
-                title: 'Login successful!',
-                status: 'success',
-                duration: 3000,
-                isClosable: true,
-            });
-
-            setUserPermission(res.data);
-
-            if (res.data.token && res.data.role === 'superadmin') {
-                navigate(`${SUPER_ADMIN_BASE}/${DASHBOARD}`);
-            } else if (res.data.token && res.data.role === 'admin') {
-                navigate(`${ADMIN_BASE}/${DASHBOARD}`);
-            } else if (res.data.token && res.data.role === 'user') {
-                navigate(`${USER_BASE}/${DASHBOARD}`);
-            } else if (res.data.token && res.data.role === 'staff') {
-                navigate(`${STAFF_BASE}/${DASHBOARD}`);
-            }
-        } catch (err) {
-            const errorMessage =
-                err?.response?.data?.message || err.message || 'Something went wrong';
-            toast({
-                position: 'bottom-right',
-                title: 'Login failed',
-                description: errorMessage,
-                status: 'error',
-                duration: 3000,
-                isClosable: true,
-            });
-        } finally {
-            setIsSubmitting(false);
+        if (res.data) {
+          navigate(DASHBOARD_PATH, { replace: true });
         }
+      } catch (err) {
+        console.log('not logged in');
+      } finally {
+        setCheckedAuth(true);
+      }
     };
 
-  return (
-    <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
-      bg={useColorModeValue('teal.50', 'teal.800')}>
-      <Stack spacing={8} mx={'auto'} maxW={'lg'} py={12} px={6}>
-        <Stack align={'center'}>
-          <Heading fontSize={'4xl'}>Sign in to your account</Heading>
-        </Stack>
-        <form onSubmit={handleSubmit(onSubmit)}>
-        <Box
-          rounded={'lg'}
-          bg={useColorModeValue('white', 'gray.700')}
-          boxShadow={'lg'}
-          p={8}>
-          <Stack spacing={4}>
-            <FormControl id="email">
-              <FormLabel>Email or Username </FormLabel>
-              <Input type="text" {...register("login", { required: true })} />
-            </FormControl>
-            <FormControl id="password">
-              <FormLabel>Password</FormLabel>
-              <InputGroup size='md'>
-                <Input
-                  {...register("password", { required: true })}
-                  pr='4.5rem'
-                  type={show ? 'text' : 'password'}
-                  placeholder='Enter password'
-                />
-                <InputRightElement width='4.5rem'>
-                  <Button h='1.75rem' size='sm' onClick={handleClick}>
-                    {show ? 'Hide' : 'Show'}
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-            </FormControl>
-            <Stack spacing={10}>
-              <Stack
-                direction={{ base: 'column', sm: 'row' }}
-                align={'start'}
-                justify={'space-between'}>
-                <Checkbox {...register("remember")}>Remember me</Checkbox>
-                <ChakraLink  color='teal.500' as={ReactRouterLink} to={FORGOT}>
-                  Forgot password?
-                </ChakraLink>
-              </Stack>
-              <Button
-                    isLoading={isSubmitting}
-                    loadingText="Signing in"
-                    type="submit"
-                    colorScheme="blue"
-                    variant="solid"
-                >
-                    Sign in
-              </Button>
-            </Stack>
-          </Stack>
+    fetchUser();
+  }, []);
 
-          <HStack align={'center'} mt={'2'}>
-            <Heading fontSize={'sm'}>Dont have account ? </Heading>
-              <ChakraLink  color='teal.500' as={ReactRouterLink} to={REGISTER}>
+  const onSubmit = async (data) => {
+    setIsSubmitting(true);
+    try {
+
+      const res = await api.post('/login', {
+        login: data.login,
+        password: data.password,
+      });
+
+      console.log(res.data);
+
+      toast({
+        position: 'bottom-right',
+        title: 'Login successful!',
+        status: 'success',
+        duration: 3000,
+        isClosable: true,
+      });
+
+      // Redirect all users to dashboard
+      navigate(DASHBOARD_PATH);
+    } catch (err) {
+      const errorMessage = err?.response?.data?.message || err.message || 'Something went wrong';
+      toast({
+        position: 'bottom-right',
+        title: 'Login failed',
+        description: errorMessage,
+        status: 'error',
+        duration: 3000,
+        isClosable: true,
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Flex minH="100vh" align="center" justify="center" bg={useColorModeValue('teal.50', 'teal.800')}>
+      <Stack spacing={8} mx="auto" maxW="lg" py={12} px={6}>
+        <Stack align="center">
+          <Heading fontSize="4xl">Sign in to your account</Heading>
+        </Stack>
+
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <Box rounded="lg" bg={useColorModeValue('white', 'gray.700')} boxShadow="lg" p={8}>
+            <Stack spacing={4}>
+              <FormControl id="login">
+                <FormLabel>Email or Username</FormLabel>
+                <Input type="text" {...register('login', { required: true })} />
+              </FormControl>
+
+              <FormControl id="password">
+                <FormLabel>Password</FormLabel>
+                <InputGroup size="md">
+                  <Input
+                    {...register('password', { required: true })}
+                    pr="4.5rem"
+                    type={show ? 'text' : 'password'}
+                    placeholder="Enter password"
+                  />
+                  <InputRightElement width="4.5rem">
+                    <Button h="1.75rem" size="sm" onClick={handleClick}>
+                      {show ? 'Hide' : 'Show'}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
+              </FormControl>
+
+              <Stack spacing={10}>
+                <Stack direction={{ base: 'column', sm: 'row' }} align="start" justify="space-between">
+                  <Checkbox {...register('remember')}>Remember me</Checkbox>
+                  <ChakraLink color="teal.500" as={ReactRouterLink} to={FORGOT}>
+                    Forgot password?
+                  </ChakraLink>
+                </Stack>
+
+                <Button
+                  isLoading={isSubmitting}
+                  loadingText="Signing in"
+                  type="submit"
+                  colorScheme="blue"
+                  variant="solid"
+                >
+                  Sign in
+                </Button>
+              </Stack>
+            </Stack>
+
+            <HStack align="center" mt={2}>
+              <Heading fontSize="sm">Don't have an account?</Heading>
+              <ChakraLink color="teal.500" as={ReactRouterLink} to={REGISTER}>
                 Sign up
               </ChakraLink>
-          </HStack>
-        </Box>
+            </HStack>
+          </Box>
         </form>
-        
       </Stack>
     </Flex>
-  )
+  );
 }

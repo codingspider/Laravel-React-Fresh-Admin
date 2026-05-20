@@ -31,7 +31,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { SUPERADMIN_DASHBOARD_PATH, ROLE_LIST_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH, ROLE_LIST_PATH } from "../../../routes/superAdminRoutes";
 import { STORE_ROLE } from "../../../routes/apiRoutes";
 
 const Create = () => {
@@ -239,13 +239,13 @@ const Create = () => {
             <Box mx="auto">
                 
                 {/* Modern Breadcrumb */}
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
-                    <CardBody py={3}>
+                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">       
+                <CardBody py={3}>
                         <Breadcrumb fontSize="sm" color="gray.500">
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
-                                    to={SUPERADMIN_DASHBOARD_PATH}
+                                    to={DASHBOARD_PATH}
                                     fontWeight="medium"
                                     _hover={{ color: "teal.500" }}
                                 >

@@ -22,7 +22,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
 import { DELETE_UNIT, LIST_UNIT } from './../../../routes/apiRoutes';
-import { SUPERADMIN_DASHBOARD_PATH, UNIT_ADD_PATH, UNIT_EDIT_PATH } from './../../../routes/superAdminRoutes';
+import { DASHBOARD_PATH, UNIT_ADD_PATH, UNIT_EDIT_PATH } from './../../../routes/superAdminRoutes';
 
 export default function UnitList() {
     const [globalFilter, setGlobalFilter] = useState("");
@@ -149,7 +149,7 @@ export default function UnitList() {
                         <BreadcrumbItem>
                             <BreadcrumbLink
                                 as={ReactRouterLink}
-                                to={SUPERADMIN_DASHBOARD_PATH}
+                                to={DASHBOARD_PATH}
                             >
                                 {t("dashboard")}
                             </BreadcrumbLink>

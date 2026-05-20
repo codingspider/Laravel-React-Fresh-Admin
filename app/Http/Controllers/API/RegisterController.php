@@ -167,31 +167,48 @@ class RegisterController extends BaseController
      */
     public function login(Request $request)
     {
+        $request->validate([
+            'login' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
         $login_type = filter_var($request->login, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
         $credentials = [
             $login_type => $request->login,
             'password' => $request->password,
         ];
 
-        if (Auth::attempt($credentials, $request->filled('remember'))) {
-            $user = Auth::user(); 
-            if($user->allow_login != 1){
-                Auth::logout();
-                return $this->sendError('Account is disabled.');
-            }
-            $success['token'] =  $user->createToken('MyApp')->plainTextToken; 
-            $success['name'] =  $user->name;
-            $success['role'] =  $user->role;
-            $success['permissions'] = $user->getAllPermissions()->pluck('name');
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
 
-            $user->last_login_at = now();
-            $user->save();
-   
-            return $this->sendResponse($success, 'User login successfully.');
-        } 
-        else{ 
-            return $this->sendError('These credentials do not match our records.');
-        } 
+            if ($user->allow_login != 1) {
+                Auth::logout();
+                return response()->json(['message' => 'Account is disabled.'], 403);
+            }
+
+            // Regenerate session for security
+            $token = $user->createToken('react_token')->plainTextToken;
+
+            $cookie = cookie(
+                'access_token',
+                $token,
+                60,
+                '/',
+                null,
+                false,
+                true,
+                false,
+                'lax'
+            );
+
+            return response()->json([
+                'name' => $user->first_name . ' ' . $user->last_name,
+                'role' => $user->role,
+                'permissions' => $user->getAllPermissions()->pluck('name'),
+            ])->cookie($cookie);
+        }
+
+        return response()->json(['message' => 'These credentials do not match our records.'], 401);
     }
     
     public function forgotPassword(Request $request)

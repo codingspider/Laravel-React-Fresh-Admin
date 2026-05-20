@@ -11,12 +11,12 @@ import {
     ChevronsLeft, ChevronRight,
     Package
 } from 'lucide-react';
-import { CATEGORY_LIST_PATH, ROLE_LIST_PATH, SUPERADMIN_DASHBOARD_PATH, UNIT_LIST_PATH, USER_LIST_PATH } from '../../routes/superAdminRoutes';
+import { CATEGORY_LIST_PATH, ROLE_LIST_PATH, DASHBOARD_PATH, UNIT_LIST_PATH, USER_LIST_PATH } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
 const navItems = [
     { 
-        path: SUPERADMIN_DASHBOARD_PATH, 
+        path: DASHBOARD_PATH, 
         icon: LayoutDashboard,
         label: 'Admin Dashboard',
         permission: 'view_dashboard_data' 
@@ -62,8 +62,8 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
     };
 
     const renderNavItem = (item, isMobile = false) => {
+
         // 🔒 3. SECURITY CHECK: Simple Item
-        // If item has a permission and user doesn't have it, return null immediately
         if (item.permission && !can(item.permission)) {
             return null;
         }
@@ -76,7 +76,6 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
         if (!isMobile && isCollapsed) {
             if (hasChildren) {
                 // 🔒 4. SECURITY CHECK: Parent Item (Collapsed)
-                // Even if collapsed, don't show the icon if they can't access ANY children
                 const hasAccessToChildren = item.children.some(child => !child.permission || can(child.permission));
                 if (!hasAccessToChildren) return null;
 
@@ -102,7 +101,6 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
         // Expanded / Mobile View
         if (hasChildren) {
             // 🔒 5. SECURITY CHECK: Filter Children
-            // Create a new list of children containing only those the user is allowed to see
             const visibleChildren = item.children.filter(child => !child.permission || can(child.permission));
 
             // If NO children are visible, hide the entire parent menu

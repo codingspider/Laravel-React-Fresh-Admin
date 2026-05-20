@@ -18,7 +18,7 @@ import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import Swal from "sweetalert2";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { BUSINESS_ADD_PATH, SUPERADMIN_DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { BUSINESS_ADD_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import TanStackTable from "../../../TanStackTable";
 import { LIST_BUSINESS } from "../../../routes/apiRoutes";
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
@@ -155,7 +155,7 @@ export default function BusinessList() {
                         <BreadcrumbItem>
                             <BreadcrumbLink
                                 as={ReactRouterLink}
-                                to={SUPERADMIN_DASHBOARD_PATH}
+                                to={DASHBOARD_PATH}
                             >
                                 {t("dashboard")}
                             </BreadcrumbLink>

@@ -24,94 +24,65 @@ import UnitEdit from "../components/superadmin/unit/UnitEdit";
 import RoleList from "../components/superadmin/permission/List";
 import RoleCreat from "../components/superadmin/permission/Create";
 import RoleEdit from "../components/superadmin/permission/Edit";
+import Profile from './../components/user/Profile';
 
-import { DASHBOARD, SUPER_ADMIN_BASE } from "./commonRoutes";
+export const DASHBOARD_PATH = `/dashboard`;
 
+export const USER_LIST_PATH = "/user/list";
+export const USER_ADD_PATH = "/user/create";
+export const USER_EDIT = "/user/edit/:id";
 
-export const SUPERADMIN_DASHBOARD_PATH = `${SUPER_ADMIN_BASE}/dashboard`;
+export const PLAN_LIST_PATH = "/plan/list";
+export const PLAN_ADD_PATH = "/plan/create";
+export const PLAN_EDIT_PATH = "/plan/edit/:id";
 
-export const USER_LIST = "user/list";
-export const USER_ADD = "user/create";
-export const USER_EDIT = "user/edit/:id";
+export const BUSINESS_LIST_PATH = "/business/list";
+export const BUSINESS_ADD_PATH = "/business/create";
+export const BUSINESS_EDIT_PATH = "/business/edit/:id";
 
-export const USER_LIST_PATH = `${SUPER_ADMIN_BASE}/user/list`;
-export const USER_ADD_PATH = `${SUPER_ADMIN_BASE}/user/create`;
-export const USER_EDIT_PATH = (id) => `${SUPER_ADMIN_BASE}/user/edit/${id}`;
+export const CATEGORY_LIST_PATH = "/category/list";
+export const CATEGORY_ADD_PATH = "/category/create";
+export const CATEGORY_EDIT_PATH = "/category/edit/:id";
 
-export const PLAN_LIST = "plan/list";
-export const PLAN_ADD = "plan/create";
-export const PLAN_EDIT = "plan/edit/:id";
+export const UNIT_LIST_PATH = "/unit/list";
+export const UNIT_ADD_PATH = "/unit/create";
+export const UNIT_EDIT_PATH = "/unit/edit/:id";
 
-export const PLAN_LIST_PATH = `${SUPER_ADMIN_BASE}/plan/list`;
-export const PLAN_ADD_PATH = `${SUPER_ADMIN_BASE}/plan/create`;
-export const PLAN_EDIT_PATH = (id) => `${SUPER_ADMIN_BASE}/plan/edit/${id}`;
+export const ROLE_LIST_PATH = "/role/list";
+export const ROLE_ADD_PATH = "/role/create";
+export const ROLE_EDIT_PATH = "/role/edit/:id";
 
-export const CATEGORIES = '/get/categories';
-export const STORE_CATEGORY = `${SUPER_ADMIN_BASE}/categories`;
-export const LIST_CATEGORY = `${SUPER_ADMIN_BASE}/categories`;
-export const DELETE_CATEGORY = (id) => `${SUPER_ADMIN_BASE}/categories/${id}`;
-export const UPDATE_CATEGORY = (id) => `${SUPER_ADMIN_BASE}/categories/${id}`;
-export const GET_EDIT_CATEGORY = (id) => `${SUPER_ADMIN_BASE}/categories/${id}`;
-
-export const BUSINESS_LIST = "business/list";
-export const BUSINESS_ADD = "business/create";
-export const BUSINESS_EDIT = "business/edit/:id";
-
-export const BUSINESS_LIST_PATH = `${SUPER_ADMIN_BASE}/business/list`;
-export const BUSINESS_ADD_PATH = `${SUPER_ADMIN_BASE}/business/create`;
-export const BUSINESS_EDIT_PATH = (id) => `${SUPER_ADMIN_BASE}/business/edit/${id}`;
-
-export const CATEGORY_LIST = "category/list";
-export const CATEGORY_ADD = "category/create";
-export const CATEGORY_EDIT = "category/edit/:id";
-
-export const CATEGORY_LIST_PATH = `${SUPER_ADMIN_BASE}/category/list`;
-export const CATEGORY_ADD_PATH = `${SUPER_ADMIN_BASE}/category/create`;
-export const CATEGORY_EDIT_PATH = (id) => `${SUPER_ADMIN_BASE}/category/edit/${id}`;
-
-
-export const UNIT_LIST = "unit/list";
-export const UNIT_ADD = "unit/create";
-export const UNIT_EDIT = "unit/edit/:id";
-
-export const UNIT_LIST_PATH = `${SUPER_ADMIN_BASE}/unit/list`;
-export const UNIT_ADD_PATH = `${SUPER_ADMIN_BASE}/unit/create`;
-export const UNIT_EDIT_PATH = (id) => `${SUPER_ADMIN_BASE}/unit/edit/${id}`;
-
-export const ROLE_LIST = "role/list";
-export const ROLE_ADD = "role/create";
-export const ROLE_EDIT = "role/edit/:id";
-
-export const ROLE_LIST_PATH = `${SUPER_ADMIN_BASE}/role/list`;
-export const ROLE_ADD_PATH = `${SUPER_ADMIN_BASE}/role/create`;
-export const ROLE_EDIT_PATH = (id) => `${SUPER_ADMIN_BASE}/role/edit/${id}`;
+export const PROFILE = "/profile";
 
 export const superAdminRoutes = [
-    { path: SUPERADMIN_DASHBOARD_PATH, element: <ProtectedRoute role="superadmin"><Dashboard /></ProtectedRoute> },
-    { path: "settings", element: <ProtectedRoute role="superadmin"><MasterSetting /></ProtectedRoute> },
-    { path: "save/order", element: <ProtectedRoute role="superadmin"><SaveOrder /></ProtectedRoute> },
+    { path: DASHBOARD_PATH, element: <Dashboard /> },
+    { path: `/settings`, element: <MasterSetting /> },
+    { path: `/save/order`, element: <SaveOrder /> },
 
-    { path: USER_LIST_PATH, element: <ProtectedRoute role="superadmin"><UserList /></ProtectedRoute> },
-    { path: USER_ADD_PATH, element: <ProtectedRoute role="superadmin"><UserCreate /></ProtectedRoute> },
+    { path: USER_LIST_PATH, element: <UserList /> },
+    { path: USER_ADD_PATH, element: <UserCreate /> },
 
-    { path: PLAN_LIST_PATH, element: <ProtectedRoute role="superadmin"><PlanList /></ProtectedRoute> },
-    { path: PLAN_ADD_PATH, element: <ProtectedRoute role="superadmin"><PlanCreate /></ProtectedRoute> },
-    { path: PLAN_EDIT, element: <ProtectedRoute role="superadmin"><PlanEdit /></ProtectedRoute> },
-    
-    
-    { path: BUSINESS_LIST_PATH, element: <ProtectedRoute role="superadmin"><BusinessList /></ProtectedRoute> },
-    { path: BUSINESS_ADD_PATH, element: <ProtectedRoute role="superadmin"><BusinessCreate /></ProtectedRoute> },
-    { path: BUSINESS_EDIT, element: <ProtectedRoute role="superadmin"><BusinessEdit /></ProtectedRoute> },
+    { path: PLAN_LIST_PATH, element: <PlanList /> },
+    { path: PLAN_ADD_PATH, element: <PlanCreate /> },
+    { path: PLAN_EDIT_PATH, element: <PlanEdit /> },
 
-    { path: CATEGORY_LIST_PATH, element: <ProtectedRoute role="superadmin"><CategoryList /></ProtectedRoute> },
-    { path: CATEGORY_ADD_PATH, element: <ProtectedRoute role="superadmin"><CategoryCreate /></ProtectedRoute> },
-    { path: CATEGORY_EDIT, element: <ProtectedRoute role="superadmin"><CategoryEdit /></ProtectedRoute> },
+    { path: BUSINESS_LIST_PATH, element: <BusinessList /> },
+    { path: BUSINESS_ADD_PATH, element: <BusinessCreate /> },
+    { path: BUSINESS_EDIT_PATH, element: <BusinessEdit /> },
+
+    { path: CATEGORY_LIST_PATH, element: <CategoryList /> },
+    { path: CATEGORY_ADD_PATH, element: <CategoryCreate /> },
+    { path: CATEGORY_EDIT_PATH, element: <CategoryEdit /> },
+
+    { path: UNIT_LIST_PATH, element: <UnitList /> },
+    { path: UNIT_ADD_PATH, element: <UnitCreate /> },
+    { path: UNIT_EDIT_PATH, element: <UnitEdit /> },
+
+    { path: ROLE_LIST_PATH, element: <RoleList /> },
+    { path: ROLE_ADD_PATH, element: <RoleCreat /> },
+    { path: ROLE_EDIT_PATH, element: <RoleEdit /> },
     
-    { path: UNIT_LIST_PATH, element: <ProtectedRoute role="superadmin"><UnitList /></ProtectedRoute> },
-    { path: UNIT_ADD_PATH, element: <ProtectedRoute role="superadmin"><UnitCreate /></ProtectedRoute> },
-    { path: UNIT_EDIT, element: <ProtectedRoute role="superadmin"><UnitEdit /></ProtectedRoute> },
- 
-    { path: ROLE_LIST_PATH, element: <ProtectedRoute role="superadmin"><RoleList /></ProtectedRoute> },
-    { path: ROLE_ADD_PATH, element: <ProtectedRoute role="superadmin"><RoleCreat /></ProtectedRoute> },
-    { path: ROLE_EDIT, element: <ProtectedRoute role="superadmin"><RoleEdit /></ProtectedRoute> },
+    { path: PROFILE, element: <Profile /> },
+
+
 ];

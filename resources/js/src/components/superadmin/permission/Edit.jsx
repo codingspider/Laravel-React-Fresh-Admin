@@ -25,7 +25,7 @@ import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams, Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { SUPERADMIN_DASHBOARD_PATH, ROLE_LIST_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH, ROLE_LIST_PATH } from "../../../routes/superAdminRoutes";
 import { GET_EDIT_ROLE, STORE_ROLE, UPDATE_ROLE } from "../../../routes/apiRoutes";
 import { useTranslation } from "react-i18next";
 
@@ -248,7 +248,7 @@ const Edit = () => {
                         <BreadcrumbItem>
                             <BreadcrumbLink
                                 as={ReactRouterLink}
-                                to={SUPERADMIN_DASHBOARD_PATH}
+                                to={DASHBOARD_PATH}
                                 fontWeight="medium"
                                 _hover={{ color: "teal.500" }}
                             >

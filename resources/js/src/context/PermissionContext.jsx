@@ -10,30 +10,21 @@ export const PermissionProvider = ({ children }) => {
 
     // Helper to check permission
     const can = (permissionName) => {
+        console.log(permissionName);
         return permissions.includes(permissionName);
     };
 
-    // 1. Fetch permissions on Mount (Page Reload)
+    // 1. Fetch permissions on Mount
     useEffect(() => {
         const fetchUser = async () => {
-            const token = localStorage.getItem('auth_token');
-            
-            if (token) {
-                try {
-                    // Configure axios header if not global
-                    const response = await api.get('/me');
-                    
-                    // Update state with fresh data from server
-                    setPermissions(response.data.permissions || []);
-                    setIsAuthenticated(true);
-                } catch (error) {
-                    console.error("Session expired or invalid token");
-                    logout();
-                }
-            } else {
-                setIsAuthenticated(false);
+            try {
+                const response = await api.get('/user');
+                setPermissions(response.data.permissions || []);
+                setIsAuthenticated(true);
+            } catch (error) {
+                console.error("Session expired or invalid token");
             }
-            setLoading(false); // Stop loading whether success or fail
+            setLoading(false);
         };
 
         fetchUser();
@@ -50,7 +41,6 @@ export const PermissionProvider = ({ children }) => {
     const logout = () => {
         setPermissions([]);
         setIsAuthenticated(false);
-        localStorage.removeItem('auth_token');
         localStorage.removeItem('role');
         window.location.href = '/login';
     };

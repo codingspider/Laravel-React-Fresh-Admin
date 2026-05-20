@@ -22,7 +22,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
 import { DELETE_CATEGORY, LIST_CATEGORY } from "../../../routes/apiRoutes";
-import { CATEGORY_ADD_PATH, CATEGORY_EDIT_PATH, SUPERADMIN_DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { CATEGORY_ADD_PATH, CATEGORY_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 
 
 export default function CategoryList() {
@@ -163,7 +163,7 @@ export default function CategoryList() {
                         <BreadcrumbItem>
                             <BreadcrumbLink
                                 as={ReactRouterLink}
-                                to={SUPERADMIN_DASHBOARD_PATH}
+                                to={DASHBOARD_PATH}
                             >
                                 {t("dashboard")}
                             </BreadcrumbLink>
