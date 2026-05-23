@@ -11,7 +11,7 @@ import {
     ChevronsLeft, ChevronRight,
     Package
 } from 'lucide-react';
-import { CATEGORY_LIST_PATH, ROLE_LIST_PATH, DASHBOARD_PATH, UNIT_LIST_PATH, USER_LIST_PATH } from '../../routes/superAdminRoutes';
+import { CATEGORY_LIST_PATH, ROLE_LIST_PATH, DASHBOARD_PATH, UNIT_LIST_PATH, USER_LIST_PATH, PRODUCT_LIST_PATH } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
 const navItems = [
@@ -34,7 +34,7 @@ const navItems = [
         icon: Package, 
         label: 'Product Management',
         children: [
-            { path: '/products', label: 'Products', permission: 'view_product' },
+            { path: PRODUCT_LIST_PATH, label: 'Products', permission: 'view_product' },
             { path: CATEGORY_LIST_PATH, label: 'Category', permission: 'view_category' },
             { path: UNIT_LIST_PATH, label: 'Unit', permission: 'view_unit' }
         ]

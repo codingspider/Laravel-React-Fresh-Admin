@@ -2,8 +2,10 @@ import ProtectedRoute from "../ProtectedRoute";
 import Dashboard from "../components/superadmin/Dashboard";
 import MasterSetting from "../components/superadmin/MasterSetting";
 import SaveOrder from "../components/order/SaveOrder";
+
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
+import UserEdit from './../components/user/UserEdit';
 
 import PlanList from "../components/superadmin/plan/PlanList";
 import PlanCreate from "../components/superadmin/plan/PlanCreate";
@@ -22,15 +24,19 @@ import UnitCreate from "../components/superadmin/unit/UnitCreate";
 import UnitEdit from "../components/superadmin/unit/UnitEdit";
 
 import RoleList from "../components/superadmin/permission/List";
-import RoleCreat from "../components/superadmin/permission/Create";
+import RoleCreate from "../components/superadmin/permission/Create";
 import RoleEdit from "../components/superadmin/permission/Edit";
 import Profile from './../components/user/Profile';
+import ProductList from "../components/admin/product/ProductList";
+import ProductCreate from "../components/admin/product/ProductCreate";
+import ProductEdit from "../components/admin/product/ProductEdit";
+
 
 export const DASHBOARD_PATH = `/dashboard`;
 
 export const USER_LIST_PATH = "/user/list";
 export const USER_ADD_PATH = "/user/create";
-export const USER_EDIT = "/user/edit/:id";
+export const USER_EDIT_PATH = "/user/edit/:id";
 
 export const PLAN_LIST_PATH = "/plan/list";
 export const PLAN_ADD_PATH = "/plan/create";
@@ -42,15 +48,20 @@ export const BUSINESS_EDIT_PATH = "/business/edit/:id";
 
 export const CATEGORY_LIST_PATH = "/category/list";
 export const CATEGORY_ADD_PATH = "/category/create";
-export const CATEGORY_EDIT_PATH = "/category/edit/:id";
+export const CATEGORY_EDIT = "/category/edit/:id";
 
 export const UNIT_LIST_PATH = "/unit/list";
 export const UNIT_ADD_PATH = "/unit/create";
-export const UNIT_EDIT_PATH = "/unit/edit/:id";
+export const UNIT_EDIT = "/unit/edit/:id";
 
 export const ROLE_LIST_PATH = "/role/list";
 export const ROLE_ADD_PATH = "/role/create";
 export const ROLE_EDIT_PATH = "/role/edit/:id";
+
+export const PRODUCT_LIST_PATH = "/product/list";
+export const PRODUCT_ADD_PATH = "/product/create";
+export const PRODUCT_EDIT = "/product/edit/:id";
+export const PRODUCT_EDIT_PATH = (id) => `/product/edit/${id}`;
 
 export const PROFILE = "/profile";
 
@@ -61,6 +72,7 @@ export const superAdminRoutes = [
 
     { path: USER_LIST_PATH, element: <UserList /> },
     { path: USER_ADD_PATH, element: <UserCreate /> },
+    { path: USER_EDIT_PATH, element: <UserEdit /> },
 
     { path: PLAN_LIST_PATH, element: <PlanList /> },
     { path: PLAN_ADD_PATH, element: <PlanCreate /> },
@@ -72,15 +84,19 @@ export const superAdminRoutes = [
 
     { path: CATEGORY_LIST_PATH, element: <CategoryList /> },
     { path: CATEGORY_ADD_PATH, element: <CategoryCreate /> },
-    { path: CATEGORY_EDIT_PATH, element: <CategoryEdit /> },
+    { path: CATEGORY_EDIT, element: <CategoryEdit /> },
 
     { path: UNIT_LIST_PATH, element: <UnitList /> },
     { path: UNIT_ADD_PATH, element: <UnitCreate /> },
-    { path: UNIT_EDIT_PATH, element: <UnitEdit /> },
+    { path: UNIT_EDIT, element: <UnitEdit /> },
 
     { path: ROLE_LIST_PATH, element: <RoleList /> },
-    { path: ROLE_ADD_PATH, element: <RoleCreat /> },
+    { path: ROLE_ADD_PATH, element: <RoleCreate /> },
     { path: ROLE_EDIT_PATH, element: <RoleEdit /> },
+
+    { path: PRODUCT_LIST_PATH, element: <ProductList /> },
+    { path: PRODUCT_ADD_PATH, element: <ProductCreate /> },
+    { path: PRODUCT_EDIT, element: <ProductEdit /> },
     
     { path: PROFILE, element: <Profile /> },
 

@@ -53,6 +53,7 @@ export const STORE_ITEM = '/products';
 export const LIST_ITEM = '/products';
 export const DELETE_ITEM = (id) => `/products/${id}`;
 export const UPDATE_ITEM = (id) => `/products/${id}`;
+export const GET_EDIT_ITEM = (id) => `/products/${id}`;
 
 export const STORE_CATEGORY = '/categories';
 export const LIST_CATEGORY = '/categories';
@@ -77,3 +78,5 @@ export const LIST_USER = '/user-management';
 export const DELETE_USER = (id) => `/user-management/${id}`;
 export const UPDATE_USER = (id) => `/user-management/${id}`;
 export const GET_EDIT_USER = (id) => `/user-management/${id}`;
+
+export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";

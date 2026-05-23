@@ -1,11 +1,85 @@
-@import 'tailwindcss';
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+body.chakra-ui-dark .form-dark-surface,
+[data-theme='dark'] .form-dark-surface {
+    background: var(--chakra-colors-gray-900) !important;
+    color: var(--chakra-colors-gray-100);
+}
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+body.chakra-ui-dark .form-dark-surface .chakra-card,
+[data-theme='dark'] .form-dark-surface .chakra-card {
+    background: var(--chakra-colors-gray-800) !important;
+    border-color: var(--chakra-colors-gray-700) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface .chakra-card__header,
+[data-theme='dark'] .form-dark-surface .chakra-card__header {
+    background: var(--chakra-colors-gray-800) !important;
+    border-color: var(--chakra-colors-gray-700) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface .chakra-heading,
+body.chakra-ui-dark .form-dark-surface .chakra-form__label,
+body.chakra-ui-dark .form-dark-surface .chakra-breadcrumb__link,
+[data-theme='dark'] .form-dark-surface .chakra-heading,
+[data-theme='dark'] .form-dark-surface .chakra-form__label,
+[data-theme='dark'] .form-dark-surface .chakra-breadcrumb__link {
+    color: var(--chakra-colors-gray-100) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface .chakra-text,
+[data-theme='dark'] .form-dark-surface .chakra-text {
+    color: var(--chakra-colors-gray-300) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface input,
+body.chakra-ui-dark .form-dark-surface select,
+body.chakra-ui-dark .form-dark-surface textarea,
+[data-theme='dark'] .form-dark-surface input,
+[data-theme='dark'] .form-dark-surface select,
+[data-theme='dark'] .form-dark-surface textarea {
+    background: var(--chakra-colors-gray-900) !important;
+    border-color: var(--chakra-colors-gray-600) !important;
+    color: var(--chakra-colors-gray-100) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface input::placeholder,
+body.chakra-ui-dark .form-dark-surface textarea::placeholder,
+[data-theme='dark'] .form-dark-surface input::placeholder,
+[data-theme='dark'] .form-dark-surface textarea::placeholder {
+    color: var(--chakra-colors-gray-500) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface option,
+[data-theme='dark'] .form-dark-surface option {
+    background: var(--chakra-colors-gray-800);
+    color: var(--chakra-colors-gray-100);
+}
+
+body.chakra-ui-dark .form-dark-surface table,
+[data-theme='dark'] .form-dark-surface table {
+    color: var(--chakra-colors-gray-100);
+}
+
+body.chakra-ui-dark .form-dark-surface th,
+body.chakra-ui-dark .form-dark-surface td,
+[data-theme='dark'] .form-dark-surface th,
+[data-theme='dark'] .form-dark-surface td {
+    border-color: var(--chakra-colors-gray-700) !important;
+    color: var(--chakra-colors-gray-100) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface tbody tr:nth-of-type(odd),
+[data-theme='dark'] .form-dark-surface tbody tr:nth-of-type(odd) {
+    background: var(--chakra-colors-gray-900) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface tbody tr:nth-of-type(even),
+[data-theme='dark'] .form-dark-surface tbody tr:nth-of-type(even) {
+    background: var(--chakra-colors-gray-800) !important;
+}
+
+body.chakra-ui-dark .form-dark-surface a,
+[data-theme='dark'] .form-dark-surface a {
+    border-color: var(--chakra-colors-gray-600) !important;
+    color: var(--chakra-colors-gray-100);
 }

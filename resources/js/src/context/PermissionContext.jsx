@@ -10,7 +10,6 @@ export const PermissionProvider = ({ children }) => {
 
     // Helper to check permission
     const can = (permissionName) => {
-        console.log(permissionName);
         return permissions.includes(permissionName);
     };
 

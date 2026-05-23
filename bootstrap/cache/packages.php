@@ -3,7 +3,7 @@
   array (
     'aliases' => 
     array (
-      'Pwa' => 'EragLaravelPwa\\Facades\\Pwa',
+      'PWA' => 'EragLaravelPwa\\Facades\\PWA',
     ),
     'providers' => 
     array (

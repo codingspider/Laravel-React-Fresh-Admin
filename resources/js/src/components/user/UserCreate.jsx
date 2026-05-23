@@ -46,7 +46,6 @@ const UserCreate = () => {
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      console.log(data);
       const res = await api.post(STORE_USER, data);
       reset();
       toast({
@@ -107,7 +106,7 @@ const UserCreate = () => {
   }, []);
 
   return (
-    <Box bg="gray.50" minH="100vh" py={3}>
+    <Box className="form-dark-surface" bg="gray.50" minH="100vh" py={3}>
       {/* Container for max width and centering */}
       <Box mx="auto">
 

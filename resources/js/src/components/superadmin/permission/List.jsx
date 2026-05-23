@@ -119,7 +119,7 @@ export default function List() {
                             padding={2}
                             borderRadius="md"
                             onClick={() =>
-                                navigate(ROLE_EDIT_PATH(row.original.id))
+                                navigate(ROLE_EDIT_PATH.replace(":id", row.original.id))
                             }
                         >
                             <EditIcon />
@@ -141,7 +141,7 @@ export default function List() {
     ];
 
     return (
-        <>
+        <Box className="form-dark-surface">
             {/* Breadcrumb */}
             <Card mb={5}>
                 <CardBody>
@@ -184,6 +184,6 @@ export default function List() {
                     </CardBody>
                 </Card>
             </SimpleGrid>
-        </>
+        </Box>
     );
 }

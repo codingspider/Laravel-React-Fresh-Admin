@@ -18,7 +18,8 @@ import {
     Checkbox,
     Badge,
     Divider,
-    Stack
+    Stack,
+    useColorModeValue
 } from "@chakra-ui/react";
 
 import React, { useState, useEffect } from "react";
@@ -35,6 +36,17 @@ const Edit = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const { t } = useTranslation();
+    const pageBg = useColorModeValue("gray.50", "gray.900");
+    const cardBg = useColorModeValue("white", "gray.800");
+    const fieldBg = useColorModeValue("gray.50", "gray.900");
+    const borderColor = useColorModeValue("gray.200", "gray.700");
+    const subtleBorderColor = useColorModeValue("gray.100", "gray.700");
+    const headingColor = useColorModeValue("gray.800", "gray.100");
+    const textColor = useColorModeValue("gray.700", "gray.100");
+    const mutedTextColor = useColorModeValue("gray.500", "gray.300");
+    const softTextColor = useColorModeValue("gray.600", "gray.300");
+    const permissionSelectedColor = useColorModeValue("teal.600", "teal.300");
+    const permissionHoverBorder = useColorModeValue("teal.200", "teal.500");
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [permissionsList, setPermissionsList] = useState([]);
@@ -239,10 +251,11 @@ const Edit = () => {
     };
 
     return (
-        <Box p={4}>
+        <Box className="form-dark-surface" bg={pageBg} minH="100vh" py={3}>
+            <Box mx="auto">
 
             {/* Breadcrumb */}
-            <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+            <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">
                 <CardBody py={3}>
                     <Breadcrumb fontSize="sm" color="gray.500">
                         <BreadcrumbItem>
@@ -266,7 +279,7 @@ const Edit = () => {
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink color="gray.800" fontWeight="bold">
+                            <BreadcrumbLink color={headingColor} fontWeight="bold">
                                 {t("edit")}
                             </BreadcrumbLink>
                         </BreadcrumbItem>
@@ -274,19 +287,19 @@ const Edit = () => {
                 </CardBody>
             </Card>
 
-            <Card>
+            <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={cardBg}>
                 <CardHeader
-                    bg="white"
+                    bg={cardBg}
                     borderBottom="1px solid"
-                    borderColor="gray.100"
+                    borderColor={subtleBorderColor}
                     pb={6}
                 >
                     <Flex justify="space-between" align="center">
                         <Box>
-                            <Heading size="md" color="gray.800" fontWeight="bold">
+                            <Heading size="md" color={headingColor} fontWeight="bold">
                                 {t("edit")}
                             </Heading>
-                            <Text fontSize="sm" color="gray.500" mt={1}>
+                            <Text fontSize="sm" color={mutedTextColor} mt={1}>
                                 Define role name and assign specific permissions
                             </Text>
                         </Box>
@@ -305,7 +318,7 @@ const Edit = () => {
                 </CardHeader>
 
 
-                <CardBody>
+                <CardBody p={8}>
                     <form onSubmit={handleSubmit(onSubmit)}>
 
                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
@@ -315,7 +328,7 @@ const Edit = () => {
                                 <FormLabel
                                     fontSize="sm"
                                     fontWeight="semibold"
-                                    color="gray.700"
+                                    color={textColor}
                                     mb={2}
                                 >
                                     {t("role_name")}
@@ -324,12 +337,12 @@ const Edit = () => {
                                     {...register("name", { required: true })}
                                     type="text"
                                     placeholder="e.g. Editor, Manager, Viewer"
-                                    bg="gray.50"
+                                    bg={fieldBg}
                                     border="1px solid"
-                                    borderColor="gray.200"
+                                    borderColor={borderColor}
                                     borderRadius="md"
                                     focusBorderColor="teal.500"
-                                    _hover={{ borderColor: "gray.300" }}
+                                    _hover={{ borderColor }}
                                     size="md"
                                     transition="all 0.2s"
                                 />
@@ -340,20 +353,20 @@ const Edit = () => {
                                 <FormLabel
                                     fontSize="sm"
                                     fontWeight="semibold"
-                                    color="gray.700"
+                                    color={textColor}
                                     mb={2}
                                 >
                                     {t("selection_summary")}
                                 </FormLabel>
                                 <Flex
                                     align="center"
-                                    bg="gray.50"
+                                    bg={fieldBg}
                                     border="1px solid"
-                                    borderColor="gray.200"
+                                    borderColor={borderColor}
                                     borderRadius="md"
                                     h="42px" // Match input height
                                     px={4}
-                                    color="gray.600"
+                                    color={softTextColor}
                                     fontSize="sm"
                                 >
                                     <Badge colorScheme="teal" borderRadius="full" px={2} mr={2}>
@@ -364,9 +377,16 @@ const Edit = () => {
                             </Box>
                         </SimpleGrid>
 
-                        <Divider my={8} borderColor="gray.100" />
+                        <Divider my={8} borderColor={subtleBorderColor} />
 
                         {/* Permissions */}
+                        <Box mb={8}>
+                            <Flex justify="space-between" align="center" mb={4}>
+                                <Heading size="sm" color={headingColor} fontWeight="bold">
+                                    {t("assign_permissions")}
+                                </Heading>
+                            </Flex>
+
                         <Stack spacing={6}>
                             {permissionsList.map((group, index) => {
 
@@ -383,16 +403,34 @@ const Edit = () => {
                                     ) && !isAllSelected;
 
                                 return (
-                                    <Box key={index} p={4} border="1px solid #eee" borderRadius="md">
+                                    <Box
+                                        key={index}
+                                        p={5}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="lg"
+                                        bg={cardBg}
+                                        _hover={{ borderColor: permissionHoverBorder, boxShadow: "sm" }}
+                                        transition="all 0.2s"
+                                    >
 
                                         {/* Module Header */}
-                                        <Flex justify="space-between" mb={3}>
-                                            <Text fontWeight="bold">
+                                        <Flex
+                                            justify="space-between"
+                                            align="center"
+                                            mb={4}
+                                            pb={2}
+                                            borderBottom="1px dashed"
+                                            borderColor={subtleBorderColor}
+                                        >
+                                            <Text fontWeight="bold" color={textColor} fontSize="md">
                                                 {group.module}
                                             </Text>
 
                                             <Button
                                                 size="xs"
+                                                variant="ghost"
+                                                colorScheme="teal"
                                                 onClick={() =>
                                                     handleSelectAllModule(group.permissions)
                                                 }
@@ -402,7 +440,7 @@ const Edit = () => {
                                         </Flex>
 
                                         {/* Permissions */}
-                                        <Flex wrap="wrap" gap={4}>
+                                        <Flex wrap="wrap" gap={6}>
                                             {group.permissions.map((perm) => (
                                                 <Checkbox
                                                     key={perm.id}
@@ -410,6 +448,14 @@ const Edit = () => {
                                                     onChange={() =>
                                                         handlePermissionChange(perm.id)
                                                     }
+                                                    colorScheme="teal"
+                                                    size="md"
+                                                    sx={{
+                                                        '[data-checked] + .chakra-checkbox__label': {
+                                                            color: permissionSelectedColor,
+                                                            fontWeight: '600'
+                                                        }
+                                                    }}
                                                 >
                                                     {perm.label}
                                                 </Checkbox>
@@ -420,6 +466,7 @@ const Edit = () => {
                                 );
                             })}
                         </Stack>
+                        </Box>
 
                         {/* Submit */}
                         <Flex
@@ -427,7 +474,7 @@ const Edit = () => {
                             justify={{ base: "stretch", md: "flex-end" }}
                             gap={4}
                             borderTop="1px solid"
-                            borderColor="gray.100"
+                            borderColor={subtleBorderColor}
                             pt={6}
                         >
                             <Button
@@ -441,7 +488,7 @@ const Edit = () => {
                                 h={12}
                                 borderRadius="md"
                                 w={{ base: "full", md: "auto" }}
-                                _hover={{ bg: "gray.50" }}
+                                _hover={{ bg: fieldBg }}
                             >
                                 {t("cancel")}
                             </Button>
@@ -469,6 +516,7 @@ const Edit = () => {
                     </form>
                 </CardBody>
             </Card>
+            </Box>
         </Box>
     );
 };

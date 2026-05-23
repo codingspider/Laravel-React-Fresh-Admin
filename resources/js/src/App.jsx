@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { RouterProvider } from 'react-router-dom';
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
+import '../../css/app.css';
 import router from './router';
 import api from '../src/axios';
 import { LanguageProvider } from './LanguageProvider';

@@ -9,7 +9,6 @@ export default function useOnlineSync() {
       for (const item of queued) {
         try {
           await api({ method: item.method, url: item.url, data: item.payload });
-          console.log('data synced');
         } catch (e) {
           console.error('Sync failed', e);
         }

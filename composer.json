@@ -7,7 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
-        "erag/laravel-pwa": "^1.9",
+        "erag/laravel-pwa": "^2.1",
         "knuckleswtf/scribe": "^5.3",
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",

@@ -17,23 +17,26 @@ class StoreProductRequest extends FormRequest
             'name'                  => 'required|string|max:255',
             'category_id'           => 'required|exists:categories,id',
             'branch_id'             => 'required|exists:branches,id',
-            'sequence_index'        => 'nullable|string|max:50',
+            'sequence_index'        => 'nullable|integer|min:0',
             'sku'                   => 'nullable|string|max:100',
             'subtitle'              => 'nullable|string|max:255',
             'description'           => 'nullable|string',
 
             // IMAGES
-            'main_image'            => 'nullable',
+            'main_image'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
 
             // RELATIONS
-            'variations'   => 'nullable',
-            'addons'     => 'nullable',
+            'variations'            => 'nullable|array',
+            'variations.*'          => 'integer|exists:variations,id',
+            'addons'                => 'nullable|array',
+            'addons.*'              => 'integer|exists:addons,id',
 
             // ENUM FIELDS
-            'item_available_for'  => 'required',
+            'item_available_for'    => 'required|array|min:1',
+            'item_available_for.*'  => 'in:dine_in,pickup,delivery',
 
-            'featured_item'         => 'nullable',
-            'is_active'             => 'required',
+            'featured_item'         => 'nullable|boolean',
+            'is_active'             => 'required|boolean',
         ];
     }
 

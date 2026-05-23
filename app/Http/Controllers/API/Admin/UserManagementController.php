@@ -39,11 +39,12 @@ class UserManagementController extends BaseController
         }
     }
     
-    public function edit($id)
+    public function show($id)
     {
         try {
-            $owner = User::find($id);
-            return $this->sendResponse($owner, 'User retrived successfully.');
+            $user = User::with(['roles', 'permissions'])->find($id);
+
+            return $this->sendResponse($user, 'User retrived successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Server Error.'.$e->getMessage());
         }
@@ -105,33 +106,80 @@ class UserManagementController extends BaseController
         }
     }
     
-    public function update(Request $request)
+    public function update(Request $request, $id)
     {
+        $user = User::find($id);
+
+        if (!$user) {
+            return $this->sendError('User not found.', [], 404);
+        }
+
         $validator = Validator::make($request->all(), [
-            'name'      => 'required',
-            'email'     => 'required|email|unique:users,email',
-            'role'      => 'required',
-            'password'  => 'required',
+            'surname'              => 'required|string',
+            'first_name'           => 'required|string',
+            'last_name'            => 'required|string',
+            'status'               => 'required',
+            'allow_login'          => 'required',
+            'username'             => 'required|unique:users,username,' . $id,
+            'email'                => 'required|email|unique:users,email,' . $id,
+            'role'                 => 'required|exists:roles,id',
+            'password'             => 'nullable|min:6',
+            'locations'            => 'array',
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError('Validation Error.', 422, $validator->errors());
+            return $this->sendError(
+                'Validation Error.',
+                $validator->errors()->toArray(),
+                422
+            );
         }
 
         DB::beginTransaction();
 
         try {
-            $user = User::find($request->id);
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->role = $request->role;
-            $user->save();
+
+            // Update user
+            $user->update([
+                'surname'      => $request->surname,
+                'first_name'   => $request->first_name,
+                'last_name'    => $request->last_name,
+                'username'     => $request->username,
+                'email'        => $request->email,
+                'status'       => $request->status,
+                'allow_login'  => $request->allow_login,
+            ]);
+
+            // Update password only if provided
+            if ($request->filled('password')) {
+                $user->update([
+                    'password' => Hash::make($request->password),
+                ]);
+            }
+
+            // Sync role
+            $role = Role::findById($request->role, 'web');
+
+            $user->syncRoles([$role]);
+
+            // Sync location permissions
+            $this->assignLocationPermissions($user, $request);
+
             DB::commit();
-            return $this->sendResponse(['user' => $user], 'User saved successfully.');
+
+            return $this->sendResponse(
+                $user->load(['roles', 'permissions']),
+                'User updated successfully.'
+            );
 
         } catch (\Exception $e) {
+
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+
+            return $this->sendError(
+                'Server Error: ' . $e->getMessage(),
+                500
+            );
         }
     }
 

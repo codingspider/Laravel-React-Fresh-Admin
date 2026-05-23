@@ -17,7 +17,7 @@ import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import Swal from "sweetalert2";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { ADMIN_DASHBOARD_PATH, CATEGORY_ADD_PATH, CATEGORY_EDIT_PATH } from "../../../routes/adminRoutes";
+import { ADMIN_DASHBOARD_PATH, CATEGORY_ADD_PATH, CATEGORY_EDIT } from "../../../routes/adminRoutes";
 import TanStackTable from "../../../TanStackTable";
 import { DELETE_CATEGORY, LIST_CATEGORY } from "../../../routes/apiRoutes";
 import { Image } from '@chakra-ui/react'
@@ -128,9 +128,7 @@ export default function CategoryList() {
                             padding={2}
                             borderRadius="md"
                             onClick={() =>
-                                navigate(CATEGORY_EDIT_PATH(row.original.id), {
-                                    state: { category: row.original }
-                                })
+                                navigate(CATEGORY_EDIT.replace(":id", row.original.id))
                             }
                         >
                             <EditIcon />

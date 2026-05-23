@@ -92,7 +92,7 @@ const CategoryCreate = () => {
     }, []);
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box className="form-dark-surface" bg="gray.50" minH="100vh" py={3}>
             {/* Container for max width and centering */}
             <Box mx="auto">
                 

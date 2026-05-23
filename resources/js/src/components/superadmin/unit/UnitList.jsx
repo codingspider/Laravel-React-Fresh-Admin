@@ -22,7 +22,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
 import { DELETE_UNIT, LIST_UNIT } from './../../../routes/apiRoutes';
-import { DASHBOARD_PATH, UNIT_ADD_PATH, UNIT_EDIT_PATH } from './../../../routes/superAdminRoutes';
+import { DASHBOARD_PATH, UNIT_ADD_PATH, UNIT_EDIT } from './../../../routes/superAdminRoutes';
 
 export default function UnitList() {
     const [globalFilter, setGlobalFilter] = useState("");
@@ -119,7 +119,7 @@ export default function UnitList() {
                             padding={2}
                             borderRadius="md"
                             onClick={() =>
-                                navigate(UNIT_EDIT_PATH(row.original.id))
+                                navigate(UNIT_EDIT.replace(":id", row.original.id))
                             }
                         >
                             <EditIcon />
@@ -141,7 +141,7 @@ export default function UnitList() {
     ];
 
     return (
-        <>
+        <Box className="form-dark-surface">
             {/* Breadcrumb */}
             <Card mb={5}>
                 <CardBody>
@@ -184,6 +184,6 @@ export default function UnitList() {
                     </CardBody>
                 </Card>
             </SimpleGrid>
-        </>
+        </Box>
     );
 }

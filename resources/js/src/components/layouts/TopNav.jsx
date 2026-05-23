@@ -70,7 +70,7 @@ function ProfileMenu() {
                 borderRadius="lg"
                 border="1px solid"
                 borderColor={useColorModeValue('gray.100', 'gray.700')}
-                zIndex={99999}
+                zIndex="dropdown"
             >
                 <div style={{ padding: '8px 16px 4px' }}>
                     <Text fontWeight="600" fontSize="sm">Kent Dodds</Text>
@@ -100,7 +100,7 @@ export default function TopNav({ onMobileMenuOpen }) {
     const borderColor = useColorModeValue('gray.200', 'gray.700');
 
     return (
-        <Flex as="header" align="center" justify="space-between" px={{ base: 4, md: 8 }} py="4" borderBottom="1px" borderColor={borderColor} bg={bg} position="sticky" top="0" zIndex="9999" boxShadow="sm">
+        <Flex as="header" align="center" justify="space-between" px={{ base: 4, md: 8 }} py="4" borderBottom="1px" borderColor={borderColor} bg={bg} position="sticky" top="0" zIndex="sticky" boxShadow="sm">
             <HStack spacing="4">
                 <Button variant="ghost" p="2" borderRadius="lg" display={{ base: 'flex', lg: 'none' }} onClick={onMobileMenuOpen}>
                     <Icon as={LayoutDashboard} boxSize={6} />

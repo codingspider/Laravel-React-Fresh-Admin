@@ -40,6 +40,17 @@ const Create = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useToast();
     const navigate = useNavigate();
+    const pageBg = useColorModeValue("gray.50", "gray.900");
+    const cardBg = useColorModeValue("white", "gray.800");
+    const fieldBg = useColorModeValue("gray.50", "gray.900");
+    const borderColor = useColorModeValue("gray.200", "gray.700");
+    const subtleBorderColor = useColorModeValue("gray.100", "gray.700");
+    const headingColor = useColorModeValue("gray.800", "gray.100");
+    const textColor = useColorModeValue("gray.700", "gray.100");
+    const mutedTextColor = useColorModeValue("gray.500", "gray.300");
+    const softTextColor = useColorModeValue("gray.600", "gray.300");
+    const permissionSelectedColor = useColorModeValue("teal.600", "teal.300");
+    const permissionHoverBorder = useColorModeValue("teal.200", "teal.500");
 
     // State for permissions
     const [permissionsList, setPermissionsList] = useState([]);
@@ -235,11 +246,11 @@ const Create = () => {
     }, []);
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box className="form-dark-surface" bg={pageBg} minH="100vh" py={3}>
             <Box mx="auto">
                 
                 {/* Modern Breadcrumb */}
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">       
+                <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">       
                 <CardBody py={3}>
                         <Breadcrumb fontSize="sm" color="gray.500">
                             <BreadcrumbItem>
@@ -263,7 +274,7 @@ const Create = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={headingColor} fontWeight="bold">
                                     {t("add")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -272,19 +283,19 @@ const Create = () => {
                 </Card>
 
                 {/* Main Form Card */}
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={cardBg}>
                     <CardHeader
-                        bg="white"
+                        bg={cardBg}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={subtleBorderColor}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="md" color="gray.800" fontWeight="bold">
+                                <Heading size="md" color={headingColor} fontWeight="bold">
                                     {t("add")}
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                <Text fontSize="sm" color={mutedTextColor} mt={1}>
                                     Define role name and assign specific permissions
                                 </Text>
                             </Box>
@@ -311,7 +322,7 @@ const Create = () => {
                                     <FormLabel 
                                         fontSize="sm" 
                                         fontWeight="semibold" 
-                                        color="gray.700"
+                                        color={textColor}
                                         mb={2}
                                     >
                                         {t("role_name")}
@@ -320,12 +331,12 @@ const Create = () => {
                                         {...register("name", { required: true })}
                                         type="text"
                                         placeholder="e.g. Editor, Manager, Viewer"
-                                        bg="gray.50"
+                                        bg={fieldBg}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={borderColor}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
-                                        _hover={{ borderColor: "gray.300" }}
+                                        _hover={{ borderColor }}
                                         size="md"
                                         transition="all 0.2s"
                                     />
@@ -336,20 +347,20 @@ const Create = () => {
                                     <FormLabel 
                                         fontSize="sm" 
                                         fontWeight="semibold" 
-                                        color="gray.700"
+                                        color={textColor}
                                         mb={2}
                                     >
                                         {t("selection_summary")}
                                     </FormLabel>
                                     <Flex 
                                         align="center" 
-                                        bg="gray.50" 
+                                        bg={fieldBg} 
                                         border="1px solid" 
-                                        borderColor="gray.200" 
+                                        borderColor={borderColor} 
                                         borderRadius="md" 
                                         h="42px" // Match input height
                                         px={4}
-                                        color="gray.600"
+                                        color={softTextColor}
                                         fontSize="sm"
                                     >
                                         <Badge colorScheme="teal" borderRadius="full" px={2} mr={2}>
@@ -360,12 +371,12 @@ const Create = () => {
                                 </Box>
                             </SimpleGrid>
 
-                            <Divider my={8} borderColor="gray.100" />
+                            <Divider my={8} borderColor={subtleBorderColor} />
 
                             {/* Permissions Section */}
                             <Box mb={8}>
                                 <Flex justify="space-between" align="center" mb={4}>
-                                    <Heading size="sm" color="gray.800" fontWeight="bold">
+                                    <Heading size="sm" color={headingColor} fontWeight="bold">
                                         {t("assign_permissions")}
                                     </Heading>
                                     {/* You could add a "Select All Permissions" global button here if needed */}
@@ -383,10 +394,10 @@ const Create = () => {
                                                 key={index} 
                                                 p={5} 
                                                 border="1px solid" 
-                                                borderColor="gray.200" 
+                                                borderColor={borderColor} 
                                                 borderRadius="lg" 
-                                                bg="white"
-                                                _hover={{ borderColor: "teal.200", boxShadow: "sm" }}
+                                                bg={cardBg}
+                                                _hover={{ borderColor: permissionHoverBorder, boxShadow: "sm" }}
                                                 transition="all 0.2s"
                                             >
                                                 {/* Module Header with Select All */}
@@ -396,9 +407,9 @@ const Create = () => {
                                                     mb={4} 
                                                     pb={2} 
                                                     borderBottom="1px dashed" 
-                                                    borderColor="gray.100"
+                                                    borderColor={subtleBorderColor}
                                                 >
-                                                    <Text fontWeight="bold" color="gray.700" fontSize="md">
+                                                    <Text fontWeight="bold" color={textColor} fontSize="md">
                                                         {group.module}
                                                     </Text>
                                                     <Button 
@@ -422,7 +433,7 @@ const Create = () => {
                                                     size="md"
                                                     sx={{
                                                         '[data-checked] + .chakra-checkbox__label': {
-                                                        color: 'teal.600',
+                                                        color: permissionSelectedColor,
                                                         fontWeight: '600'
                                                         }
                                                     }}
@@ -443,7 +454,7 @@ const Create = () => {
                                 justify={{ base: "stretch", md: "flex-end" }} 
                                 gap={4}
                                 borderTop="1px solid"
-                                borderColor="gray.100"
+                                borderColor={subtleBorderColor}
                                 pt={6}
                             >
                                 <Button
@@ -457,7 +468,7 @@ const Create = () => {
                                     h={12}
                                     borderRadius="md"
                                     w={{ base: "full", md: "auto" }}
-                                    _hover={{ bg: "gray.50" }}
+                                    _hover={{ bg: fieldBg }}
                                 >
                                     {t("cancel")}
                                 </Button>

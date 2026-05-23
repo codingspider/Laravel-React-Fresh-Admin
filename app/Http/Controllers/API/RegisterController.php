@@ -205,6 +205,7 @@ class RegisterController extends BaseController
                 'name' => $user->first_name . ' ' . $user->last_name,
                 'role' => $user->role,
                 'permissions' => $user->getAllPermissions()->pluck('name'),
+                'app_name' => env("APP_NAME")
             ])->cookie($cookie);
         }
 

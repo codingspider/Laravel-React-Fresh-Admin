@@ -41,7 +41,6 @@ export default function Login() {
       try {
         await api.get("/sanctum/csrf-cookie");
         const res = await api.get('/user');
-
         if (res.data) {
           navigate(DASHBOARD_PATH, { replace: true });
         }
@@ -64,8 +63,6 @@ export default function Login() {
         password: data.password,
       });
 
-      console.log(res.data);
-
       toast({
         position: 'bottom-right',
         title: 'Login successful!',
@@ -73,6 +70,8 @@ export default function Login() {
         duration: 3000,
         isClosable: true,
       });
+
+      localStorage.setItem("app_name", res.data.app_name);
 
       // Redirect all users to dashboard
       navigate(DASHBOARD_PATH);

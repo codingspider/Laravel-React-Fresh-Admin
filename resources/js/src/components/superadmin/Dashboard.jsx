@@ -14,7 +14,7 @@ import { useTranslation } from 'react-i18next';
 const Dashboard = () => {
   const { t } = useTranslation();
   return (
-    <>
+    <Box className="form-dark-surface">
       {/* Breadcrumb */}
       <Card mb={5}>
         <CardBody>
@@ -76,7 +76,7 @@ const Dashboard = () => {
         </CardBody>
       </Card>
     </SimpleGrid>
-    </>
+    </Box>
   );
 };
 

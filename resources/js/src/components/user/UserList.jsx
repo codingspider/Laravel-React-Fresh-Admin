@@ -21,8 +21,8 @@ import { Link as ReactRouterLink } from "react-router-dom";
 import TanStackTable from './../../TanStackTable';
 import api from './../../axios';
 import { useCurrencyFormatter } from './../../useCurrencyFormatter';
-import { DELETE_USER, LIST_USER } from "../../routes/apiRoutes";
-import { DASHBOARD_PATH, USER_ADD_PATH } from './../../routes/superAdminRoutes';
+import { DELETE_USER, GET_EDIT_USER, LIST_USER } from "../../routes/apiRoutes";
+import { DASHBOARD_PATH, USER_ADD_PATH, USER_EDIT_PATH } from './../../routes/superAdminRoutes';
 
 export default function UserList() {
     const [globalFilter, setGlobalFilter] = useState("");
@@ -143,7 +143,7 @@ export default function UserList() {
                             padding={2}
                             borderRadius="md"
                             onClick={() =>
-                                navigate(UNIT_EDIT_PATH(row.original.id))
+                                navigate(USER_EDIT_PATH.replace(":id", row.original.id))
                             }
                         >
                             <EditIcon />
@@ -165,7 +165,7 @@ export default function UserList() {
     ];
 
     return (
-        <>
+        <Box className="form-dark-surface">
             {/* Breadcrumb */}
             <Card mb={5}>
                 <CardBody>
@@ -208,6 +208,6 @@ export default function UserList() {
                     </CardBody>
                 </Card>
             </SimpleGrid>
-        </>
+        </Box>
     );
 }

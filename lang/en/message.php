@@ -253,5 +253,6 @@ return [
     "role_name" => "Role Name",
     "assign_permissions" => "Assign Permissions",
     "allow_login" => "Allow login",
+    "role" => "Role",
 
 ];

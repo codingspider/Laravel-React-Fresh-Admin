@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5fce16130298639ccf139adaf7165b72",
+    "content-hash": "e0d32fc677294144d866a5d196d1c93d",
     "packages": [
         {
             "name": "brick/math",
@@ -511,20 +511,20 @@
         },
         {
             "name": "erag/laravel-pwa",
-            "version": "v1.9.0",
+            "version": "v2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/eramitgupta/laravel-pwa.git",
-                "reference": "bd303fe6d5ea201c1244e3497bfdf4b61b835dd1"
+                "reference": "412ae1ec3d1857c5284d05bf5df62dfd21c9ed25"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/eramitgupta/laravel-pwa/zipball/bd303fe6d5ea201c1244e3497bfdf4b61b835dd1",
-                "reference": "bd303fe6d5ea201c1244e3497bfdf4b61b835dd1",
+                "url": "https://api.github.com/repos/eramitgupta/laravel-pwa/zipball/412ae1ec3d1857c5284d05bf5df62dfd21c9ed25",
+                "reference": "412ae1ec3d1857c5284d05bf5df62dfd21c9ed25",
                 "shasum": ""
             },
             "require": {
-                "illuminate/support": "^8.12|^9.0|^10.0|^11.0|^12.0",
+                "illuminate/support": "^8.12|^9.0|^10.0|^11.0|^12.0|^13.0",
                 "laravel/pint": "^1.13",
                 "php": ">=8.0.0"
             },
@@ -532,7 +532,7 @@
             "extra": {
                 "laravel": {
                     "aliases": {
-                        "Pwa": "EragLaravelPwa\\Facades\\Pwa"
+                        "PWA": "EragLaravelPwa\\Facades\\PWA"
                     },
                     "providers": [
                         "EragLaravelPwa\\EragLaravelPwaServiceProvider"
@@ -571,19 +571,15 @@
             ],
             "support": {
                 "issues": "https://github.com/eramitgupta/laravel-pwa/issues",
-                "source": "https://github.com/eramitgupta/laravel-pwa/tree/v1.9.0"
+                "source": "https://github.com/eramitgupta/laravel-pwa/tree/v2.1.0"
             },
             "funding": [
-                {
-                    "url": "https://www.paypal.com/paypalme/teamdevgeek",
-                    "type": "custom"
-                },
                 {
                     "url": "https://github.com/eramitgupta",
                     "type": "github"
                 }
             ],
-            "time": "2025-08-03T14:16:26+00:00"
+            "time": "2026-04-11T04:15:34+00:00"
         },
         {
             "name": "erusev/parsedown",

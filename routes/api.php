@@ -17,10 +17,11 @@ use App\Http\Controllers\API\PLanController;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\VatController;
+use App\Http\Controllers\OcrController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
-use Illuminate\Http\Request;
 
 Route::controller(RegisterController::class)->group(function(){
     Route::post('register', 'register')->middleware(['web']);
@@ -72,6 +73,7 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'cookie.filter'])->g
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/set-permission', [AuthController::class, 'giveAllPermissionsToAdmin']);
+    Route::post('/extract-text-from-image', [OcrController::class, 'extract']);
 
     
 });

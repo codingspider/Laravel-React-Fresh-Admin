@@ -22,7 +22,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
 import { DELETE_CATEGORY, LIST_CATEGORY } from "../../../routes/apiRoutes";
-import { CATEGORY_ADD_PATH, CATEGORY_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { CATEGORY_ADD_PATH, CATEGORY_EDIT, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 
 
 export default function CategoryList() {
@@ -133,7 +133,7 @@ export default function CategoryList() {
                             padding={2}
                             borderRadius="md"
                             onClick={() =>
-                                navigate(CATEGORY_EDIT_PATH(row.original.id))
+                                navigate(CATEGORY_EDIT.replace(":id", row.original.id))
                             }
                         >
                             <EditIcon />
@@ -155,7 +155,7 @@ export default function CategoryList() {
     ];
 
     return (
-        <>
+        <Box className="form-dark-surface">
             {/* Breadcrumb */}
             <Card mb={5}>
                 <CardBody>
@@ -198,6 +198,6 @@ export default function CategoryList() {
                     </CardBody>
                 </Card>
             </SimpleGrid>
-        </>
+        </Box>
     );
 }
