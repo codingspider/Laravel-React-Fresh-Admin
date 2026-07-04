@@ -181,10 +181,10 @@ class RegisterController extends BaseController
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
-            if ($user->allow_login != 1) {
-                Auth::logout();
-                return response()->json(['message' => 'Account is disabled.'], 403);
-            }
+            // if ($user->allow_login != 1) {
+            //     Auth::logout();
+            //     return response()->json(['message' => 'Account is disabled.'], 403);
+            // }
 
             // Regenerate session for security
             $token = $user->createToken('react_token')->plainTextToken;

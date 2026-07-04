@@ -27,8 +27,9 @@ export default function ProductCreate() {
             branch_id: "",
             sequence_index: "",
             sku: "",
-            subtitle: "",
             description: "",
+            product_cost: "",
+            sell_price: "",
             main_image: null,
             item_available_for: ["dine_in", "pickup", "delivery"],
             featured_item: false,
@@ -59,7 +60,8 @@ export default function ProductCreate() {
             formData.append("featured_item", data.featured_item ? 1 : 0);
             formData.append("sequence_index", data.sequence_index || "");
             formData.append("sku", data.sku || "");
-            formData.append("subtitle", data.subtitle || "");
+            formData.append("product_cost", data.product_cost || 0);
+            formData.append("sell_price", data.sell_price || "");
             formData.append("is_active", data.is_active ? 1 : 0);
 
             (data.variations || []).forEach((variation) => formData.append("variations[]", variation.variation_id));

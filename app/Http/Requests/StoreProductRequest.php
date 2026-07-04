@@ -21,6 +21,8 @@ class StoreProductRequest extends FormRequest
             'sku'                   => 'nullable|string|max:100',
             'subtitle'              => 'nullable|string|max:255',
             'description'           => 'nullable|string',
+            'product_cost'          => 'nullable|numeric|min:0',
+            'sell_price'            => 'required|numeric|min:0',
 
             // IMAGES
             'main_image'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',

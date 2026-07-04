@@ -31,6 +31,8 @@ export default function ProductEdit() {
             sku: "",
             subtitle: "",
             description: "",
+            product_cost: "",
+            sell_price: "",
             main_image: null,
             item_available_for: [],
             featured_item: false,
@@ -62,8 +64,12 @@ export default function ProductEdit() {
                     sku: product.sku || "",
                     subtitle: product.subtitle || "",
                     description: product.description || "",
+                    product_cost: product.product_cost || "",
+                    sell_price: product.sell_price || "",
                     main_image: null,
-                    item_available_for: product.item_available_for || [],
+                    item_available_for: product.item_available_for?.length
+                        ? product.item_available_for
+                        : ["dine_in", "pickup", "delivery"],
                     featured_item: product.featured_item || false,
                     is_active: product.is_active ? 1 : 0,
                     variations: (product.variations || []).map((variationId) => ({ variation_id: variationId })),
@@ -99,6 +105,8 @@ export default function ProductEdit() {
             formData.append("sequence_index", data.sequence_index || "");
             formData.append("sku", data.sku || "");
             formData.append("subtitle", data.subtitle || "");
+            formData.append("product_cost", data.product_cost || 0);
+            formData.append("sell_price", data.sell_price || "");
             formData.append("is_active", data.is_active ? 1 : 0);
             formData.append("_method", "PUT");
 

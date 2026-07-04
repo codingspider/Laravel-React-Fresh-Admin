@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 import { db } from "../db";
 import api from "../axios";
-import { GET_ALL_BRANCHES } from "../routes/apiRoutes";
+import { GET_ALL_LOCATIONS } from "../routes/apiRoutes";
 
 export function useBranches() {
   const [branches, setBranches] = useState([]);
@@ -16,7 +16,7 @@ export function useBranches() {
       if (localBranches.length > 0) {
         setBranches(localBranches);
       } else {
-        const res = await api.get(GET_ALL_BRANCHES);
+        const res = await api.get(GET_ALL_LOCATIONS);
         const branchData = res.data.data;
         setBranches(branchData);
         await db.branches.bulkPut(branchData);
@@ -32,7 +32,7 @@ export function useBranches() {
   const refreshBranches = async () => {
     setLoading(true);
     try {
-      const res = await api.get(GET_ALL_BRANCHES);
+      const res = await api.get(GET_ALL_LOCATIONS);
       const branchData = res.data.data;
       setBranches(branchData);
       await db.branches.clear();

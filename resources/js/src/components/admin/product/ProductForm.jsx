@@ -5,6 +5,7 @@ import {
     CardBody,
     CardHeader,
     Checkbox,
+    Collapse,
     Flex,
     FormControl,
     FormLabel,
@@ -14,6 +15,7 @@ import {
     SimpleGrid,
     Switch,
     Tag,
+    Text,
     Textarea,
     useDisclosure,
 } from "@chakra-ui/react";
@@ -42,6 +44,8 @@ export default function ProductForm({
     const { formatAmount } = useCurrencyFormatter();
     const variationModal = useDisclosure();
     const addonModal = useDisclosure();
+    const optionalDetails = useDisclosure();
+    const customization = useDisclosure();
 
     const {
         fields: variationFields,
@@ -59,16 +63,33 @@ export default function ProductForm({
         <Box mx="auto">
             <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
                 <Card mb={6}>
-                    <CardHeader fontWeight="bold">{t("main_details")}</CardHeader>
+                    <CardHeader pb={2}>
+                        <Flex justify="space-between" align="center" gap={4} flexWrap="wrap">
+                            <Box>
+                                <Text fontWeight="bold">{t("quick_product_info")}</Text>
+                                <Text fontSize="sm" color="gray.500">{t("quick_product_info_help")}</Text>
+                            </Box>
+                            <FormControl display="flex" w="auto" alignItems="center">
+                                <FormLabel mb="0">{t("is_active")}</FormLabel>
+                                <Controller
+                                    name="is_active"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <Switch
+                                            colorScheme="teal"
+                                            isChecked={Number(field.value) === 1}
+                                            onChange={(event) => field.onChange(event.target.checked ? 1 : 0)}
+                                        />
+                                    )}
+                                />
+                            </FormControl>
+                        </Flex>
+                    </CardHeader>
                     <CardBody>
                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                             <FormControl isRequired>
-                                <FormLabel>{t("branch")}</FormLabel>
-                                <Select {...register("branch_id")} placeholder={t("select_branch")}>
-                                    {branches.map((branch) => (
-                                        <option key={branch.id} value={branch.id}>{branch.name}</option>
-                                    ))}
-                                </Select>
+                                <FormLabel>{t("product_name")}</FormLabel>
+                                <Input {...register("name")} placeholder="e.g. Chicken Burger" />
                             </FormControl>
 
                             <FormControl isRequired>
@@ -81,23 +102,54 @@ export default function ProductForm({
                             </FormControl>
 
                             <FormControl isRequired>
-                                <FormLabel>{t("title")}</FormLabel>
-                                <Input {...register("name")} placeholder={t("enter_title")} />
+                                <FormLabel>{t("branch")}</FormLabel>
+                                <Select {...register("branch_id")} placeholder={t("select_branch")}>
+                                    {branches.map((branch) => (
+                                        <option key={branch.id} value={branch.id}>{branch.name}</option>
+                                    ))}
+                                </Select>
+                            </FormControl>
+
+                            <FormControl isRequired>
+                                <FormLabel>{t("sell_price")}</FormLabel>
+                                <Input {...register("sell_price")} type="number" min="0" step="0.01" placeholder="0.00" />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel>{t("product_cost")}</FormLabel>
+                                <Input {...register("product_cost")} type="number" min="0" step="0.01" placeholder="0.00" />
+                            </FormControl>
+
+                            <FormControl>
+                                <FormLabel>{t("main_image")}</FormLabel>
+                                <Input type="file" {...register("main_image")} />
+                            </FormControl>
+                        </SimpleGrid>
+
+                        <Flex mt={6} gap={3} flexWrap="wrap">
+                            <Button variant="outline" size="sm" onClick={optionalDetails.onToggle}>
+                                {optionalDetails.isOpen ? "Hide optional details" : "Optional details"}
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={customization.onToggle}>
+                                {customization.isOpen ? "Hide variants/add-ons" : "Variants & add-ons"}
+                            </Button>
+                        </Flex>
+                    </CardBody>
+                </Card>
+
+                <Collapse in={optionalDetails.isOpen} animateOpacity>
+                <Card mb={6}>
+                    <CardHeader fontWeight="bold">Optional Details</CardHeader>
+                    <CardBody>
+                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                            <FormControl>
+                                <FormLabel>{t("sku")}</FormLabel>
+                                <Input {...register("sku")} placeholder="Auto-generated if empty" />
                             </FormControl>
 
                             <FormControl>
                                 <FormLabel>{t("sequence_index")}</FormLabel>
                                 <Input {...register("sequence_index")} type="number" placeholder="01" />
-                            </FormControl>
-
-                            <FormControl>
-                                <FormLabel>{t("sku")}</FormLabel>
-                                <Input {...register("sku")} placeholder={t("enter_sku")} />
-                            </FormControl>
-
-                            <FormControl>
-                                <FormLabel>{t("subtitle")}</FormLabel>
-                                <Input {...register("subtitle")} placeholder={t("enter_subtitle")} />
                             </FormControl>
 
                             <FormControl gridColumn={{ base: "auto", md: "span 2" }}>
@@ -117,34 +169,12 @@ export default function ProductForm({
 
                         <Flex gap={8} mt={4} flexWrap="wrap">
                             <Checkbox {...register("featured_item")} value={1}>{t("featured_item")}</Checkbox>
-                            <FormControl display="flex" w="auto" alignItems="center">
-                                <FormLabel mb="0">{t("is_active")}</FormLabel>
-                                <Controller
-                                    name="is_active"
-                                    control={control}
-                                    render={({ field }) => (
-                                        <Switch
-                                            colorScheme="teal"
-                                            isChecked={Number(field.value) === 1}
-                                            onChange={(event) => field.onChange(event.target.checked ? 1 : 0)}
-                                        />
-                                    )}
-                                />
-                            </FormControl>
                         </Flex>
                     </CardBody>
                 </Card>
+                </Collapse>
 
-                <Card mb={6}>
-                    <CardHeader fontWeight="bold">{t("images")}</CardHeader>
-                    <CardBody>
-                        <FormControl>
-                            <FormLabel>{t("main_image")}</FormLabel>
-                            <Input type="file" {...register("main_image")} />
-                        </FormControl>
-                    </CardBody>
-                </Card>
-
+                <Collapse in={customization.isOpen} animateOpacity>
                 <Card mb={6}>
                     <CardHeader fontWeight="bold">{t("variations")}</CardHeader>
                     <CardBody>
@@ -201,6 +231,7 @@ export default function ProductForm({
                         </Button>
                     </CardBody>
                 </Card>
+                </Collapse>
 
                 <VariationModal variationData={variations} variationModal={variationModal} onSubmit={(data) => variationAppend(data)} />
                 <AddonModal addonData={addons} addonModal={addonModal} onSubmit={(data) => addonAppend(data)} />

@@ -26,21 +26,10 @@ const navItems = [
         label: 'User Management',
         children: [
             { path: USER_LIST_PATH, label: 'All Users', permission: 'view_user' },
-            { path: ROLE_LIST_PATH, label: 'Roles', permission: 'roles.view' },
-            { path: '/teams', label: 'Teams', permission: 'manage teams' }
+            { path: ROLE_LIST_PATH, label: 'Roles', permission: 'role_list' },
         ]
     },
-    {
-        icon: Package, 
-        label: 'Product Management',
-        children: [
-            { path: PRODUCT_LIST_PATH, label: 'Products', permission: 'view_product' },
-            { path: CATEGORY_LIST_PATH, label: 'Category', permission: 'view_category' },
-            { path: UNIT_LIST_PATH, label: 'Unit', permission: 'view_unit' }
-        ]
-    },
-    { path: '/analytics', icon: TrendingUp, label: 'Analytics', permission: 'view analytics' },
-    { path: '/settings', icon: Settings, label: 'Settings', permission: 'manage settings' },
+    { path: '/settings', icon: Settings, label: 'Settings', permission: 'access_business_settings' },
 ];
 
 export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {

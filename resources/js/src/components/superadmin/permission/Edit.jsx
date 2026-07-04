@@ -66,92 +66,22 @@ const Edit = () => {
         {
             module: "Role Management",
             permissions: [
-                { id: "role-list", label: "List" },
-                { id: "role-create", label: "Create" },
-                { id: "role-edit", label: "Edit" },
-                { id: "role-delete", label: "Delete" },
+                { id: "role_list", label: "List" },
+                { id: "role_create", label: "Create" },
+                { id: "role_edit", label: "Edit" },
+                { id: "role_delete", label: "Delete" },
             ]
         },
-        {
-            module: "Supplier",
-            permissions: [
-                { id: "view_supplier", label: "View" },
-                { id: "create_supplier", label: "Create" },
-                { id: "update_supplier", label: "Edit" },
-                { id: "delete_supplier", label: "Delete" },
-            ],
-        },
-        {
-            module: "Customer",
-            permissions: [
-                { id: "view_customer", label: "View" },
-                { id: "create_customer", label: "Create" },
-                { id: "update_customer", label: "Edit" },
-                { id: "delete_customer", label: "Delete" },
-            ],
-        },
-        {
-            module: "Category",
-            permissions: [
-                { id: "view_category", label: "List" },
-                { id: "create_category", label: "Create" },
-                { id: "update_category", label: "Edit" },
-                { id: "delete_category", label: "Delete" },
-            ]
-        },
-        {
-            module: "Unit",
-            permissions: [
-                { id: "view_unit", label: "List" },
-                { id: "create_unit", label: "Create" },
-                { id: "update_unit", label: "Edit" },
-                { id: "delete_unit", label: "Delete" },
-            ]
-        },
-        {
-            module: "Products",
-            permissions: [
-                { id: "view_product", label: "List" },
-                { id: "create_product", label: "Create" },
-                { id: "update_product", label: "Edit" },
-                { id: "delete_product", label: "Delete" },
-            ]
-        },
-        {
-            module: "Purchase",
-            permissions: [
-                { id: "view_purchase", label: "View" },
-                { id: "create_purchase", label: "Create" },
-                { id: "update_purchase", label: "Edit" },
-                { id: "delete_purchase", label: "Delete" },
-            ],
-        },
-        {
-            module: "Sale",
-            permissions: [
-                { id: "view_sale", label: "View" },
-                { id: "create_sale", label: "Create" },
-                { id: "update_sale", label: "Edit" },
-                { id: "delete_sale", label: "Delete" },
-            ],
-        },
+
         {
             module: "Reports",
             permissions: [
-                { id: "view_purchase_sale_report", label: "Purchase/Sale Report" },
-                { id: "view_contacts_report", label: "Contacts Report" },
-                { id: "view_stock_report", label: "Stock Report" },
-                { id: "view_tax_report", label: "Tax Report" },
-                { id: "view_trending_product_report", label: "Trending Product Report" },
-                { id: "view_register_report", label: "Register Report" },
-                { id: "view_sales_representative", label: "Sales Representative" },
-                { id: "view_expense_report", label: "Expense Report" },
+                { id: "view_report", label: "View Report" },
             ],
         },
         {
             module: "Settings",
             permissions: [
-                { id: "access_all_locations", label: "Access All Locations" },
                 { id: "view_dashboard_data", label: "View Dashboard Data" },
                 { id: "access_business_settings", label: "Access Business Settings" },
                 { id: "access_invoice_settings", label: "Access Invoice Settings" },

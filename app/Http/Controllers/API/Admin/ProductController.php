@@ -49,6 +49,8 @@ class ProductController extends BaseController
             'sku' => $data['sku'] ?? $product?->sku ?? 'SKU-'.time(),
             'subtitle' => $data['subtitle'] ?? null,
             'product_description' => $data['description'] ?? null,
+            'product_cost' => $data['product_cost'] ?? 0,
+            'sell_price' => $data['sell_price'],
             'item_available_for' => json_encode($data['item_available_for'] ?? []),
             'featured_item' => !empty($data['featured_item']),
             'is_active' => (bool) $data['is_active'],
@@ -76,6 +78,8 @@ class ProductController extends BaseController
             'sku' => $product->sku,
             'subtitle' => $product->subtitle,
             'description' => $product->product_description,
+            'product_cost' => $product->product_cost,
+            'sell_price' => $product->sell_price,
             'item_available_for' => json_decode($product->item_available_for ?? '[]', true) ?: [],
             'featured_item' => (bool) $product->featured_item,
             'is_active' => (bool) $product->is_active,
@@ -99,10 +103,8 @@ class ProductController extends BaseController
         try {
             $data = $request->validated();
             $item = Product::create($this->productPayload($data));
-
-            DB::commit();
             activityLog('product', 'create', 'User '.user_full_name().' created product '.$item->name);
-
+            DB::commit();
             return $this->sendResponse($this->transformProduct($item->load(['category', 'branch'])), 'Product created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();

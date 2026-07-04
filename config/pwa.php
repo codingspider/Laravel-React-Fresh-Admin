@@ -19,7 +19,7 @@ return [
     */
 
     'manifest' => [
-        'name' => 'Laundry APP PWA',
+        'name' => 'Restaurant POS',
         'short_name' => 'LPT',
         'background_color' => '#6777ef',
         'display' => 'fullscreen',
