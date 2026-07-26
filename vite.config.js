@@ -13,8 +13,8 @@ export default defineConfig({
         VitePWA({
             registerType: 'autoUpdate',
             manifest: {
-                name: 'Offline App',
-                short_name: 'OfflineApp',
+                name: 'Restaurant App',
+                short_name: 'Restaurant',
                 start_url: '/',
                 display: 'standalone',
                 background_color: '#ffffff',
@@ -29,4 +29,20 @@ export default defineConfig({
             },
         }),
     ],
+    server: {
+        host: 'localhost',
+        port: 5173,
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false,
+            },
+            '/sanctum': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
+    },
 });

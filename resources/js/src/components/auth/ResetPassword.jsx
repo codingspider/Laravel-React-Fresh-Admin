@@ -1,30 +1,36 @@
-'use client'
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
-  Button,
-  FormControl,
-  Flex,
-  Heading,
-  Input,
-  Stack,
-  Text,
-  useColorModeValue,
-  useToast,
-  FormLabel,
-  InputRightElement,
-  InputGroup,
-} from '@chakra-ui/react'
+    Button,
+    FormControl,
+    Flex,
+    Heading,
+    Input,
+    Text,
+    useColorModeValue,
+    useToast,
+    VStack,
+    Icon,
+    Box,
+    FormLabel,
+    FormErrorMessage,
+    InputGroup,
+    InputRightElement,
+} from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
-import { resettPassword } from '../../services/authService';
-import { useParams, useNavigate } from 'react-router-dom';
-import { LOGIN } from '../../routes/commonRoutes';
-
-
+import { resettPassword } from "../../services/authService";
+import { useParams, useNavigate } from "react-router-dom";
+import { LOGIN } from "../../routes/commonRoutes";
+import { UtensilsCrossed, Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 export default function ResetPassword() {
     const toast = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { register, handleSubmit, reset } = useForm();
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: { errors },
+    } = useForm();
     const { reset_token } = useParams();
     const navigate = useNavigate();
     const [show, setShow] = useState(false);
@@ -37,98 +43,145 @@ export default function ResetPassword() {
             const res = await resettPassword(email, password, token);
             reset();
             toast({
-                position: 'bottom-right',
-                title: 'Password Reset',
-                description: res.message,
-                status: 'success',
+                position: "top-right",
+                title: "Password Reset Successful",
+                description: res.message || "You can now sign in with your new password.",
+                status: "success",
                 duration: 3000,
                 isClosable: true,
             });
-            navigate(`${LOGIN}`);
-
+            navigate(LOGIN);
         } catch (err) {
-            const errorMessage = err?.response?.data?.message || err.message || 'Something went wrong';
+            const errorMessage = err?.response?.data?.message || err.message || "Something went wrong";
             reset();
             toast({
-                position: 'bottom-right',
-                title: 'Password Reset failed',
+                position: "top-right",
+                title: "Password Reset Failed",
                 description: errorMessage,
-                status: 'error',
+                status: "error",
                 duration: 3000,
                 isClosable: true,
             });
         } finally {
             setIsSubmitting(false);
         }
-    }
+    };
 
-  return (
-    <Flex
-      minH={'100vh'}
-      align={'center'}
-      justify={'center'}
-      bg={useColorModeValue('teal.50', 'teal.800')}>
-      <Stack
-        spacing={4}
-        w={'full'}
-        maxW={'md'}
-        bg={useColorModeValue('white', 'gray.700')}
-        rounded={'xl'}
-        boxShadow={'lg'}
-        p={6}
-        my={12}>
-        <Heading lineHeight={1.1} fontSize={{ base: '2xl', md: '3xl' }}>
-          Enter new password
-        </Heading>
+    return (
+        <Flex
+            minH="100vh"
+            align="center"
+            justify="center"
+            bg={useColorModeValue("gray.50", "gray.900")}
+            p={{ base: 4, md: 8 }}
+        >
+            <VStack spacing={8} mx="auto" maxW="lg" w="100%">
+                <VStack spacing={6} align="center">
+                    <Flex
+                        bg="brand.600"
+                        color="white"
+                        w={14}
+                        h={14}
+                        borderRadius="2xl"
+                        align="center"
+                        justify="center"
+                    >
+                        <Icon as={UtensilsCrossed} boxSize={7} />
+                    </Flex>
+                    <Box textAlign="center">
+                        <Heading
+                            size="xl"
+                            fontWeight="bold"
+                            color="gray.800"
+                            _dark={{ color: "white" }}
+                        >
+                            Set new password
+                        </Heading>
+                        <Text color="gray.500" mt={2}>
+                            Enter your email and new password below
+                        </Text>
+                    </Box>
+                </VStack>
 
-        <form onSubmit={handleSubmit(onSubmit)}>
-        <FormControl id="email" isRequired>
-          <FormLabel>Email address</FormLabel>
-          <Input
-           {...register("email", { required: true, maxLength: 20, email:true })}
-            placeholder="your-email@example.com"
-            _placeholder={{ color: 'gray.500' }}
-            type="email"
-          />
-        </FormControl>
-        <FormControl id="token" isRequired>
-          <Input
-          {...register("token", { required: true})}
-          value={reset_token}
-          type="hidden"
-          />
-        </FormControl>
-        <FormControl id="password">
-          <FormLabel>Password</FormLabel>
-          <InputGroup size='md'>
-            <Input
-              {...register("password", { required: true })}
-              pr='4.5rem'
-              type={show ? 'text' : 'password'}
-              placeholder='Enter password'
-            />
-            <InputRightElement width='4.5rem'>
-              <Button h='1.75rem' size='sm' onClick={handleClick}>
-                {show ? 'Hide' : 'Show'}
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-        </FormControl>
-        <Stack spacing={6} mt={4}>
-          <Button
-            isLoading={isSubmitting}
-            loadingText="Resetting password.."
-            type='submit'
-            bg={'blue.400'}
-            color={'white'}
-            _hover={{
-              bg: 'blue.500',
-            }}>
-            Submit
-          </Button>
-        </Stack>
-        </form>
-      </Stack>
-    </Flex>
-  )
+                <Box
+                    bg={useColorModeValue("white", "gray.800")}
+                    borderRadius="2xl"
+                    boxShadow={useColorModeValue("lg", "2xl")}
+                    border="1px solid"
+                    borderColor={useColorModeValue("gray.100", "gray.700")}
+                    p={{ base: 6, md: 8 }}
+                    w="100%"
+                >
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <VStack spacing={5}>
+                            <FormControl isInvalid={errors.email} isRequired>
+                                <Flex align="center" gap={2} mb={2}>
+                                    <Icon as={Mail} boxSize={4} color="gray.400" />
+                                    <Text fontSize="sm" fontWeight="600" color="gray.700" _dark={{ color: "gray.300" }}>
+                                        Email Address
+                                    </Text>
+                                </Flex>
+                                <Input
+                                    {...register("email", {
+                                        required: "Email is required",
+                                        pattern: {
+                                            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                                            message: "Invalid email address",
+                                        },
+                                    })}
+                                    type="email"
+                                    placeholder="your-email@example.com"
+                                    size="lg"
+                                    borderRadius="lg"
+                                />
+                                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+                            </FormControl>
+
+                            <FormControl isInvalid={errors.token} display="none">
+                                <Input {...register("token", { required: true })} value={reset_token} type="hidden" />
+                            </FormControl>
+
+                            <FormControl isInvalid={errors.password} isRequired>
+                                <Flex align="center" gap={2} mb={2}>
+                                    <Icon as={Lock} boxSize={4} color="gray.400" />
+                                    <Text fontSize="sm" fontWeight="600" color="gray.700" _dark={{ color: "gray.300" }}>
+                                        New Password
+                                    </Text>
+                                </Flex>
+                                <InputGroup size="lg">
+                                    <Input
+                                        {...register("password", {
+                                            required: "Password is required",
+                                            minLength: { value: 6, message: "Minimum 6 characters" },
+                                        })}
+                                        type={show ? "text" : "password"}
+                                        placeholder="Enter new password"
+                                        borderRadius="lg"
+                                    />
+                                    <InputRightElement>
+                                        <Button variant="ghost" onClick={handleClick} size="sm" p={2} borderRadius="lg">
+                                            <Icon as={show ? EyeOff : Eye} boxSize={4} color="gray.500" />
+                                        </Button>
+                                    </InputRightElement>
+                                </InputGroup>
+                                <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+                            </FormControl>
+
+                            <Button
+                                isLoading={isSubmitting}
+                                loadingText="Resetting password..."
+                                type="submit"
+                                variant="primary"
+                                size="lg"
+                                w="full"
+                                h={12}
+                            >
+                                Reset Password
+                            </Button>
+                        </VStack>
+                    </form>
+                </Box>
+            </VStack>
+        </Flex>
+    );
 }

@@ -1,0 +1,45 @@
+<?php
+
+namespace Modules\Invoice\Repositories;
+
+use Modules\Invoice\Models\Invoice;
+
+class InvoiceRepository
+{
+    public function __construct(protected Invoice $model) {}
+
+    public function query()
+    {
+        return $this->model->query();
+    }
+
+    public function find($id)
+    {
+        return $this->model->findOrFail($id);
+    }
+
+    public function create(array $data)
+    {
+        return $this->model->create($data);
+    }
+
+    public function update($id, array $data)
+    {
+        $item = $this->find($id);
+        $item->update($data);
+        return $item;
+    }
+
+    public function delete($id)
+    {
+        return $this->find($id)->delete();
+    }
+
+    public function paginate($perPage = 15, array $filters = [])
+    {
+        return $this->model->query()
+            ->when($filters['search'] ?? null, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->orderByDesc('created_at')
+            ->paginate($perPage);
+    }
+}

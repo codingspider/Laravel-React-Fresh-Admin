@@ -1,0 +1,11 @@
+{
+    "name": "KOT",
+    "alias": "kot",
+    "description": "",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\KOT\\Providers\\KOTServiceProvider"
+    ],
+    "files": []
+}

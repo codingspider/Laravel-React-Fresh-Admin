@@ -1,0 +1,28 @@
+{
+    "name": "nwidart/kitchendisplay",
+    "description": "The KitchenDisplay module",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\KitchenDisplay\\": "app/",
+            "Modules\\KitchenDisplay\\Database\\Factories\\": "database/factories/",
+            "Modules\\KitchenDisplay\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\KitchenDisplay\\Tests\\": "tests/"
+        }
+    }
+}

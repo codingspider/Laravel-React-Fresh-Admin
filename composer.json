@@ -12,6 +12,7 @@
         "laravel/framework": "^12.0",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.10.1",
+        "nwidart/laravel-modules": "*",
         "spatie/laravel-permission": "^7.3"
     },
     "require-dev": {
@@ -26,6 +27,39 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/",
+            "Modules\\Accounting\\": "Modules/Accounting/app/",
+            "Modules\\Analytics\\": "Modules/Analytics/app/",
+            "Modules\\Auth\\": "Modules/Auth/app/",
+            "Modules\\Branch\\": "Modules/Branch/app/",
+            "Modules\\CRM\\": "Modules/CRM/app/",
+            "Modules\\Customer\\": "Modules/Customer/app/",
+            "Modules\\Delivery\\": "Modules/Delivery/app/",
+            "Modules\\Employee\\": "Modules/Employee/app/",
+            "Modules\\Finance\\": "Modules/Finance/app/",
+            "Modules\\HRM\\": "Modules/HRM/app/",
+            "Modules\\Inventory\\": "Modules/Inventory/app/",
+            "Modules\\Invoice\\": "Modules/Invoice/app/",
+            "Modules\\KitchenDisplay\\": "Modules/KitchenDisplay/app/",
+            "Modules\\KOT\\": "Modules/KOT/app/",
+            "Modules\\Loyalty\\": "Modules/Loyalty/app/",
+            "Modules\\Marketing\\": "Modules/Marketing/app/",
+            "Modules\\Menu\\": "Modules/Menu/app/",
+            "Modules\\Notification\\": "Modules/Notification/app/",
+            "Modules\\Orders\\": "Modules/Orders/app/",
+            "Modules\\POS\\": "Modules/POS/app/",
+            "Modules\\Payroll\\": "Modules/Payroll/app/",
+            "Modules\\Plan\\": "Modules/Plan/app/",
+            "Modules\\Purchase\\": "Modules/Purchase/app/",
+            "Modules\\Recipe\\": "Modules/Recipe/app/",
+            "Modules\\Reports\\": "Modules/Reports/app/",
+            "Modules\\Reservation\\": "Modules/Reservation/app/",
+            "Modules\\Restaurant\\": "Modules/Restaurant/app/",
+            "Modules\\Review\\": "Modules/Review/app/",
+            "Modules\\Shift\\": "Modules/Shift/app/",
+            "Modules\\Subscription\\": "Modules/Subscription/app/",
+            "Modules\\SuperAdmin\\": "Modules/SuperAdmin/app/",
+            "Modules\\Supplier\\": "Modules/Supplier/app/",
+            "Modules\\TableManagement\\": "Modules/TableManagement/app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
@@ -74,7 +108,8 @@
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
-            "php-http/discovery": true
+            "php-http/discovery": true,
+            "wikimedia/composer-merge-plugin": true
         }
     },
     "minimum-stability": "stable",

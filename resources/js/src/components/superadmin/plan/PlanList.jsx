@@ -1,43 +1,52 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Card,
-    CardBody,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    SimpleGrid,
-    Td,
     Box,
     useToast,
+    Icon,
+    HStack,
+    IconButton,
+    Tooltip,
+    Badge,
+    Text,
+    Flex,
+    Avatar,
+    useColorModeValue,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
 } from "@chakra-ui/react";
 import { Link as ChakraLink } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal, Eye, Copy } from "lucide-react";
 import Swal from "sweetalert2";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { PLAN_ADD_PATH, PLAN_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import {
+    PLAN_ADD_PATH,
+    PLAN_EDIT_PATH,
+    DASHBOARD_PATH,
+} from "../../../routes/superAdminRoutes";
 import TanStackTable from "../../../TanStackTable";
-import { LIST_PLAN } from "../../../routes/apiRoutes";
-import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
-import { DELETE_PLAN } from "../../../routes/apiRoutes";
-
+import PageHeader from "../../ui/PageHeader";
+import { LIST_PLAN, DELETE_PLAN } from "../../../routes/apiRoutes";
+import { useCurrencyFormatter } from "./../../../useCurrencyFormatter";
 
 export default function PlanList() {
     const [data, setData] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 10;
+    const [pageSize] = useState(10);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
-    const { formatAmount, currency } = useCurrencyFormatter();
+    const { formatAmount } = useCurrencyFormatter();
 
-    // Fetch data whenever page or search changes
     const fetchPlans = async () => {
         try {
             setIsLoading(true);
@@ -49,12 +58,12 @@ export default function PlanList() {
                 },
             });
 
-            const bottles = res.data?.data?.data || [];
-            const total = res.data?.data?.total || bottles.length;
+            const items = res.data?.data?.data || [];
+            const total = res.data?.data?.total || items.length;
 
-            // Update table
-            setData(bottles);
+            setData(items);
             setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
         } catch (err) {
             console.error("fetchPlans error:", err);
         } finally {
@@ -63,41 +72,43 @@ export default function PlanList() {
     };
 
     useEffect(() => {
-        const app_name = localStorage.getItem('app_name');
-        document.title = `${app_name} | Plan Management`;
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Plans`;
         fetchPlans();
     }, [pageIndex, globalFilter]);
 
     const deletePlan = async (id) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Data will be deleted.",
+            title: "Delete Plan?",
+            text: "This action cannot be undone.",
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete!",
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: "Yes, delete it",
+            cancelButtonText: "Cancel",
+            reverseButtons: true,
+            customClass: {
+                popup: 'swal-popup',
+            },
         });
 
         if (result.isConfirmed) {
             try {
                 await api.delete(DELETE_PLAN(id));
                 toast({
-                    position: "bottom-right",
-                    title: "Data deleted successfully",
+                    position: "top-right",
+                    title: "Plan deleted successfully",
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-
                 fetchPlans();
             } catch (error) {
                 toast({
-                    position: "bottom-right",
-                    title: "Error deleting data",
-                    description:
-                        error.response?.data?.message ||
-                        "Something went wrong.",
+                    position: "top-right",
+                    title: "Error deleting plan",
+                    description: error.response?.data?.message || "Something went wrong.",
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -107,88 +118,162 @@ export default function PlanList() {
     };
 
     const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1},
-        { header: t('name'), accessorKey: "name"},
-        { header: t("price"), accessorFn: row => formatAmount(row.price)},
-        { header: t('billing_cycle'), accessorKey: "billing_cycle"},
-        { header: t('user_limit'), accessorKey: "user_limit"},
-        { header: t('invoice_limit'), accessorKey: "invoice_limit"},
-        { header: t('status'), accessorFn: row => row.is_active == 1 ? 'Active' : 'Inactive' || ""},
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ row }) => (
+                <HStack spacing={3}>
+                    <Avatar size="sm" name={row.original.name} bg="brand.500" color="white" fontSize="xs" />
+                    <Text fontSize="sm" fontWeight="600">
+                        {row.original.name}
+                    </Text>
+                </HStack>
+            ),
+        },
+        {
+            header: t("price"),
+            accessorFn: (row) => formatAmount(row.price),
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600" color="green.600">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("billing_cycle"),
+            accessorKey: "billing_cycle",
+            cell: ({ getValue }) => (
+                <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2.5} py={0.5} fontSize="xs">
+                    {getValue()}
+                </Badge>
+            ),
+        },
+        {
+            header: t("user_limit"),
+            accessorKey: "user_limit",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="500">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("invoice_limit"),
+            accessorKey: "invoice_limit",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="500">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("status"),
+            accessorFn: (row) => (row.is_active == 1 ? "Active" : "Inactive"),
+            cell: ({ getValue }) => {
+                const isActive = getValue() === "Active";
+                return (
+                    <Badge
+                        colorScheme={isActive ? "green" : "gray"}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="xs"
+                        fontWeight="600"
+                    >
+                        {getValue()}
+                    </Badge>
+                );
+            },
+        },
         {
             header: "Actions",
             cell: ({ row }) => (
-                <>
-                    <Box display="flex" gap={2}>
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label="Actions"
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={Eye} boxSize={4} />}
                             borderRadius="md"
-                            onClick={() =>
-                                navigate(PLAN_EDIT_PATH(row.original.id))
-                            }
+                            fontSize="sm"
+                            onClick={() => navigate(PLAN_EDIT_PATH(row.original.id))}
                         >
-                            <EditIcon />
-                        </ChakraLink>
-
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                            View
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
-                            cursor="pointer"
+                            fontSize="sm"
+                            onClick={() => navigate(PLAN_EDIT_PATH(row.original.id))}
+                        >
+                            Edit
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
                             onClick={() => deletePlan(row.original.id)}
                         >
-                            <DeleteIcon color="red.500" />
-                        </ChakraLink>
-                    </Box>
-                </>
-            ), enableColumnFilter: false,
+                            Delete
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
         },
     ];
 
     return (
-        <>
-            {/* Breadcrumb */}
-            <Card mb={5}>
-                <CardBody>
-                    <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={DASHBOARD_PATH}
-                            >
-                                {t("dashboard")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={PLAN_ADD_PATH}
-                            >
-                                {t("add")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </CardBody>
-            </Card>
+        <Box>
+            <PageHeader
+                title="Plan Management"
+                subtitle="Manage your subscription plans"
+                breadcrumbs={[
+                    { label: "Dashboard", path: DASHBOARD_PATH },
+                    { label: "Plans", isCurrent: true },
+                ]}
+                action={PLAN_ADD_PATH}
+                actionLabel="Add Plan"
+            />
 
-            <SimpleGrid columns={{ base: 1, md: 1 }} mt={5}>
-                <Card>
-                    <CardBody>
-                        <TanStackTable
-                            columns={columns}
-                            data={data}
-                            globalFilter={globalFilter}
-                            setGlobalFilter={setGlobalFilter}
-                            pageIndex={pageIndex}
-                            pageSize={pageSize}
-                            setPageIndex={setPageIndex}
-                            pageCount={pageCount}
-                            isLoading={isLoading}
-                            addURL={PLAN_ADD_PATH}
-                        />
-                    </CardBody>
-                </Card>
-            </SimpleGrid>
-        </>
+            <Box
+                bg={useColorModeValue("white", "gray.800")}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={useColorModeValue("gray.200", "gray.700")}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={PLAN_ADD_PATH}
+                    totalItems={totalItems}
+                />
+            </Box>
+        </Box>
     );
 }

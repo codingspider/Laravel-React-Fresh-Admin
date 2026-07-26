@@ -66,11 +66,15 @@
       0 => 'Termwind\\Laravel\\TermwindServiceProvider',
     ),
   ),
-  'phiki/phiki' => 
+  'nwidart/laravel-modules' => 
   array (
+    'aliases' => 
+    array (
+      'Module' => 'Nwidart\\Modules\\Facades\\Module',
+    ),
     'providers' => 
     array (
-      0 => 'Phiki\\Adapters\\Laravel\\PhikiServiceProvider',
+      0 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     ),
   ),
   'spatie/laravel-permission' => 

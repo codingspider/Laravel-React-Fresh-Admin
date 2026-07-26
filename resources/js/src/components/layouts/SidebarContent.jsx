@@ -1,210 +1,479 @@
 import React, { useState } from 'react';
 import {
-    Box, Flex, Text, Heading, Icon, Button, VStack, HStack,
-    useColorModeValue, Tooltip
+    Box,
+    Flex,
+    Text,
+    Icon,
+    Button,
+    VStack,
+    HStack,
+    useColorModeValue,
+    Tooltip,
+    Divider,
+    Avatar,
 } from '@chakra-ui/react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
 import {
-    LayoutDashboard, Users, ShoppingCart, TrendingUp, Settings,
-    ChevronsLeft, ChevronRight,
-    Package
+    LayoutDashboard,
+    Users,
+    Settings,
+    ChevronsLeft,
+    ChevronRight,
+    ShoppingCart,
+    Package,
+    BarChart3,
+    ClipboardList,
+    Warehouse,
+    Receipt,
+    Building2,
+    UtensilsCrossed,
 } from 'lucide-react';
-import { CATEGORY_LIST_PATH, ROLE_LIST_PATH, DASHBOARD_PATH, UNIT_LIST_PATH, USER_LIST_PATH, PRODUCT_LIST_PATH } from '../../routes/superAdminRoutes';
+import {
+    DASHBOARD_PATH,
+    ROLE_LIST_PATH,
+    USER_LIST_PATH,
+    PRODUCT_LIST_PATH,
+    UNIT_LIST_PATH,
+    CATEGORY_LIST_PATH,
+} from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
 const navItems = [
-    { 
-        path: DASHBOARD_PATH, 
+    {
+        path: DASHBOARD_PATH,
         icon: LayoutDashboard,
-        label: 'Admin Dashboard',
-        permission: 'view_dashboard_data' 
+        label: 'Dashboard',
+        permission: 'view_dashboard_data',
     },
     {
-        icon: Users, 
+        icon: ShoppingCart,
+        label: 'Orders',
+        permission: 'view_orders',
+        children: [
+            { path: '/orders', label: 'All Orders', permission: 'view_orders' },
+            { path: '/orders/create', label: 'New Order', permission: 'create_orders' },
+        ],
+    },
+    {
+        icon: UtensilsCrossed,
+        label: 'Products',
+        permission: 'view_products',
+        children: [
+            { path: PRODUCT_LIST_PATH, label: 'All Products', permission: 'view_products' },
+            { path: '/admin/category/list', label: 'Categories', permission: 'view_categories' },
+            { path: UNIT_LIST_PATH, label: 'Units', permission: 'view_units' },
+        ],
+    },
+    {
+        icon: Warehouse,
+        label: 'Inventory',
+        permission: 'view_inventory',
+        children: [
+            { path: '/inventory/stock', label: 'Stock', permission: 'view_inventory' },
+            { path: '/inventory/purchases', label: 'Purchases', permission: 'view_purchases' },
+        ],
+    },
+    {
+        icon: Building2,
+        label: 'Branches',
+        permission: 'view_branches',
+        children: [
+            { path: '/admin/branch/list', label: 'All Branches', permission: 'view_branches' },
+        ],
+    },
+    {
+        icon: Users,
         label: 'User Management',
+        permission: 'view_user',
         children: [
             { path: USER_LIST_PATH, label: 'All Users', permission: 'view_user' },
-            { path: ROLE_LIST_PATH, label: 'Roles', permission: 'role_list' },
-        ]
+            { path: ROLE_LIST_PATH, label: 'Roles & Permissions', permission: 'role_list' },
+        ],
     },
-    { path: '/settings', icon: Settings, label: 'Settings', permission: 'access_business_settings' },
+    {
+        icon: BarChart3,
+        label: 'Reports',
+        permission: 'view_reports',
+        children: [
+            { path: '/reports/sales', label: 'Sales Report', permission: 'view_reports' },
+            { path: '/reports/finance', label: 'Finance Report', permission: 'view_reports' },
+        ],
+    },
+    {
+        path: '/settings',
+        icon: Settings,
+        label: 'Settings',
+        permission: 'access_business_settings',
+    },
 ];
 
 export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
-    // 2. Destructure the 'can' function from your hook
-    const { can } = usePermission(); 
-
+    const { can } = usePermission();
     const [openMenus, setOpenMenus] = useState({});
     const location = useLocation();
 
-    const bg = useColorModeValue('white', 'gray.800');
-    const shadow = useColorModeValue('soft', 'softDark');
-    const borderColor = useColorModeValue('gray.200', 'gray.700');
-    const hoverBg = useColorModeValue('gray.100', 'gray.700');
+    const bg = useColorModeValue('white', 'gray.900');
+    const borderColor = useColorModeValue('gray.100', 'gray.800');
+    const hoverBg = useColorModeValue('gray.50', 'gray.800');
+    const activeBg = useColorModeValue('brand.50', 'brand.900');
+    const activeColor = 'brand.600';
+    const textColor = useColorModeValue('gray.600', 'gray.400');
+    const textHover = useColorModeValue('gray.900', 'white');
 
     const checkActive = (path) => location.pathname === path;
+    const checkActiveParent = (children) => children?.some(child => location.pathname === child.path);
 
     const toggleMenu = (label) => {
         setOpenMenus(prev => ({ ...prev, [label]: !prev[label] }));
     };
 
-    const renderNavItem = (item, isMobile = false) => {
-
-        // 🔒 3. SECURITY CHECK: Simple Item
-        if (item.permission && !can(item.permission)) {
-            return null;
-        }
+    const NavItem = ({ item, isMobile = false, isCollapsedView = false }) => {
+        if (item.permission && !can(item.permission)) return null;
 
         const hasChildren = item.children && item.children.length > 0;
         const isOpen = openMenus[item.label];
-        const isActive = checkActive(item.path);
+        const isActive = item.path ? checkActive(item.path) : hasChildren && checkActiveParent(item.children);
 
-        // Collapsed Desktop View
-        if (!isMobile && isCollapsed) {
-            if (hasChildren) {
-                // 🔒 4. SECURITY CHECK: Parent Item (Collapsed)
-                const hasAccessToChildren = item.children.some(child => !child.permission || can(child.permission));
-                if (!hasAccessToChildren) return null;
+        if (hasChildren) {
+            const visibleChildren = item.children.filter(child => !child.permission || can(child.permission));
+            if (visibleChildren.length === 0) return null;
 
+            if (isCollapsedView) {
                 return (
                     <Tooltip key={item.label} label={item.label} placement="right" hasArrow>
-                        <Flex align="center" justify="center" px="0" py="3" borderRadius="lg" cursor="pointer" color="gray.500" _hover={{ bg: hoverBg, color: 'gray.700' }} transition="0.2s" _dark={{ _hover: { color: 'white' } }}>
-                            <Icon as={item.icon} boxSize={5} flexShrink={0} />
+                        <Flex
+                            align="center"
+                            justify="center"
+                            py={2.5}
+                            borderRadius="lg"
+                            cursor="pointer"
+                            color={isActive ? activeColor : textColor}
+                            bg={isActive ? activeBg : 'transparent'}
+                            _hover={{ bg: hoverBg, color: textHover }}
+                            transition="all 0.15s ease"
+                        >
+                            <Icon as={item.icon} boxSize={5} />
                         </Flex>
                     </Tooltip>
                 );
             }
+
+            return (
+                <Box key={item.label} w="100%">
+                    <Flex
+                        align="center"
+                        px={3}
+                        py={2}
+                        w="100%"
+                        borderRadius="lg"
+                        cursor="pointer"
+                        color={isActive ? activeColor : textColor}
+                        bg={isActive ? activeBg : 'transparent'}
+                        _hover={{ bg: hoverBg, color: textHover }}
+                        transition="all 0.15s ease"
+                        fontWeight="500"
+                        fontSize="sm"
+                        onClick={() => toggleMenu(item.label)}
+                        justify="space-between"
+                    >
+                        <HStack spacing={3}>
+                            <Icon as={item.icon} boxSize={5} flexShrink={0} />
+                            <Text noOfLines={1}>{item.label}</Text>
+                        </HStack>
+                        <Icon
+                            as={ChevronRight}
+                            boxSize={4}
+                            transition="transform 0.2s ease"
+                            transform={isOpen ? 'rotate(90deg)' : 'rotate(0deg)'}
+                            opacity={0.6}
+                        />
+                    </Flex>
+
+                    <Box
+                        overflow="hidden"
+                        maxH={isOpen ? '200px' : '0'}
+                        transition="max-height 0.3s ease"
+                    >
+                        <VStack spacing={0.5} pl={11} pt={1} align="stretch">
+                            {visibleChildren.map((child) => {
+                                const isChildActive = checkActive(child.path);
+                                return (
+                                    <ChakraLink
+                                        key={child.path}
+                                        as={ReactRouterLink}
+                                        to={child.path}
+                                        onClick={() => isMobile && setIsMobileOpen(false)}
+                                        _hover={{ textDecoration: 'none' }}
+                                    >
+                                        <Flex
+                                            align="center"
+                                            px={3}
+                                            py={2}
+                                            borderRadius="lg"
+                                            cursor="pointer"
+                                            bg={isChildActive ? activeBg : 'transparent'}
+                                            color={isChildActive ? activeColor : textColor}
+                                            _hover={{ bg: isChildActive ? activeBg : hoverBg, color: isChildActive ? activeColor : textHover }}
+                                            transition="all 0.15s ease"
+                                            fontSize="sm"
+                                        >
+                                            <Text noOfLines={1}>{child.label}</Text>
+                                        </Flex>
+                                    </ChakraLink>
+                                );
+                            })}
+                        </VStack>
+                    </Box>
+                </Box>
+            );
+        }
+
+        if (isCollapsedView) {
             return (
                 <Tooltip key={item.label} label={item.label} placement="right" hasArrow>
                     <ChakraLink as={ReactRouterLink} to={item.path} _hover={{ textDecoration: 'none' }}>
-                        <Flex align="center" justify="center" px="0" py="3" borderRadius="lg" bg={isActive ? 'brand.50' : 'transparent'} color={isActive ? 'brand.600' : 'gray.500'} _hover={{ bg: isActive ? 'brand.50' : hoverBg, color: isActive ? 'brand.600' : 'gray.700' }} transition="0.2s" _dark={{ _hover: { color: 'white' } }}>
-                            <Icon as={item.icon} boxSize={5} flexShrink={0} />
+                        <Flex
+                            align="center"
+                            justify="center"
+                            py={2.5}
+                            borderRadius="lg"
+                            cursor="pointer"
+                            bg={isActive ? activeBg : 'transparent'}
+                            color={isActive ? activeColor : textColor}
+                            _hover={{ bg: isActive ? activeBg : hoverBg, color: isActive ? activeColor : textHover }}
+                            transition="all 0.15s ease"
+                        >
+                            <Icon as={item.icon} boxSize={5} />
                         </Flex>
                     </ChakraLink>
                 </Tooltip>
             );
         }
 
-        // Expanded / Mobile View
-        if (hasChildren) {
-            // 🔒 5. SECURITY CHECK: Filter Children
-            const visibleChildren = item.children.filter(child => !child.permission || can(child.permission));
-
-            // If NO children are visible, hide the entire parent menu
-            if (visibleChildren.length === 0) {
-                return null;
-            }
-
-            return (
-                <Box key={item.label} w="100%">
-                    <Flex
-                        align="center" px="4" py="3" w="100%" borderRadius="lg" cursor="pointer"
-                        color="gray.500"
-                        _hover={{ bg: hoverBg, color: 'gray.700' }}
-                        transition="0.2s" fontWeight="500" fontSize="sm"
-                        onClick={() => toggleMenu(item.label)}
-                        justifyContent="space-between"
-                        _dark={{ _hover: { color: 'white' } }}
-                    >
-                        <HStack spacing="3">
-                            <Icon as={item.icon} boxSize={5} flexShrink={0} />
-                            <Text>{item.label}</Text>
-                        </HStack>
-                        <Icon as={ChevronRight} boxSize={4} transition="transform 0.2s ease" transform={isOpen ? "rotate(90deg)" : "rotate(0deg)"} />
-                    </Flex>
-
-                    {isOpen && (
-                        <VStack spacing="1" pl="12" pt="1" align="stretch">
-                            {/* 🔒 6. Render only the visibleChildren, not all children */}
-                            {visibleChildren.map((child) => {
-                                const isChildActive = checkActive(child.path);
-                                return (
-                                    <ChakraLink key={child.path} as={ReactRouterLink} to={child.path} onClick={() => isMobile && setIsMobileOpen(false)} _hover={{ textDecoration: 'none' }}>
-                                        <Flex
-                                            align="center" px="4" py="2.5" borderRadius="lg" cursor="pointer"
-                                            bg={isChildActive ? 'brand.50' : 'transparent'}
-                                            color={isChildActive ? 'brand.600' : 'gray.500'}
-                                            _hover={{ bg: isChildActive ? 'brand.50' : hoverBg, color: isChildActive ? 'brand.600' : 'gray.700' }}
-                                            transition="0.2s" fontSize="sm" fontWeight="normal"
-                                            _dark={{ _hover: { color: 'white' } }}
-                                        >
-                                            <Text>{child.label}</Text>
-                                        </Flex>
-                                    </ChakraLink>
-                                );
-                            })}
-                        </VStack>
-                    )}
-                </Box>
-            );
-        }
-
         return (
-            <Box key={item.label} w="100%">
-                <ChakraLink as={ReactRouterLink} to={item.path} onClick={() => isMobile && setIsMobileOpen(false)} _hover={{ textDecoration: 'none' }}>
-                    <Flex
-                        align="center" px="4" py="3" w="100%" borderRadius="lg" cursor="pointer"
-                        bg={isActive ? 'brand.50' : 'transparent'}
-                        color={isActive ? 'brand.600' : 'gray.500'}
-                        _hover={{ bg: isActive ? 'brand.50' : hoverBg, color: isActive ? 'brand.600' : 'gray.700' }}
-                        transition="0.2s" fontWeight="500" fontSize="sm"
-                        _dark={{ _hover: { color: 'white' } }}
-                    >
-                        <HStack spacing="3">
-                            <Icon as={item.icon} boxSize={5} flexShrink={0} />
-                            <Text>{item.label}</Text>
-                        </HStack>
-                    </Flex>
-                </ChakraLink>
-            </Box>
+            <ChakraLink key={item.label} as={ReactRouterLink} to={item.path} onClick={() => isMobile && setIsMobileOpen(false)} _hover={{ textDecoration: 'none' }}>
+                <Flex
+                    align="center"
+                    px={3}
+                    py={2}
+                    w="100%"
+                    borderRadius="lg"
+                    cursor="pointer"
+                    bg={isActive ? activeBg : 'transparent'}
+                    color={isActive ? activeColor : textColor}
+                    _hover={{ bg: isActive ? activeBg : hoverBg, color: isActive ? activeColor : textHover }}
+                    transition="all 0.15s ease"
+                    fontWeight="500"
+                    fontSize="sm"
+                >
+                    <HStack spacing={3}>
+                        <Icon as={item.icon} boxSize={5} flexShrink={0} />
+                        <Text noOfLines={1}>{item.label}</Text>
+                    </HStack>
+                </Flex>
+            </ChakraLink>
         );
     };
 
+    const SidebarLogo = ({ collapsed = false }) => (
+        <Flex align="center" gap={3} px={collapsed ? 0 : 1}>
+            <Flex
+                bg="brand.600"
+                color="white"
+                w={9}
+                h={9}
+                borderRadius="lg"
+                align="center"
+                justify="center"
+                flexShrink={0}
+            >
+                <Icon as={UtensilsCrossed} boxSize={5} />
+            </Flex>
+            {!collapsed && (
+                <Text
+                    fontSize="lg"
+                    fontWeight="bold"
+                    bgGradient="linear(to-r, brand.600, brand.400)"
+                    bgClip="text"
+                    noOfLines={1}
+                >
+                    Restaurant
+                </Text>
+            )}
+        </Flex>
+    );
+
     return (
         <>
-            {/* SIDEBAR - Desktop */}
+            {/* Desktop Sidebar */}
             <Box
                 display={{ base: 'none', lg: 'flex' }}
                 flexDirection="column"
-                w={isCollapsed ? '80px' : '260px'} transition="width 0.3s ease"
-                position="fixed" top="0" left="0" h="full" zIndex="10"
-                bg={bg} borderRight="1px" borderColor={borderColor}
-                boxShadow={shadow}
+                w={isCollapsed ? '72px' : '260px'}
+                transition="width 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                position="fixed"
+                top={0}
+                left={0}
+                h="full"
+                zIndex="10"
+                bg={bg}
+                borderRight="1px solid"
+                borderColor={borderColor}
             >
-                <Flex p="4" justify="space-between" align="center" borderBottom="1px" borderColor={borderColor}>
-                    {!isCollapsed && <Heading size="md" bgGradient="linear(to-r, brand.600, brand.400)" bgClip="text" fontWeight="800">Acme Inc</Heading>}
-                    <Button variant="ghost" onClick={() => setIsCollapsed(!isCollapsed)} p="2" borderRadius="lg">
-                        <Icon as={ChevronsLeft} boxSize={5} transform={isCollapsed ? 'rotate(180deg)' : 'none'} transition="0.3s" />
-                    </Button>
+                <Flex
+                    p={4}
+                    justify={isCollapsed ? 'center' : 'space-between'}
+                    align="center"
+                    h="64px"
+                    borderBottom="1px solid"
+                    borderColor={borderColor}
+                >
+                    <SidebarLogo collapsed={isCollapsed} />
+                    {!isCollapsed && (
+                        <Button
+                            variant="ghost"
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            p={1.5}
+                            borderRadius="lg"
+                            size="sm"
+                        >
+                            <Icon as={ChevronsLeft} boxSize={4} />
+                        </Button>
+                    )}
                 </Flex>
-                <VStack spacing="1" p="4" flex="1" align="stretch" overflowY="auto" overflowX="hidden">
-                    {navItems.map(item => renderNavItem(item, false))}
+
+                {isCollapsed && (
+                    <Flex justify="center" py={2} borderBottom="1px solid" borderColor={borderColor}>
+                        <Button
+                            variant="ghost"
+                            onClick={() => setIsCollapsed(!isCollapsed)}
+                            p={1.5}
+                            borderRadius="lg"
+                            size="sm"
+                        >
+                            <Icon
+                                as={ChevronsLeft}
+                                boxSize={4}
+                                transform="rotate(180deg)"
+                                transition="0.3s"
+                            />
+                        </Button>
+                    </Flex>
+                )}
+
+                <VStack
+                    spacing={1}
+                    p={3}
+                    flex="1"
+                    align="stretch"
+                    overflowY="auto"
+                    overflowX="hidden"
+                >
+                    {navItems.map(item => (
+                        <NavItem
+                            key={item.label}
+                            item={item}
+                            isCollapsedView={isCollapsed}
+                        />
+                    ))}
                 </VStack>
+
+                <Box p={3} borderTop="1px solid" borderColor={borderColor}>
+                    {!isCollapsed ? (
+                        <Flex
+                            align="center"
+                            gap={3}
+                            p={2}
+                            borderRadius="lg"
+                            _hover={{ bg: hoverBg }}
+                            transition="all 0.15s ease"
+                        >
+                            <Avatar size="sm" name="User" bg="brand.500" color="white" />
+                            <Box flex="1" minW={0}>
+                                <Text fontSize="sm" fontWeight="600" noOfLines={1}>
+                                    {localStorage.getItem('app_name') || 'Restaurant'}
+                                </Text>
+                                <Text fontSize="xs" color="gray.400" noOfLines={1}>
+                                    Admin
+                                </Text>
+                            </Box>
+                        </Flex>
+                    ) : (
+                        <Tooltip label="Restaurant" placement="right" hasArrow>
+                            <Flex justify="center">
+                                <Avatar size="sm" name="User" bg="brand.500" color="white" />
+                            </Flex>
+                        </Tooltip>
+                    )}
+                </Box>
             </Box>
 
-            {/* SIDEBAR - Mobile Overlay */}
+            {/* Mobile Overlay */}
             {isMobileOpen && (
-                <Box position="fixed" top="0" left="0" w="100%" h="100%" bg="blackAlpha.600" zIndex="9998" onClick={() => setIsMobileOpen(false)} transition="opacity 0.3s" />
+                <Box
+                    position="fixed"
+                    top={0}
+                    left={0}
+                    w="100%"
+                    h="100%"
+                    bg="blackAlpha.50"
+                    backdropFilter="blur(4px)"
+                    zIndex="9998"
+                    onClick={() => setIsMobileOpen(false)}
+                    transition="opacity 0.3s ease"
+                />
             )}
 
-            {/* SIDEBAR - Mobile Panel */}
+            {/* Mobile Sidebar */}
             <Box
-                position="fixed" top="0" left="0" w="280px" h="100%" bg={bg} zIndex="9999"
-                boxShadow="2xl" display={{ base: "block", lg: "none" }}
-                transform={isMobileOpen ? "translateX(0)" : "translateX(-100%)"}
-                transition="transform 0.3s ease" onClick={(e) => e.stopPropagation()} overflowY="auto"
+                position="fixed"
+                top={0}
+                left={0}
+                w="280px"
+                h="100%"
+                bg={bg}
+                zIndex="9999"
+                boxShadow="2xl"
+                display={{ base: 'flex', lg: 'none' }}
+                flexDirection="column"
+                transform={isMobileOpen ? 'translateX(0)' : 'translateX(-100%)'}
+                transition="transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)"
+                onClick={(e) => e.stopPropagation()}
             >
-                <Flex p="4" justify="space-between" align="center" borderBottom="1px" borderColor={borderColor}>
-                    <Heading size="md" bgGradient="linear(to-r, brand.600, brand.400)" bgClip="text" fontWeight="800">Acme Inc</Heading>
-                    <Button variant="ghost" onClick={() => setIsMobileOpen(false)} p="2" borderRadius="lg">
-                        <Icon as={ChevronsLeft} boxSize={5} />
+                <Flex p={4} justify="space-between" align="center" h="64px" borderBottom="1px solid" borderColor={borderColor}>
+                    <SidebarLogo />
+                    <Button
+                        variant="ghost"
+                        onClick={() => setIsMobileOpen(false)}
+                        p={1.5}
+                        borderRadius="lg"
+                        size="sm"
+                    >
+                        <Icon as={ChevronsLeft} boxSize={4} />
                     </Button>
                 </Flex>
-                <VStack spacing="1" p="4" align="stretch">
-                    {navItems.map(item => renderNavItem(item, true))}
+
+                <VStack spacing={1} p={3} flex="1" align="stretch" overflowY="auto">
+                    {navItems.map(item => (
+                        <NavItem key={item.label} item={item} isMobile={true} />
+                    ))}
                 </VStack>
+
+                <Box p={3} borderTop="1px solid" borderColor={borderColor}>
+                    <Flex align="center" gap={3} p={2} borderRadius="lg">
+                        <Avatar size="sm" name="User" bg="brand.500" color="white" />
+                        <Box flex="1" minW={0}>
+                            <Text fontSize="sm" fontWeight="600" noOfLines={1}>
+                                {localStorage.getItem('app_name') || 'Restaurant'}
+                            </Text>
+                            <Text fontSize="xs" color="gray.400" noOfLines={1}>
+                                Admin
+                            </Text>
+                        </Box>
+                    </Flex>
+                </Box>
             </Box>
         </>
     );

@@ -1,0 +1,28 @@
+{
+    "name": "nwidart/recipe",
+    "description": "The Recipe module",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Recipe\\": "app/",
+            "Modules\\Recipe\\Database\\Factories\\": "database/factories/",
+            "Modules\\Recipe\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Recipe\\Tests\\": "tests/"
+        }
+    }
+}

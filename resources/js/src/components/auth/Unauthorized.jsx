@@ -1,9 +1,67 @@
-import React from 'react'
+import React from "react";
+import {
+    Flex,
+    VStack,
+    Heading,
+    Text,
+    Button,
+    Icon,
+    useColorModeValue,
+} from "@chakra-ui/react";
+import { Link as ReactRouterLink } from "react-router-dom";
+import { ShieldAlert, ArrowLeft } from "lucide-react";
+import { LOGIN } from "../../routes/commonRoutes";
 
 const Unauthorized = () => {
-  return (
-    <div>Unauthorized</div>
-  )
-}
+    return (
+        <Flex
+            minH="100vh"
+            align="center"
+            justify="center"
+            bg={useColorModeValue("gray.50", "gray.900")}
+            p={{ base: 4, md: 8 }}
+        >
+            <VStack spacing={6} textAlign="center" maxW="md">
+                <Flex
+                    bg="red.50"
+                    color="red.500"
+                    w={20}
+                    h={20}
+                    borderRadius="2xl"
+                    align="center"
+                    justify="center"
+                    _dark={{ bg: "red.900", color: "red.300" }}
+                >
+                    <Icon as={ShieldAlert} boxSize={10} />
+                </Flex>
 
-export default Unauthorized
+                <VStack spacing={2}>
+                    <Heading
+                        size="xl"
+                        fontWeight="bold"
+                        color="gray.800"
+                        _dark={{ color: "white" }}
+                    >
+                        Access Denied
+                    </Heading>
+                    <Text color="gray.500">
+                        You don't have permission to access this page. Please contact your administrator if you believe this is a mistake.
+                    </Text>
+                </VStack>
+
+                <Button
+                    as={ReactRouterLink}
+                    to={LOGIN}
+                    variant="primary"
+                    leftIcon={<Icon as={ArrowLeft} boxSize={4} />}
+                    size="lg"
+                    borderRadius="lg"
+                >
+                    Back to Login
+                </Button>
+            </VStack>
+        </Flex>
+    );
+};
+
+export default Unauthorized;

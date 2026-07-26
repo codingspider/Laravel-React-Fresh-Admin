@@ -1,0 +1,30 @@
+{
+    "name": "nwidart/tablemanagement",
+    "description": "",
+    "authors": [
+        {
+            "name": "Nicolas Widart",
+            "email": "n.widart@gmail.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {
+
+            }
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\TableManagement\\": "app/",
+            "Modules\\TableManagement\\Database\\Factories\\": "database/factories/",
+            "Modules\\TableManagement\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\TableManagement\\Tests\\": "tests/"
+        }
+    }
+}
