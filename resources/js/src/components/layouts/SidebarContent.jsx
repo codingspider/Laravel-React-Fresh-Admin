@@ -23,12 +23,13 @@ import {
     ChevronRight,
     ShoppingCart,
     Package,
-    BarChart3,
-    ClipboardList,
-    Warehouse,
-    Receipt,
     Building2,
     UtensilsCrossed,
+    Store,
+    GitBranch,
+    Utensils,
+    Grid3x3,
+    Monitor,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -48,12 +49,48 @@ const navItems = [
         permission: 'view_dashboard_data',
     },
     {
-        icon: ShoppingCart,
-        label: 'Orders',
-        permission: 'view_orders',
+        icon: Store,
+        label: 'Restaurants',
+        permission: 'view_restaurants',
         children: [
-            { path: '/orders', label: 'All Orders', permission: 'view_orders' },
-            { path: '/orders/create', label: 'New Order', permission: 'create_orders' },
+            { path: '/restaurant/list', label: 'All Restaurants', permission: 'view_restaurants' },
+        ],
+    },
+    {
+        icon: GitBranch,
+        label: 'Branches',
+        permission: 'view_branches',
+        children: [
+            { path: '/branch/list', label: 'All Branches', permission: 'view_branches' },
+        ],
+    },
+    {
+        icon: Utensils,
+        label: 'Menu',
+        permission: 'view_menu_items',
+        children: [
+            { path: '/menu/categories', label: 'Categories', permission: 'view_menu_categories' },
+            { path: '/menu/items', label: 'Items', permission: 'view_menu_items' },
+            { path: '/menu/modifier-groups', label: 'Modifier Groups', permission: 'view_modifier_groups' },
+        ],
+    },
+    {
+        icon: Grid3x3,
+        label: 'Table Management',
+        permission: 'view_tables',
+        children: [
+            { path: '/table-management/floors', label: 'Floors', permission: 'view_floors' },
+            { path: '/table-management/tables', label: 'Tables', permission: 'view_tables' },
+            { path: '/table-management/reservations', label: 'Reservations', permission: 'view_reservations' },
+        ],
+    },
+    {
+        icon: Monitor,
+        label: 'POS',
+        permission: 'view_pos',
+        children: [
+            { path: '/pos/terminal', label: 'POS Terminal', permission: 'view_pos' },
+            { path: '/pos/sales', label: 'Sales History', permission: 'view_pos' },
         ],
     },
     {
@@ -62,27 +99,11 @@ const navItems = [
         permission: 'view_products',
         children: [
             { path: PRODUCT_LIST_PATH, label: 'All Products', permission: 'view_products' },
-            { path: '/admin/category/list', label: 'Categories', permission: 'view_categories' },
+            { path: CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_categories' },
             { path: UNIT_LIST_PATH, label: 'Units', permission: 'view_units' },
         ],
     },
-    {
-        icon: Warehouse,
-        label: 'Inventory',
-        permission: 'view_inventory',
-        children: [
-            { path: '/inventory/stock', label: 'Stock', permission: 'view_inventory' },
-            { path: '/inventory/purchases', label: 'Purchases', permission: 'view_purchases' },
-        ],
-    },
-    {
-        icon: Building2,
-        label: 'Branches',
-        permission: 'view_branches',
-        children: [
-            { path: '/admin/branch/list', label: 'All Branches', permission: 'view_branches' },
-        ],
-    },
+
     {
         icon: Users,
         label: 'User Management',
@@ -92,15 +113,7 @@ const navItems = [
             { path: ROLE_LIST_PATH, label: 'Roles & Permissions', permission: 'role_list' },
         ],
     },
-    {
-        icon: BarChart3,
-        label: 'Reports',
-        permission: 'view_reports',
-        children: [
-            { path: '/reports/sales', label: 'Sales Report', permission: 'view_reports' },
-            { path: '/reports/finance', label: 'Finance Report', permission: 'view_reports' },
-        ],
-    },
+
     {
         path: '/settings',
         icon: Settings,

@@ -43,4 +43,8 @@ class AuthServiceProvider extends ModuleServiceProvider
     // {
     //     $schedule->command('inspire')->hourly();
     // }
+    public function boot(): void
+    {
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->nameLower);
+    }
 }

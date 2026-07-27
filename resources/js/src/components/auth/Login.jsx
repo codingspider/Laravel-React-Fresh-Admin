@@ -40,6 +40,11 @@ export default function Login() {
     const { setUserPermission } = usePermission();
     const [checkedAuth, setCheckedAuth] = useState(false);
 
+    const bgLight = useColorModeValue('gray.50', 'gray.900');
+    const cardBg = useColorModeValue('white', 'gray.800');
+    const cardShadow = useColorModeValue('lg', '2xl');
+    const cardBorder = useColorModeValue('gray.100', 'gray.700');
+
     useEffect(() => {
         const fetchUser = async () => {
             try {
@@ -75,6 +80,15 @@ export default function Login() {
             });
 
             localStorage.setItem('app_name', res.data.app_name);
+
+            // Fetch user permissions before navigating
+            try {
+                const userRes = await api.get('/user');
+                setUserPermission(userRes.data);
+            } catch (e) {
+                // Permission fetch failed, navigate anyway
+            }
+
             navigate(DASHBOARD_PATH);
         } catch (err) {
             const errorMessage = err?.response?.data?.message || err.message || 'Something went wrong';
@@ -93,7 +107,7 @@ export default function Login() {
 
     if (!checkedAuth) {
         return (
-            <Flex minH="100vh" align="center" justify="center" bg={useColorModeValue('gray.50', 'gray.900')}>
+            <Flex minH="100vh" align="center" justify="center" bg={bgLight}>
                 <Spinner size="xl" color="brand.500" />
             </Flex>
         );
@@ -104,7 +118,7 @@ export default function Login() {
             minH="100vh"
             align="center"
             justify="center"
-            bg={useColorModeValue('gray.50', 'gray.900')}
+            bg={bgLight}
             p={{ base: 4, md: 8 }}
         >
             <Stack spacing={8} mx="auto" maxW="lg" w="100%">
@@ -136,11 +150,11 @@ export default function Login() {
                 </VStack>
 
                 <Box
-                    bg={useColorModeValue('white', 'gray.800')}
+                    bg={cardBg}
                     borderRadius="2xl"
-                    boxShadow={useColorModeValue('lg', '2xl')}
+                    boxShadow={cardShadow}
                     border="1px solid"
-                    borderColor={useColorModeValue('gray.100', 'gray.700')}
+                    borderColor={cardBorder}
                     p={{ base: 6, md: 8 }}
                 >
                     <form onSubmit={handleSubmit(onSubmit)}>

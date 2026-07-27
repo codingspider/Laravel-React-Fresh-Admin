@@ -198,12 +198,101 @@ Use Laravel API Resources instead of returning models directly.
 
 Use **Spatie Laravel Permission**.
 
-Implement:
+### Roles
 
-* Roles
-* Permissions
+The following roles are seeded and available:
 
-Every protected action should be permission-based.
+| Role | Description |
+|---|---|
+| `super_admin` | Full access to all modules and settings |
+| `admin` | Full access (same as super_admin, kept for extensibility) |
+| `restaurant_owner` | Full access to own restaurant data |
+| `manager` | Broad access to most modules, limited user management |
+| `branch_manager` | Access to branch operations, menu, tables, orders |
+| `cashier` | POS, orders, menu items, customers only |
+| `waiter` | View menu, tables, reservations, create orders |
+| `kitchen_staff` | View orders, kitchen display, manage kitchen orders |
+| `chef` | Full menu management, kitchen display, inventory view |
+| `delivery_boy` | View and manage deliveries only |
+| `accountant` | Reports, purchases, inventory, customers, suppliers |
+| `hr_manager` | User management and reports |
+| `inventory_manager` | Full inventory, purchasing, suppliers management |
+
+### Permission Naming Convention
+
+Permissions follow the pattern: `{action}_{entity}`
+
+Actions: `view`, `create`, `update`, `delete`
+Entities: module-specific nouns (e.g., `restaurants`, `menu_items`, `tables`)
+
+Examples:
+* `view_restaurants`
+* `create_menu_items`
+* `update_reservations`
+* `delete_floors`
+
+### Permission Groups by Module
+
+**Restaurant**: `view_restaurants`, `create_restaurants`, `update_restaurants`, `delete_restaurants`
+
+**Branch**: `view_branches`, `create_branches`, `update_branches`, `delete_branches`
+
+**Menu**: `view_menu_categories`, `create_menu_categories`, `update_menu_categories`, `delete_menu_categories`, `view_menu_items`, `create_menu_items`, `update_menu_items`, `delete_menu_items`, `view_modifier_groups`, `create_modifier_groups`, `update_modifier_groups`, `delete_modifier_groups`
+
+**Table Management**: `view_floors`, `create_floors`, `update_floors`, `delete_floors`, `view_tables`, `create_tables`, `update_tables`, `delete_tables`, `view_reservations`, `create_reservations`, `update_reservations`, `delete_reservations`
+
+**Orders**: `view_orders`, `create_orders`, `update_orders`, `delete_orders`
+
+**POS**: `view_pos`, `process_sale`
+
+**Inventory**: `view_inventory`, `create_inventory`, `update_inventory`, `delete_inventory`
+
+**Purchasing**: `view_purchases`, `create_purchases`, `update_purchases`, `delete_purchases`
+
+**Kitchen**: `view_kitchen_display`, `manage_kitchen_orders`
+
+**Delivery**: `view_deliveries`, `manage_deliveries`
+
+**Users**: `view_user`, `create_user`, `update_user`, `delete_user`
+
+**Roles**: `role_list`, `role_create`, `role_edit`, `role_delete`, `assign_roles`, `view_permissions`
+
+**Reports**: `view_reports`
+
+**Settings**: `view_dashboard_data`, `access_business_settings`, `access_invoice_settings`
+
+### Seeder
+
+All permissions and roles are seeded in `database/seeders/UserSeeder.php`. When adding a new module:
+
+1. Add its permissions to the `$permissions` array in `UserSeeder.php`
+2. Assign relevant permissions to each role in their respective `syncPermissions()` calls
+3. Run `php artisan migrate:fresh --seed` to re-seed
+
+### Frontend Permission Check
+
+The sidebar and UI elements use the `can()` function from `PermissionContext`:
+
+```jsx
+import { usePermission } from '../../context/PermissionContext';
+const { can } = usePermission();
+
+// In sidebar (SidebarContent.jsx), nav items have a `permission` property
+// Items are hidden if the user lacks the permission
+
+// In components
+{can('create_restaurants') && <Button>Add Restaurant</Button>}
+```
+
+The `/user` API endpoint returns the authenticated user's permission names as a flat array. The `PermissionContext` stores these and the `can()` function checks membership.
+
+### Rules
+
+* Every protected action must be permission-based.
+* The `super_admin` and `admin` roles receive ALL permissions via `$allPermissions`.
+* When creating new module routes, always add corresponding permissions to the seeder.
+* Sidebar nav items MUST have a `permission` property matching a seeder permission name.
+* Never hardcode permission checks — always use the `can()` helper from `PermissionContext`.
 
 ## Frontend Standards (React)
 
@@ -216,6 +305,109 @@ Every protected action should be permission-based.
 * Use React Query (or an equivalent solution) for server state.
 * Follow consistent naming conventions.
 * Build responsive interfaces with Chakra UI.
+
+## Localization & Language Files
+
+All static text must be stored in language files — never hardcode strings in controllers, services, or other PHP classes.
+
+Each module must have its own `lang/en/` directory containing structured language files:
+
+```
+Modules/{Module}/
+└── lang/
+    └── en/
+        ├── module.php        # General module messages
+        ├── validation.php    # Validation messages
+        └── emails.php        # Email-related text (if applicable)
+```
+
+### Language File Structure
+
+Every module's `module.php` must follow this structure:
+
+```php
+<?php
+
+return [
+    // CRUD operations
+    'created'         => '{item} created successfully.',
+    'updated'         => '{item} updated successfully.',
+    'deleted'         => '{item} deleted successfully.',
+    'deleted_permanently' => '{item} deleted permanently.',
+    'restored'        => '{item} restored successfully.',
+
+    // Fetching
+    'fetched'         => '{item} fetched successfully.',
+    'fetched_list'    => '{item} list fetched successfully.',
+
+    // Not found
+    'not_found'       => '{item} not found.',
+
+    // Validation
+    'invalid_input'   => 'Invalid input provided.',
+
+    // Status changes
+    'activated'       => '{item} activated successfully.',
+    'deactivated'     => '{item} deactivated successfully.',
+
+    // Bulk operations
+    'bulk_deleted'    => '{count} {item} deleted successfully.',
+    'bulk_updated'    => '{count} {item} updated successfully.',
+
+    // Import/Export
+    'imported'        => '{item} imported successfully.',
+    'exported'        => '{item} exported successfully.',
+
+    // Authentication
+    'unauthorized'    => 'You are not authorized to perform this action.',
+    'login_required'  => 'Please login to continue.',
+
+    // General
+    'success'         => 'Operation completed successfully.',
+    'error'           => 'An error occurred. Please try again.',
+    'confirm_delete'  => 'Are you sure you want to delete this {item}?',
+];
+```
+
+### Usage in Controllers
+
+```php
+// Use trans() helper with placeholder replacement
+return response()->json([
+    'status' => 'success',
+    'message' => trans('modules::module.created', ['item' => 'Restaurant']),
+    'data' => $restaurant,
+], 201);
+
+// For validation messages, use trans_choice for pluralization
+return response()->json([
+    'status' => 'error',
+    'message' => trans('modules::module.not_found', ['item' => 'Restaurant']),
+], 404);
+```
+
+### Service Provider Registration
+
+Each module's ServiceProvider must load its lang files:
+
+```php
+public function boot(): void
+{
+    $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+    $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
+    $this->loadTranslationsFrom(__DIR__ . '/../../lang', '{module}');
+}
+```
+
+### Requirements
+
+* Every controller response message must use `trans()` with keys from the module's language file.
+* Never hardcode user-facing strings in controllers, services, or resources.
+* Use `{item}` placeholder for dynamic entity names.
+* Use `{count}` placeholder for bulk operation counts.
+* Keep language files well-organised and alphabetically sorted.
+* Default locale is English (`en`). Additional languages can be added later under `lang/{locale}/`.
+* Validation messages should be placed in the `validation.php` file within each module.
 
 ## Code Quality
 
@@ -253,3 +445,64 @@ Requirements include:
 * Maintainable and scalable codebase
 
 Every implementation should be written as if it will be reviewed by professional developers, ensuring high code quality, long-term maintainability, and ease of future enhancement.
+
+
+
+## Frontend Development Requirements (Before Phase 2)
+
+Before proceeding to **Phase 2**, complete the frontend implementation using **React (JSX)** and **Chakra UI**.
+
+### Development Guidelines
+
+* Build the frontend using **React (JSX)** with **Chakra UI** components only.
+* Review the **existing database table structures** before implementing each module to ensure all fields are properly represented.
+* For every module, create the necessary pages and reusable components, including:
+
+  * List (Data Table)
+  * Create
+  * Edit
+  * View (where applicable)
+  * Delete confirmation
+  * Filters
+  * Search
+  * Pagination
+  * Form validation
+* Reuse common components whenever possible to maintain consistency and reduce duplicate code.
+* Follow the existing project architecture and coding standards established throughout the application.
+
+### Internationalisation (i18n)
+
+* Wrap **all user-facing text** with the translation helper:
+
+  ```jsx
+  t('Your Text')
+  ```
+* Do not hard-code any labels, buttons, placeholders, validation messages, or headings.
+* Ensure every new string is translation-ready.
+
+### Dark Mode
+
+* Every component must fully support **Light** and **Dark** modes.
+* Use the application's existing colour palette and theme tokens—do not introduce new colours unless necessary.
+* Maintain a consistent design language across all pages, including:
+
+  * Backgrounds
+  * Cards
+  * Tables
+  * Forms
+  * Modals
+  * Buttons
+  * Alerts
+  * Dropdowns
+  * Navigation
+  * Typography
+* Ensure spacing, shadows, borders, hover states, and focus states remain visually consistent in both themes.
+
+### UI Consistency
+
+* Follow a clean, modern, and professional admin dashboard design.
+* Keep layouts responsive across desktop, tablet, and mobile devices.
+* Use reusable form components, table components, and modal components wherever possible.
+* Maintain consistent spacing, typography, iconography, and component behaviour throughout the application.
+
+The frontend should be production-ready, fully responsive, translation-ready, dark mode compatible, and consistent with the overall application design before moving on to **Phase 2**.

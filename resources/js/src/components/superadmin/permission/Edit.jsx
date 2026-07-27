@@ -157,7 +157,7 @@ const Edit = () => {
             const res = await api.put(UPDATE_ROLE(id), payload);
 
             toast({
-                title: res.data.message || "Success",
+                title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
                 isClosable: true,
@@ -168,7 +168,7 @@ const Edit = () => {
 
         } catch (err) {
             toast({
-                title: "Error",
+                title: t("error"),
                 description: err?.response?.data?.message,
                 status: "error",
                 duration: 3000,
@@ -266,7 +266,7 @@ const Edit = () => {
                                 <Input
                                     {...register("name", { required: true })}
                                     type="text"
-                                    placeholder="e.g. Editor, Manager, Viewer"
+                                    placeholder={t("role_name_placeholder")}
                                     bg={fieldBg}
                                     border="1px solid"
                                     borderColor={borderColor}
@@ -302,7 +302,7 @@ const Edit = () => {
                                     <Badge colorScheme="teal" borderRadius="full" px={2} mr={2}>
                                         {selectedPermissions.length}
                                     </Badge>
-                                    permissions selected
+                                    {t("permissions_selected")}
                                 </Flex>
                             </Box>
                         </SimpleGrid>
@@ -365,7 +365,7 @@ const Edit = () => {
                                                     handleSelectAllModule(group.permissions)
                                                 }
                                             >
-                                                {isAllSelected ? "Deselect All" : "Select All"}
+                                                {isAllSelected ? t("deselect_all") : t("select_all")}
                                             </Button>
                                         </Flex>
 
@@ -426,7 +426,7 @@ const Edit = () => {
                             <Button
                                 type="submit"
                                 isLoading={isSubmitting}
-                                loadingText="Saving..."
+                                loadingText={t("saving")}
                                 colorScheme="teal"
                                 bg="teal.500"
                                 color="white"

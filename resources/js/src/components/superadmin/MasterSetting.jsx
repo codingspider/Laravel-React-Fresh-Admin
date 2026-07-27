@@ -29,7 +29,7 @@ const MasterSetting = () => {
         <CardBody>
           <Breadcrumb fontSize={{ base: 'sm', md: 'md' }}>
             <BreadcrumbItem>
-              <BreadcrumbLink href="#">Home</BreadcrumbLink>
+              <BreadcrumbLink href="#">{t("home")}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem>
               <BreadcrumbLink href="#">Docs</BreadcrumbLink>
@@ -123,7 +123,7 @@ const MasterSetting = () => {
 
           <Stack direction="row" justify="flex-end" mt={8}>
             <Button isLoading={isSubmitting}
-                                loadingText="Saving Data..,"
+                                loadingText={t("saving_data")}
                                  type='submit' 
                                  colorScheme="teal">{t('save')}</Button>
           </Stack>

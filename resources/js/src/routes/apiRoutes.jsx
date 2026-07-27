@@ -1,9 +1,11 @@
+// Plan
 export const LIST_PLAN = '/plans';
 export const STORE_PLAN = '/plans';
 export const GET_EDIT_PLAN = (id) => `/plans/${id}/edit`;
 export const UPDATE_PLAN = (id) => `/plans/${id}`;
 export const DELETE_PLAN = (id) => `/plans/${id}`;
 
+// Business
 export const STORE_BUSINESS = '/business';
 export const LIST_BUSINESS = '/business';
 export const GET_CURRENCIES = 'get/currencies';
@@ -16,12 +18,7 @@ export const GET_ALL_BRANCHES = 'get/branches';
 export const GET_ALL_LOCATIONS = 'get/locations';
 export const GET_ALL_ROLES = 'get/roles';
 
-export const LIST_BRANCH = '/branches';
-export const STORE_BRANCH = '/branches';
-export const GET_EDIT_BRANCH = (id) => `/branches/${id}`;
-export const UPDATE_BRANCH = (id) => `/branches/${id}`;
-export const DELETE_BRANCH = (id) => `/branches/${id}`;
-
+// VAT
 export const STORE_VAT = '/vats';
 export const LIST_VAT = '/vats';
 export const DELETE_VAT = (id) => `/vats/${id}`;
@@ -37,42 +34,47 @@ export const GET_BRANCH_ADDONS = '/get/all/addons';
 export const GET_BRANCH_VARIATIONS = '/get/all/variations';
 export const GET_ALL_CATEGROIES = '/get/all/categories';
 
-
+// Addon
 export const STORE_ADDON = '/addons';
 export const LIST_ADDON = '/addons';
 export const DELETE_ADDON = (id) => `/addons/${id}`;
 export const UPDATE_ADDON = (id) => `/addons/${id}`;
 
-
+// Variation
 export const STORE_VARIATION = '/variations';
 export const LIST_VARIATION = '/variations';
 export const DELETE_VARIATION = (id) => `/variations/${id}`;
 export const UPDATE_VARIATION = (id) => `/variations/${id}`;
 
+// Item
 export const STORE_ITEM = '/products';
 export const LIST_ITEM = '/products';
 export const DELETE_ITEM = (id) => `/products/${id}`;
 export const UPDATE_ITEM = (id) => `/products/${id}`;
 export const GET_EDIT_ITEM = (id) => `/products/${id}`;
 
+// Category (super)
 export const STORE_CATEGORY = '/categories';
 export const LIST_CATEGORY = '/categories';
 export const DELETE_CATEGORY = (id) => `/categories/${id}`;
 export const UPDATE_CATEGORY = (id) => `/categories/${id}`;
 export const GET_EDIT_CATEGORY = (id) => `/categories/${id}`;
 
+// Unit
 export const STORE_UNIT = '/units';
 export const LIST_UNIT = '/units';
 export const DELETE_UNIT = (id) => `/units/${id}`;
 export const UPDATE_UNIT = (id) => `/units/${id}`;
 export const GET_EDIT_UNIT = (id) => `/units/${id}`;
 
+// Role
 export const STORE_ROLE = '/roles';
 export const LIST_ROLE = '/roles';
 export const DELETE_ROLE = (id) => `/roles/${id}`;
 export const UPDATE_ROLE = (id) => `/roles/${id}`;
 export const GET_EDIT_ROLE = (id) => `/roles/${id}`;
 
+// User
 export const STORE_USER = '/user-management';
 export const LIST_USER = '/user-management';
 export const DELETE_USER = (id) => `/user-management/${id}`;
@@ -80,3 +82,90 @@ export const UPDATE_USER = (id) => `/user-management/${id}`;
 export const GET_EDIT_USER = (id) => `/user-management/${id}`;
 
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
+
+// ===== Phase 1 Module API Routes =====
+
+// Restaurant
+export const LIST_RESTAURANT = '/v1/restaurants';
+export const STORE_RESTAURANT = '/v1/restaurants';
+export const GET_RESTAURANT = (id) => `/v1/restaurants/${id}`;
+export const UPDATE_RESTAURANT = (id) => `/v1/restaurants/${id}`;
+export const DELETE_RESTAURANT = (id) => `/v1/restaurants/${id}`;
+export const UPDATE_RESTAURANT_WORKING_HOURS = (id) => `/v1/restaurants/${id}/working-hours`;
+export const UPDATE_RESTAURANT_TAX = (id) => `/v1/restaurants/${id}/tax-settings`;
+
+// Branch
+export const LIST_BRANCH = '/v1/branches';
+export const LIST_BRANCH_V1 = '/v1/branches';
+export const STORE_BRANCH = '/v1/branches';
+export const STORE_BRANCH_V1 = '/v1/branches';
+export const GET_BRANCH = (id) => `/v1/branches/${id}`;
+export const GET_BRANCH_V1 = (id) => `/v1/branches/${id}`;
+export const GET_EDIT_BRANCH = (id) => `/v1/branches/${id}`;
+export const UPDATE_BRANCH = (id) => `/v1/branches/${id}`;
+export const UPDATE_BRANCH_V1 = (id) => `/v1/branches/${id}`;
+export const DELETE_BRANCH = (id) => `/v1/branches/${id}`;
+export const DELETE_BRANCH_V1 = (id) => `/v1/branches/${id}`;
+
+// Menu Categories
+export const LIST_MENU_CATEGORY = '/v1/menu/categories';
+export const STORE_MENU_CATEGORY = '/v1/menu/categories';
+export const GET_MENU_CATEGORY = (id) => `/v1/menu/categories/${id}`;
+export const UPDATE_MENU_CATEGORY = (id) => `/v1/menu/categories/${id}`;
+export const DELETE_MENU_CATEGORY = (id) => `/v1/menu/categories/${id}`;
+export const GET_MENU_CATEGORY_TREE = '/v1/menu/categories/tree';
+
+// Menu Items
+export const LIST_MENU_ITEM = '/v1/menu/items';
+export const STORE_MENU_ITEM = '/v1/menu/items';
+export const GET_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
+export const UPDATE_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
+export const DELETE_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
+
+// Modifier Groups
+export const LIST_MODIFIER_GROUP = '/v1/modifier-groups';
+export const STORE_MODIFIER_GROUP = '/v1/modifier-groups';
+export const GET_MODIFIER_GROUP = (id) => `/v1/modifier-groups/${id}`;
+export const UPDATE_MODIFIER_GROUP = (id) => `/v1/modifier-groups/${id}`;
+export const DELETE_MODIFIER_GROUP = (id) => `/v1/modifier-groups/${id}`;
+
+// Floors
+export const LIST_FLOOR = '/v1/floors';
+export const STORE_FLOOR = '/v1/floors';
+export const GET_FLOOR = (id) => `/v1/floors/${id}`;
+export const UPDATE_FLOOR = (id) => `/v1/floors/${id}`;
+export const DELETE_FLOOR = (id) => `/v1/floors/${id}`;
+
+// Tables
+export const LIST_TABLE = '/v1/tables';
+export const STORE_TABLE = '/v1/tables';
+export const GET_TABLE = (id) => `/v1/tables/${id}`;
+export const UPDATE_TABLE = (id) => `/v1/tables/${id}`;
+export const DELETE_TABLE = (id) => `/v1/tables/${id}`;
+export const UPDATE_TABLE_STATUS = (id) => `/v1/tables/${id}/status`;
+export const GET_AVAILABLE_TABLES = '/v1/tables/available';
+
+// Reservations
+export const LIST_RESERVATION = '/v1/reservations';
+export const STORE_RESERVATION = '/v1/reservations';
+export const GET_RESERVATION = (id) => `/v1/reservations/${id}`;
+export const UPDATE_RESERVATION = (id) => `/v1/reservations/${id}`;
+export const DELETE_RESERVATION = (id) => `/v1/reservations/${id}`;
+export const CONFIRM_RESERVATION = (id) => `/v1/reservations/${id}/confirm`;
+export const CANCEL_RESERVATION = (id) => `/v1/reservations/${id}/cancel`;
+export const SEAT_RESERVATION = (id) => `/v1/reservations/${id}/seat`;
+export const COMPLETE_RESERVATION = (id) => `/v1/reservations/${id}/complete`;
+
+// POS
+export const POS_START_SESSION = '/v1/pos/sessions/start';
+export const POS_CLOSE_SESSION = (id) => `/v1/pos/sessions/${id}/close`;
+export const POS_OPEN_SESSION = '/v1/pos/sessions/open';
+export const LIST_POS_SALES = '/v1/pos';
+export const STORE_POS_SALE = '/v1/pos';
+export const GET_POS_SALE = (id) => `/v1/pos/${id}`;
+export const POS_PROCESS_PAYMENT = (id) => `/v1/pos/${id}/payments`;
+export const POS_HOLD_ORDER = (id) => `/v1/pos/${id}/hold`;
+export const POS_RECALL_ORDER = (id) => `/v1/pos/${id}/recall`;
+export const POS_CANCEL_SALE = (id) => `/v1/pos/${id}/cancel`;
+export const POS_ADD_ITEM = (saleId) => `/v1/pos/${saleId}/items`;
+export const POS_REMOVE_ITEM = (saleId, itemId) => `/v1/pos/${saleId}/items/${itemId}`;

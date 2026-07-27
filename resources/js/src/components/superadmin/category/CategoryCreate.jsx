@@ -65,7 +65,7 @@ const CategoryCreate = () => {
                     .join(" ");
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorMessage,
                     status: "error",
                     duration: 3000,
@@ -74,7 +74,7 @@ const CategoryCreate = () => {
             } else if (errorResponse?.message) {
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorResponse.message,
                     status: "error",
                     duration: 3000,
@@ -261,7 +261,7 @@ const CategoryCreate = () => {
                                 <Button
                                     type="submit"
                                     isLoading={isSubmitting}
-                                    loadingText="Saving Data..."
+                                    loadingText={t("saving_data")}
                                     colorScheme="teal"
                                     bg="teal.500"
                                     color="white"

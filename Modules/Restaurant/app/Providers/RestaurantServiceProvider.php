@@ -34,6 +34,11 @@ class RestaurantServiceProvider extends ModuleServiceProvider
         RouteServiceProvider::class,
     ];
 
+    public function boot(): void
+    {
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->nameLower);
+    }
+
     /**
      * Define module schedules.
      * 

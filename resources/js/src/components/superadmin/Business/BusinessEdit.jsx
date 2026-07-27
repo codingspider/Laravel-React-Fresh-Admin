@@ -57,7 +57,7 @@ const BusinessEdit = () => {
                     .join(" ");
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorMessage,
                     status: "error",
                     duration: 3000,
@@ -66,7 +66,7 @@ const BusinessEdit = () => {
             } else if (errorResponse?.message) {
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorResponse.message,
                     status: "error",
                     duration: 3000,
@@ -237,7 +237,7 @@ const BusinessEdit = () => {
                                 <Button
                                     type="submit"
                                     isLoading={isSubmitting}
-                                    loadingText="Saving Data..."
+                                    loadingText={t("saving_data")}
                                     colorScheme="teal"
                                     flex={1}
                                 >

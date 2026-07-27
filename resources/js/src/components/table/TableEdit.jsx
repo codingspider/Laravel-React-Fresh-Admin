@@ -1,0 +1,347 @@
+import {
+    Box,
+    Button,
+    Card,
+    CardHeader,
+    CardBody,
+    Heading,
+    SimpleGrid,
+    FormControl,
+    FormLabel,
+    Input,
+    Select,
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    useToast,
+    Flex,
+    Text,
+} from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { useForm } from "react-hook-form";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Link as ReactRouterLink } from "react-router-dom";
+import api from "../../axios";
+
+const TableEdit = () => {
+    const { register, handleSubmit, reset } = useForm();
+    const { t } = useTranslation();
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(true);
+    const [floors, setFloors] = useState([]);
+    const toast = useToast();
+    const navigate = useNavigate();
+    const { id } = useParams();
+
+    useEffect(() => {
+        api.get("/v1/floors", { params: { per_page: 200 } })
+            .then((res) => {
+                setFloors(res.data.data || []);
+            })
+            .catch(() => {});
+    }, []);
+
+    const onSubmit = async (data) => {
+        setIsSubmitting(true);
+        try {
+            const res = await api.put(`/v1/tables/${id}`, data);
+            toast({
+                position: "bottom-right",
+                title: res.data.message,
+                status: "success",
+                duration: 3000,
+                isClosable: true,
+            });
+            navigate("/table-management/tables");
+        } catch (err) {
+            const errorResponse = err?.response?.data;
+            if (errorResponse?.errors) {
+                const errorMessage = Object.values(errorResponse.errors)
+                    .flat()
+                    .join(" ");
+                toast({
+                    position: "bottom-right",
+                    title: t("error"),
+                    description: errorMessage,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            } else if (errorResponse?.message) {
+                toast({
+                    position: "bottom-right",
+                    title: t("error"),
+                    description: errorResponse.message,
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+    const getEditTable = async () => {
+        try {
+            setIsLoadingData(true);
+            const res = await api.get(`/v1/tables/${id}`);
+            const table = res.data.data;
+            reset({
+                name: table.name,
+                floor_id: table.floor_id,
+                capacity: table.capacity,
+                status: table.status,
+            });
+        } catch (error) {
+            toast({
+                title: t("error"),
+                description: t("failed_to_load_table_data"),
+                status: "error",
+                duration: 3000,
+                isClosable: true,
+            });
+        } finally {
+            setIsLoadingData(false);
+        }
+    };
+
+    useEffect(() => {
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Edit Table`;
+        getEditTable();
+    }, [id]);
+
+    return (
+        <Box bg="gray.50" minH="100vh" py={3}>
+            <Box mx="auto">
+                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                    <CardBody py={3}>
+                        <Breadcrumb fontSize="sm" color="gray.500">
+                            <BreadcrumbItem>
+                                <BreadcrumbLink
+                                    as={ReactRouterLink}
+                                    to="/dashboard"
+                                    fontWeight="medium"
+                                    _hover={{ color: "teal.500" }}
+                                >
+                                    {t("dashboard")}
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink
+                                    as={ReactRouterLink}
+                                    to="/table-management/tables"
+                                    fontWeight="medium"
+                                    _hover={{ color: "teal.500" }}
+                                >
+                                    {t("list")}
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbItem isCurrentPage>
+                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                    {t("edit")}
+                                </BreadcrumbLink>
+                            </BreadcrumbItem>
+                        </Breadcrumb>
+                    </CardBody>
+                </Card>
+
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                    <CardHeader
+                        bg="white"
+                        borderBottom="1px solid"
+                        borderColor="gray.100"
+                        pb={6}
+                    >
+                        <Flex justify="space-between" align="center">
+                            <Box>
+                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                    {t("edit")}
+                                </Heading>
+                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                    {t("update_table_details")}
+                                </Text>
+                            </Box>
+                            <Button
+                                colorScheme="teal"
+                                as={ReactRouterLink}
+                                to="/table-management/tables"
+                                variant="outline"
+                                display={{ base: "none", md: "inline-flex" }}
+                                size="sm"
+                                fontWeight="600"
+                            >
+                                {t("list")}
+                            </Button>
+                        </Flex>
+                    </CardHeader>
+
+                    <CardBody p={8}>
+                        {isLoadingData ? (
+                            <Flex justify="center" align="center" h="40">
+                                <Text color="gray.500">{t("loading_data")}</Text>
+                            </Flex>
+                        ) : (
+                            <form onSubmit={handleSubmit(onSubmit)}>
+                                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+                                    <FormControl isRequired>
+                                        <FormLabel
+                                            fontSize="sm"
+                                            fontWeight="semibold"
+                                            color="gray.700"
+                                            mb={2}
+                                        >
+                                            {t("name")}
+                                        </FormLabel>
+                                        <Input
+                                            {...register("name", { required: true })}
+                                            type="text"
+                                            placeholder={t("name")}
+                                            bg="gray.50"
+                                            border="1px solid"
+                                            borderColor="gray.200"
+                                            borderRadius="md"
+                                            focusBorderColor="teal.500"
+                                            _hover={{ borderColor: "gray.300" }}
+                                            size="md"
+                                            transition="all 0.2s"
+                                        />
+                                    </FormControl>
+
+                                    <FormControl isRequired>
+                                        <FormLabel
+                                            fontSize="sm"
+                                            fontWeight="semibold"
+                                            color="gray.700"
+                                            mb={2}
+                                        >
+                                            {t("floor")}
+                                        </FormLabel>
+                                        <Select
+                                            {...register("floor_id", { required: true })}
+                                            placeholder={t("select_floor")}
+                                            bg="gray.50"
+                                            border="1px solid"
+                                            borderColor="gray.200"
+                                            borderRadius="md"
+                                            focusBorderColor="teal.500"
+                                            _hover={{ borderColor: "gray.300" }}
+                                            size="md"
+                                            transition="all 0.2s"
+                                        >
+                                            {floors.map((f) => (
+                                                <option key={f.id} value={f.id}>
+                                                    {f.name}
+                                                </option>
+                                            ))}
+                                        </Select>
+                                    </FormControl>
+
+                                    <FormControl isRequired>
+                                        <FormLabel
+                                            fontSize="sm"
+                                            fontWeight="semibold"
+                                            color="gray.700"
+                                            mb={2}
+                                        >
+                                            {t("capacity")}
+                                        </FormLabel>
+                                        <Input
+                                            {...register("capacity", {
+                                                required: true,
+                                                valueAsNumber: true,
+                                            })}
+                                            type="number"
+                                            placeholder={t("capacity")}
+                                            bg="gray.50"
+                                            border="1px solid"
+                                            borderColor="gray.200"
+                                            borderRadius="md"
+                                            focusBorderColor="teal.500"
+                                            _hover={{ borderColor: "gray.300" }}
+                                            size="md"
+                                            transition="all 0.2s"
+                                        />
+                                    </FormControl>
+
+                                    <FormControl>
+                                        <FormLabel
+                                            fontSize="sm"
+                                            fontWeight="semibold"
+                                            color="gray.700"
+                                            mb={2}
+                                        >
+                                            {t("status")}
+                                        </FormLabel>
+                                        <Select
+                                            {...register("status")}
+                                            bg="gray.50"
+                                            border="1px solid"
+                                            borderColor="gray.200"
+                                            borderRadius="md"
+                                            focusBorderColor="teal.500"
+                                            _hover={{ borderColor: "gray.300" }}
+                                            size="md"
+                                            transition="all 0.2s"
+                                        >
+                                            <option value="available">{t("available")}</option>
+                                            <option value="occupied">{t("occupied")}</option>
+                                            <option value="reserved">{t("reserved")}</option>
+                                            <option value="cleaning">{t("cleaning")}</option>
+                                            <option value="maintenance">{t("maintenance")}</option>
+                                        </Select>
+                                    </FormControl>
+                                </SimpleGrid>
+
+                                <Flex
+                                    mt={10}
+                                    justify={{ base: "stretch", md: "flex-end" }}
+                                    gap={4}
+                                >
+                                    <Button
+                                        type="button"
+                                        as={ReactRouterLink}
+                                        to="/table-management/tables"
+                                        colorScheme="gray"
+                                        variant="outline"
+                                        fontWeight="semibold"
+                                        px={6}
+                                        h={12}
+                                        borderRadius="md"
+                                        w={{ base: "full", md: "auto" }}
+                                        _hover={{ bg: "gray.50" }}
+                                    >
+                                        {t("cancel")}
+                                    </Button>
+
+                                    <Button
+                                        type="submit"
+                                        isLoading={isSubmitting}
+                                        loadingText={t("saving_data")}
+                                        colorScheme="teal"
+                                        bg="teal.500"
+                                        color="white"
+                                        fontWeight="semibold"
+                                        px={8}
+                                        h={12}
+                                        borderRadius="md"
+                                        w={{ base: "full", md: "auto" }}
+                                        _hover={{ bg: "teal.600" }}
+                                        _active={{ bg: "teal.700" }}
+                                        boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)"
+                                    >
+                                        {t("save")}
+                                    </Button>
+                                </Flex>
+                            </form>
+                        )}
+                    </CardBody>
+                </Card>
+            </Box>
+        </Box>
+    );
+};
+
+export default TableEdit;

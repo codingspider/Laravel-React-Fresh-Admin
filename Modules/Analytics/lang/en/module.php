@@ -1,0 +1,28 @@
+<?php
+
+return [
+    'activated' => 'Analytics Data activated successfully.',
+    'already_exists' => 'Analytics Data already exists.',
+    'bulk_deleted' => '{count} analytics datas deleted successfully.',
+    'bulk_updated' => '{count} analytics datas updated successfully.',
+    'confirm_delete' => 'Are you sure you want to delete this analytics data?',
+    'created' => 'Analytics Data created successfully.',
+    'dashboard_refreshed' => 'Analytics dashboard refreshed.',
+    'deactivated' => 'Analytics Data deactivated successfully.',
+    'deleted' => 'Analytics Data deleted successfully.',
+    'deleted_permanently' => 'Analytics Data deleted permanently.',
+    'error' => 'An error occurred. Please try again.',
+    'exported' => 'Analytics Data exported successfully.',
+    'fetched' => 'Analytics Data fetched successfully.',
+    'fetched_list' => 'Analytics Data list fetched successfully.',
+    'imported' => 'Analytics Data imported successfully.',
+    'invalid_input' => 'Invalid input provided.',
+    'login_required' => 'Please login to continue.',
+    'not_found' => 'Analytics Data not found.',
+    'report_exported' => 'Analytics report exported.',
+    'restored' => 'Analytics Data restored successfully.',
+    'status_changed' => 'Analytics Data status changed successfully.',
+    'success' => 'Operation completed successfully.',
+    'unauthorized' => 'You are not authorized to perform this action.',
+    'updated' => 'Analytics Data updated successfully.',
+];

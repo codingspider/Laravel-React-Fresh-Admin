@@ -59,7 +59,7 @@ const UnitCreate = () => {
                     .join(" ");
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorMessage,
                     status: "error",
                     duration: 3000,
@@ -68,7 +68,7 @@ const UnitCreate = () => {
             } else if (errorResponse?.message) {
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorResponse.message,
                     status: "error",
                     duration: 3000,
@@ -216,7 +216,7 @@ const UnitCreate = () => {
                                     </FormLabel>
                                     <Select placeholder='Select option' {...register("allow_decimal", { required: true })}>
                                         <option value='0'>No</option>
-                                        <option value='1'>Yes</option>
+                                        <option value='1'>{t("yes")}</option>
                                     </Select>
                                 </FormControl>
                             </SimpleGrid>
@@ -246,7 +246,7 @@ const UnitCreate = () => {
                                 <Button
                                     type="submit"
                                     isLoading={isSubmitting}
-                                    loadingText="Saving Data..."
+                                    loadingText={t("saving_data")}
                                     colorScheme="teal"
                                     bg="teal.500"
                                     color="white"

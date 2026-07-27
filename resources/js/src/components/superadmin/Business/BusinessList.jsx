@@ -71,13 +71,13 @@ export default function BusinessList() {
 
     const deleteBusiness = async (id) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Data will be deleted.",
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete!",
+            confirmButtonText: t("yes_delete"),
         });
 
         if (result.isConfirmed) {
@@ -85,7 +85,7 @@ export default function BusinessList() {
                 await api.delete(DELETE_PLAN(id));
                 toast({
                     position: "bottom-right",
-                    title: "Data deleted successfully",
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
@@ -95,10 +95,9 @@ export default function BusinessList() {
             } catch (error) {
                 toast({
                     position: "bottom-right",
-                    title: "Error deleting data",
+                    title: t("error_deleting_data"),
                     description:
-                        error.response?.data?.message ||
-                        "Something went wrong.",
+                        error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -108,15 +107,15 @@ export default function BusinessList() {
     };
 
     const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1},
-        { header: t('name'), accessorKey: "name"},
-        { header: t("start_date"), accessorKey: "start_date"},
-        { header: t('country'), accessorKey: "country"},
-        { header: t('state'), accessorKey: "state"},
-        { header: t('address'), accessorKey: "landmark"},
-        { header: t('status'), accessorFn: row => row.is_active == 1 ? 'Active' : 'Inactive' || ""},
+        { header: t("sl"), cell: ({ row }) => row.index + 1 },
+        { header: t('name'), accessorKey: "name" },
+        { header: t("start_date"), accessorKey: "start_date" },
+        { header: t('country'), accessorKey: "country" },
+        { header: t('state'), accessorKey: "state" },
+        { header: t('address'), accessorKey: "landmark" },
+        { header: t('status'), accessorFn: row => row.is_active == 1 ? 'Active' : 'Inactive' || "" },
         {
-            header: "Actions",
+            header: t("actions"),
             cell: ({ row }) => (
                 <>
                     <Box display="flex" gap={2}>

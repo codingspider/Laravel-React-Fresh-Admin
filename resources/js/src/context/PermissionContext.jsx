@@ -1,42 +1,41 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from './../axios';
 
 const PermissionContext = createContext();
 
 export const PermissionProvider = ({ children }) => {
     const [permissions, setPermissions] = useState([]);
-    const [loading, setLoading] = useState(true); // Start with loading = true
+    const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Helper to check permission
     const can = (permissionName) => {
         return permissions.includes(permissionName);
     };
 
-    // 1. Fetch permissions on Mount
-    useEffect(() => {
-        const fetchUser = async () => {
-            try {
-                const response = await api.get('/user');
-                setPermissions(response.data.permissions || []);
-                setIsAuthenticated(true);
-            } catch (error) {
-                console.error("Session expired or invalid token");
-            }
+    const fetchPermissions = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await api.get('/user');
+            setPermissions(response.data.permissions || []);
+            setIsAuthenticated(true);
+        } catch (error) {
+            setPermissions([]);
+            setIsAuthenticated(false);
+        } finally {
             setLoading(false);
-        };
-
-        fetchUser();
+        }
     }, []);
 
-    // 2. Login Function (Sets token and state)
+    useEffect(() => {
+        fetchPermissions();
+    }, [fetchPermissions]);
+
     const setUserPermission = (userData) => {
         setPermissions(userData.permissions || []);
         setIsAuthenticated(true);
         setLoading(false);
     };
 
-    // 3. Logout Function
     const logout = () => {
         setPermissions([]);
         setIsAuthenticated(false);
@@ -45,7 +44,7 @@ export const PermissionProvider = ({ children }) => {
     };
 
     return (
-        <PermissionContext.Provider value={{ permissions, loading, isAuthenticated, can, setUserPermission, logout }}>
+        <PermissionContext.Provider value={{ permissions, loading, isAuthenticated, can, setUserPermission, logout, refetchPermissions: fetchPermissions }}>
             {children}
         </PermissionContext.Provider>
     );

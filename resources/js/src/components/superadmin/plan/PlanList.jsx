@@ -79,14 +79,14 @@ export default function PlanList() {
 
     const deletePlan = async (id) => {
         const result = await Swal.fire({
-            title: "Delete Plan?",
-            text: "This action cannot be undone.",
+            title: t("delete_plan"),
+            text: t("action_cannot_be_undone"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#0d9488",
             cancelButtonColor: "#6b7280",
-            confirmButtonText: "Yes, delete it",
-            cancelButtonText: "Cancel",
+            confirmButtonText: t("yes_delete_it"),
+            cancelButtonText: t("cancel"),
             reverseButtons: true,
             customClass: {
                 popup: 'swal-popup',
@@ -98,7 +98,7 @@ export default function PlanList() {
                 await api.delete(DELETE_PLAN(id));
                 toast({
                     position: "top-right",
-                    title: "Plan deleted successfully",
+                    title: t("plan_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
@@ -107,8 +107,8 @@ export default function PlanList() {
             } catch (error) {
                 toast({
                     position: "top-right",
-                    title: "Error deleting plan",
-                    description: error.response?.data?.message || "Something went wrong.",
+                    title: t("error_deleting_plan"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -195,7 +195,7 @@ export default function PlanList() {
             },
         },
         {
-            header: "Actions",
+            header: t("actions"),
             cell: ({ row }) => (
                 <Menu>
                     <MenuButton
@@ -204,7 +204,7 @@ export default function PlanList() {
                         variant="ghost"
                         size="sm"
                         borderRadius="lg"
-                        aria-label="Actions"
+                        aria-label={t("actions")}
                     />
                     <MenuList minW="140px" p={1.5}>
                         <MenuItem
@@ -242,14 +242,14 @@ export default function PlanList() {
     return (
         <Box>
             <PageHeader
-                title="Plan Management"
-                subtitle="Manage your subscription plans"
+                title={t("plan_management")}
+                subtitle={t("manage_subscription_plans")}
                 breadcrumbs={[
-                    { label: "Dashboard", path: DASHBOARD_PATH },
-                    { label: "Plans", isCurrent: true },
+                    { label: t("dashboard"), path: DASHBOARD_PATH },
+                    { label: t("plans"), isCurrent: true },
                 ]}
                 action={PLAN_ADD_PATH}
-                actionLabel="Add Plan"
+                actionLabel={t("add_plan")}
             />
 
             <Box

@@ -67,7 +67,7 @@ const BusinessCreate = () => {
                     .join(" ");
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorMessage,
                     status: "error",
                     duration: 3000,
@@ -76,7 +76,7 @@ const BusinessCreate = () => {
             } else if (errorResponse?.message) {
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorResponse.message,
                     status: "error",
                     duration: 3000,
@@ -340,7 +340,7 @@ const BusinessCreate = () => {
                                 </FormControl>
 
                                 <FormControl id="password">
-                                              <FormLabel>Password</FormLabel>
+                                              <FormLabel>{t("password")}</FormLabel>
                                     <InputGroup size='md'>
                                     <Input
                                         {...register("password", { required: true })}
@@ -386,7 +386,7 @@ const BusinessCreate = () => {
                                 <FormControl isRequired>
                                     <FormLabel>{t("subscription_plan")}</FormLabel>
                                     <Select
-                                        placeholder="Select"
+                                        placeholder={t("select")}
                                         {...register("plan_id")}
                                     >
                                         {plans.map((plan) => (
@@ -437,7 +437,7 @@ const BusinessCreate = () => {
                                 <Button
                                     type="submit"
                                     isLoading={isSubmitting}
-                                    loadingText="Saving Data..."
+                                    loadingText={t("saving_data")}
                                     colorScheme="teal"
                                     flex={1}
                                 >

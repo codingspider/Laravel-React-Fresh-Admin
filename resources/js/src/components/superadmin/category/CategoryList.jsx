@@ -70,13 +70,13 @@ export default function CategoryList() {
 
     const deleteCategory = async (id) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Data will be deleted.",
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete!",
+            confirmButtonText: t("yes_delete"),
         });
 
         if (result.isConfirmed) {
@@ -84,7 +84,7 @@ export default function CategoryList() {
                 await api.delete(DELETE_CATEGORY(id));
                 toast({
                     position: "bottom-right",
-                    title: "Data deleted successfully",
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
@@ -94,10 +94,9 @@ export default function CategoryList() {
             } catch (error) {
                 toast({
                     position: "bottom-right",
-                    title: "Error deleting data",
+                    title: t("error_deleting_data"),
                     description:
-                        error.response?.data?.message ||
-                        "Something went wrong.",
+                        error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -107,24 +106,24 @@ export default function CategoryList() {
     };
 
     const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1},
+        { header: t("sl"), cell: ({ row }) => row.index + 1 },
         {
             header: t('image'),
             accessorKey: 'image',
             cell: ({ row }) => (
                 <Image
-                src={row.original.image}
-                alt="category"
-                boxSize="30px"
-                objectFit="cover"
-                borderRadius="md"
+                    src={row.original.image}
+                    alt="category"
+                    boxSize="30px"
+                    objectFit="cover"
+                    borderRadius="md"
                 />
             ),
         },
-        { header: t('name'), accessorKey: "name"},
-        { header: t('description'), accessorKey: "description"},
+        { header: t('name'), accessorKey: "name" },
+        { header: t('description'), accessorKey: "description" },
         {
-            header: "Actions",
+            header: t("actions"),
             cell: ({ row }) => (
                 <>
                     <Box display="flex" gap={2}>

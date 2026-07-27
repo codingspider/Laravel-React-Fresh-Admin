@@ -3,54 +3,84 @@
 namespace Modules\Branch\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Branch\Http\Requests\StoreBranchRequest;
+use Modules\Branch\Http\Requests\UpdateBranchRequest;
+use Modules\Branch\Resources\BranchResource;
+use Modules\Branch\Services\BranchService;
+use Modules\Restaurant\Models\Restaurant;
 
 class BranchController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected string $langKey = 'branch::module';
+
+    public function __construct(protected BranchService $service) {}
+
+    public function index(Request $request): JsonResponse
     {
-        return view('branch::index');
+        $data = $this->service->paginate(
+            $request->input('per_page', 15),
+            $request->only(['search', 'status', 'restaurant_id'])
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.fetched_list'),
+            'data' => BranchResource::collection($data),
+            'meta' => [
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+            ],
+        ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(StoreBranchRequest $request): JsonResponse
     {
-        return view('branch::create');
+        $data = $request->validated();
+        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
+        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+
+        $branch = $this->service->create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.created'),
+            'data' => new BranchResource($branch),
+        ], 201);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request) {}
-
-    /**
-     * Show the specified resource.
-     */
-    public function show($id)
+    public function show($id): JsonResponse
     {
-        return view('branch::show');
+        $branch = $this->service->find($id);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.fetched'),
+            'data' => new BranchResource($branch),
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit($id)
+    public function update(UpdateBranchRequest $request, $id): JsonResponse
     {
-        return view('branch::edit');
+        $branch = $this->service->update($id, $request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.updated'),
+            'data' => new BranchResource($branch),
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id) {}
+    public function destroy($id): JsonResponse
+    {
+        $this->service->delete($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id) {}
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.deleted'),
+        ]);
+    }
 }

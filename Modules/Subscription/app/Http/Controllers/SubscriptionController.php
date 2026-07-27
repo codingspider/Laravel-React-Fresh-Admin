@@ -9,6 +9,8 @@ use Modules\Subscription\Services\SubscriptionService;
 
 class SubscriptionController extends Controller
 {
+    protected string $langKey = 'subscription::module';
+
     public function __construct(protected SubscriptionService $service) {}
 
     public function index(Request $request): JsonResponse
@@ -17,30 +19,54 @@ class SubscriptionController extends Controller
             $request->input('per_page', 15),
             $request->only(['search', 'status'])
         );
-        return response()->json(['status' => 'success', 'data' => $data]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.fetched_list'),
+            'data' => $data,
+        ]);
     }
 
     public function store(Request $request): JsonResponse
     {
         $item = $this->service->create($request->validated());
-        return response()->json(['status' => 'success', 'data' => $item], 201);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.created'),
+            'data' => $item,
+        ], 201);
     }
 
     public function show($id): JsonResponse
     {
         $item = $this->service->find($id);
-        return response()->json(['status' => 'success', 'data' => $item]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.fetched'),
+            'data' => $item,
+        ]);
     }
 
     public function update(Request $request, $id): JsonResponse
     {
         $item = $this->service->update($id, $request->validated());
-        return response()->json(['status' => 'success', 'data' => $item]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.updated'),
+            'data' => $item,
+        ]);
     }
 
     public function destroy($id): JsonResponse
     {
         $this->service->delete($id);
-        return response()->json(['status' => 'success', 'message' => 'Deleted']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.deleted'),
+        ]);
     }
 }

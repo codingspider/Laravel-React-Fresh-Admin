@@ -207,12 +207,11 @@ export default function TopNav({ onMobileMenuOpen }) {
             h="64px"
             borderBottom="1px solid"
             borderColor={borderColor}
-            bg={bg}
+            bg={useColorModeValue('rgba(255,255,255,0.95)', 'rgba(26,32,44,0.95)')}
             position="sticky"
             top={0}
             zIndex="sticky"
             backdropFilter="blur(8px)"
-            bgOpacity={0.95}
         >
             <HStack spacing={3}>
                 <IconButton

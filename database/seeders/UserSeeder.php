@@ -33,13 +33,123 @@ class UserSeeder extends Seeder
             'assign_roles',
             'view_permissions',
 
-            // Reports
-            'view_report',
+            // Dashboard
+            'view_dashboard_data',
 
             // Settings
-            'view_dashboard_data',
             'access_business_settings',
             'access_invoice_settings',
+
+            // Restaurant
+            'view_restaurants',
+            'create_restaurants',
+            'update_restaurants',
+            'delete_restaurants',
+
+            // Branch
+            'view_branches',
+            'create_branches',
+            'update_branches',
+            'delete_branches',
+
+            // Menu — Categories
+            'view_menu_categories',
+            'create_menu_categories',
+            'update_menu_categories',
+            'delete_menu_categories',
+
+            // Menu — Items
+            'view_menu_items',
+            'create_menu_items',
+            'update_menu_items',
+            'delete_menu_items',
+
+            // Menu — Modifier Groups
+            'view_modifier_groups',
+            'create_modifier_groups',
+            'update_modifier_groups',
+            'delete_modifier_groups',
+
+            // Table Management — Floors
+            'view_floors',
+            'create_floors',
+            'update_floors',
+            'delete_floors',
+
+            // Table Management — Tables
+            'view_tables',
+            'create_tables',
+            'update_tables',
+            'delete_tables',
+
+            // Table Management — Reservations
+            'view_reservations',
+            'create_reservations',
+            'update_reservations',
+            'delete_reservations',
+
+            // Orders
+            'view_orders',
+            'create_orders',
+            'update_orders',
+            'delete_orders',
+
+            // POS
+            'view_pos',
+            'process_sale',
+
+            // Products (legacy admin)
+            'view_products',
+            'create_products',
+            'update_products',
+            'delete_products',
+
+            // Categories (legacy admin)
+            'view_categories',
+            'create_categories',
+            'update_categories',
+            'delete_categories',
+
+            // Units (legacy admin)
+            'view_units',
+            'create_units',
+            'update_units',
+            'delete_units',
+
+            // Inventory
+            'view_inventory',
+            'create_inventory',
+            'update_inventory',
+            'delete_inventory',
+
+            // Purchasing
+            'view_purchases',
+            'create_purchases',
+            'update_purchases',
+            'delete_purchases',
+
+            // Customers
+            'view_customers',
+            'create_customers',
+            'update_customers',
+            'delete_customers',
+
+            // Suppliers
+            'view_suppliers',
+            'create_suppliers',
+            'update_suppliers',
+            'delete_suppliers',
+
+            // Reports
+            'view_reports',
+
+            // Kitchen
+            'view_kitchen_display',
+            'manage_kitchen_orders',
+
+            // Delivery
+            'view_deliveries',
+            'manage_deliveries',
         ];
 
         foreach ($permissions as $permission) {
@@ -75,21 +185,46 @@ class UserSeeder extends Seeder
         ]);
         $managerPermissions = Permission::where('guard_name', 'web')
             ->whereIn('name', [
-                'view users',
-                'view roles',
-                'view products',
-                'view categories',
-                'view sales',
-                'create sales',
-                'view pos',
-                'process sale',
-                'view purchases',
-                'view customers',
-                'view suppliers',
-                'view reports',
-                'view sales reports',
-                'view stock reports',
-                'view dashboard',
+                'view_dashboard_data',
+                'view_user',
+                'view_restaurants',
+                'view_branches',
+                'create_branches',
+                'update_branches',
+                'view_menu_categories',
+                'create_menu_categories',
+                'update_menu_categories',
+                'view_menu_items',
+                'create_menu_items',
+                'update_menu_items',
+                'view_modifier_groups',
+                'view_floors',
+                'create_floors',
+                'update_floors',
+                'view_tables',
+                'create_tables',
+                'update_tables',
+                'view_reservations',
+                'create_reservations',
+                'update_reservations',
+                'view_orders',
+                'create_orders',
+                'update_orders',
+                'view_pos',
+                'process_sale',
+                'view_products',
+                'create_products',
+                'update_products',
+                'view_categories',
+                'create_categories',
+                'update_categories',
+                'view_inventory',
+                'view_purchases',
+                'view_customers',
+                'create_customers',
+                'view_suppliers',
+                'view_reports',
+                'access_business_settings',
             ])
             ->pluck('id');
         $managerRole->syncPermissions($managerPermissions);
@@ -101,13 +236,194 @@ class UserSeeder extends Seeder
         ]);
         $cashierPermissions = Permission::where('guard_name', 'web')
             ->whereIn('name', [
-                'view pos',
-                'process sale',
-                'view products',
-                'view customers',
+                'view_dashboard_data',
+                'view_pos',
+                'process_sale',
+                'view_menu_items',
+                'view_menu_categories',
+                'view_tables',
+                'view_orders',
+                'create_orders',
+                'view_customers',
+                'create_customers',
             ])
             ->pluck('id');
         $cashierRole->syncPermissions($cashierPermissions);
+
+        // Create Restaurant Owner Role (full access to own restaurant)
+        $ownerRole = Role::firstOrCreate([
+            'name' => 'restaurant_owner',
+            'guard_name' => 'web',
+        ]);
+        $ownerRole->syncPermissions($allPermissions);
+
+        // Create Branch Manager Role
+        $branchManagerRole = Role::firstOrCreate([
+            'name' => 'branch_manager',
+            'guard_name' => 'web',
+        ]);
+        $branchManagerPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_branches',
+                'view_menu_categories',
+                'view_menu_items',
+                'create_menu_items',
+                'update_menu_items',
+                'view_modifier_groups',
+                'view_floors',
+                'create_floors',
+                'update_floors',
+                'view_tables',
+                'create_tables',
+                'update_tables',
+                'view_reservations',
+                'create_reservations',
+                'update_reservations',
+                'view_orders',
+                'create_orders',
+                'update_orders',
+                'view_pos',
+                'process_sale',
+                'view_inventory',
+                'view_customers',
+                'create_customers',
+                'view_reports',
+            ])
+            ->pluck('id');
+        $branchManagerRole->syncPermissions($branchManagerPermissions);
+
+        // Create Waiter Role
+        $waiterRole = Role::firstOrCreate([
+            'name' => 'waiter',
+            'guard_name' => 'web',
+        ]);
+        $waiterPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_menu_items',
+                'view_tables',
+                'view_reservations',
+                'view_orders',
+                'create_orders',
+                'view_customers',
+            ])
+            ->pluck('id');
+        $waiterRole->syncPermissions($waiterPermissions);
+
+        // Create Kitchen Staff Role
+        $kitchenRole = Role::firstOrCreate([
+            'name' => 'kitchen_staff',
+            'guard_name' => 'web',
+        ]);
+        $kitchenPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_menu_items',
+                'view_orders',
+                'view_kitchen_display',
+                'manage_kitchen_orders',
+            ])
+            ->pluck('id');
+        $kitchenRole->syncPermissions($kitchenPermissions);
+
+        // Create Chef Role
+        $chefRole = Role::firstOrCreate([
+            'name' => 'chef',
+            'guard_name' => 'web',
+        ]);
+        $chefPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_menu_items',
+                'create_menu_items',
+                'update_menu_items',
+                'view_menu_categories',
+                'create_menu_categories',
+                'update_menu_categories',
+                'view_modifier_groups',
+                'create_modifier_groups',
+                'update_modifier_groups',
+                'view_orders',
+                'view_kitchen_display',
+                'manage_kitchen_orders',
+                'view_inventory',
+            ])
+            ->pluck('id');
+        $chefRole->syncPermissions($chefPermissions);
+
+        // Create Delivery Boy Role
+        $deliveryRole = Role::firstOrCreate([
+            'name' => 'delivery_boy',
+            'guard_name' => 'web',
+        ]);
+        $deliveryPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_orders',
+                'view_deliveries',
+                'manage_deliveries',
+            ])
+            ->pluck('id');
+        $deliveryRole->syncPermissions($deliveryPermissions);
+
+        // Create Accountant Role
+        $accountantRole = Role::firstOrCreate([
+            'name' => 'accountant',
+            'guard_name' => 'web',
+        ]);
+        $accountantPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_reports',
+                'view_purchases',
+                'create_purchases',
+                'update_purchases',
+                'view_inventory',
+                'view_customers',
+                'view_suppliers',
+            ])
+            ->pluck('id');
+        $accountantRole->syncPermissions($accountantPermissions);
+
+        // Create HR Manager Role
+        $hrManagerRole = Role::firstOrCreate([
+            'name' => 'hr_manager',
+            'guard_name' => 'web',
+        ]);
+        $hrManagerPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_user',
+                'create_user',
+                'update_user',
+                'view_reports',
+            ])
+            ->pluck('id');
+        $hrManagerRole->syncPermissions($hrManagerPermissions);
+
+        // Create Inventory Manager Role
+        $inventoryManagerRole = Role::firstOrCreate([
+            'name' => 'inventory_manager',
+            'guard_name' => 'web',
+        ]);
+        $inventoryManagerPermissions = Permission::where('guard_name', 'web')
+            ->whereIn('name', [
+                'view_dashboard_data',
+                'view_inventory',
+                'create_inventory',
+                'update_inventory',
+                'delete_inventory',
+                'view_purchases',
+                'create_purchases',
+                'update_purchases',
+                'view_suppliers',
+                'create_suppliers',
+                'update_suppliers',
+                'view_reports',
+            ])
+            ->pluck('id');
+        $inventoryManagerRole->syncPermissions($inventoryManagerPermissions);
 
         // Create Admin User
         $admin = User::firstOrCreate(

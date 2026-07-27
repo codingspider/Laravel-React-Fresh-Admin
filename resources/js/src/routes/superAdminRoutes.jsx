@@ -31,6 +31,40 @@ import ProductList from "../components/admin/product/ProductList";
 import ProductCreate from "../components/admin/product/ProductCreate";
 import ProductEdit from "../components/admin/product/ProductEdit";
 
+// Phase 1 — Restaurant
+import RestaurantList from "../components/restaurant/RestaurantList";
+import RestaurantCreate from "../components/restaurant/RestaurantCreate";
+import RestaurantEdit from "../components/restaurant/RestaurantEdit";
+import RestaurantView from "../components/restaurant/RestaurantView";
+
+import BranchList from "../components/branch/BranchList";
+import BranchCreate from "../components/branch/BranchCreate";
+import BranchEdit from "../components/branch/BranchEdit";
+import BranchView from "../components/branch/BranchView";
+
+import MenuCategoryList from "../components/menu/MenuCategoryList";
+import MenuCategoryCreate from "../components/menu/MenuCategoryCreate";
+import MenuCategoryEdit from "../components/menu/MenuCategoryEdit";
+import MenuItemList from "../components/menu/MenuItemList";
+import MenuItemCreate from "../components/menu/MenuItemCreate";
+import MenuItemEdit from "../components/menu/MenuItemEdit";
+import ModifierGroupList from "../components/menu/ModifierGroupList";
+import ModifierGroupCreate from "../components/menu/ModifierGroupCreate";
+import ModifierGroupEdit from "../components/menu/ModifierGroupEdit";
+
+import FloorList from "../components/table/FloorList";
+import FloorCreate from "../components/table/FloorCreate";
+import FloorEdit from "../components/table/FloorEdit";
+import TableList from "../components/table/TableList";
+import TableCreate from "../components/table/TableCreate";
+import TableEdit from "../components/table/TableEdit";
+import ReservationList from "../components/table/ReservationList";
+import ReservationCreate from "../components/table/ReservationCreate";
+import ReservationEdit from "../components/table/ReservationEdit";
+
+import POSScreen from "../components/pos/POSScreen";
+import POSSalesList from "../components/pos/POSSalesList";
+
 
 export const DASHBOARD_PATH = `/dashboard`;
 
@@ -97,8 +131,52 @@ export const superAdminRoutes = [
     { path: PRODUCT_LIST_PATH, element: <ProductList /> },
     { path: PRODUCT_ADD_PATH, element: <ProductCreate /> },
     { path: PRODUCT_EDIT, element: <ProductEdit /> },
-    
+
     { path: PROFILE, element: <Profile /> },
 
+    // Phase 1 — Restaurant
+    { path: "/restaurant/list", element: <RestaurantList /> },
+    { path: "/restaurant/create", element: <RestaurantCreate /> },
+    { path: "/restaurant/edit/:id", element: <RestaurantEdit /> },
+    { path: "/restaurant/view/:id", element: <RestaurantView /> },
 
+    // Phase 1 — Branch
+    { path: "/branch/list", element: <BranchList /> },
+    { path: "/branch/create", element: <BranchCreate /> },
+    { path: "/branch/edit/:id", element: <BranchEdit /> },
+    { path: "/branch/view/:id", element: <BranchView /> },
+
+    // Phase 1 — Menu Categories
+    { path: "/menu/categories", element: <MenuCategoryList /> },
+    { path: "/menu/category/create", element: <MenuCategoryCreate /> },
+    { path: "/menu/category/edit/:id", element: <MenuCategoryEdit /> },
+
+    // Phase 1 — Menu Items
+    { path: "/menu/items", element: <MenuItemList /> },
+    { path: "/menu/item/create", element: <MenuItemCreate /> },
+    { path: "/menu/item/edit/:id", element: <MenuItemEdit /> },
+
+    // Phase 1 — Modifier Groups
+    { path: "/menu/modifier-groups", element: <ModifierGroupList /> },
+    { path: "/menu/modifier-group/create", element: <ModifierGroupCreate /> },
+    { path: "/menu/modifier-group/edit/:id", element: <ModifierGroupEdit /> },
+
+    // Phase 1 — Floors
+    { path: "/table-management/floors", element: <FloorList /> },
+    { path: "/table-management/floor/create", element: <FloorCreate /> },
+    { path: "/table-management/floor/edit/:id", element: <FloorEdit /> },
+
+    // Phase 1 — Tables
+    { path: "/table-management/tables", element: <TableList /> },
+    { path: "/table-management/table/create", element: <TableCreate /> },
+    { path: "/table-management/table/edit/:id", element: <TableEdit /> },
+
+    // Phase 1 — Reservations
+    { path: "/table-management/reservations", element: <ReservationList /> },
+    { path: "/table-management/reservation/create", element: <ReservationCreate /> },
+    { path: "/table-management/reservation/edit/:id", element: <ReservationEdit /> },
+
+    // Phase 2 — POS
+    { path: "/pos/terminal", element: <POSScreen /> },
+    { path: "/pos/sales", element: <POSSalesList /> },
 ];

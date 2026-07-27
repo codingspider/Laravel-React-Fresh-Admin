@@ -9,8 +9,7 @@ import ErrorPage from "./components/pages/ErrorPage";
 import Register from "./components/auth/Register";
 import Dashboard from "./components/dashboard/Dashboard";
 import { superAdminRoutes } from "./routes/superAdminRoutes";
-import { SUPER_ADMIN_BASE, LOGIN, ROOT, UNAUTHORIZED, FORGOT, RESET_PASSWORD, ADMIN_BASE, REGISTER } from "./routes/commonRoutes";
-import { adminRoutes } from "./routes/adminRoutes";
+import { SUPER_ADMIN_BASE, LOGIN, ROOT, UNAUTHORIZED, FORGOT, RESET_PASSWORD, REGISTER } from "./routes/commonRoutes";
 import ProtectedRoute from "./ProtectedRoute";
 
 const router = createBrowserRouter([

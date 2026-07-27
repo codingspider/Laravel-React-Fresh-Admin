@@ -64,7 +64,7 @@ const CategoryEdit = () => {
                     .join(" ");
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorMessage,
                     status: "error",
                     duration: 3000,
@@ -73,7 +73,7 @@ const CategoryEdit = () => {
             } else if (errorResponse?.message) {
                 toast({
                     position: "bottom-right",
-                    title: "Error",
+                    title: t("error"),
                     description: errorResponse.message,
                     status: "error",
                     duration: 3000,
@@ -96,8 +96,8 @@ const CategoryEdit = () => {
             });
         } catch (error) {
             toast({
-                title: "Error",
-                description: "Failed to load category data.",
+                title: t("error"),
+                description: t("failed_to_load_category_data"),
                 status: "error",
                 duration: 3000,
                 isClosable: true,
@@ -185,7 +185,7 @@ const CategoryEdit = () => {
                     <CardBody p={8}>
                         {isLoadingData ? (
                             <Flex justify="center" align="center" h="40">
-                                <Text color="gray.500">Loading data...</Text>
+                                <Text color="gray.500">{t("loading_data")}</Text>
                             </Flex>
                         ) : (
                             <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
@@ -288,7 +288,7 @@ const CategoryEdit = () => {
                                     <Button
                                         type="submit"
                                         isLoading={isSubmitting}
-                                        loadingText="Saving Data..."
+                                        loadingText={t("saving_data")}
                                         colorScheme="teal"
                                         bg="teal.500"
                                         color="white"

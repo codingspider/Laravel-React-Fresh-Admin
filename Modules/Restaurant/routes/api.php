@@ -3,6 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Restaurant\Http\Controllers\RestaurantController;
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('restaurants', RestaurantController::class)->names('restaurant');
+Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+    Route::get('restaurants', [RestaurantController::class, 'index']);
+    Route::post('restaurants', [RestaurantController::class, 'store']);
+    Route::get('restaurants/{restaurant}', [RestaurantController::class, 'show']);
+    Route::put('restaurants/{restaurant}', [RestaurantController::class, 'update']);
+    Route::delete('restaurants/{restaurant}', [RestaurantController::class, 'destroy']);
+    Route::put('restaurants/{restaurant}/working-hours', [RestaurantController::class, 'updateWorkingHours']);
+    Route::put('restaurants/{restaurant}/tax-settings', [RestaurantController::class, 'updateTaxSettings']);
 });
