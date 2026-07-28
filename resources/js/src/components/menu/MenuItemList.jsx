@@ -10,9 +10,11 @@ import {
 import { FiPlus, FiEdit2, FiTrash2, FiMoreVertical, FiSearch, FiEye } from 'react-icons/fi';
 import PageHeader from '../ui/PageHeader';
 import api from '../../axios';
+import { useCurrencyFormatter } from '../../useCurrencyFormatter';
 
 export default function MenuItemList() {
   const { t } = useTranslation();
+  const { formatAmount } = useCurrencyFormatter();
   const navigate = useNavigate();
   const toast = useToast();
   const bg = useColorModeValue('white', 'gray.800');
@@ -97,7 +99,7 @@ export default function MenuItemList() {
                   <Box as="tr" key={item.id} borderBottom="1px solid" borderColor={borderColor} _hover={{ bg: hoverBg }}>
                     <Box as="td" px={4} py={3}>
                       <HStack>
-                        {item.image && <Box boxSize="40px" borderRadius="md" overflow="hidden"><Image src={item.image} alt={item.name} boxSize="100%" objectFit="cover" /></Box>}
+                        {item.image_url && <Box boxSize="40px" borderRadius="md" overflow="hidden"><Image src={item.image_url} alt={item.name} boxSize="100%" objectFit="cover" /></Box>}
                         <VStack align="start" spacing={0}>
                           <Text fontWeight="600">{item.name}</Text>
                           <HStack spacing={1}>
@@ -109,10 +111,10 @@ export default function MenuItemList() {
                       </HStack>
                     </Box>
                     <Box as="td" px={4} py={3}>{item.category?.name || '-'}</Box>
-                    <Box as="td" px={4} py={3} fontWeight="600">{item.formatted_price}</Box>
+                    <Box as="td" px={4} py={3} fontWeight="600">{item.price != null ? formatAmount(parseFloat(item.price)) : '-'}</Box>
                     <Box as="td" px={4} py={3}>{item.preparation_time ? `${item.preparation_time} min` : '-'}</Box>
                     <Box as="td" px={4} py={3}>
-                      <Badge colorScheme={item.is_available ? 'green' : 'red'}>{item.is_available ? t('Available') : t('Unavailable')}</Badge>
+                      <Badge colorScheme={item.status === 'active' ? 'green' : 'red'}>{item.status === 'active' ? t('active') : t('inactive')}</Badge>
                     </Box>
                     <Box as="td" px={4} py={3}>
                       <Menu>

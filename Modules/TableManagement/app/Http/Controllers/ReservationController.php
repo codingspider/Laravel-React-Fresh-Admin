@@ -9,7 +9,6 @@ use Modules\TableManagement\Http\Requests\StoreReservationRequest;
 use Modules\TableManagement\Http\Requests\UpdateReservationRequest;
 use Modules\TableManagement\Resources\ReservationResource;
 use Modules\TableManagement\Services\ReservationService;
-use Modules\Restaurant\Models\Restaurant;
 
 class ReservationController extends Controller
 {
@@ -19,9 +18,12 @@ class ReservationController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status', 'branch_id', 'date']);
+        $filters['restaurant_id'] = getRestaurantId();
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status', 'restaurant_id', 'branch_id', 'date'])
+            $filters
         );
 
         return response()->json([
@@ -40,8 +42,7 @@ class ReservationController extends Controller
     public function store(StoreReservationRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
 
         $reservation = $this->service->create($data);
 

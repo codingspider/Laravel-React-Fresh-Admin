@@ -8,7 +8,6 @@ use Illuminate\Http\Request;
 use Modules\TableManagement\Http\Requests\StoreFloorRequest;
 use Modules\TableManagement\Resources\FloorResource;
 use Modules\TableManagement\Services\FloorService;
-use Modules\Restaurant\Models\Restaurant;
 
 class FloorController extends Controller
 {
@@ -18,8 +17,8 @@ class FloorController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $floors = $this->service->getByRestaurant($restaurant?->id ?? $request->user()->id);
+        $restaurantId = getRestaurantId();
+        $floors = $this->service->getByRestaurant($restaurantId);
 
         return response()->json([
             'status' => 'success',
@@ -31,8 +30,7 @@ class FloorController extends Controller
     public function store(StoreFloorRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
 
         $floor = $this->service->create($data);
 
@@ -58,6 +56,7 @@ class FloorController extends Controller
     {
         $request->validate([
             'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string|max:500',
             'sort_order' => 'nullable|integer|min:0',
             'layout_data' => 'nullable|array',
             'status' => 'sometimes|in:active,inactive',

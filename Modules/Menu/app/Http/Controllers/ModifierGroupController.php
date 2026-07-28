@@ -9,7 +9,6 @@ use Modules\Menu\Http\Requests\StoreModifierGroupRequest;
 use Modules\Menu\Http\Requests\UpdateModifierGroupRequest;
 use Modules\Menu\Resources\ModifierGroupResource;
 use Modules\Menu\Services\ModifierGroupService;
-use Modules\Restaurant\Models\Restaurant;
 
 class ModifierGroupController extends Controller
 {
@@ -19,9 +18,12 @@ class ModifierGroupController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status']);
+        $filters['restaurant_id'] = getRestaurantId();
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status', 'restaurant_id'])
+            $filters
         );
 
         return response()->json([
@@ -40,8 +42,7 @@ class ModifierGroupController extends Controller
     public function store(StoreModifierGroupRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
 
         $group = $this->service->create($data);
 

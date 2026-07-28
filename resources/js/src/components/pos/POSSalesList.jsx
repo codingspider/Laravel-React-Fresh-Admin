@@ -9,6 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { FiSearch, FiEye } from 'react-icons/fi';
 import api from '../../axios';
 import PageHeader from '../ui/PageHeader';
+import { useCurrencyFormatter } from '../../useCurrencyFormatter';
 
 const STATUS_COLORS = {
   pending: 'yellow',
@@ -28,6 +29,7 @@ const PAYMENT_COLORS = {
 
 export default function POSSalesList() {
   const { t } = useTranslation();
+  const { formatAmount } = useCurrencyFormatter();
   const toast = useToast();
   const navigate = useNavigate();
   const bg = useColorModeValue('white', 'gray.800');
@@ -128,8 +130,8 @@ export default function POSSalesList() {
                     </Box>
                     <Box as="td" px={4} py={3}><Badge colorScheme={STATUS_COLORS[sale.status]}>{t(sale.status)}</Badge></Box>
                     <Box as="td" px={4} py={3}><Badge colorScheme={PAYMENT_COLORS[sale.payment_status]}>{t(sale.payment_status)}</Badge></Box>
-                    <Box as="td" px={4} py={3} fontWeight="bold">${parseFloat(sale.total || 0).toFixed(2)}</Box>
-                    <Box as="td" px={4} py={3}>${parseFloat(sale.amount_paid || 0).toFixed(2)}</Box>
+                    <Box as="td" px={4} py={3} fontWeight="bold">{formatAmount(parseFloat(sale.total || 0))}</Box>
+                    <Box as="td" px={4} py={3}>{formatAmount(parseFloat(sale.amount_paid || 0))}</Box>
                     <Box as="td" px={4} py={3}>{new Date(sale.created_at).toLocaleDateString()}</Box>
                   </Box>
                 ))}

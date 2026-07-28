@@ -6,7 +6,7 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreProductRequest extends FormRequest
 {
-   public function authorize(): bool
+    public function authorize(): bool
     {
         return true;
     }
@@ -15,43 +15,19 @@ class StoreProductRequest extends FormRequest
     {
         return [
             'name'                  => 'required|string|max:255',
-            'category_id'           => 'required|exists:categories,id',
-            'branch_id'             => 'required|exists:branches,id',
-            'sequence_index'        => 'nullable|integer|min:0',
+            'category_id'           => 'nullable|exists:menu_categories,id',
+            'branch_id'             => 'nullable|exists:branches,id',
             'sku'                   => 'nullable|string|max:100',
             'subtitle'              => 'nullable|string|max:255',
             'description'           => 'nullable|string',
             'product_cost'          => 'nullable|numeric|min:0',
             'sell_price'            => 'required|numeric|min:0',
-
-            // IMAGES
-            'main_image'            => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-
-            // RELATIONS
-            'variations'            => 'nullable|array',
-            'variations.*'          => 'integer|exists:variations,id',
-            'addons'                => 'nullable|array',
-            'addons.*'              => 'integer|exists:addons,id',
-
-            // ENUM FIELDS
-            'item_available_for'    => 'required|array|min:1',
+            'image'                 => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'item_available_for'    => 'nullable|array',
             'item_available_for.*'  => 'in:dine_in,pickup,delivery',
-
             'featured_item'         => 'nullable|boolean',
             'is_active'             => 'required|boolean',
-        ];
-    }
-
-    public function messages(): array
-    {
-        return [
-            'name.required'         => 'Item name is required.',
-            'category_id.required'  => 'Category is required.',
-            'category_id.exists'    => 'Selected category is invalid.',
-            'branch_id.required'    => 'Branch is required.',
-            'branch_id.exists'      => 'Selected branch is invalid.',
-            'is_active.required'      => 'Status is required',
-            'item_available_for.*.in' => 'Invalid item availability type.',
+            'sort_order'            => 'nullable|integer|min:0',
         ];
     }
 }

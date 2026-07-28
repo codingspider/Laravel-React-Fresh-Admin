@@ -9,7 +9,6 @@ use Modules\TableManagement\Http\Requests\StoreTableRequest;
 use Modules\TableManagement\Http\Requests\UpdateTableRequest;
 use Modules\TableManagement\Resources\TableResource;
 use Modules\TableManagement\Services\TableService;
-use Modules\Restaurant\Models\Restaurant;
 
 class TableController extends Controller
 {
@@ -19,9 +18,12 @@ class TableController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status', 'branch_id', 'floor_id']);
+        $filters['restaurant_id'] = getRestaurantId();
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status', 'restaurant_id', 'branch_id', 'floor_id'])
+            $filters
         );
 
         return response()->json([
@@ -40,8 +42,7 @@ class TableController extends Controller
     public function store(StoreTableRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
 
         $table = $this->service->create($data);
 
@@ -55,6 +56,9 @@ class TableController extends Controller
     public function show($id): JsonResponse
     {
         $table = $this->service->find($id);
+        if (getRestaurantId() && $table->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -65,6 +69,11 @@ class TableController extends Controller
 
     public function update(UpdateTableRequest $request, $id): JsonResponse
     {
+        $table = $this->service->find($id);
+        if (getRestaurantId() && $table->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $table = $this->service->update($id, $request->validated());
 
         return response()->json([
@@ -76,6 +85,11 @@ class TableController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $table = $this->service->find($id);
+        if (getRestaurantId() && $table->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([
@@ -86,6 +100,11 @@ class TableController extends Controller
 
     public function updateStatus(Request $request, $id): JsonResponse
     {
+        $table = $this->service->find($id);
+        if (getRestaurantId() && $table->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $request->validate(['status' => 'required|in:available,reserved,occupied,billing,cleaning']);
         $table = $this->service->updateStatus($id, $request->input('status'));
 
@@ -99,13 +118,17 @@ class TableController extends Controller
     public function available(Request $request): JsonResponse
     {
         $request->validate([
-            'restaurant_id' => 'required|exists:restaurants,id',
             'branch_id' => 'required|exists:branches,id',
             'guest_count' => 'nullable|integer|min:1',
         ]);
 
+        $restaurantId = getRestaurantId();
+        if (!$restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         $tables = $this->service->getAvailable(
-            $request->input('restaurant_id'),
+            $restaurantId,
             $request->input('branch_id'),
             $request->input('guest_count')
         );

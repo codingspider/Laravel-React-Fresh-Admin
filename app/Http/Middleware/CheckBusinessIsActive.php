@@ -3,39 +3,41 @@
 namespace App\Http\Middleware;
 
 use Closure;
-use App\Models\Business;
 use Illuminate\Http\Request;
+use Modules\Restaurant\Models\Restaurant;
 
 class CheckBusinessIsActive
 {
     public function handle(Request $request, Closure $next)
     {
-        // Allow GET requests without checking
         if ($request->isMethod('get')) {
             return $next($request);
         }
 
-        // Only check for POST, PUT, PATCH, DELETE
-        $methodsToCheck = ['post', 'put', 'patch', 'delete'];
+        $user = $request->user();
+        if (!$user) {
+            return $next($request);
+        }
 
-        if (in_array($request->method(), $methodsToCheck)) {
+        $restaurantId = getRestaurantId($user);
+        if (!$restaurantId) {
+            return $next($request);
+        }
 
-            $user = auth()->user();
-            $business = Business::find($user->business_id);
+        $restaurant = Restaurant::find($restaurantId);
 
-            if (!$business) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Business not found.'
-                ], 404);
-            }
+        if (!$restaurant) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Restaurant not found.'
+            ], 404);
+        }
 
-            if (!$business->is_active) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Your business is inactive. Please contact support.'
-                ], 403);
-            }
+        if (!$restaurant->isActive()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Your restaurant is inactive. Please contact support.'
+            ], 403);
         }
 
         return $next($request);

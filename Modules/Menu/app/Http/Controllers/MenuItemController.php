@@ -9,7 +9,6 @@ use Modules\Menu\Http\Requests\StoreMenuItemRequest;
 use Modules\Menu\Http\Requests\UpdateMenuItemRequest;
 use Modules\Menu\Resources\MenuItemResource;
 use Modules\Menu\Services\MenuItemService;
-use Modules\Restaurant\Models\Restaurant;
 
 class MenuItemController extends Controller
 {
@@ -19,9 +18,12 @@ class MenuItemController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status', 'category_id', 'is_featured']);
+        $filters['restaurant_id'] = getRestaurantId();
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status', 'restaurant_id', 'category_id', 'is_featured', 'is_vegetarian'])
+            $filters
         );
 
         return response()->json([
@@ -40,8 +42,13 @@ class MenuItemController extends Controller
     public function store(StoreMenuItemRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
+
+        if ($request->hasFile('image')) {
+            $data['image'] = uploadImage($request->file('image'), 'menu-items');
+        } else {
+            unset($data['image']);
+        }
 
         $item = $this->service->create($data);
 
@@ -65,7 +72,16 @@ class MenuItemController extends Controller
 
     public function update(UpdateMenuItemRequest $request, $id): JsonResponse
     {
-        $item = $this->service->update($id, $request->validated());
+        $item = $this->service->find($id);
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $data['image'] = uploadImage($request->file('image'), 'menu-items', $item->image);
+        } else {
+            unset($data['image']);
+        }
+
+        $item = $this->service->update($id, $data);
 
         return response()->json([
             'status' => 'success',

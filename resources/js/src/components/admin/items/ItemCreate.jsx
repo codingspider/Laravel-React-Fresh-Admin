@@ -25,7 +25,7 @@ import VariationModal from "./VariationModal";
 import AddonModal from "./AddonModal";
 import { useEffect, useState } from "react";
 import api from "../../../axios";
-import { GET_BRANCH_ADDONS, GET_BRANCH_VARIATIONS, STORE_ITEM } from "../../../routes/apiRoutes";
+import { GET_BRANCH_ADDONS, GET_BRANCH_VARIATIONS, STORE_INVENTORY_ITEM } from "../../../routes/apiRoutes";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
 import { useBranches } from "../../../hooks/useBranches";
 import { useVariations } from "../../../hooks/useVariations";
@@ -114,7 +114,7 @@ export default function ItemCreate() {
 
         console.log(formData);
 
-        const res = await api.post(STORE_ITEM, formData, {
+        const res = await api.post(STORE_INVENTORY_ITEM, formData, {
             headers: { "Content-Type": "multipart/form-data" },
         });
 

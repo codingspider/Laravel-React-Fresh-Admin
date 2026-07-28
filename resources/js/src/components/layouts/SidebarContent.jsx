@@ -35,9 +35,12 @@ import {
     DASHBOARD_PATH,
     ROLE_LIST_PATH,
     USER_LIST_PATH,
-    PRODUCT_LIST_PATH,
+    INVENTORY_ITEM_LIST_PATH,
+    INVENTORY_CATEGORY_LIST_PATH,
+    SUPPLIER_LIST_PATH,
     UNIT_LIST_PATH,
     CATEGORY_LIST_PATH,
+    CURRENCY_LIST_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -51,7 +54,7 @@ const navItems = [
     {
         icon: Store,
         label: 'Restaurants',
-        permission: 'view_restaurants',
+        role: 'super_admin',
         children: [
             { path: '/restaurant/list', label: 'All Restaurants', permission: 'view_restaurants' },
         ],
@@ -94,12 +97,13 @@ const navItems = [
         ],
     },
     {
-        icon: UtensilsCrossed,
-        label: 'Products',
-        permission: 'view_products',
+        icon: Package,
+        label: 'Inventory',
+        permission: 'view_inventory',
         children: [
-            { path: PRODUCT_LIST_PATH, label: 'All Products', permission: 'view_products' },
-            { path: CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_categories' },
+            { path: INVENTORY_ITEM_LIST_PATH, label: 'All Items', permission: 'view_inventory' },
+            { path: INVENTORY_CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_inventory' },
+            { path: SUPPLIER_LIST_PATH, label: 'Suppliers', permission: 'view_inventory' },
             { path: UNIT_LIST_PATH, label: 'Units', permission: 'view_units' },
         ],
     },
@@ -115,6 +119,15 @@ const navItems = [
     },
 
     {
+        icon: Settings,
+        label: 'Currencies',
+        permission: 'view_currencies',
+        children: [
+            { path: CURRENCY_LIST_PATH, label: 'All Currencies', permission: 'view_currencies' },
+        ],
+    },
+
+    {
         path: '/settings',
         icon: Settings,
         label: 'Settings',
@@ -123,7 +136,7 @@ const navItems = [
 ];
 
 export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
-    const { can } = usePermission();
+    const { can, hasRole } = usePermission();
     const [openMenus, setOpenMenus] = useState({});
     const location = useLocation();
 
@@ -144,6 +157,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
 
     const NavItem = ({ item, isMobile = false, isCollapsedView = false }) => {
         if (item.permission && !can(item.permission)) return null;
+        if (item.role && !hasRole(item.role)) return null;
 
         const hasChildren = item.children && item.children.length > 0;
         const isOpen = openMenus[item.label];

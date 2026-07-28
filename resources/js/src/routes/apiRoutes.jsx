@@ -46,12 +46,24 @@ export const LIST_VARIATION = '/variations';
 export const DELETE_VARIATION = (id) => `/variations/${id}`;
 export const UPDATE_VARIATION = (id) => `/variations/${id}`;
 
-// Item
-export const STORE_ITEM = '/products';
-export const LIST_ITEM = '/products';
-export const DELETE_ITEM = (id) => `/products/${id}`;
-export const UPDATE_ITEM = (id) => `/products/${id}`;
-export const GET_EDIT_ITEM = (id) => `/products/${id}`;
+// Inventory Items
+export const STORE_INVENTORY_ITEM = '/inventory-items';
+export const LIST_INVENTORY_ITEM = '/inventory-items';
+export const DELETE_INVENTORY_ITEM = (id) => `/inventory-items/${id}`;
+export const UPDATE_INVENTORY_ITEM = (id) => `/inventory-items/${id}`;
+export const GET_EDIT_INVENTORY_ITEM = (id) => `/inventory-items/${id}`;
+
+// Inventory Categories
+export const STORE_INVENTORY_CATEGORY = '/inventory-categories';
+export const LIST_INVENTORY_CATEGORY = '/inventory-categories';
+export const DELETE_INVENTORY_CATEGORY = (id) => `/inventory-categories/${id}`;
+export const UPDATE_INVENTORY_CATEGORY = (id) => `/inventory-categories/${id}`;
+
+// Suppliers
+export const STORE_SUPPLIER = '/suppliers';
+export const LIST_SUPPLIER = '/suppliers';
+export const DELETE_SUPPLIER = (id) => `/suppliers/${id}`;
+export const UPDATE_SUPPLIER = (id) => `/suppliers/${id}`;
 
 // Category (super)
 export const STORE_CATEGORY = '/categories';
@@ -80,6 +92,13 @@ export const LIST_USER = '/user-management';
 export const DELETE_USER = (id) => `/user-management/${id}`;
 export const UPDATE_USER = (id) => `/user-management/${id}`;
 export const GET_EDIT_USER = (id) => `/user-management/${id}`;
+
+// Currency
+export const LIST_CURRENCY = '/v1/currencies';
+export const STORE_CURRENCY = '/v1/currencies';
+export const GET_CURRENCY = (id) => `/v1/currencies/${id}`;
+export const UPDATE_CURRENCY = (id) => `/v1/currencies/${id}`;
+export const DELETE_CURRENCY = (id) => `/v1/currencies/${id}`;
 
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 

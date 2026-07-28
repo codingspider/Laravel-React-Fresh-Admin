@@ -18,9 +18,16 @@ class RestaurantController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status', 'owner_id']);
+
+        $restaurantId = getRestaurantId();
+        if ($restaurantId) {
+            $filters['id'] = $restaurantId;
+        }
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status', 'owner_id'])
+            $filters
         );
 
         return response()->json([
@@ -53,6 +60,9 @@ class RestaurantController extends Controller
     public function show($id): JsonResponse
     {
         $restaurant = $this->service->find($id);
+        if (getRestaurantId() && $restaurant->id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -63,6 +73,11 @@ class RestaurantController extends Controller
 
     public function update(UpdateRestaurantRequest $request, $id): JsonResponse
     {
+        $restaurant = $this->service->find($id);
+        if (getRestaurantId() && $restaurant->id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $restaurant = $this->service->update($id, $request->validated());
 
         return response()->json([
@@ -74,6 +89,11 @@ class RestaurantController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $restaurant = $this->service->find($id);
+        if (getRestaurantId() && $restaurant->id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([
@@ -84,6 +104,11 @@ class RestaurantController extends Controller
 
     public function updateWorkingHours(Request $request, $id): JsonResponse
     {
+        $restaurant = $this->service->find($id);
+        if (getRestaurantId() && $restaurant->id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $request->validate(['working_hours' => 'required|array']);
         $restaurant = $this->service->updateWorkingHours($id, $request->input('working_hours'));
 
@@ -96,6 +121,11 @@ class RestaurantController extends Controller
 
     public function updateTaxSettings(Request $request, $id): JsonResponse
     {
+        $restaurant = $this->service->find($id);
+        if (getRestaurantId() && $restaurant->id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $request->validate([
             'tax_rate' => 'nullable|numeric|min:0|max:100',
             'tax_name' => 'nullable|string|max:50',

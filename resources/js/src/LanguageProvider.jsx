@@ -21,7 +21,6 @@ export const LanguageProvider = ({ children, api }) => {
     }
   };
 
-  // Load language on mount
   useEffect(() => {
     changeLanguage(lang);
   }, []);
@@ -32,4 +31,3 @@ export const LanguageProvider = ({ children, api }) => {
     </LanguageContext.Provider>
   );
 };
-

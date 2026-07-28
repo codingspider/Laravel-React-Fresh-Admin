@@ -150,6 +150,12 @@ class UserSeeder extends Seeder
             // Delivery
             'view_deliveries',
             'manage_deliveries',
+
+            // Currencies
+            'view_currencies',
+            'create_currencies',
+            'update_currencies',
+            'delete_currencies',
         ];
 
         foreach ($permissions as $permission) {
@@ -225,6 +231,7 @@ class UserSeeder extends Seeder
                 'view_suppliers',
                 'view_reports',
                 'access_business_settings',
+                'view_currencies',
             ])
             ->pluck('id');
         $managerRole->syncPermissions($managerPermissions);
@@ -451,7 +458,7 @@ class UserSeeder extends Seeder
         );
         $superAdmin->assignRole('super_admin');
 
-        // Create Manager User
+        // Create Manager User (linked to restaurant_id=1)
         $manager = User::firstOrCreate(
             ['email' => 'manager@gmail.com'],
             [
@@ -459,11 +466,12 @@ class UserSeeder extends Seeder
                 'email' => 'manager@gmail.com',
                 'password' => Hash::make('123456789'),
                 'email_verified_at' => now(),
+                'restaurant_id' => 1,
             ]
         );
         $manager->assignRole('manager');
 
-        // Create Cashier User
+        // Create Cashier User (linked to restaurant_id=1)
         $cashier = User::firstOrCreate(
             ['email' => 'cashier@gmail.com'],
             [
@@ -471,14 +479,57 @@ class UserSeeder extends Seeder
                 'email' => 'cashier@gmail.com',
                 'password' => Hash::make('123456789'),
                 'email_verified_at' => now(),
+                'restaurant_id' => 1,
             ]
         );
         $cashier->assignRole('cashier');
+
+        // Create Restaurant Owner User (linked to restaurant_id=1)
+        $restaurantOwner = User::firstOrCreate(
+            ['email' => 'owner@gmail.com'],
+            [
+                'name' => 'Restaurant Owner',
+                'email' => 'owner@gmail.com',
+                'password' => Hash::make('123456789'),
+                'email_verified_at' => now(),
+                'restaurant_id' => 1,
+            ]
+        );
+        $restaurantOwner->assignRole('restaurant_owner');
+
+        // Create Waiter User (linked to restaurant_id=1)
+        $waiter = User::firstOrCreate(
+            ['email' => 'waiter@gmail.com'],
+            [
+                'name' => 'Waiter User',
+                'email' => 'waiter@gmail.com',
+                'password' => Hash::make('123456789'),
+                'email_verified_at' => now(),
+                'restaurant_id' => 1,
+            ]
+        );
+        $waiter->assignRole('waiter');
+
+        // Create Kitchen Staff User (linked to restaurant_id=1)
+        $kitchenStaff = User::firstOrCreate(
+            ['email' => 'kitchen@gmail.com'],
+            [
+                'name' => 'Kitchen Staff',
+                'email' => 'kitchen@gmail.com',
+                'password' => Hash::make('123456789'),
+                'email_verified_at' => now(),
+                'restaurant_id' => 1,
+            ]
+        );
+        $kitchenStaff->assignRole('kitchen_staff');
 
         $this->command->info('Users, roles, and permissions seeded successfully!');
         $this->command->info('Admin: admin@gmail.com / password');
         $this->command->info('Super Admin: superadmin@gmail.com / password');
         $this->command->info('Manager: manager@gmail.com / password');
         $this->command->info('Cashier: cashier@gmail.com / password');
+        $this->command->info('Restaurant Owner: owner@gmail.com / password');
+        $this->command->info('Waiter: waiter@gmail.com / password');
+        $this->command->info('Kitchen Staff: kitchen@gmail.com / password');
     }
 }

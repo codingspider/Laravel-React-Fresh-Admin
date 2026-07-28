@@ -1,0 +1,27 @@
+{
+    "name": "nwidart/currency",
+    "description": "The Currency module",
+    "authors": [
+        {
+            "name": "Developer",
+            "email": "dev@example.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Currency\\": "app/",
+            "Modules\\Currency\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Currency\\Tests\\": "tests/"
+        }
+    }
+}

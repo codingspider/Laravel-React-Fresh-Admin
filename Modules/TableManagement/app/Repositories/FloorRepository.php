@@ -37,7 +37,7 @@ class FloorRepository
 
     public function getByBranch($branchId)
     {
-        return $this->model->with('tables')
+        return $this->model->withCount('tables')
             ->where('branch_id', $branchId)
             ->where('status', 'active')
             ->orderBy('sort_order')
@@ -46,7 +46,7 @@ class FloorRepository
 
     public function getByRestaurant($restaurantId)
     {
-        return $this->model->with('tables')
+        return $this->model->withCount('tables')
             ->where('restaurant_id', $restaurantId)
             ->orderBy('sort_order')
             ->get();

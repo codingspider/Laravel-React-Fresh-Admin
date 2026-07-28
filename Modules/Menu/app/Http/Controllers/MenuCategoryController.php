@@ -9,7 +9,6 @@ use Modules\Menu\Http\Requests\StoreMenuCategoryRequest;
 use Modules\Menu\Http\Requests\UpdateMenuCategoryRequest;
 use Modules\Menu\Resources\MenuCategoryResource;
 use Modules\Menu\Services\MenuCategoryService;
-use Modules\Restaurant\Models\Restaurant;
 
 class MenuCategoryController extends Controller
 {
@@ -19,9 +18,12 @@ class MenuCategoryController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status']);
+        $filters['restaurant_id'] = getRestaurantId();
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status', 'restaurant_id'])
+            $filters
         );
 
         return response()->json([
@@ -40,8 +42,7 @@ class MenuCategoryController extends Controller
     public function store(StoreMenuCategoryRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
 
         $category = $this->service->create($data);
 
@@ -55,6 +56,9 @@ class MenuCategoryController extends Controller
     public function show($id): JsonResponse
     {
         $category = $this->service->find($id);
+        if (getRestaurantId() && $category->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -65,6 +69,11 @@ class MenuCategoryController extends Controller
 
     public function update(UpdateMenuCategoryRequest $request, $id): JsonResponse
     {
+        $category = $this->service->find($id);
+        if (getRestaurantId() && $category->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $category = $this->service->update($id, $request->validated());
 
         return response()->json([
@@ -76,6 +85,11 @@ class MenuCategoryController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $category = $this->service->find($id);
+        if (getRestaurantId() && $category->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([
@@ -86,7 +100,7 @@ class MenuCategoryController extends Controller
 
     public function tree(Request $request): JsonResponse
     {
-        $restaurantId = $request->input('restaurant_id');
+        $restaurantId = getRestaurantId();
         $tree = $this->service->getTree($restaurantId);
 
         return response()->json([

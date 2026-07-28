@@ -13,6 +13,7 @@ class FloorResource extends JsonResource
             'restaurant_id' => $this->restaurant_id,
             'branch_id' => $this->branch_id,
             'name' => $this->name,
+            'description' => $this->description,
             'sort_order' => $this->sort_order,
             'layout_data' => $this->layout_data,
             'status' => $this->status,

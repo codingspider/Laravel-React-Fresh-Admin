@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'restaurant_id',
     ];
 
     /**
@@ -45,5 +46,25 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function restaurant()
+    {
+        return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('super_admin') || $this->hasRole('super-admin');
+    }
+
+    public function getRestaurantId(): ?int
+    {
+        if ($this->restaurant_id) {
+            return $this->restaurant_id;
+        }
+
+        $restaurant = \Modules\Restaurant\Models\Restaurant::where('owner_id', $this->id)->first();
+        return $restaurant?->id;
     }
 }

@@ -12,28 +12,39 @@ import api from "../../axios";
 
 const RestaurantEdit = () => {
     const { id } = useParams();
-    const { register, handleSubmit, reset, formState: { errors } } = useForm();
+    const { register, handleSubmit, reset, watch, setValue, formState: { errors } } = useForm({
+        defaultValues: { currency: "USD", currency_symbol: "$" },
+    });
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [currencies, setCurrencies] = useState([]);
     const toast = useToast();
     const navigate = useNavigate();
+    const selectedCurrency = watch("currency");
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Restaurant`;
-        const fetchRestaurant = async () => {
-            try {
-                const res = await api.get(`/v1/restaurants/${id}`);
-                reset(res.data.data);
-            } catch (err) {
-                toast({ position: "bottom-right", title: t("error"), description: err?.response?.data?.message || t("failed_to_load_restaurant"), status: "error", duration: 3000, isClosable: true });
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchRestaurant();
-    }, [id, reset, toast]);
+        Promise.all([
+            api.get(`/v1/restaurants/${id}`),
+            api.get("/v1/currencies/all-active"),
+        ]).then(([restRes, curRes]) => {
+            reset(restRes.data.data);
+            setCurrencies(curRes.data?.data || []);
+        }).catch((err) => {
+            toast({ position: "bottom-right", title: t("error"), description: err?.response?.data?.message || t("failed_to_load_restaurant"), status: "error", duration: 3000, isClosable: true });
+        }).finally(() => {
+            setLoading(false);
+        });
+    }, [id, reset, toast, t]);
+
+    useEffect(() => {
+        const found = currencies.find((c) => c.code === selectedCurrency);
+        if (found) {
+            setValue("currency_symbol", found.symbol);
+        }
+    }, [selectedCurrency, currencies, setValue]);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -144,12 +155,11 @@ const RestaurantEdit = () => {
 
                                 <FormControl>
                                     <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("currency")}</FormLabel>
+                                    <input type="hidden" {...register("currency_symbol")} />
                                     <Select {...register("currency")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md">
-                                        <option value="USD">USD ($)</option>
-                                        <option value="EUR">EUR (€)</option>
-                                        <option value="GBP">GBP (£)</option>
-                                        <option value="BDT">BDT (৳)</option>
-                                        <option value="INR">INR (₹)</option>
+                                        {currencies.map((cur) => (
+                                            <option key={cur.id} value={cur.code}>{cur.code} ({cur.symbol})</option>
+                                        ))}
                                     </Select>
                                 </FormControl>
 

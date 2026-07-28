@@ -15,9 +15,15 @@ class InventoryController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status']);
+        $restaurantId = getRestaurantId();
+        if ($restaurantId) {
+            $filters['restaurant_id'] = $restaurantId;
+        }
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status'])
+            $filters
         );
 
         return response()->json([
@@ -29,7 +35,13 @@ class InventoryController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $item = $this->service->create($request->validated());
+        $data = $request->validated();
+        $restaurantId = getRestaurantId();
+        if ($restaurantId) {
+            $data['restaurant_id'] = $restaurantId;
+        }
+
+        $item = $this->service->create($data);
 
         return response()->json([
             'status' => 'success',

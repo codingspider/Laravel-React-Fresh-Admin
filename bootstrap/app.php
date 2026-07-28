@@ -15,6 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'check_active_business' => \App\Http\Middleware\CheckBusinessIsActive::class,
             'cookie.filter' => \App\Http\Middleware\CookieFilter::class,
+            'restaurant.scope' => \App\Http\Middleware\RestaurantScope::class,
         ]);
 
         $middleware->priority([

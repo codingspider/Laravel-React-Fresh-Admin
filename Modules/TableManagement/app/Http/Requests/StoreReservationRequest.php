@@ -18,7 +18,7 @@ class StoreReservationRequest extends FormRequest
             'guest_email' => 'nullable|email|max:255',
             'guest_count' => 'required|integer|min:1',
             'reservation_date' => 'required|date|after_or_equal:today',
-            'reservation_time' => 'required|string|max:5',
+            'reservation_time' => 'required|date_format:H:i',
             'duration' => 'nullable|integer|min:15|max:480',
             'deposit_amount' => 'nullable|numeric|min:0',
             'special_requests' => 'nullable|string|max:1000',

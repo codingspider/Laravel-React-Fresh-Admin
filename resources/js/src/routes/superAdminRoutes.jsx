@@ -27,9 +27,21 @@ import RoleList from "../components/superadmin/permission/List";
 import RoleCreate from "../components/superadmin/permission/Create";
 import RoleEdit from "../components/superadmin/permission/Edit";
 import Profile from './../components/user/Profile';
-import ProductList from "../components/admin/product/ProductList";
-import ProductCreate from "../components/admin/product/ProductCreate";
-import ProductEdit from "../components/admin/product/ProductEdit";
+
+import InventoryItemList from "../components/admin/inventory/InventoryItemList";
+import InventoryItemCreate from "../components/admin/inventory/InventoryItemCreate";
+import InventoryItemEdit from "../components/admin/inventory/InventoryItemEdit";
+import InventoryCategoryList from "../components/admin/inventory/InventoryCategoryList";
+import InventoryCategoryCreate from "../components/admin/inventory/InventoryCategoryCreate";
+import InventoryCategoryEdit from "../components/admin/inventory/InventoryCategoryEdit";
+
+import SupplierList from "../components/admin/supplier/SupplierList";
+import SupplierCreate from "../components/admin/supplier/SupplierCreate";
+import SupplierEdit from "../components/admin/supplier/SupplierEdit";
+
+import CurrencyList from "../components/admin/currency/CurrencyList";
+import CurrencyCreate from "../components/admin/currency/CurrencyCreate";
+import CurrencyEdit from "../components/admin/currency/CurrencyEdit";
 
 // Phase 1 — Restaurant
 import RestaurantList from "../components/restaurant/RestaurantList";
@@ -92,10 +104,25 @@ export const ROLE_LIST_PATH = "/role/list";
 export const ROLE_ADD_PATH = "/role/create";
 export const ROLE_EDIT_PATH = "/role/edit/:id";
 
-export const PRODUCT_LIST_PATH = "/product/list";
-export const PRODUCT_ADD_PATH = "/product/create";
-export const PRODUCT_EDIT = "/product/edit/:id";
-export const PRODUCT_EDIT_PATH = (id) => `/product/edit/${id}`;
+export const INVENTORY_ITEM_LIST_PATH = "/inventory/list";
+export const INVENTORY_ITEM_ADD_PATH = "/inventory/create";
+export const INVENTORY_ITEM_EDIT = "/inventory/edit/:id";
+export const INVENTORY_ITEM_EDIT_PATH = (id) => `/inventory/edit/${id}`;
+
+export const INVENTORY_CATEGORY_LIST_PATH = "/inventory/categories";
+export const INVENTORY_CATEGORY_ADD_PATH = "/inventory/category/create";
+export const INVENTORY_CATEGORY_EDIT = "/inventory/category/edit/:id";
+export const INVENTORY_CATEGORY_EDIT_PATH = (id) => `/inventory/category/edit/${id}`;
+
+export const SUPPLIER_LIST_PATH = "/inventory/suppliers";
+export const SUPPLIER_ADD_PATH = "/inventory/supplier/create";
+export const SUPPLIER_EDIT = "/inventory/supplier/edit/:id";
+export const SUPPLIER_EDIT_PATH = (id) => `/inventory/supplier/edit/${id}`;
+
+export const CURRENCY_LIST_PATH = "/currency/list";
+export const CURRENCY_ADD_PATH = "/currency/create";
+export const CURRENCY_EDIT = "/currency/edit/:id";
+export const CURRENCY_EDIT_PATH = (id) => `/currency/edit/${id}`;
 
 export const PROFILE = "/profile";
 
@@ -128,9 +155,21 @@ export const superAdminRoutes = [
     { path: ROLE_ADD_PATH, element: <RoleCreate /> },
     { path: ROLE_EDIT_PATH, element: <RoleEdit /> },
 
-    { path: PRODUCT_LIST_PATH, element: <ProductList /> },
-    { path: PRODUCT_ADD_PATH, element: <ProductCreate /> },
-    { path: PRODUCT_EDIT, element: <ProductEdit /> },
+    { path: INVENTORY_ITEM_LIST_PATH, element: <InventoryItemList /> },
+    { path: INVENTORY_ITEM_ADD_PATH, element: <InventoryItemCreate /> },
+    { path: INVENTORY_ITEM_EDIT, element: <InventoryItemEdit /> },
+
+    { path: INVENTORY_CATEGORY_LIST_PATH, element: <InventoryCategoryList /> },
+    { path: INVENTORY_CATEGORY_ADD_PATH, element: <InventoryCategoryCreate /> },
+    { path: INVENTORY_CATEGORY_EDIT, element: <InventoryCategoryEdit /> },
+
+    { path: SUPPLIER_LIST_PATH, element: <SupplierList /> },
+    { path: SUPPLIER_ADD_PATH, element: <SupplierCreate /> },
+    { path: SUPPLIER_EDIT, element: <SupplierEdit /> },
+
+    { path: CURRENCY_LIST_PATH, element: <CurrencyList /> },
+    { path: CURRENCY_ADD_PATH, element: <CurrencyCreate /> },
+    { path: CURRENCY_EDIT, element: <CurrencyEdit /> },
 
     { path: PROFILE, element: <Profile /> },
 

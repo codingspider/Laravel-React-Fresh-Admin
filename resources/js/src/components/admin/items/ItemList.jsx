@@ -19,7 +19,7 @@ import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import { ADMIN_DASHBOARD_PATH, CATEGORY_ADD_PATH, CATEGORY_EDIT_PATH, ITEM_ADD_PATH } from "../../../routes/adminRoutes";
 import TanStackTable from "../../../TanStackTable";
-import { DELETE_CATEGORY, DELETE_ITEM, LIST_ITEM } from "../../../routes/apiRoutes";
+import { DELETE_INVENTORY_ITEM, LIST_INVENTORY_ITEM } from "../../../routes/apiRoutes";
 import { Image } from '@chakra-ui/react'
 
 export default function ItemList() {
@@ -37,7 +37,7 @@ export default function ItemList() {
     const fetchItems = async () => {
         try {
             setIsLoading(true);
-            const res = await api.get(LIST_ITEM, {
+            const res = await api.get(LIST_INVENTORY_ITEM, {
                 params: {
                     page: pageIndex + 1,
                     per_page: pageSize,
@@ -76,7 +76,7 @@ export default function ItemList() {
 
         if (result.isConfirmed) {
             try {
-                await api.delete(DELETE_ITEM(id));
+                await api.delete(DELETE_INVENTORY_ITEM(id));
                 toast({
                     position: "bottom-right",
                     title: "Data deleted successfully",

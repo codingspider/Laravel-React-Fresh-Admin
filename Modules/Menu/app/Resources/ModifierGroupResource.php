@@ -17,6 +17,7 @@ class ModifierGroupResource extends JsonResource
             'max_selections' => $this->max_selections,
             'sort_order' => $this->sort_order,
             'status' => $this->status,
+            'modifiers_count' => $this->whenCounted('modifiers'),
             'modifiers' => ModifierResource::collection($this->whenLoaded('modifiers')),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

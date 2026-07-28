@@ -121,6 +121,7 @@ if (!function_exists('getCurrencies')) {
     }
 }
 
+
 if (!function_exists('getTimeZones')) {
     function getTimeZones(){
         return array(
@@ -602,6 +603,17 @@ if (!function_exists('uploadImage')) {
     }
 }
 
+if (!function_exists('isSuperAdmin')) {
+    function isSuperAdmin($user = null): bool
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) {
+            return false;
+        }
+        return $user->hasRole('super_admin') || $user->hasRole('super-admin');
+    }
+}
+
 if (!function_exists('createdBy')) {
     function createdBy()
     {
@@ -612,15 +624,14 @@ if (!function_exists('createdBy')) {
 if (!function_exists('user_business_id')) {
     function user_business_id()
     {
-        return auth()->user()->business_id ?? null;
+        return getRestaurantId();
     }
 }
 
 if (!function_exists('user_full_name')) {
     function user_full_name()
     {
-        $name = auth()->user()->first_name.' '.auth()->user()->last_name;
-        return $name;
+        return auth()->user()->name ?? '';
     }
 }
 
@@ -636,5 +647,63 @@ if (!function_exists('dataShowingNumber')) {
     function dataShowingNumber(){
         $number = 10;
         return $number;
+    }
+}
+
+if (!function_exists('getRestaurantId')) {
+    function getRestaurantId($user = null): ?int
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) return null;
+
+        if (isSuperAdmin($user)) return null;
+
+        if (isset($user->_restaurant_id)) return $user->_restaurant_id;
+
+        if ($user->restaurant_id) return $user->restaurant_id;
+
+        $restaurant = \Modules\Restaurant\Models\Restaurant::where('owner_id', $user->id)->first();
+        return $restaurant?->id;
+    }
+}
+
+if (!function_exists('formatCurrency')) {
+    function formatCurrency($amount, $currencyCode = null, $restaurant = null): string
+    {
+        if ($amount === null || $amount === '') return '';
+        $amount = (float) $amount;
+
+        if (!$restaurant) {
+            $restaurant = request()->user()?->restaurant;
+        }
+
+        if ($restaurant && $restaurant->currency) {
+            $currencyCode = $restaurant->currency;
+            $symbol = $restaurant->currency_symbol ?? '$';
+        }
+
+        if (!$currencyCode) {
+            $currencyCode = 'USD';
+            $symbol = '$';
+        }
+
+        $currencyObj = \Modules\Currency\Models\Currency::where('code', $currencyCode)->first();
+
+        if ($currencyObj) {
+            $symbol = $currencyObj->symbol;
+            $symbolFirst = $currencyObj->symbol_first;
+            $decimals = $currencyObj->precision;
+            $decimalMark = $currencyObj->decimal_mark;
+            $thousandsSep = $currencyObj->thousands_separator;
+        } else {
+            $symbolFirst = true;
+            $decimals = 2;
+            $decimalMark = '.';
+            $thousandsSep = ',';
+        }
+
+        $formatted = number_format($amount, $decimals, $decimalMark, $thousandsSep);
+
+        return $symbolFirst ? $symbol . $formatted : $formatted . $symbol;
     }
 }

@@ -14,7 +14,6 @@ use Modules\POS\Resources\SaleResource;
 use Modules\POS\Services\PosService;
 use Modules\POS\Repositories\PosSessionRepository;
 use Modules\POS\Repositories\SaleRepository;
-use Modules\Restaurant\Models\Restaurant;
 
 class POSController extends Controller
 {
@@ -30,9 +29,8 @@ class POSController extends Controller
 
     public function startSession(StartSessionRequest $request): JsonResponse
     {
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
         $session = $this->posService->startSession([
-            'restaurant_id' => $restaurant?->id ?? $request->user()->id,
+            'restaurant_id' => getRestaurantId() ?? $request->user()->id,
             'branch_id' => $request->branch_id,
             'user_id' => $request->user()->id,
             'opening_balance' => $request->opening_balance,
@@ -60,7 +58,6 @@ class POSController extends Controller
 
     public function getOpenSession(Request $request): JsonResponse
     {
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
         $session = $this->sessionRepo->getOpenSession(
             $request->input('branch_id', 1),
             $request->user()->id
@@ -77,9 +74,12 @@ class POSController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $filters = $request->only(['search', 'status', 'payment_status', 'order_type', 'branch_id', 'date', 'from_date', 'to_date']);
+        $filters['restaurant_id'] = getRestaurantId();
+
         $data = $this->saleRepo->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status', 'payment_status', 'order_type', 'restaurant_id', 'branch_id', 'date', 'from_date', 'to_date'])
+            $filters
         );
 
         return response()->json([
@@ -97,9 +97,8 @@ class POSController extends Controller
 
     public function store(StoreSaleRequest $request): JsonResponse
     {
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
         $data = $request->validated();
-        $data['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
         $data['branch_id'] = $data['branch_id'] ?? $request->input('branch_id');
         $data['user_id'] = $request->user()->id;
 

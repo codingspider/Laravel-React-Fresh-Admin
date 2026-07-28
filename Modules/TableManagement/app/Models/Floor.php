@@ -16,6 +16,7 @@ class Floor extends Model
         'restaurant_id',
         'branch_id',
         'name',
+        'description',
         'sort_order',
         'layout_data',
         'status',

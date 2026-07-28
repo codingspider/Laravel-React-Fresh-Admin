@@ -4,9 +4,11 @@ use App\Http\Controllers\API\Admin\AddonController;
 use App\Http\Controllers\API\Admin\BusinessController as AdminBusinessController;
 use App\Http\Controllers\API\Admin\CategoryController;
 use App\Http\Controllers\API\Admin\LocationController;
-use App\Http\Controllers\API\Admin\ProductController;
-use App\Http\Controllers\API\Admin\RoleController;
+use App\Http\Controllers\API\Admin\InventoryItemController;
+use App\Http\Controllers\API\Admin\InventoryCategoryController;
+use App\Http\Controllers\API\Admin\SupplierController;
 use App\Http\Controllers\API\Admin\UnitController;
+use App\Http\Controllers\API\Admin\RoleController;
 use App\Http\Controllers\API\Admin\UserManagementController;
 use App\Http\Controllers\API\Admin\VariationController;
 use App\Http\Controllers\API\AuthController;
@@ -41,17 +43,19 @@ Route::middleware(['auth:sanctum', EnsureFrontendRequestsAreStateful::class])->p
     
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business', EnsureFrontendRequestsAreStateful::class])->group(function () {
+Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
     Route::apiResource('branches', BranchController::class);
     Route::apiResource('vats', VatController::class);
     Route::apiResource('categories', CategoryController::class);
     Route::apiResource('addons', AddonController::class);
     Route::apiResource('variations', VariationController::class);
-    Route::apiResource('products', ProductController::class);
+    Route::apiResource('inventory-items', InventoryItemController::class);
+    Route::apiResource('inventory-categories', InventoryCategoryController::class);
+    Route::apiResource('suppliers', SupplierController::class);
     Route::apiResource('units', UnitController::class);
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('user-management', UserManagementController::class);
-    
+
 
     Route::get('owner/business', [AdminBusinessController::class, 'index']);
     Route::put('business/setting/update/{id}', [AdminBusinessController::class, 'update']);
@@ -64,7 +68,7 @@ Route::middleware(['auth:sanctum', 'check_active_business', EnsureFrontendReques
     Route::get('get/all/categories', [CategoryController::class, 'getAllCategory']);
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business', 'cookie.filter'])->group(function () {
+Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', 'cookie.filter'])->group(function () {
     Route::get('get/branches', [BranchController::class, 'getBranch']);
     Route::get('get/currencies', [GeneralController::class, 'getCurrency']);
     Route::get('get/timezones', [GeneralController::class, 'getTimezone']);
@@ -79,9 +83,30 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'cookie.filter'])->g
 });
 
 Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Request $request) {
+    $user = $request->user();
+    $restaurant = null;
+
+    if ($user->restaurant_id) {
+        $restaurant = \Modules\Restaurant\Models\Restaurant::find($user->restaurant_id);
+    } else {
+        $restaurant = \Modules\Restaurant\Models\Restaurant::where('owner_id', $user->id)->first();
+    }
+
     return response()->json([
-        'user' => $request->user(),
-        'permissions' => $request->user()->getAllPermissions()->pluck('name')
+        'data' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'roles' => $user->getRoleNames(),
+            'permissions' => $user->getAllPermissions()->pluck('name'),
+            'restaurant_id' => $restaurant?->id,
+            'restaurant' => $restaurant ? [
+                'id' => $restaurant->id,
+                'name' => $restaurant->name,
+                'currency' => $restaurant->currency,
+                'currency_symbol' => $restaurant->currency_symbol,
+            ] : null,
+        ],
     ]);
 });
 

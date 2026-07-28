@@ -11,16 +11,30 @@ import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../axios";
 
 const RestaurantCreate = () => {
-    const { register, handleSubmit, formState: { errors } } = useForm();
+    const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+        defaultValues: { currency: "USD", currency_symbol: "$" },
+    });
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [currencies, setCurrencies] = useState([]);
     const toast = useToast();
     const navigate = useNavigate();
+    const selectedCurrency = watch("currency");
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Create Restaurant`;
+        api.get("/v1/currencies/all-active").then((res) => {
+            setCurrencies(res.data?.data || []);
+        }).catch(() => {});
     }, []);
+
+    useEffect(() => {
+        const found = currencies.find((c) => c.code === selectedCurrency);
+        if (found) {
+            setValue("currency_symbol", found.symbol);
+        }
+    }, [selectedCurrency, currencies, setValue]);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -121,12 +135,11 @@ const RestaurantCreate = () => {
 
                                 <FormControl>
                                     <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("currency")}</FormLabel>
+                                    <input type="hidden" {...register("currency_symbol")} />
                                     <Select {...register("currency")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md">
-                                        <option value="USD">USD ($)</option>
-                                        <option value="EUR">EUR (€)</option>
-                                        <option value="GBP">GBP (£)</option>
-                                        <option value="BDT">BDT (৳)</option>
-                                        <option value="INR">INR (₹)</option>
+                                        {currencies.map((cur) => (
+                                            <option key={cur.id} value={cur.code}>{cur.code} ({cur.symbol})</option>
+                                        ))}
                                     </Select>
                                 </FormControl>
 

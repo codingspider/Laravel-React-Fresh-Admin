@@ -321,53 +321,7 @@ Modules/{Module}/
         └── emails.php        # Email-related text (if applicable)
 ```
 
-### Language File Structure
-
-Every module's `module.php` must follow this structure:
-
-```php
-<?php
-
-return [
-    // CRUD operations
-    'created'         => '{item} created successfully.',
-    'updated'         => '{item} updated successfully.',
-    'deleted'         => '{item} deleted successfully.',
-    'deleted_permanently' => '{item} deleted permanently.',
-    'restored'        => '{item} restored successfully.',
-
-    // Fetching
-    'fetched'         => '{item} fetched successfully.',
-    'fetched_list'    => '{item} list fetched successfully.',
-
-    // Not found
-    'not_found'       => '{item} not found.',
-
-    // Validation
-    'invalid_input'   => 'Invalid input provided.',
-
-    // Status changes
-    'activated'       => '{item} activated successfully.',
-    'deactivated'     => '{item} deactivated successfully.',
-
-    // Bulk operations
-    'bulk_deleted'    => '{count} {item} deleted successfully.',
-    'bulk_updated'    => '{count} {item} updated successfully.',
-
-    // Import/Export
-    'imported'        => '{item} imported successfully.',
-    'exported'        => '{item} exported successfully.',
-
-    // Authentication
-    'unauthorized'    => 'You are not authorized to perform this action.',
-    'login_required'  => 'Please login to continue.',
-
-    // General
-    'success'         => 'Operation completed successfully.',
-    'error'           => 'An error occurred. Please try again.',
-    'confirm_delete'  => 'Are you sure you want to delete this {item}?',
-];
-```
+React frontend must use lang key like t('home')
 
 ### Usage in Controllers
 

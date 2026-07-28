@@ -18,7 +18,7 @@ class UpdateReservationRequest extends FormRequest
             'guest_email' => 'nullable|email|max:255',
             'guest_count' => 'sometimes|integer|min:1',
             'reservation_date' => 'sometimes|date|after_or_equal:today',
-            'reservation_time' => 'sometimes|string|max:5',
+            'reservation_time' => 'sometimes|date_format:H:i',
             'duration' => 'nullable|integer|min:15|max:480',
             'status' => 'sometimes|in:pending,confirmed,seated,completed,cancelled,no_show',
             'deposit_amount' => 'nullable|numeric|min:0',
