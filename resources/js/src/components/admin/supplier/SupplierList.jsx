@@ -50,7 +50,7 @@ export default function SupplierList() {
     } finally {
       if (mountedRef.current) setIsLoading(false);
     }
-  }, [pageIndex, toast]);
+  }, [pageIndex]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

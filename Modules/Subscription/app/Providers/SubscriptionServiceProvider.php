@@ -2,31 +2,35 @@
 
 namespace Modules\Subscription\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Nwidart\Modules\Support\ModuleServiceProvider;
+use Modules\Subscription\Repositories\SubscriptionRepository;
+use Modules\Subscription\Services\SubscriptionService;
+use Modules\Subscription\Models\Subscription;
 
-class SubscriptionServiceProvider extends ServiceProvider
+class SubscriptionServiceProvider extends ModuleServiceProvider
 {
-    protected string $moduleName = 'Subscription';
-    protected string $moduleNameLower = 'subscription';
+    protected string $name = 'Subscription';
+    protected string $nameLower = 'subscription';
 
-    public function register(): void
-    {
-    }
+    protected array $providers = [
+        RouteServiceProvider::class,
+    ];
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
-        $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->moduleNameLower);
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->nameLower);
     }
 
-    public function getModuleName(): string
+    public function register(): void
     {
-        return $this->moduleName;
-    }
+        parent::register();
 
-    public function getModuleNameLower(): string
-    {
-        return $this->moduleNameLower;
+        $this->app->bind(SubscriptionRepository::class, function () {
+            return new SubscriptionRepository(new Subscription());
+        });
+
+        $this->app->bind(SubscriptionService::class, function ($app) {
+            return new SubscriptionService($app->make(SubscriptionRepository::class));
+        });
     }
 }

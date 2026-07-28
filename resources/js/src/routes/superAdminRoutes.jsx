@@ -9,7 +9,17 @@ import UserEdit from './../components/user/UserEdit';
 
 import PlanList from "../components/superadmin/plan/PlanList";
 import PlanCreate from "../components/superadmin/plan/PlanCreate";
+import PlanView from "../components/superadmin/plan/PlanView";
 import PlanEdit from "../components/superadmin/plan/PlanEdit";
+
+import PackageList from "../components/superadmin/package/PackageList";
+import PackageCreate from "../components/superadmin/package/PackageCreate";
+import PackageEdit from "../components/superadmin/package/PackageEdit";
+import PackageView from "../components/superadmin/package/PackageView";
+
+import SubscriptionList from "../components/superadmin/subscription/SubscriptionList";
+import SubscriptionCreate from "../components/superadmin/subscription/SubscriptionCreate";
+import SubscriptionEdit from "../components/superadmin/subscription/SubscriptionEdit";
 
 import BusinessList from "../components/superadmin/Business/BusinessList";
 import BusinessCreate from "../components/superadmin/Business/BusinessCreate";
@@ -86,6 +96,7 @@ export const USER_EDIT_PATH = "/user/edit/:id";
 
 export const PLAN_LIST_PATH = "/plan/list";
 export const PLAN_ADD_PATH = "/plan/create";
+export const PLAN_VIEW_PATH = "/plan/view/:id";
 export const PLAN_EDIT_PATH = "/plan/edit/:id";
 
 export const BUSINESS_LIST_PATH = "/business/list";
@@ -103,6 +114,15 @@ export const UNIT_EDIT = "/unit/edit/:id";
 export const ROLE_LIST_PATH = "/role/list";
 export const ROLE_ADD_PATH = "/role/create";
 export const ROLE_EDIT_PATH = "/role/edit/:id";
+
+export const PACKAGE_LIST_PATH = "/package/list";
+export const PACKAGE_ADD_PATH = "/package/create";
+export const PACKAGE_VIEW_PATH = "/package/view/:id";
+export const PACKAGE_EDIT_PATH = "/package/edit/:id";
+
+export const SUBSCRIPTION_LIST_PATH = "/subscription/list";
+export const SUBSCRIPTION_ADD_PATH = "/subscription/create";
+export const SUBSCRIPTION_EDIT_PATH = "/subscription/edit/:id";
 
 export const INVENTORY_ITEM_LIST_PATH = "/inventory/list";
 export const INVENTORY_ITEM_ADD_PATH = "/inventory/create";
@@ -137,6 +157,7 @@ export const superAdminRoutes = [
 
     { path: PLAN_LIST_PATH, element: <PlanList /> },
     { path: PLAN_ADD_PATH, element: <PlanCreate /> },
+    { path: PLAN_VIEW_PATH, element: <PlanView /> },
     { path: PLAN_EDIT_PATH, element: <PlanEdit /> },
 
     { path: BUSINESS_LIST_PATH, element: <BusinessList /> },
@@ -154,6 +175,15 @@ export const superAdminRoutes = [
     { path: ROLE_LIST_PATH, element: <RoleList /> },
     { path: ROLE_ADD_PATH, element: <RoleCreate /> },
     { path: ROLE_EDIT_PATH, element: <RoleEdit /> },
+
+    { path: PACKAGE_LIST_PATH, element: <PackageList /> },
+    { path: PACKAGE_ADD_PATH, element: <PackageCreate /> },
+    { path: PACKAGE_VIEW_PATH, element: <PackageView /> },
+    { path: PACKAGE_EDIT_PATH, element: <PackageEdit /> },
+
+    { path: SUBSCRIPTION_LIST_PATH, element: <SubscriptionList /> },
+    { path: SUBSCRIPTION_ADD_PATH, element: <SubscriptionCreate /> },
+    { path: SUBSCRIPTION_EDIT_PATH, element: <SubscriptionEdit /> },
 
     { path: INVENTORY_ITEM_LIST_PATH, element: <InventoryItemList /> },
     { path: INVENTORY_ITEM_ADD_PATH, element: <InventoryItemCreate /> },

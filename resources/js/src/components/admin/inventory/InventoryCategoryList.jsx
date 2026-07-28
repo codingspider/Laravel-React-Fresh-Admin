@@ -50,7 +50,7 @@ export default function InventoryCategoryList() {
     } finally {
       if (mountedRef.current) setIsLoading(false);
     }
-  }, [pageIndex, toast]);
+  }, [pageIndex]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

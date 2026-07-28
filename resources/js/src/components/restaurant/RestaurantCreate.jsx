@@ -4,6 +4,7 @@ import {
     Box, Button, Card, CardHeader, CardBody, Heading, SimpleGrid,
     FormControl, FormLabel, Input, Select, Breadcrumb, BreadcrumbItem,
     BreadcrumbLink, useToast, Flex, Text, Switch, HStack,
+    Checkbox, Divider, useColorModeValue,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
@@ -17,9 +18,25 @@ const RestaurantCreate = () => {
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [currencies, setCurrencies] = useState([]);
+    const [createOwner, setCreateOwner] = useState(false);
+    const [ownerRoleId, setOwnerRoleId] = useState(null);
+    const [ownerName, setOwnerName] = useState("");
+    const [ownerEmail, setOwnerEmail] = useState("");
+    const [ownerPassword, setOwnerPassword] = useState("");
+    const [ownerErrors, setOwnerErrors] = useState({});
     const toast = useToast();
     const navigate = useNavigate();
     const selectedCurrency = watch("currency");
+    const dividerBg = useColorModeValue("gray.200", "gray.600");
+    const pageBg = useColorModeValue("gray.50", "gray.900");
+    const cardBg = useColorModeValue("white", "gray.800");
+    const borderColor = useColorModeValue("gray.200", "gray.700");
+    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
+    const headingColor = useColorModeValue("gray.800", "gray.100");
+    const textColor = useColorModeValue("gray.500", "gray.400");
+    const labelColor = useColorModeValue("gray.700", "gray.300");
+    const fieldBg = useColorModeValue("gray.50", "gray.700");
+    const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -36,10 +53,48 @@ const RestaurantCreate = () => {
         }
     }, [selectedCurrency, currencies, setValue]);
 
+    useEffect(() => {
+        api.get("/get/roles").then((res) => {
+            const roles = res.data?.data || [];
+            const ownerRole = roles.find((r) => r.name === "restaurant_owner");
+            if (ownerRole) setOwnerRoleId(ownerRole.id);
+        }).catch(() => {});
+    }, []);
+
     const onSubmit = async (data) => {
+        if (createOwner) {
+            const errs = {};
+            if (!ownerName.trim()) errs.name = true;
+            if (!ownerEmail.trim()) errs.email = true;
+            if (!ownerPassword) errs.password = true;
+            if (Object.keys(errs).length > 0) {
+                setOwnerErrors(errs);
+                toast({ position: "bottom-right", title: t("error"), description: t("please_fill_all_owner_fields"), status: "error", duration: 3000, isClosable: true });
+                return;
+            }
+        }
+        setOwnerErrors({});
         setIsSubmitting(true);
         try {
             const res = await api.post("/v1/restaurants", data);
+            if (createOwner && ownerRoleId) {
+                try {
+                    await api.post("/user-management", {
+                        name: ownerName,
+                        email: ownerEmail,
+                        password: ownerPassword,
+                        role: ownerRoleId,
+                    });
+                } catch (ownerErr) {
+                    const ownerErrData = ownerErr?.response?.data;
+                    const ownerMsg = ownerErrData?.errors
+                        ? Object.values(ownerErrData.errors).flat().join(" ")
+                        : ownerErrData?.message || t("owner_creation_failed");
+                    toast({ position: "bottom-right", title: t("restaurant_created_owner_failed"), description: ownerMsg, status: "warning", duration: 5000, isClosable: true });
+                    navigate("/restaurant/list");
+                    return;
+                }
+            }
             toast({ position: "bottom-right", title: res.data.message, status: "success", duration: 3000, isClosable: true });
             navigate("/restaurant/list");
         } catch (err) {
@@ -56,11 +111,11 @@ const RestaurantCreate = () => {
     };
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box bg={pageBg} minH="100vh" py={3}>
             <Box mx="auto">
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={textColor}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
                             </BreadcrumbItem>
@@ -68,18 +123,18 @@ const RestaurantCreate = () => {
                                 <BreadcrumbLink as={ReactRouterLink} to="/restaurant/list" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("list")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">{t("create")}</BreadcrumbLink>
+                                <BreadcrumbLink color={headingColor} fontWeight="bold">{t("create")}</BreadcrumbLink>
                             </BreadcrumbItem>
                         </Breadcrumb>
                     </CardBody>
                 </Card>
 
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
-                    <CardHeader bg="white" borderBottom="1px solid" borderColor="gray.100" pb={6}>
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={cardBg}>
+                    <CardHeader bg={cardBg} borderBottom="1px solid" borderColor={headerBorderColor} pb={6}>
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">{t("create")}</Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>{t("create_new_restaurant")}</Text>
+                                <Heading size="sm" color={headingColor} fontWeight="bold">{t("create")}</Heading>
+                                <Text fontSize="sm" color={textColor} mt={1}>{t("create_new_restaurant")}</Text>
                             </Box>
                             <Button colorScheme="teal" as={ReactRouterLink} to="/restaurant/list" variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("list")}</Button>
                         </Flex>
@@ -89,54 +144,54 @@ const RestaurantCreate = () => {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                 <FormControl isRequired isInvalid={errors.name}>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("name")}</FormLabel>
-                                    <Input {...register("name", { required: true })} placeholder={t("name")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("name")}</FormLabel>
+                                    <Input {...register("name", { required: true })} placeholder={t("name")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("slug")}</FormLabel>
-                                    <Input {...register("slug")} placeholder={t("auto_generated")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("slug")}</FormLabel>
+                                    <Input {...register("slug")} placeholder={t("auto_generated")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("email")}</FormLabel>
-                                    <Input {...register("email")} type="email" placeholder={t("restaurant_email_placeholder")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("email")}</FormLabel>
+                                    <Input {...register("email")} type="email" placeholder={t("restaurant_email_placeholder")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("phone")}</FormLabel>
-                                    <Input {...register("phone")} placeholder={t("phone_placeholder")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("phone")}</FormLabel>
+                                    <Input {...register("phone")} placeholder={t("phone_placeholder")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("address")}</FormLabel>
-                                    <Input {...register("address")} placeholder={t("street_address")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("address")}</FormLabel>
+                                    <Input {...register("address")} placeholder={t("street_address")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("city")}</FormLabel>
-                                    <Input {...register("city")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("city")}</FormLabel>
+                                    <Input {...register("city")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("state")}</FormLabel>
-                                    <Input {...register("state")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("state")}</FormLabel>
+                                    <Input {...register("state")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("country")}</FormLabel>
-                                    <Input {...register("country")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("country")}</FormLabel>
+                                    <Input {...register("country")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("zip_code")}</FormLabel>
-                                    <Input {...register("zip_code")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("zip_code")}</FormLabel>
+                                    <Input {...register("zip_code")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("currency")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("currency")}</FormLabel>
                                     <input type="hidden" {...register("currency_symbol")} />
-                                    <Select {...register("currency")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md">
+                                    <Select {...register("currency")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md">
                                         {currencies.map((cur) => (
                                             <option key={cur.id} value={cur.code}>{cur.code} ({cur.symbol})</option>
                                         ))}
@@ -144,8 +199,8 @@ const RestaurantCreate = () => {
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("timezone")}</FormLabel>
-                                    <Select {...register("timezone")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md">
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("timezone")}</FormLabel>
+                                    <Select {...register("timezone")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md">
                                         <option value="UTC">{t("timezone_utc")}</option>
                                         <option value="America/New_York">{t("timezone_eastern")}</option>
                                         <option value="America/Chicago">{t("timezone_central")}</option>
@@ -156,20 +211,83 @@ const RestaurantCreate = () => {
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("tax_rate")}</FormLabel>
-                                    <Input {...register("tax_rate")} type="number" step="0.01" placeholder="0" bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("tax_rate")}</FormLabel>
+                                    <Input {...register("tax_rate")} type="number" step="0.01" placeholder="0" bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("tax_name")}</FormLabel>
-                                    <Input {...register("tax_name")} placeholder={t("tax_name_placeholder")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("tax_name")}</FormLabel>
+                                    <Input {...register("tax_name")} placeholder={t("tax_name_placeholder")} bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }} size="md" transition="all 0.2s" />
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("tax_inclusive")}</FormLabel>
-                                    <HStack><Switch {...register("tax_inclusive")} /><Text fontSize="sm" color="gray.600">{t("tax_inclusive")}</Text></HStack>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("tax_inclusive")}</FormLabel>
+                                    <HStack><Switch {...register("tax_inclusive")} /><Text fontSize="sm" color={textColor}>{t("tax_inclusive")}</Text></HStack>
                                 </FormControl>
                             </SimpleGrid>
+
+                            <Divider my={10} borderColor={dividerBg} />
+
+                            <Box>
+                                <Heading size="sm" color={headingColor} fontWeight="bold" mb={6}>{t("restaurant_owner")}</Heading>
+
+                                <FormControl mb={6}>
+                                    <Checkbox
+                                        isChecked={createOwner}
+                                        onChange={(e) => {
+                                            setCreateOwner(e.target.checked);
+                                            setOwnerErrors({});
+                                        }}
+                                        colorScheme="teal"
+                                        fontWeight="semibold"
+                                        fontSize="sm"
+                                    >
+                                        <Text fontSize="sm" color={labelColor}>{t("create_restaurant_owner_account")}</Text>
+                                    </Checkbox>
+                                </FormControl>
+
+                                {createOwner && (
+                                    <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+                                        <FormControl isRequired isInvalid={ownerErrors.name}>
+                                            <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("owner_name")}</FormLabel>
+                                            <Input
+                                                value={ownerName}
+                                                onChange={(e) => setOwnerName(e.target.value)}
+                                                placeholder={t("owner_name_placeholder")}
+                                                bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md"
+                                                focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }}
+                                                size="md" transition="all 0.2s"
+                                            />
+                                        </FormControl>
+
+                                        <FormControl isRequired isInvalid={ownerErrors.email}>
+                                            <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("owner_email")}</FormLabel>
+                                            <Input
+                                                type="email"
+                                                value={ownerEmail}
+                                                onChange={(e) => setOwnerEmail(e.target.value)}
+                                                placeholder={t("owner_email_placeholder")}
+                                                bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md"
+                                                focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }}
+                                                size="md" transition="all 0.2s"
+                                            />
+                                        </FormControl>
+
+                                        <FormControl isRequired isInvalid={ownerErrors.password}>
+                                            <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("owner_password")}</FormLabel>
+                                            <Input
+                                                type="password"
+                                                value={ownerPassword}
+                                                onChange={(e) => setOwnerPassword(e.target.value)}
+                                                placeholder={t("owner_password_placeholder")}
+                                                bg={fieldBg} border="1px solid" borderColor={borderColor} borderRadius="md"
+                                                focusBorderColor="teal.500" _hover={{ borderColor: fieldHoverBorder }}
+                                                size="md" transition="all 0.2s"
+                                            />
+                                        </FormControl>
+                                    </SimpleGrid>
+                                )}
+                            </Box>
 
                             <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
                                 <Button type="button" as={ReactRouterLink} to="/restaurant/list" colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>{t("cancel")}</Button>

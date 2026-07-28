@@ -3,18 +3,44 @@
 namespace Modules\Plan\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Plan extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
-    protected $fillable = ['restaurant_id', 'name', 'status'];
-    protected $casts = ['metadata' => 'array'];
+    protected $fillable = [
+        'name',
+        'slug',
+        'description',
+        'price',
+        'billing_cycle',
+        'branch_limit',
+        'user_limit',
+        'invoice_limit',
+        'is_active',
+        'status',
+        'metadata',
+    ];
 
-    public function restaurant()
+    protected $casts = [
+        'metadata' => 'array',
+        'price' => 'decimal:2',
+        'is_active' => 'boolean',
+    ];
+
+    public function packages()
     {
-        return $this->belongsTo(\App\Models\Restaurant::class);
+        return $this->belongsToMany(\Modules\Package\Models\Package::class, 'plan_package');
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(\Modules\Subscription\Models\Subscription::class);
+    }
+
+    public function isActive(): bool
+    {
+        return $this->is_active && $this->status === 'active';
     }
 }

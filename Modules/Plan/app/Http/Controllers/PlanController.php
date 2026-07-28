@@ -5,6 +5,9 @@ namespace Modules\Plan\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Plan\Http\Requests\StorePlanRequest;
+use Modules\Plan\Http\Requests\UpdatePlanRequest;
+use Modules\Plan\Resources\PlanResource;
 use Modules\Plan\Services\PlanService;
 
 class PlanController extends Controller
@@ -15,48 +18,80 @@ class PlanController extends Controller
 
     public function index(Request $request): JsonResponse
     {
+        $restaurantId = getRestaurantId();
+
         $data = $this->service->paginate(
             $request->input('per_page', 15),
-            $request->only(['search', 'status'])
+            array_merge(
+                $request->only(['search', 'status', 'billing_cycle']),
+                ['restaurant_id' => $restaurantId]
+            )
         );
 
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.fetched_list'),
-            'data' => $data,
+            'data' => PlanResource::collection($data),
+            'meta' => [
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'per_page' => $data->perPage(),
+                'total' => $data->total(),
+            ],
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StorePlanRequest $request): JsonResponse
     {
-        $item = $this->service->create($request->validated());
+        $validated = $request->validated();
+        $packageIds = $validated['package_ids'] ?? [];
+        unset($validated['package_ids']);
+
+        $item = $this->service->create($validated);
+
+        if (!empty($packageIds)) {
+            $item->packages()->sync($packageIds);
+        }
+
+        $item->load('packages');
 
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.created'),
-            'data' => $item,
+            'data' => new PlanResource($item),
         ], 201);
     }
 
     public function show($id): JsonResponse
     {
         $item = $this->service->find($id);
+        $item->load('packages');
 
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.fetched'),
-            'data' => $item,
+            'data' => new PlanResource($item),
         ]);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdatePlanRequest $request, $id): JsonResponse
     {
-        $item = $this->service->update($id, $request->validated());
+        $validated = $request->validated();
+        $packageIds = $validated['package_ids'] ?? null;
+        unset($validated['package_ids']);
+
+        $item = $this->service->update($id, $validated);
+
+        if ($packageIds !== null) {
+            $item->packages()->sync($packageIds);
+        }
+
+        $item->load('packages');
 
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.updated'),
-            'data' => $item,
+            'data' => new PlanResource($item),
         ]);
     }
 

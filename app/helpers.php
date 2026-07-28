@@ -707,3 +707,14 @@ if (!function_exists('formatCurrency')) {
         return $symbolFirst ? $symbol . $formatted : $formatted . $symbol;
     }
 }
+
+if (!function_exists('isModuleAccessible')) {
+    function isModuleAccessible(string $module): bool
+    {
+        $user = auth()->user();
+        if (!$user) return false;
+        if (isSuperAdmin($user)) return true;
+        $allowed = $user->_allowed_modules ?? [];
+        return in_array($module, $allowed);
+    }
+}

@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\API\Admin;
 
 use App\Http\Controllers\API\BaseController;
-use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 
 class UserManagementController extends BaseController
@@ -17,95 +15,74 @@ class UserManagementController extends BaseController
     public function index(Request $request)
     {
         try {
-            $data = User::select('id','surname','first_name','last_name', 'username', 'email', 'status')
-            ->where('business_id', user_business_id())
-            ->orderBy('id', 'desc')
-            ->paginate(dataShowingNumber())
-            ->through(function ($user) {
-                return [
-                    'id' => $user->id,
-                    'name' => $user->surname. ' ' .$user->first_name.' '.$user->last_name,
-                    'username' => $user->username,
-                    'email' => $user->email,
-                    'status' => $user->status,
-                    'role'  => $user->getRoleNames()->first()
-                ];
-            });
+            $query = User::with('roles')->orderBy('id', 'desc');
 
-            return $this->sendResponse($data, 'User retrived successfully.');
+            if ($request->search) {
+                $query->where(function ($q) use ($request) {
+                    $q->where('name', 'like', "%{$request->search}%")
+                      ->orWhere('email', 'like', "%{$request->search}%");
+                });
+            }
 
+            $restaurantId = getRestaurantId();
+            if ($restaurantId) {
+                $query->where('restaurant_id', $restaurantId);
+            }
+
+            $data = $query->paginate($request->input('per_page', 15));
+
+            return $this->sendResponse($data, 'Users retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            return $this->sendError('Server Error: ' . $e->getMessage());
         }
     }
-    
+
     public function show($id)
     {
         try {
-            $user = User::with(['roles', 'permissions'])->find($id);
-
-            return $this->sendResponse($user, 'User retrived successfully.');
+            $user = User::with(['roles', 'permissions'])->findOrFail($id);
+            return $this->sendResponse($user, 'User retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            return $this->sendError('User not found.', [], 404);
         }
     }
 
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'surname'           => 'required|string',
-            'first_name'        => 'required|string',
-            'last_name'         => 'required|string',
-            'status'            => 'required',
-            'allow_login'            => 'required',
-            'username'          => 'required|unique:users,username',
-            'email'             => 'required|email|unique:users,email',
-            'role'           => 'required|exists:roles,id',
-            'password'          => 'required|min:6',
-            'location_permissions' => 'array',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            'role'     => 'required|exists:roles,id',
+            'restaurant_id' => 'nullable|exists:restaurants,id',
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError(
-                'Validation Error.',
-                $validator->errors()->toArray(),
-                422
-            );
+            return $this->sendError('Validation Error.', $validator->errors()->toArray(), 422);
         }
 
         DB::beginTransaction();
 
         try {
-            // Create user
             $user = User::create([
-                'surname'     => $request->surname,
-                'first_name'  => $request->first_name,
-                'last_name'   => $request->last_name,
-                'username'    => $request->username,
-                'email'       => $request->email,
-                'status'      => $request->status,
-                'allow_login'      => $request->allow_login,
-                'business_id'      => user_business_id(),
-                'password'    => Hash::make($request->password),
+                'name'          => $request->name,
+                'email'         => $request->email,
+                'password'      => Hash::make($request->password),
+                'restaurant_id' => $request->restaurant_id ?? getRestaurantId(),
             ]);
 
-            // Assign role (Spatie)
             $role = Role::findById($request->role, 'web');
             $user->assignRole($role);
 
-            // Assign location permissions
-            $this->assignLocationPermissions($user, $request);
-
             DB::commit();
 
-            return $this->sendResponse($user, 'User created successfully.');
-
+            return $this->sendResponse($user->load('roles'), 'User created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->sendError('Server Error: ' . $e->getMessage(), 500);
         }
     }
-    
+
     public function update(Request $request, $id)
     {
         $user = User::find($id);
@@ -115,71 +92,41 @@ class UserManagementController extends BaseController
         }
 
         $validator = Validator::make($request->all(), [
-            'surname'              => 'required|string',
-            'first_name'           => 'required|string',
-            'last_name'            => 'required|string',
-            'status'               => 'required',
-            'allow_login'          => 'required',
-            'username'             => 'required|unique:users,username,' . $id,
-            'email'                => 'required|email|unique:users,email,' . $id,
-            'role'                 => 'required|exists:roles,id',
-            'password'             => 'nullable|min:6',
-            'locations'            => 'array',
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email,' . $id,
+            'password' => 'nullable|min:6',
+            'role'     => 'required|exists:roles,id',
+            'restaurant_id' => 'nullable|exists:restaurants,id',
         ]);
 
         if ($validator->fails()) {
-            return $this->sendError(
-                'Validation Error.',
-                $validator->errors()->toArray(),
-                422
-            );
+            return $this->sendError('Validation Error.', $validator->errors()->toArray(), 422);
         }
 
         DB::beginTransaction();
 
         try {
+            $updateData = [
+                'name'          => $request->name,
+                'email'         => $request->email,
+                'restaurant_id' => $request->restaurant_id ?? $user->restaurant_id,
+            ];
 
-            // Update user
-            $user->update([
-                'surname'      => $request->surname,
-                'first_name'   => $request->first_name,
-                'last_name'    => $request->last_name,
-                'username'     => $request->username,
-                'email'        => $request->email,
-                'status'       => $request->status,
-                'allow_login'  => $request->allow_login,
-            ]);
-
-            // Update password only if provided
             if ($request->filled('password')) {
-                $user->update([
-                    'password' => Hash::make($request->password),
-                ]);
+                $updateData['password'] = Hash::make($request->password);
             }
 
-            // Sync role
+            $user->update($updateData);
+
             $role = Role::findById($request->role, 'web');
-
             $user->syncRoles([$role]);
-
-            // Sync location permissions
-            $this->assignLocationPermissions($user, $request);
 
             DB::commit();
 
-            return $this->sendResponse(
-                $user->load(['roles', 'permissions']),
-                'User updated successfully.'
-            );
-
+            return $this->sendResponse($user->load(['roles', 'permissions']), 'User updated successfully.');
         } catch (\Exception $e) {
-
             DB::rollBack();
-
-            return $this->sendError(
-                'Server Error: ' . $e->getMessage(),
-                500
-            );
+            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
         }
     }
 
@@ -188,30 +135,13 @@ class UserManagementController extends BaseController
         try {
             $user = User::find($id);
             if (!$user) {
-                return $this->sendError('User not found.', 404);
+                return $this->sendError('User not found.', [], 404);
             }
+            $user->syncRoles([]);
             $user->delete();
             return $this->sendResponse([], 'User deleted successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Server Error: ' . $e->getMessage(), 500);
         }
-    }
-
-    public function assignLocationPermissions($user, $request)
-    {
-        $permissions = [];
-
-        $location_ids = $request->input('locations', []);
-
-        foreach ($location_ids as $id) {
-            Permission::firstOrCreate([
-                'name' => 'location.' . $id,
-                'guard_name' => 'web'
-            ]);
-
-            $permissions[] = 'location.' . $id;
-        }
-
-        $user->syncPermissions($permissions);
     }
 }

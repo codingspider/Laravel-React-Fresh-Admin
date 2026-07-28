@@ -1,9 +1,9 @@
 // Plan
-export const LIST_PLAN = '/plans';
-export const STORE_PLAN = '/plans';
-export const GET_EDIT_PLAN = (id) => `/plans/${id}/edit`;
-export const UPDATE_PLAN = (id) => `/plans/${id}`;
-export const DELETE_PLAN = (id) => `/plans/${id}`;
+export const LIST_PLAN = '/v1/plans';
+export const STORE_PLAN = '/v1/plans';
+export const GET_EDIT_PLAN = (id) => `/v1/plans/${id}`;
+export const UPDATE_PLAN = (id) => `/v1/plans/${id}`;
+export const DELETE_PLAN = (id) => `/v1/plans/${id}`;
 
 // Business
 export const STORE_BUSINESS = '/business';
@@ -99,6 +99,23 @@ export const STORE_CURRENCY = '/v1/currencies';
 export const GET_CURRENCY = (id) => `/v1/currencies/${id}`;
 export const UPDATE_CURRENCY = (id) => `/v1/currencies/${id}`;
 export const DELETE_CURRENCY = (id) => `/v1/currencies/${id}`;
+
+// Package
+export const LIST_PACKAGE = '/v1/packages';
+export const STORE_PACKAGE = '/v1/packages';
+export const GET_EDIT_PACKAGE = (id) => `/v1/packages/${id}`;
+export const UPDATE_PACKAGE = (id) => `/v1/packages/${id}`;
+export const DELETE_PACKAGE = (id) => `/v1/packages/${id}`;
+
+// Subscription
+export const LIST_SUBSCRIPTION = '/v1/subscriptions';
+export const STORE_SUBSCRIPTION = '/v1/subscriptions';
+export const GET_EDIT_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}/edit`;
+export const UPDATE_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}`;
+export const DELETE_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}`;
+
+// Module access
+export const GET_ALLOWED_MODULES = '/v1/subscription/modules';
 
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Box,
@@ -6,33 +6,30 @@ import {
     Icon,
     HStack,
     IconButton,
-    Tooltip,
-    Badge,
     Text,
     Flex,
-    Avatar,
-    useColorModeValue,
+    Badge,
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
+    useColorModeValue,
 } from "@chakra-ui/react";
-import { Link as ChakraLink } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { MoreHorizontal, Eye, Copy } from "lucide-react";
+import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
-import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import {
     PLAN_ADD_PATH,
+    PLAN_VIEW_PATH,
     PLAN_EDIT_PATH,
     DASHBOARD_PATH,
 } from "../../../routes/superAdminRoutes";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import { LIST_PLAN, DELETE_PLAN } from "../../../routes/apiRoutes";
-import { useCurrencyFormatter } from "./../../../useCurrencyFormatter";
+import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
 
 export default function PlanList() {
     const [data, setData] = useState([]);
@@ -47,7 +44,7 @@ export default function PlanList() {
     const toast = useToast();
     const { formatAmount } = useCurrencyFormatter();
 
-    const fetchPlans = async () => {
+    const fetchPlans = useCallback(async () => {
         try {
             setIsLoading(true);
             const res = await api.get(LIST_PLAN, {
@@ -58,8 +55,8 @@ export default function PlanList() {
                 },
             });
 
-            const items = res.data?.data?.data || [];
-            const total = res.data?.data?.total || items.length;
+            const items = res.data?.data?.data || res.data?.data || [];
+            const total = res.data?.meta?.total || res.data?.data?.total || items.length;
 
             setData(items);
             setPageCount(Math.ceil(total / pageSize));
@@ -69,13 +66,13 @@ export default function PlanList() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [pageIndex, globalFilter, pageSize]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Plans`;
         fetchPlans();
-    }, [pageIndex, globalFilter]);
+    }, [fetchPlans]);
 
     const deletePlan = async (id) => {
         const result = await Swal.fire({
@@ -88,9 +85,7 @@ export default function PlanList() {
             confirmButtonText: t("yes_delete_it"),
             cancelButtonText: t("cancel"),
             reverseButtons: true,
-            customClass: {
-                popup: 'swal-popup',
-            },
+            customClass: { popup: "swal-popup" },
         });
 
         if (result.isConfirmed) {
@@ -129,13 +124,10 @@ export default function PlanList() {
         {
             header: t("name"),
             accessorKey: "name",
-            cell: ({ row }) => (
-                <HStack spacing={3}>
-                    <Avatar size="sm" name={row.original.name} bg="brand.500" color="white" fontSize="xs" />
-                    <Text fontSize="sm" fontWeight="600">
-                        {row.original.name}
-                    </Text>
-                </HStack>
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}
+                </Text>
             ),
         },
         {
@@ -151,32 +143,57 @@ export default function PlanList() {
             header: t("billing_cycle"),
             accessorKey: "billing_cycle",
             cell: ({ getValue }) => (
-                <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2.5} py={0.5} fontSize="xs">
+                <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2.5} py={0.5} fontSize="xs" textTransform="capitalize">
                     {getValue()}
                 </Badge>
+            ),
+        },
+        {
+            header: t("branch_limit"),
+            accessorKey: "branch_limit",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="500">{getValue()}</Text>
             ),
         },
         {
             header: t("user_limit"),
             accessorKey: "user_limit",
             cell: ({ getValue }) => (
-                <Text fontSize="sm" fontWeight="500">
-                    {getValue()}
-                </Text>
+                <Text fontSize="sm" fontWeight="500">{getValue()}</Text>
             ),
         },
         {
             header: t("invoice_limit"),
             accessorKey: "invoice_limit",
             cell: ({ getValue }) => (
-                <Text fontSize="sm" fontWeight="500">
-                    {getValue()}
-                </Text>
+                <Text fontSize="sm" fontWeight="500">{getValue()}</Text>
             ),
         },
         {
+            header: t("packages"),
+            accessorFn: (row) => row.packages,
+            cell: ({ getValue }) => {
+                const pkgs = getValue() || [];
+                if (!pkgs.length) return <Text fontSize="sm" color="gray.400">-</Text>;
+                return (
+                    <HStack spacing={1} flexWrap="wrap">
+                        {pkgs.slice(0, 2).map((pkg, i) => (
+                            <Badge key={i} colorScheme="purple" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="xs">
+                                {typeof pkg === "object" ? pkg.name : pkg}
+                            </Badge>
+                        ))}
+                        {pkgs.length > 2 && (
+                            <Badge colorScheme="gray" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="xs">
+                                +{pkgs.length - 2}
+                            </Badge>
+                        )}
+                    </HStack>
+                );
+            },
+        },
+        {
             header: t("status"),
-            accessorFn: (row) => (row.is_active == 1 ? "Active" : "Inactive"),
+            accessorFn: (row) => (row.is_active == 1 || row.status === "active" ? "Active" : "Inactive"),
             cell: ({ getValue }) => {
                 const isActive = getValue() === "Active";
                 return (
@@ -208,20 +225,20 @@ export default function PlanList() {
                     />
                     <MenuList minW="140px" p={1.5}>
                         <MenuItem
-                            icon={<Icon as={Eye} boxSize={4} />}
+                            icon={<Icon as={ViewIcon} boxSize={4} />}
                             borderRadius="md"
                             fontSize="sm"
-                            onClick={() => navigate(PLAN_EDIT_PATH(row.original.id))}
+                            onClick={() => navigate(PLAN_VIEW_PATH.replace(":id", row.original.id))}
                         >
-                            View
+                            {t("view")}
                         </MenuItem>
                         <MenuItem
                             icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
                             fontSize="sm"
-                            onClick={() => navigate(PLAN_EDIT_PATH(row.original.id))}
+                            onClick={() => navigate(PLAN_EDIT_PATH.replace(":id", row.original.id))}
                         >
-                            Edit
+                            {t("edit")}
                         </MenuItem>
                         <MenuItem
                             icon={<Icon as={DeleteIcon} boxSize={4} />}
@@ -231,7 +248,7 @@ export default function PlanList() {
                             _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
                             onClick={() => deletePlan(row.original.id)}
                         >
-                            Delete
+                            {t("delete")}
                         </MenuItem>
                     </MenuList>
                 </Menu>

@@ -1,7 +1,7 @@
 {
     "name": "Plan",
     "alias": "plan",
-    "description": "",
+    "description": "Plan management module",
     "keywords": [],
     "priority": 0,
     "providers": [

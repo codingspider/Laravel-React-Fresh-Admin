@@ -21,6 +21,14 @@ export default function RestaurantList() {
   const bg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const hoverBg = useColorModeValue('gray.50', 'gray.700');
+  const pageBg = useColorModeValue("gray.50", "gray.900");
+  const cardBg = useColorModeValue("white", "gray.800");
+  const headerBorderColor = useColorModeValue("gray.100", "gray.700");
+  const headingColor = useColorModeValue("gray.800", "gray.100");
+  const textColor = useColorModeValue("gray.500", "gray.400");
+  const labelColor = useColorModeValue("gray.700", "gray.300");
+  const fieldBg = useColorModeValue("gray.50", "gray.700");
+  const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
 
   const [restaurants, setRestaurants] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -73,7 +81,7 @@ export default function RestaurantList() {
         </Button>
       </PageHeader>
 
-      <Box bg={bg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6}>
+      <Box bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6}>
         <Flex mb={4} gap={4} direction={{ base: 'column', md: 'row' }} align="center">
           <InputGroup maxW="300px">
             <InputLeftElement><FiSearch /></InputLeftElement>
@@ -89,14 +97,14 @@ export default function RestaurantList() {
         {loading ? (
           <Center py={10}><Spinner size="lg" color="teal.500" /></Center>
         ) : restaurants.length === 0 ? (
-          <Center py={10}><Text color="gray.500">{t('No restaurants found')}</Text></Center>
+          <Center py={10}><Text color={textColor}>{t('No restaurants found')}</Text></Center>
         ) : (
           <Box overflowX="auto">
             <Box as="table" w="100%" fontSize="sm">
               <Box as="thead">
                 <Box as="tr" borderBottom="1px solid" borderColor={borderColor}>
                   {[t('Name'), t('Email'), t('Phone'), t('Currency'), t('Status'), t('Actions')].map((h) => (
-                    <Box as="th" key={h} px={4} py={3} textAlign="left" fontWeight="600" color="gray.500">{h}</Box>
+                    <Box as="th" key={h} px={4} py={3} textAlign="left" fontWeight="600" color={textColor}>{h}</Box>
                   ))}
                 </Box>
               </Box>
@@ -106,7 +114,7 @@ export default function RestaurantList() {
                     <Box as="td" px={4} py={3}>
                       <VStack align="start" spacing={0}>
                         <Text fontWeight="600">{r.name}</Text>
-                        <Text fontSize="xs" color="gray.500">{r.slug}</Text>
+                        <Text fontSize="xs" color={textColor}>{r.slug}</Text>
                       </VStack>
                     </Box>
                     <Box as="td" px={4} py={3}>{r.email || '-'}</Box>

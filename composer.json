@@ -50,6 +50,8 @@
             "Modules\\Orders\\": "Modules/Orders/app/",
             "Modules\\POS\\": "Modules/POS/app/",
             "Modules\\Payroll\\": "Modules/Payroll/app/",
+            "Modules\\Package\\": "Modules/Package/app/",
+            "Modules\\Package\\Database\\Seeders\\": "Modules/Package/database/seeders/",
             "Modules\\Plan\\": "Modules/Plan/app/",
             "Modules\\Purchase\\": "Modules/Purchase/app/",
             "Modules\\Recipe\\": "Modules/Recipe/app/",

@@ -50,7 +50,7 @@ export default function CurrencyList() {
     } finally {
       if (mountedRef.current) setIsLoading(false);
     }
-  }, [pageIndex, toast]);
+  }, [pageIndex]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

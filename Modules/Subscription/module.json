@@ -1,7 +1,7 @@
 {
     "name": "Subscription",
     "alias": "subscription",
-    "description": "",
+    "description": "Subscription management module",
     "keywords": [],
     "priority": 0,
     "providers": [

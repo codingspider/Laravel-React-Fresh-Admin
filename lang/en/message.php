@@ -249,6 +249,8 @@ return [
     'auto_generated' => 'Auto generated',
     'auto-generated-from-name' => 'Auto generated from name',
     'select' => 'Select',
+    'select_all' => 'Select All',
+    'unselect_all' => 'Unselect All',
     'none_top_level' => 'None (top level)',
     'comma_separated_tags' => 'Comma separated tags',
     'suspended' => 'Suspended',

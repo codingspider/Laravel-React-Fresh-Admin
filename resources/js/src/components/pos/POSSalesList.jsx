@@ -60,7 +60,7 @@ export default function POSSalesList() {
     } finally {
       setLoading(false);
     }
-  }, [page, search, statusFilter, paymentFilter, t, toast]);
+  }, [page, search, statusFilter, paymentFilter]);
 
   useEffect(() => { fetchSales(); }, [fetchSales]);
 

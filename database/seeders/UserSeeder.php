@@ -156,6 +156,24 @@ class UserSeeder extends Seeder
             'create_currencies',
             'update_currencies',
             'delete_currencies',
+
+            // Packages
+            'view_packages',
+            'create_packages',
+            'update_packages',
+            'delete_packages',
+
+            // Plans
+            'view_plans',
+            'create_plans',
+            'update_plans',
+            'delete_plans',
+
+            // Subscriptions
+            'view_subscriptions',
+            'create_subscriptions',
+            'update_subscriptions',
+            'delete_subscriptions',
         ];
 
         foreach ($permissions as $permission) {

@@ -247,6 +247,8 @@ return [
     'auto_generated' => 'স্বয়ংক্রিয়ভাবে তৈরি',
     'auto-generated-from-name' => 'নাম থেকে স্বয়ংক্রিয়ভাবে তৈরি',
     'select' => 'নির্বাচন করুন',
+    'select_all' => 'সব নির্বাচন করুন',
+    'unselect_all' => 'সব বাদ দিন',
     'none_top_level' => 'কোনোটি নয় (শীর্ষ স্তর)',
     'comma_separated_tags' => 'কমা দিয়ে আলাদা করা ট্যাগ',
     'suspended' => 'স্থগিত',

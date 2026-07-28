@@ -106,6 +106,7 @@ Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Req
                 'currency' => $restaurant->currency,
                 'currency_symbol' => $restaurant->currency_symbol,
             ] : null,
+            'allowed_modules' => $user->_allowed_modules ?? [],
         ],
     ]);
 });
@@ -134,6 +135,17 @@ Route::middleware('auth:sanctum')->get('/me', function (\Illuminate\Http\Request
     return response()->json([
         'user' => $request->user(),
         'permissions' => $request->user()->getAllPermissions()->pluck('name')
+    ]);
+});
+
+Route::middleware('auth:sanctum')->get('/permissions', function (\Illuminate\Http\Request $request) {
+    $permissions = \Spatie\Permission\Models\Permission::where('guard_name', 'web')
+        ->orderBy('name')
+        ->get(['id', 'name']);
+
+    return response()->json([
+        'status' => 'success',
+        'data' => $permissions,
     ]);
 });
 

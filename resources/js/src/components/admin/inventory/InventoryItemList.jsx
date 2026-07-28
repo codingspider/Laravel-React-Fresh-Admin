@@ -52,7 +52,7 @@ export default function InventoryItemList() {
     } finally {
       if (mountedRef.current) setIsLoading(false);
     }
-  }, [pageIndex, toast]);
+  }, [pageIndex]);
 
   useEffect(() => { fetchItems(); }, [fetchItems]);
 

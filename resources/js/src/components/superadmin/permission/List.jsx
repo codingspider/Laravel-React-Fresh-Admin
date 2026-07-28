@@ -1,43 +1,40 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Card,
-    CardBody,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    SimpleGrid,
-    Td,
     Box,
     useToast,
-    Image
+    Icon,
+    HStack,
+    Text,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    useColorModeValue,
 } from "@chakra-ui/react";
-import { Link as ChakraLink } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
-import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
-import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
-import { ROLE_ADD_PATH, ROLE_EDIT_PATH, DASHBOARD_PATH } from './../../../routes/superAdminRoutes';
+import { ROLE_ADD_PATH, ROLE_EDIT_PATH, DASHBOARD_PATH } from "./../../../routes/superAdminRoutes";
 import { DELETE_ROLE, LIST_ROLE } from "../../../routes/apiRoutes";
+import PageHeader from "../../ui/PageHeader";
 
 export default function List() {
     const [globalFilter, setGlobalFilter] = useState("");
     const [data, setData] = useState([]);
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 10;
+    const [pageSize] = useState(10);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
-    const { formatAmount, currency } = useCurrencyFormatter();
 
-    // Fetch data whenever page or search changes
-    const fetchRole = async () => {
+    const fetchRole = useCallback(async () => {
         try {
             setIsLoading(true);
             const res = await api.get(LIST_ROLE, {
@@ -48,24 +45,24 @@ export default function List() {
                 },
             });
 
-            const bottles = res.data?.data?.data || [];
-            const total = res.data?.data?.total || bottles.length;
+            const items = res.data?.data?.data || [];
+            const total = res.data?.data?.total || items.length;
 
-            // Update table
-            setData(bottles);
+            setData(items);
             setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
         } catch (err) {
             console.error("fetchRole error:", err);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [pageIndex, globalFilter, pageSize]);
 
     useEffect(() => {
-        const app_name = localStorage.getItem('app_name');
-        document.title = `${app_name} | Permission Management`;
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Roles & Permissions`;
         fetchRole();
-    }, [pageIndex, globalFilter]);
+    }, [fetchRole]);
 
     const deleteRole = async (id) => {
         const result = await Swal.fire({
@@ -73,9 +70,11 @@ export default function List() {
             text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
             confirmButtonText: t("yes_delete"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
         });
 
         if (result.isConfirmed) {
@@ -88,15 +87,12 @@ export default function List() {
                     duration: 3000,
                     isClosable: true,
                 });
-
                 fetchRole();
             } catch (error) {
-                console.log(error);
                 toast({
                     position: "bottom-right",
                     title: t("error_deleting_data"),
-                    description:
-                        error.response?.data?.message || t("something_went_wrong"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -106,83 +102,96 @@ export default function List() {
     };
 
     const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1 },
-        { header: t('name'), accessorKey: "name" },
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}
+                </Text>
+            ),
+        },
         {
             header: t("actions"),
             cell: ({ row }) => (
-                <>
-                    <Box display="flex" gap={2}>
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                <Menu>
+                    <MenuButton
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        as={HStack}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        cursor="pointer"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
-                            onClick={() =>
-                                navigate(ROLE_EDIT_PATH.replace(":id", row.original.id))
-                            }
+                            fontSize="sm"
+                            onClick={() => navigate(ROLE_EDIT_PATH.replace(":id", row.original.id))}
                         >
-                            <EditIcon />
-                        </ChakraLink>
-
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
                             borderRadius="md"
-                            cursor="pointer"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
                             onClick={() => deleteRole(row.original.id)}
                         >
-                            <DeleteIcon color="red.500" />
-                        </ChakraLink>
-                    </Box>
-                </>
-            ), enableColumnFilter: false,
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
         },
     ];
 
     return (
-        <Box className="form-dark-surface">
-            {/* Breadcrumb */}
-            <Card mb={5}>
-                <CardBody>
-                    <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={DASHBOARD_PATH}
-                            >
-                                {t("dashboard")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={ROLE_ADD_PATH}
-                            >
-                                {t("add")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </CardBody>
-            </Card>
+        <Box>
+            <PageHeader
+                title={t("roles_permissions")}
+                subtitle={t("manage_roles_and_permissions")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: DASHBOARD_PATH },
+                    { label: t("roles"), isCurrent: true },
+                ]}
+                action={ROLE_ADD_PATH}
+                actionLabel={t("add_role")}
+            />
 
-            <SimpleGrid columns={{ base: 1, md: 1 }} mt={5}>
-                <Card>
-                    <CardBody>
-                        <TanStackTable
-                            columns={columns}
-                            data={data}
-                            globalFilter={globalFilter}
-                            setGlobalFilter={setGlobalFilter}
-                            pageIndex={pageIndex}
-                            pageSize={pageSize}
-                            setPageIndex={setPageIndex}
-                            pageCount={pageCount}
-                            isLoading={isLoading}
-                            addURL={ROLE_ADD_PATH}
-                        />
-                    </CardBody>
-                </Card>
-            </SimpleGrid>
+            <Box
+                bg={useColorModeValue("white", "gray.800")}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={useColorModeValue("gray.200", "gray.700")}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={ROLE_ADD_PATH}
+                    totalItems={totalItems}
+                />
+            </Box>
         </Box>
     );
 }

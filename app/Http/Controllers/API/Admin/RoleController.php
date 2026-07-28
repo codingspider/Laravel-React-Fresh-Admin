@@ -17,10 +17,9 @@ class RoleController extends BaseController
     public function index(Request $request)
     {
         try {
-            $roles = Role::select('id','name')
-            ->where('business_id', user_business_id())
-            ->orderBy('id', 'desc')
-            ->paginate(dataShowingNumber());
+            $roles = Role::select('id', 'name')
+                ->orderBy('id', 'desc')
+                ->paginate(dataShowingNumber());
             return $this->sendResponse($roles, 'Roles retrieved successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Server Error: '.$e->getMessage());
@@ -30,7 +29,7 @@ class RoleController extends BaseController
     public function getAllRole(Request $request)
     {
         try {
-            $roles = Role::where('business_id', user_business_id())->get();
+            $roles = Role::all();
             return $this->sendResponse($roles, 'Role retrieved successfully.');
         } catch (\Exception $e) {
             return $this->sendError('Server Error: '.$e->getMessage());
@@ -75,10 +74,7 @@ class RoleController extends BaseController
         try {
             $role = new role();
             $role->name = $request->name;
-            $role->business_id = user_business_id();
             $role->guard_name = 'web';
-            $role->is_default = 0;
-            $role->is_service_staff = 0;
             $role->save();
 
             // Create permissions if not exist & assign

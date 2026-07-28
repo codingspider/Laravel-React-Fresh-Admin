@@ -8,12 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('subscriptions', function (Blueprint $table) {
+        Schema::create('packages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->string('slug')->nullable();
+            $table->string('slug')->unique();
             $table->text('description')->nullable();
+            $table->json('modules');
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->json('metadata')->nullable();
             $table->timestamps();
@@ -23,6 +23,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('subscriptions');
+        Schema::dropIfExists('packages');
     }
 };

@@ -20,6 +20,14 @@ export default function RestaurantView() {
   const [loading, setLoading] = useState(true);
   const bg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const pageBg = useColorModeValue("gray.50", "gray.900");
+  const cardBg = useColorModeValue("white", "gray.800");
+  const headerBorderColor = useColorModeValue("gray.100", "gray.700");
+  const headingColor = useColorModeValue("gray.800", "gray.100");
+  const textColor = useColorModeValue("gray.500", "gray.400");
+  const labelColor = useColorModeValue("gray.700", "gray.300");
+  const fieldBg = useColorModeValue("gray.50", "gray.700");
+  const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
 
   useEffect(() => {
     api.get(`/v1/restaurants/${id}`).then((res) => {
@@ -47,22 +55,22 @@ export default function RestaurantView() {
       </PageHeader>
 
       <SimpleGrid columns={{ base: 1, lg: 3 }} spacing={6}>
-        <Box bg={bg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6} gridColumn={{ lg: 'span 1' }}>
+        <Box bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6} gridColumn={{ lg: 'span 1' }}>
           <VStack spacing={4} align="center">
             <Avatar size="2xl" name={restaurant.name} src={restaurant.logo} />
             <Text fontWeight="700" fontSize="xl">{restaurant.name}</Text>
             <Badge colorScheme={statusColors[restaurant.status]} textTransform="capitalize" size="lg">{t(restaurant.status)}</Badge>
-            <Text color="gray.500" fontSize="sm">{restaurant.slug}</Text>
+            <Text color={textColor} fontSize="sm">{restaurant.slug}</Text>
           </VStack>
         </Box>
 
-        <Box bg={bg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6} gridColumn={{ lg: 'span 2' }}>
+        <Box bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6} gridColumn={{ lg: 'span 2' }}>
           <Text fontWeight="600" fontSize="lg" mb={4}>{t('Information')}</Text>
           <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-            <HStack><FiMail color="gray" /><Text color="gray.600">{restaurant.email || t('Not set')}</Text></HStack>
-            <HStack><FiPhone color="gray" /><Text color="gray.600">{restaurant.phone || t('Not set')}</Text></HStack>
-            <HStack><FiMapPin color="gray" /><Text color="gray.600">{restaurant.full_address || t('Not set')}</Text></HStack>
-            <HStack><Text color="gray.600">{restaurant.currency} ({restaurant.currency_symbol})</Text></HStack>
+            <HStack><FiMail color="gray" /><Text color={textColor}>{restaurant.email || t('Not set')}</Text></HStack>
+            <HStack><FiPhone color="gray" /><Text color={textColor}>{restaurant.phone || t('Not set')}</Text></HStack>
+            <HStack><FiMapPin color="gray" /><Text color={textColor}>{restaurant.full_address || t('Not set')}</Text></HStack>
+            <HStack><Text color={textColor}>{restaurant.currency} ({restaurant.currency_symbol})</Text></HStack>
           </SimpleGrid>
 
           <Divider my={4} />

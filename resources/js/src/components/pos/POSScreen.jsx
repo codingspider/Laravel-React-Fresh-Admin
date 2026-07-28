@@ -518,7 +518,7 @@ export default function POSScreen() {
     } finally {
       setLoading(false);
     }
-  }, [t, toast]);
+  }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 

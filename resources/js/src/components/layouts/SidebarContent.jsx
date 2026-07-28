@@ -30,6 +30,10 @@ import {
     Utensils,
     Grid3x3,
     Monitor,
+    Crown,
+    CreditCard,
+    CalendarCheck,
+    Boxes,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -41,6 +45,9 @@ import {
     UNIT_LIST_PATH,
     CATEGORY_LIST_PATH,
     CURRENCY_LIST_PATH,
+    PACKAGE_LIST_PATH,
+    PLAN_LIST_PATH,
+    SUBSCRIPTION_LIST_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -52,17 +59,21 @@ const navItems = [
         permission: 'view_dashboard_data',
     },
     {
-        icon: Store,
-        label: 'Restaurants',
+        icon: Crown,
+        label: 'Super Admin',
         role: 'super_admin',
         children: [
-            { path: '/restaurant/list', label: 'All Restaurants', permission: 'view_restaurants' },
+            { path: '/restaurant/list', label: 'Restaurants', permission: 'view_restaurants' },
+            { path: PACKAGE_LIST_PATH, label: 'Packages', permission: 'view_packages' },
+            { path: PLAN_LIST_PATH, label: 'Plans', permission: 'view_plans' },
+            { path: SUBSCRIPTION_LIST_PATH, label: 'Subscriptions', permission: 'view_subscriptions' },
         ],
     },
     {
         icon: GitBranch,
         label: 'Branches',
         permission: 'view_branches',
+        excludeRole: 'super_admin',
         children: [
             { path: '/branch/list', label: 'All Branches', permission: 'view_branches' },
         ],
@@ -71,6 +82,7 @@ const navItems = [
         icon: Utensils,
         label: 'Menu',
         permission: 'view_menu_items',
+        excludeRole: 'super_admin',
         children: [
             { path: '/menu/categories', label: 'Categories', permission: 'view_menu_categories' },
             { path: '/menu/items', label: 'Items', permission: 'view_menu_items' },
@@ -81,6 +93,7 @@ const navItems = [
         icon: Grid3x3,
         label: 'Table Management',
         permission: 'view_tables',
+        excludeRole: 'super_admin',
         children: [
             { path: '/table-management/floors', label: 'Floors', permission: 'view_floors' },
             { path: '/table-management/tables', label: 'Tables', permission: 'view_tables' },
@@ -91,6 +104,7 @@ const navItems = [
         icon: Monitor,
         label: 'POS',
         permission: 'view_pos',
+        excludeRole: 'super_admin',
         children: [
             { path: '/pos/terminal', label: 'POS Terminal', permission: 'view_pos' },
             { path: '/pos/sales', label: 'Sales History', permission: 'view_pos' },
@@ -100,6 +114,7 @@ const navItems = [
         icon: Package,
         label: 'Inventory',
         permission: 'view_inventory',
+        excludeRole: 'super_admin',
         children: [
             { path: INVENTORY_ITEM_LIST_PATH, label: 'All Items', permission: 'view_inventory' },
             { path: INVENTORY_CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_inventory' },
@@ -122,6 +137,7 @@ const navItems = [
         icon: Settings,
         label: 'Currencies',
         permission: 'view_currencies',
+        role: 'super_admin',
         children: [
             { path: CURRENCY_LIST_PATH, label: 'All Currencies', permission: 'view_currencies' },
         ],
@@ -132,6 +148,7 @@ const navItems = [
         icon: Settings,
         label: 'Settings',
         permission: 'access_business_settings',
+        excludeRole: 'super_admin',
     },
 ];
 
@@ -158,13 +175,18 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
     const NavItem = ({ item, isMobile = false, isCollapsedView = false }) => {
         if (item.permission && !can(item.permission)) return null;
         if (item.role && !hasRole(item.role)) return null;
+        if (item.excludeRole && hasRole(item.excludeRole)) return null;
 
         const hasChildren = item.children && item.children.length > 0;
         const isOpen = openMenus[item.label];
         const isActive = item.path ? checkActive(item.path) : hasChildren && checkActiveParent(item.children);
 
         if (hasChildren) {
-            const visibleChildren = item.children.filter(child => !child.permission || can(child.permission));
+            const visibleChildren = item.children.filter(child => {
+                if (child.permission && !can(child.permission)) return false;
+                if (child.excludeRole && hasRole(child.excludeRole)) return false;
+                return true;
+            });
             if (visibleChildren.length === 0) return null;
 
             if (isCollapsedView) {

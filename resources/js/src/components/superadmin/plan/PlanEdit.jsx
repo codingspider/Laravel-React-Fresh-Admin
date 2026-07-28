@@ -1,60 +1,126 @@
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useParams, Link as ReactRouterLink } from "react-router-dom";
 import {
     Box,
-    Button,
-    Card,
-    CardHeader,
-    CardBody,
-    Heading,
+    useToast,
     SimpleGrid,
     FormControl,
     FormLabel,
     Input,
     Select,
-    InputGroup,
+    Textarea,
+    Checkbox,
+    Text,
+    HStack,
+    Badge,
+    Divider,
+    useColorModeValue,
+    Spinner,
+    Flex,
+    Card,
+    CardHeader,
+    CardBody,
+    Heading,
+    Button,
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
-    HStack,
-    useToast,
-    Flex,
-    InputRightElement,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
-import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import { PLAN_LIST_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
-import { GET_EDIT_PLAN, UPDATE_PLAN } from "../../../routes/apiRoutes";
+import { GET_EDIT_PLAN, UPDATE_PLAN, LIST_PACKAGE } from "../../../routes/apiRoutes";
 
 const PlanEdit = () => {
     const { register, handleSubmit, reset } = useForm();
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLoadingData, setIsLoadingData] = useState(true);
+    const [packages, setPackages] = useState([]);
+    const [selectedPackages, setSelectedPackages] = useState([]);
     const toast = useToast();
-    const navigate = useNavigate();
     const { id } = useParams();
+    const tRef = useRef(t);
+    const toastRef = useRef(toast);
+    tRef.current = t;
+    toastRef.current = toast;
+
+    const pageBg = useColorModeValue("gray.50", "gray.900");
+    const cardBg = useColorModeValue("white", "gray.800");
+    const borderColor = useColorModeValue("gray.200", "gray.700");
+    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
+    const headingColor = useColorModeValue("gray.800", "gray.100");
+    const textColor = useColorModeValue("gray.500", "gray.400");
+    const labelColor = useColorModeValue("gray.700", "gray.300");
+    const fieldBg = useColorModeValue("gray.50", "gray.700");
+    const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setIsLoadingData(true);
+                const [planRes, pkgRes] = await Promise.all([
+                    api.get(GET_EDIT_PLAN(id)),
+                    api.get(LIST_PACKAGE, { params: { per_page: 9999 } }),
+                ]);
+                setPackages(pkgRes.data?.data?.data || pkgRes.data?.data || []);
+
+                const plan = planRes.data.data;
+                reset({
+                    name: plan.name,
+                    slug: plan.slug,
+                    price: plan.price,
+                    description: plan.description || "",
+                    billing_cycle: plan.billing_cycle || "monthly",
+                    branch_limit: plan.branch_limit,
+                    user_limit: plan.user_limit,
+                    invoice_limit: plan.invoice_limit,
+                    is_active: String(plan.is_active ?? 1),
+                    status: plan.status || "active",
+                });
+
+                const planPackages = plan.packages || [];
+                const pkgIds = planPackages.map((p) => typeof p === "object" ? p.id : p);
+                setSelectedPackages(pkgIds);
+            } catch (error) {
+                toastRef.current({
+                    position: "bottom-right",
+                    title: tRef.current("error_loading_plan"),
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            } finally {
+                setIsLoadingData(false);
+            }
+        };
+        if (id) fetchData();
+    }, [id, reset]);
+
+    const handlePackageToggle = useCallback((pkgId) => {
+        setSelectedPackages((prev) =>
+            prev.includes(pkgId) ? prev.filter((pid) => pid !== pkgId) : [...prev, pkgId]
+        );
+    }, []);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            const res = await api.put(UPDATE_PLAN(id), data);
-            reset();
+            const payload = { ...data, package_ids: selectedPackages };
+            const res = await api.put(UPDATE_PLAN(id), payload);
             toast({
                 position: "bottom-right",
-                title: res.data.message,
+                title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
                 isClosable: true,
             });
-            navigate(`${PLAN_LIST_PATH}`);
+            window.location.href = PLAN_LIST_PATH;
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
-                const errorMessage = Object.values(errorResponse.errors)
-                    .flat()
-                    .join(" ");
+                const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
                     position: "bottom-right",
                     title: t("error"),
@@ -78,177 +144,279 @@ const PlanEdit = () => {
         }
     };
 
-    const getEditPlan = async () => {
-        const res = await api.get(GET_EDIT_PLAN(id));
-        const plan = res.data.data;
-        reset({
-            name: plan.name,
-            price: plan.price,
-            is_active: plan.is_active,
-            billing_cycle: plan.billing_cycle,
-            branch_limit: plan.branch_limit,
-            user_limit: plan.user_limit,
-            invoice_limit: plan.invoice_limit,
-        });
-    };
-
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
-        document.title = `${app_name} | Plan Edit`;
-        getEditPlan();
+        document.title = `${app_name} | Edit Plan`;
     }, []);
 
-    return (
-        <>
-            {/* Breadcrumb */}
-            <Card mb={5}>
-                <CardBody>
-                    <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={DASHBOARD_PATH}
-                            >
-                                {t("dashboard")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={PLAN_LIST_PATH}
-                            >
-                                {t("list")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </CardBody>
-            </Card>
+    if (isLoadingData) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minH="400px">
+                <Spinner size="xl" color="teal.500" />
+            </Box>
+        );
+    }
 
-            <Box>
-                <Card shadow="md" borderRadius="2xl">
-                    <CardHeader>
-                        <Flex mb={4} justifyContent="space-between">
-                            <Heading size="md">{t("add")}</Heading>
-                            <Button
-                                colorScheme="teal"
-                                as={ReactRouterLink}
-                                to={PLAN_LIST_PATH}
-                                display={{ base: "none", md: "inline-flex" }}
-                                px={4}
-                                py={2}
-                                whiteSpace="normal"
-                                textAlign="center"
-                            >
-                                {t("list")}
-                            </Button>
+    return (
+        <Box bg={pageBg} minH="100vh" py={3}>
+            <Box mx="auto">
+                <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">
+                    <CardBody py={3}>
+                        <Breadcrumb fontSize="sm" color={textColor}>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbItem>
+                                <BreadcrumbLink as={ReactRouterLink} to={PLAN_LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("plans")}</BreadcrumbLink>
+                            </BreadcrumbItem>
+                            <BreadcrumbItem isCurrentPage>
+                                <BreadcrumbLink color={headingColor} fontWeight="bold">{t("edit")}</BreadcrumbLink>
+                            </BreadcrumbItem>
+                        </Breadcrumb>
+                    </CardBody>
+                </Card>
+
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={cardBg}>
+                    <CardHeader bg={cardBg} borderBottom="1px solid" borderColor={headerBorderColor} pb={6}>
+                        <Flex justify="space-between" align="center">
+                            <Box>
+                                <Heading size="sm" color={headingColor} fontWeight="bold">{t("edit_plan")}</Heading>
+                                <Text fontSize="sm" color={textColor} mt={1}>{t("update_plan_info")}</Text>
+                            </Box>
+                            <Button colorScheme="teal" as={ReactRouterLink} to={PLAN_LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("plans")}</Button>
                         </Flex>
                     </CardHeader>
-                    <CardBody>
+
+                    <CardBody p={8}>
                         <form onSubmit={handleSubmit(onSubmit)}>
-                            {/* Plan Info */}
-                            <SimpleGrid
-                                columns={{ base: 1, md: 2 }}
-                                spacing={6}
-                            >
+                            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                 <FormControl isRequired>
-                                    <FormLabel>{t("name")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("name")}</FormLabel>
                                     <Input
-                                        {...register("name", {
-                                            required: true,
-                                        })}
-                                        type="text"
-                                        placeholder={t("name")}
+                                        {...register("name", { required: true })}
+                                        placeholder={t("plan_name_placeholder")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
                                     />
                                 </FormControl>
+
                                 <FormControl isRequired>
-                                    <FormLabel>{t("price")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("slug")}</FormLabel>
                                     <Input
-                                        {...register("price", {
-                                            required: true,
-                                        })}
-                                        type="text"
-                                        placeholder={t("price")}
+                                        {...register("slug", { required: true })}
+                                        placeholder={t("plan_slug_placeholder")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
                                     />
                                 </FormControl>
+
                                 <FormControl isRequired>
-                                    <FormLabel>{t("status")}</FormLabel>
-                                    <Select
-                                        {...register("is_active")}
-                                        defaultValue="1"
-                                    >
-                                        <option value="1">{t('active')}</option>
-                                        <option value="0"> {t('inactive')} </option>
-                                    </Select>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("price")}</FormLabel>
+                                    <Input
+                                        {...register("price", { required: true })}
+                                        type="number"
+                                        step="0.01"
+                                        placeholder={t("price_placeholder")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
+                                    />
                                 </FormControl>
-                                
+
                                 <FormControl isRequired>
-                                    <FormLabel>{t("billing_cycle")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("billing_cycle")}</FormLabel>
                                     <Select
                                         {...register("billing_cycle")}
-                                        defaultValue="monthly"
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
                                     >
-                                        <option value="monthly">{t('monthly')}</option>
-                                        <option value="yearly"> {t('yearly')} </option>
+                                        <option value="monthly">{t("monthly")}</option>
+                                        <option value="yearly">{t("yearly")}</option>
                                     </Select>
                                 </FormControl>
+
                                 <FormControl isRequired>
-                                    <FormLabel>{t("branch_limit")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("branch_limit")}</FormLabel>
                                     <Input
-                                        {...register("branch_limit", {
-                                            required: true,
-                                        })}
+                                        {...register("branch_limit", { required: true })}
                                         type="number"
                                         placeholder={t("branch_limit")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
                                     />
                                 </FormControl>
+
                                 <FormControl isRequired>
-                                    <FormLabel>{t("user_limit")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("user_limit")}</FormLabel>
                                     <Input
-                                        {...register("user_limit", {
-                                            required: true,
-                                        })}
+                                        {...register("user_limit", { required: true })}
                                         type="number"
                                         placeholder={t("user_limit")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
                                     />
                                 </FormControl>
+
                                 <FormControl isRequired>
-                                    <FormLabel>{t("invoice_limit")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("invoice_limit")}</FormLabel>
                                     <Input
-                                        {...register("invoice_limit", {
-                                            required: true,
-                                        })}
+                                        {...register("invoice_limit", { required: true })}
                                         type="number"
                                         placeholder={t("invoice_limit")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
+                                    />
+                                </FormControl>
+
+                                <FormControl isRequired>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("status")}</FormLabel>
+                                    <Select
+                                        {...register("status")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
+                                    >
+                                        <option value="active">{t("active")}</option>
+                                        <option value="inactive">{t("inactive")}</option>
+                                    </Select>
+                                </FormControl>
+
+                                <FormControl gridColumn={{ md: "span 2" }}>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("description")}</FormLabel>
+                                    <Textarea
+                                        {...register("description")}
+                                        placeholder={t("description_placeholder")}
+                                        rows={3}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
                                     />
                                 </FormControl>
                             </SimpleGrid>
 
-                            <HStack spacing={4} mt={6}>
-                                <Button
-                                    type="button"
-                                    as={ReactRouterLink}
-                                    to={PLAN_LIST_PATH}
-                                    colorScheme="orange"
-                                    flex={1}
-                                >
-                                    {t("cancel")}
-                                </Button>
+                            <Divider my={8} borderColor={borderColor} />
 
-                                <Button
-                                    type="submit"
-                                    isLoading={isSubmitting}
-                                    loadingText={t("saving_data")}
-                                    colorScheme="teal"
-                                    flex={1}
-                                >
-                                    {t("save")}
-                                </Button>
-                            </HStack>
+                            <Box>
+                                <Flex justify="space-between" align="center" mb={4}>
+                                    <Box>
+                                        <Text fontWeight="bold" fontSize="md" color={headingColor}>{t("package_selection")}</Text>
+                                        <Text fontSize="sm" color={textColor}>{t("select_packages_for_plan")}</Text>
+                                    </Box>
+                                    <Badge colorScheme="teal" borderRadius="full" px={3} py={1}>
+                                        {selectedPackages.length} {t("selected")}
+                                    </Badge>
+                                </Flex>
+
+                                {packages.length === 0 ? (
+                                    <Text fontSize="sm" color={textColor}>{t("no_packages_available")}</Text>
+                                ) : (
+                                    <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+                                        {packages.map((pkg) => {
+                                            const isSelected = selectedPackages.includes(pkg.id);
+                                            return (
+                                                <Box
+                                                    key={pkg.id}
+                                                    p={4}
+                                                    border="1px solid"
+                                                    borderColor={isSelected ? "teal.300" : borderColor}
+                                                    borderRadius="lg"
+                                                    bg={isSelected ? "teal.50" : pageBg}
+                                                    cursor="pointer"
+                                                    onClick={() => handlePackageToggle(pkg.id)}
+                                                    transition="all 0.2s"
+                                                    _hover={{ borderColor: "teal.300", boxShadow: "sm" }}
+                                                >
+                                                    <HStack spacing={3} mb={2}>
+                                                        <Checkbox
+                                                            isChecked={isSelected}
+                                                            colorScheme="teal"
+                                                            pointerEvents="none"
+                                                        />
+                                                        <Text fontWeight="600" fontSize="sm">
+                                                            {pkg.name}
+                                                        </Text>
+                                                    </HStack>
+                                                    {pkg.modules && pkg.modules.length > 0 && (
+                                                        <HStack spacing={1} flexWrap="wrap" mt={2}>
+                                                            {pkg.modules.slice(0, 4).map((mod, i) => (
+                                                                <Badge key={i} colorScheme="gray" variant="outline" borderRadius="full" px={1.5} py={0.5} fontSize="xs" textTransform="capitalize">
+                                                                    {mod}
+                                                                </Badge>
+                                                            ))}
+                                                            {pkg.modules.length > 4 && (
+                                                                <Badge colorScheme="gray" variant="outline" borderRadius="full" px={1.5} py={0.5} fontSize="xs">
+                                                                    +{pkg.modules.length - 4}
+                                                                </Badge>
+                                                            )}
+                                                        </HStack>
+                                                    )}
+                                                </Box>
+                                            );
+                                        })}
+                                    </SimpleGrid>
+                                )}
+                            </Box>
+
+                            <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
+                                <Button type="button" as={ReactRouterLink} to={PLAN_LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: pageBg }}>{t("cancel")}</Button>
+                                <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">{t("update")}</Button>
+                            </Flex>
                         </form>
                     </CardBody>
                 </Card>
             </Box>
-        </>
+        </Box>
     );
 };
 

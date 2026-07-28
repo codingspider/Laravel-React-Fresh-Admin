@@ -1,0 +1,27 @@
+{
+    "name": "nwidart/package",
+    "description": "The Package module",
+    "authors": [
+        {
+            "name": "Developer",
+            "email": "dev@example.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Modules\\Package\\": "app/",
+            "Modules\\Package\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Package\\Tests\\": "tests/"
+        }
+    }
+}

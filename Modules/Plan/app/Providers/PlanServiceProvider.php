@@ -2,31 +2,35 @@
 
 namespace Modules\Plan\Providers;
 
-use Illuminate\Support\ServiceProvider;
+use Nwidart\Modules\Support\ModuleServiceProvider;
+use Modules\Plan\Repositories\PlanRepository;
+use Modules\Plan\Services\PlanService;
+use Modules\Plan\Models\Plan;
 
-class PlanServiceProvider extends ServiceProvider
+class PlanServiceProvider extends ModuleServiceProvider
 {
-    protected string $moduleName = 'Plan';
-    protected string $moduleNameLower = 'plan';
+    protected string $name = 'Plan';
+    protected string $nameLower = 'plan';
 
-    public function register(): void
-    {
-    }
+    protected array $providers = [
+        RouteServiceProvider::class,
+    ];
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
-        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
-        $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->moduleNameLower);
+        $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->nameLower);
     }
 
-    public function getModuleName(): string
+    public function register(): void
     {
-        return $this->moduleName;
-    }
+        parent::register();
 
-    public function getModuleNameLower(): string
-    {
-        return $this->moduleNameLower;
+        $this->app->bind(PlanRepository::class, function () {
+            return new PlanRepository(new Plan());
+        });
+
+        $this->app->bind(PlanService::class, function ($app) {
+            return new PlanService($app->make(PlanRepository::class));
+        });
     }
 }

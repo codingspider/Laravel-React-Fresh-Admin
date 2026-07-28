@@ -79,7 +79,7 @@ const MenuItemEdit = () => {
         };
 
         fetchData();
-    }, [id, t, reset, toast]);
+    }, [id, reset]);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
