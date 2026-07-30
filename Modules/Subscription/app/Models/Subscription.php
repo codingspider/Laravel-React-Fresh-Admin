@@ -15,6 +15,7 @@ class Subscription extends Model
         'starts_at',
         'ends_at',
         'trial_ends_at',
+        'is_trial',
         'cancelled_at',
         'payment_status',
         'payment_method',
@@ -33,6 +34,7 @@ class Subscription extends Model
         'cancelled_at' => 'datetime',
         'payment_date' => 'datetime',
         'payment_amount' => 'decimal:2',
+        'is_trial' => 'boolean',
         'metadata' => 'array',
     ];
 
@@ -48,6 +50,28 @@ class Subscription extends Model
 
     public function isActive(): bool
     {
-        return $this->status === 'active' && $this->ends_at->isFuture();
+        if ($this->status !== 'active') {
+            return false;
+        }
+
+        if ($this->cancelled_at && $this->cancelled_at->isPast()) {
+            return false;
+        }
+
+        if ($this->is_trial && $this->trial_ends_at) {
+            return $this->trial_ends_at->isFuture();
+        }
+
+        return $this->ends_at && $this->ends_at->isFuture();
+    }
+
+    public function isTrial(): bool
+    {
+        return $this->is_trial && $this->trial_ends_at && $this->trial_ends_at->isFuture();
+    }
+
+    public function isExpired(): bool
+    {
+        return !$this->isActive();
     }
 }

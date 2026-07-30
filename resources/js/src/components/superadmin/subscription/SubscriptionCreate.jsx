@@ -89,6 +89,16 @@ const SubscriptionCreate = () => {
             }
 
             setValue("ends_at", endDate.toISOString().split("T")[0]);
+
+            if (plan.trial_days && plan.trial_days > 0) {
+                const trialEnd = new Date(startDate);
+                trialEnd.setDate(trialEnd.getDate() + plan.trial_days);
+                setValue("trial_ends_at", trialEnd.toISOString().split("T")[0]);
+                setValue("is_trial", true);
+            } else {
+                setValue("trial_ends_at", "");
+                setValue("is_trial", false);
+            }
         },
         [plans, setValue]
     );
@@ -294,6 +304,25 @@ const SubscriptionCreate = () => {
                                     />
                                     <Text fontSize="xs" color={textColor} mt={1}>
                                         {t("auto_calculated_from_plan")}
+                                    </Text>
+                                </FormControl>
+
+                                <FormControl>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("trial_ends_at")}</FormLabel>
+                                    <Input
+                                        {...register("trial_ends_at")}
+                                        type="date"
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
+                                    />
+                                    <Text fontSize="xs" color={textColor} mt={1}>
+                                        {t("auto_calculated_from_plan_trial")}
                                     </Text>
                                 </FormControl>
 

@@ -78,6 +78,7 @@ const PlanEdit = () => {
                     branch_limit: plan.branch_limit,
                     user_limit: plan.user_limit,
                     invoice_limit: plan.invoice_limit,
+                    trial_days: plan.trial_days ?? 0,
                     is_active: String(plan.is_active ?? 1),
                     status: plan.status || "active",
                 });
@@ -300,6 +301,25 @@ const PlanEdit = () => {
                                         {...register("invoice_limit", { required: true })}
                                         type="number"
                                         placeholder={t("invoice_limit")}
+                                        bg={colors.bgInput}
+                                        border="1px solid"
+                                        borderColor={colors.borderInput}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
+                                    />
+                                </FormControl>
+
+                                <FormControl>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("trial_days")}</FormLabel>
+                                    <Input
+                                        {...register("trial_days")}
+                                        type="number"
+                                        min="0"
+                                        max="365"
+                                        placeholder={t("trial_days_placeholder")}
                                         bg={colors.bgInput}
                                         border="1px solid"
                                         borderColor={colors.borderInput}

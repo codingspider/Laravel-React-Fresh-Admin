@@ -22,6 +22,7 @@ class UpdatePlanRequest extends FormRequest
             'branch_limit' => 'sometimes|required|integer|min:1',
             'user_limit' => 'sometimes|required|integer|min:1',
             'invoice_limit' => 'sometimes|required|integer|min:1',
+            'trial_days' => 'nullable|integer|min:0|max:365',
             'package_ids' => 'sometimes|required|array',
             'package_ids.*' => 'exists:packages,id',
             'is_active' => 'nullable|in:0,1,true,false',

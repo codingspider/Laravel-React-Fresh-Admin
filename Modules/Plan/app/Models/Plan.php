@@ -18,6 +18,7 @@ class Plan extends Model
         'branch_limit',
         'user_limit',
         'invoice_limit',
+        'trial_days',
         'is_active',
         'status',
         'metadata',

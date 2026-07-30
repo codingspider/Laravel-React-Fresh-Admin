@@ -22,6 +22,7 @@ class StorePlanRequest extends FormRequest
             'branch_limit' => 'required|integer|min:1',
             'user_limit' => 'required|integer|min:1',
             'invoice_limit' => 'required|integer|min:1',
+            'trial_days' => 'nullable|integer|min:0|max:365',
             'package_ids' => 'required|array',
             'package_ids.*' => 'exists:packages,id',
             'is_active' => 'nullable|in:0,1,true,false',

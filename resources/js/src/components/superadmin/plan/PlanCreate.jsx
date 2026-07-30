@@ -287,6 +287,25 @@ const PlanCreate = () => {
                                     />
                                 </FormControl>
 
+                                <FormControl>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("trial_days")}</FormLabel>
+                                    <Input
+                                        {...register("trial_days")}
+                                        type="number"
+                                        min="0"
+                                        max="365"
+                                        placeholder={t("trial_days_placeholder")}
+                                        bg={fieldBg}
+                                        border="1px solid"
+                                        borderColor={borderColor}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: fieldHoverBorder }}
+                                        size="md"
+                                        transition="all 0.2s"
+                                    />
+                                </FormControl>
+
                                 <FormControl isRequired>
                                     <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("status")}</FormLabel>
                                     <Select

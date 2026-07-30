@@ -43,7 +43,7 @@ Route::middleware(['auth:sanctum', EnsureFrontendRequestsAreStateful::class])->p
     
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
+Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
     Route::apiResource('branches', BranchController::class);
     Route::apiResource('vats', VatController::class);
     Route::apiResource('categories', CategoryController::class);
@@ -85,11 +85,36 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', 
 Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Request $request) {
     $user = $request->user();
     $restaurant = null;
+    $subscription = null;
+    $trialEndsAt = null;
+    $subscriptionStatus = 'none';
 
     if ($user->restaurant_id) {
         $restaurant = \Modules\Restaurant\Models\Restaurant::find($user->restaurant_id);
     } else {
         $restaurant = \Modules\Restaurant\Models\Restaurant::where('owner_id', $user->id)->first();
+    }
+
+    if ($restaurant) {
+        $subscription = \Modules\Subscription\Models\Subscription::where('restaurant_id', $restaurant->id)
+            ->where('status', 'active')
+            ->with('plan')
+            ->latest()
+            ->first();
+
+        if ($subscription) {
+            if ($subscription->is_trial) {
+                $subscriptionStatus = 'trial';
+                $trialEndsAt = $subscription->trial_ends_at?->toISOString();
+            } else {
+                $subscriptionStatus = 'active';
+            }
+        } elseif ($restaurant->trial_ends_at && $restaurant->trial_ends_at->isFuture()) {
+            $subscriptionStatus = 'trial';
+            $trialEndsAt = $restaurant->trial_ends_at->toISOString();
+        } elseif ($restaurant->trial_ends_at && $restaurant->trial_ends_at->isPast()) {
+            $subscriptionStatus = 'expired';
+        }
     }
 
     return response()->json([
@@ -105,7 +130,22 @@ Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Req
                 'name' => $restaurant->name,
                 'currency' => $restaurant->currency,
                 'currency_symbol' => $restaurant->currency_symbol,
+                'status' => $restaurant->status,
+                'trial_ends_at' => $restaurant->trial_ends_at?->toISOString(),
             ] : null,
+            'subscription' => $subscription ? [
+                'id' => $subscription->id,
+                'plan' => $subscription->plan ? [
+                    'id' => $subscription->plan->id,
+                    'name' => $subscription->plan->name,
+                ] : null,
+                'status' => $subscriptionStatus,
+                'is_trial' => $subscription->is_trial ?? false,
+                'ends_at' => $subscription->ends_at?->toISOString(),
+                'trial_ends_at' => $subscription->trial_ends_at?->toISOString(),
+            ] : null,
+            'subscription_status' => $subscriptionStatus,
+            'trial_ends_at' => $trialEndsAt,
             'allowed_modules' => $user->_allowed_modules ?? [],
         ],
     ]);

@@ -109,6 +109,19 @@ class Restaurant extends Model
         return $this->hasMany(\Modules\TableManagement\Models\Table::class);
     }
 
+    public function subscription()
+    {
+        return $this->hasOne(\Modules\Subscription\Models\Subscription::class)->latest();
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(\Modules\Subscription\Models\Subscription::class)
+            ->where('status', 'active')
+            ->where('ends_at', '>', now())
+            ->latest();
+    }
+
     public function getFullAddressAttribute(): ?string
     {
         $parts = array_filter([$this->address, $this->city, $this->state, $this->country, $this->zip_code]);
@@ -123,5 +136,23 @@ class Restaurant extends Model
     public function isTrialExpired(): bool
     {
         return $this->trial_ends_at && $this->trial_ends_at->isPast();
+    }
+
+    public function hasActiveSubscription(): bool
+    {
+        return $this->activeSubscription()->exists();
+    }
+
+    public function isSubscriptionOrTrialActive(): bool
+    {
+        if (isSuperAdmin()) {
+            return true;
+        }
+
+        if ($this->isTrialExpired() && !$this->hasActiveSubscription()) {
+            return false;
+        }
+
+        return true;
     }
 }
