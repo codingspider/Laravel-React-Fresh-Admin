@@ -4,11 +4,10 @@ import {
     Box,
     useToast,
     Icon,
-    HStack,
     IconButton,
     Text,
-    Flex,
     Badge,
+    HStack,
     Menu,
     MenuButton,
     MenuList,
@@ -16,7 +15,6 @@ import {
     Wrap,
     WrapItem,
     Select,
-    useColorModeValue,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
@@ -32,12 +30,22 @@ import {
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import { LIST_PACKAGE, DELETE_PACKAGE } from "../../../routes/apiRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+import TableExportButtons from "../../ui/TableExportButtons";
+
+const moduleBadgeColors = {
+    hrm: "purple", crm: "blue", inventory: "orange", pos: "green",
+    reports: "cyan", kitchen: "red", accounts: "teal", purchasing: "yellow",
+    orders: "pink", delivery: "indigo", marketing: "magenta", loyalty: "gold",
+    recipe: "brown", reviews: "lime", notification: "gray", accounting: "navy",
+    payroll: "maroon", shift: "olive", analytics: "violet", invoices: "sky",
+};
 
 export default function PackageList() {
     const [data, setData] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize] = useState(10);
+    const [pageSize] = useState(15);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
@@ -45,8 +53,9 @@ export default function PackageList() {
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
+    const colors = useThemeColors();
 
-    const fetchPackages = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
             const res = await api.get(LIST_PACKAGE, {
@@ -65,7 +74,7 @@ export default function PackageList() {
             setPageCount(Math.ceil(total / pageSize));
             setTotalItems(total);
         } catch (err) {
-            console.error("fetchPackages error:", err);
+            console.error("fetchData error:", err);
         } finally {
             setIsLoading(false);
         }
@@ -74,18 +83,18 @@ export default function PackageList() {
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Packages`;
-        fetchPackages();
-    }, [fetchPackages]);
+        fetchData();
+    }, [fetchData]);
 
-    const deletePackage = async (id) => {
+    const deleteItem = async (id) => {
         const result = await Swal.fire({
-            title: t("delete_package"),
-            text: t("action_cannot_be_undone"),
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#0d9488",
             cancelButtonColor: "#6b7280",
-            confirmButtonText: t("yes_delete_it"),
+            confirmButtonText: t("yes_delete"),
             cancelButtonText: t("cancel"),
             reverseButtons: true,
             customClass: { popup: "swal-popup" },
@@ -96,16 +105,16 @@ export default function PackageList() {
                 await api.delete(DELETE_PACKAGE(id));
                 toast({
                     position: "top-right",
-                    title: t("package_deleted_successfully"),
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-                fetchPackages();
+                fetchData();
             } catch (error) {
                 toast({
                     position: "top-right",
-                    title: t("error_deleting_package"),
+                    title: t("error_deleting_data"),
                     description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
@@ -113,17 +122,6 @@ export default function PackageList() {
                 });
             }
         }
-    };
-
-    const moduleBadgeColor = (mod) => {
-        const colors = {
-            hrm: "purple", crm: "blue", inventory: "orange", pos: "green",
-            reports: "cyan", kitchen: "red", accounts: "teal", purchasing: "yellow",
-            orders: "pink", delivery: "indigo", marketing: "magenta", loyalty: "gold",
-            recipe: "brown", reviews: "lime", notification: "gray", accounting: "navy",
-            payroll: "maroon", shift: "olive", analytics: "violet", invoices: "sky",
-        };
-        return colors[mod] || "gray";
     };
 
     const columns = [
@@ -138,9 +136,9 @@ export default function PackageList() {
         {
             header: t("name"),
             accessorKey: "name",
-            cell: ({ row }) => (
+            cell: ({ getValue }) => (
                 <Text fontSize="sm" fontWeight="600">
-                    {row.original.name}
+                    {getValue()}
                 </Text>
             ),
         },
@@ -148,7 +146,7 @@ export default function PackageList() {
             header: t("description"),
             accessorKey: "description",
             cell: ({ getValue }) => (
-                <Text fontSize="sm" color="gray.600" _dark={{ color: "gray.400" }} noOfLines={2} maxW="200px">
+                <Text fontSize="sm" noOfLines={2} maxW="200px">
                     {getValue() || "-"}
                 </Text>
             ),
@@ -164,7 +162,7 @@ export default function PackageList() {
                         {modules.slice(0, 3).map((mod, i) => (
                             <WrapItem key={i}>
                                 <Badge
-                                    colorScheme={moduleBadgeColor(mod)}
+                                    colorScheme={moduleBadgeColors[mod] || "gray"}
                                     variant="subtle"
                                     borderRadius="full"
                                     px={2}
@@ -242,7 +240,7 @@ export default function PackageList() {
                             fontSize="sm"
                             color="red.500"
                             _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
-                            onClick={() => deletePackage(row.original.id)}
+                            onClick={() => deleteItem(row.original.id)}
                         >
                             {t("delete")}
                         </MenuItem>
@@ -263,30 +261,18 @@ export default function PackageList() {
                 ]}
                 action={PACKAGE_ADD_PATH}
                 actionLabel={t("add_package")}
-            />
+            >
+                <TableExportButtons data={data} columns={columns} filename="packages" />
+            </PageHeader>
 
             <Box
-                bg={useColorModeValue("white", "gray.800")}
+                bg={colors.bgCard}
                 p={{ base: 4, md: 6 }}
                 borderRadius="xl"
                 boxShadow="card"
                 border="1px solid"
-                borderColor={useColorModeValue("gray.200", "gray.700")}
+                borderColor={colors.borderDefault}
             >
-                <Flex mb={4} gap={3} align="center">
-                    <Select
-                        maxW="200px"
-                        size="md"
-                        value={statusFilter}
-                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
-                        placeholder={t("all_status")}
-                        borderRadius="lg"
-                    >
-                        <option value="active">{t("active")}</option>
-                        <option value="inactive">{t("inactive")}</option>
-                    </Select>
-                </Flex>
-
                 <TanStackTable
                     columns={columns}
                     data={data}
@@ -299,7 +285,19 @@ export default function PackageList() {
                     isLoading={isLoading}
                     addURL={PACKAGE_ADD_PATH}
                     totalItems={totalItems}
-                />
+                >
+                    <Select
+                        maxW="160px"
+                        size="md"
+                        value={statusFilter}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                        placeholder={t("all_status")}
+                        borderRadius="lg"
+                    >
+                        <option value="active">{t("active")}</option>
+                        <option value="inactive">{t("inactive")}</option>
+                    </Select>
+                </TanStackTable>
             </Box>
         </Box>
     );

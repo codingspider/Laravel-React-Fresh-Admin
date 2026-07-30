@@ -3,11 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   Box, Button, SimpleGrid, VStack, HStack, Text, Badge, useToast,
-  useColorModeValue, Spinner, Center, Avatar, Divider, Stat, StatLabel, StatNumber,
+  Spinner, Center, Avatar, Divider, Stat, StatLabel, StatNumber,
 } from '@chakra-ui/react';
 import { FiEdit2, FiArrowLeft, FiMapPin, FiPhone, FiMail } from 'react-icons/fi';
 import PageHeader from '../ui/PageHeader';
 import api from '../../axios';
+import useThemeColors from '../../hooks/useThemeColors';
 
 const statusColors = { active: 'green', inactive: 'red', suspended: 'yellow' };
 
@@ -18,16 +19,17 @@ export default function RestaurantView() {
   const toast = useToast();
   const [restaurant, setRestaurant] = useState(null);
   const [loading, setLoading] = useState(true);
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const pageBg = useColorModeValue("gray.50", "gray.900");
-  const cardBg = useColorModeValue("white", "gray.800");
-  const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-  const headingColor = useColorModeValue("gray.800", "gray.100");
-  const textColor = useColorModeValue("gray.500", "gray.400");
-  const labelColor = useColorModeValue("gray.700", "gray.300");
-  const fieldBg = useColorModeValue("gray.50", "gray.700");
-  const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+  const colors = useThemeColors();
+  const bg = colors.bgCard;
+  const borderColor = colors.borderDefault;
+  const pageBg = colors.bgPage;
+  const cardBg = colors.bgCard;
+  const headerBorderColor = colors.borderSubtle;
+  const headingColor = colors.textPrimary;
+  const textColor = colors.textSecondary;
+  const labelColor = colors.textLabel;
+  const fieldBg = colors.bgSubtle;
+  const fieldHoverBorder = colors.borderInput;
 
   useEffect(() => {
     api.get(`/v1/restaurants/${id}`).then((res) => {

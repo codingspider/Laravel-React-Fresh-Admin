@@ -13,7 +13,7 @@ class StoreRestaurantRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'name' => 'required|string|max:255',
             'slug' => 'nullable|string|max:255|unique:restaurants,slug',
             'phone' => 'nullable|string|max:20',
@@ -40,6 +40,12 @@ class StoreRestaurantRequest extends FormRequest
             'notification_settings' => 'nullable|array',
             'pos_settings' => 'nullable|array',
             'metadata' => 'nullable|array',
+            'create_owner' => 'nullable|boolean',
+            'owner_name' => 'required_if:create_owner,true|string|max:255',
+            'owner_email' => 'required_if:create_owner,true|email|max:255|unique:users,email',
+            'owner_password' => 'required_if:create_owner,true|string|min:6',
         ];
+
+        return $rules;
     }
 }

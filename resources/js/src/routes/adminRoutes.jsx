@@ -22,6 +22,9 @@ import VariationEdit from './../components/admin/variations/VariationEdit';
 import ItemCreate from "../components/admin/items/ItemCreate";
 import ItemList from "../components/admin/items/ItemList";
 
+import PosSettings from "../components/admin/pos/PosSettings";
+import CouponManagement from "../components/admin/pos/CouponManagement";
+
 export const BRANCH_LIST = "branch/list";
 export const BRANCH_ADD = "branch/create";
 export const BRANCH_EDIT = "branch/edit/:id";
@@ -63,6 +66,9 @@ export const ITEM_LIST_PATH = `${ADMIN_BASE}/item/list`;
 export const ITEM_ADD_PATH = `${ADMIN_BASE}/item/create`;
 export const ITEM_EDIT_PATH = (id) => `${ADMIN_BASE}/item/edit/${id}`;
 
+export const POS_SETTINGS_PATH = `${ADMIN_BASE}/pos/settings`;
+export const POS_COUPONS_PATH = `${ADMIN_BASE}/pos/coupons`;
+
 
 export const ADMIN_DASHBOARD_PATH = `${ADMIN_BASE}/dashboard`;
 export const GENERAL_PAGE_PATH = `${ADMIN_BASE}/general`;
@@ -89,4 +95,7 @@ export const adminRoutes = [
 
     { path: ITEM_ADD_PATH, element: <ProtectedRoute role="admin"><ItemCreate /></ProtectedRoute> },
     { path: ITEM_LIST_PATH, element: <ProtectedRoute role="admin"><ItemList /></ProtectedRoute> },
+
+    { path: POS_SETTINGS_PATH, element: <ProtectedRoute role="admin"><PosSettings /></ProtectedRoute> },
+    { path: POS_COUPONS_PATH, element: <ProtectedRoute role="admin"><CouponManagement /></ProtectedRoute> },
 ];

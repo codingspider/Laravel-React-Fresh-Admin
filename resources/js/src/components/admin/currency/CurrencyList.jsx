@@ -1,152 +1,268 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useNavigate, Link as ReactRouterLink } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Badge, Box, Card, CardBody, Text, useToast, HStack, useColorModeValue,
+    Box,
+    useToast,
+    Icon,
+    IconButton,
+    Text,
+    Badge,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
 } from "@chakra-ui/react";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
+import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
+import api from "../../../axios";
+import {
+    CURRENCY_ADD_PATH,
+    CURRENCY_EDIT_PATH,
+    DASHBOARD_PATH,
+} from "../../../routes/superAdminRoutes";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
-import api from "../../../axios";
-import { DELETE_CURRENCY, LIST_CURRENCY } from "../../../routes/apiRoutes";
-import { DASHBOARD_PATH, CURRENCY_ADD_PATH, CURRENCY_EDIT_PATH } from "../../../routes/superAdminRoutes";
+import { LIST_CURRENCY, DELETE_CURRENCY } from "../../../routes/apiRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+import TableExportButtons from "../../ui/TableExportButtons";
 
 export default function CurrencyList() {
-  const [data, setData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(0);
-  const pageSize = 15;
-  const [pageCount, setPageCount] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [totalItems, setTotalItems] = useState(0);
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const toast = useToast();
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const mountedRef = useRef(true);
+    const [data, setData] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize] = useState(15);
+    const [pageCount, setPageCount] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const colors = useThemeColors();
 
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
+    const fetchData = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const res = await api.get(LIST_CURRENCY, {
+                params: {
+                    page: pageIndex + 1,
+                    per_page: pageSize,
+                    search: globalFilter || "",
+                },
+            });
 
-  const fetchData = useCallback(async (search = "") => {
-    if (!mountedRef.current) return;
-    try {
-      setIsLoading(true);
-      const res = await api.get(LIST_CURRENCY, {
-        params: { page: pageIndex + 1, per_page: pageSize, search },
-      });
-      if (!mountedRef.current) return;
-      const items = res.data?.data || [];
-      const total = res.data?.meta?.total || items.length;
-      setData(items);
-      setPageCount(Math.ceil(total / pageSize));
-      setTotalItems(total);
-    } catch {
-      if (mountedRef.current) {
-        toast({ title: t("error_loading_currencies"), status: "error", duration: 3000, isClosable: true });
-      }
-    } finally {
-      if (mountedRef.current) setIsLoading(false);
-    }
-  }, [pageIndex]);
+            const items = res.data?.data || [];
+            const total = res.data?.meta?.total || items.length;
 
-  useEffect(() => { fetchData(); }, [fetchData]);
+            setData(items);
+            setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
+        } catch (err) {
+            console.error("fetchData error:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [pageIndex, globalFilter, pageSize]);
 
-  const deleteItem = async (id) => {
-    const result = await Swal.fire({
-      title: t("are_you_sure"),
-      text: t("currency_will_be_deleted"),
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: t("confirm_delete"),
-    });
-    if (!result.isConfirmed) return;
-    try {
-      await api.delete(DELETE_CURRENCY(id));
-      toast({ title: t("currency_deleted"), status: "success", duration: 3000, isClosable: true });
-      fetchData();
-    } catch {
-      toast({ title: t("error"), status: "error", duration: 3000, isClosable: true });
-    }
-  };
+    useEffect(() => {
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Currency Management`;
+        fetchData();
+    }, [fetchData]);
 
-  const columns = useMemo(() => [
-    { header: t("sl_no"), cell: ({ row }) => row.index + 1 },
-    { header: t("name"), accessorKey: "name" },
-    { header: t("code"), accessorKey: "code" },
-    { header: t("symbol"), accessorKey: "symbol" },
-    {
-      header: t("symbol_position"),
-      cell: ({ row }) => (
-        <Text>{row.original.symbol_first ? t("before") : t("after")}</Text>
-      ),
-    },
-    { header: t("decimal_mark"), accessorKey: "decimal_mark" },
-    { header: t("thousands_separator"), accessorKey: "thousands_separator" },
-    { header: t("precision"), accessorKey: "precision" },
-    {
-      header: t("status"),
-      cell: ({ row }) => (
-        <Badge colorScheme={row.original.is_active ? "green" : "red"}>
-          {row.original.is_active ? t("active") : t("inactive")}
-        </Badge>
-      ),
-    },
-    {
-      header: t("actions"),
-      cell: ({ row }) => (
-        <HStack spacing={1}>
-          <Box
-            as="button" p={2} borderRadius="md" border="1px solid" borderColor={borderColor}
-            cursor="pointer" onClick={() => navigate(CURRENCY_EDIT_PATH(row.original.id))}
-            _hover={{ bg: "gray.100", _dark: { bg: "gray.600" } }}
-          >
-            <EditIcon boxSize={4} />
-          </Box>
-          <Box
-            as="button" p={2} borderRadius="md" border="1px solid" borderColor={borderColor}
-            cursor="pointer" onClick={() => deleteItem(row.original.id)}
-            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
-          >
-            <DeleteIcon color="red.500" boxSize={4} />
-          </Box>
-        </HStack>
-      ),
-    },
-  ], [t, borderColor, navigate, toast]);
+    const deleteItem = async (id) => {
+        const result = await Swal.fire({
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
+        });
 
-  return (
-    <Box>
-      <PageHeader
-        title="all_currencies"
-        breadcrumbs={[
-          { label: t("dashboard"), path: DASHBOARD_PATH },
-          { label: t("all_currencies"), isCurrent: true },
-        ]}
-        action={CURRENCY_ADD_PATH}
-        actionLabel="add_currency"
-      />
+        if (result.isConfirmed) {
+            try {
+                await api.delete(DELETE_CURRENCY(id));
+                toast({
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                fetchData();
+            } catch (error) {
+                toast({
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        }
+    };
 
-      <Card>
-        <CardBody>
-          <TanStackTable
-            columns={columns}
-            data={data}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            setPageIndex={setPageIndex}
-            pageCount={pageCount}
-            isLoading={isLoading}
-            addURL={CURRENCY_ADD_PATH}
-            totalItems={totalItems}
-            searchPlaceholder={`${t("search")}...`}
-          />
-        </CardBody>
-      </Card>
-    </Box>
-  );
+    const columns = [
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("code"),
+            accessorKey: "code",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue()}</Text>
+            ),
+        },
+        {
+            header: t("symbol"),
+            accessorKey: "symbol",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue()}</Text>
+            ),
+        },
+        {
+            header: t("symbol_position"),
+            accessorFn: (row) => (row.symbol_first ? t("before") : t("after")),
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue()}</Text>
+            ),
+        },
+        {
+            header: t("decimal_mark"),
+            accessorKey: "decimal_mark",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue()}</Text>
+            ),
+        },
+        {
+            header: t("thousands_separator"),
+            accessorKey: "thousands_separator",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue()}</Text>
+            ),
+        },
+        {
+            header: t("precision"),
+            accessorKey: "precision",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue()}</Text>
+            ),
+        },
+        {
+            header: t("status"),
+            accessorFn: (row) => (row.is_active ? "Active" : "Inactive"),
+            cell: ({ getValue }) => {
+                const isActive = getValue() === "Active";
+                return (
+                    <Badge
+                        colorScheme={isActive ? "green" : "gray"}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="xs"
+                        fontWeight="600"
+                    >
+                        {getValue()}
+                    </Badge>
+                );
+            },
+        },
+        {
+            header: t("actions"),
+            cell: ({ row }) => (
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(CURRENCY_EDIT_PATH(row.original.id))}
+                        >
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteItem(row.original.id)}
+                        >
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
+        },
+    ];
+
+    return (
+        <Box>
+            <PageHeader
+                title={t("currency_management")}
+                subtitle={t("manage_currencies")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: DASHBOARD_PATH },
+                    { label: t("currencies"), isCurrent: true },
+                ]}
+                action={CURRENCY_ADD_PATH}
+                actionLabel={t("add_currency")}
+            >
+                <TableExportButtons data={data} columns={columns} filename="currencies" />
+            </PageHeader>
+
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={CURRENCY_ADD_PATH}
+                    totalItems={totalItems}
+                />
+            </Box>
+        </Box>
+    );
 }

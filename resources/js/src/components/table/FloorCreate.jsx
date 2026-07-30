@@ -23,6 +23,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../axios";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const FloorCreate = () => {
     const { register, handleSubmit, reset } = useForm();
@@ -30,6 +31,7 @@ const FloorCreate = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useToast();
     const navigate = useNavigate();
+    const colors = useThemeColors();
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -79,11 +81,11 @@ const FloorCreate = () => {
     }, []);
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box py={3}>
             <Box mx="auto">
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
@@ -105,7 +107,7 @@ const FloorCreate = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
                                     {t("add")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -113,19 +115,19 @@ const FloorCreate = () => {
                     </CardBody>
                 </Card>
 
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
                     <CardHeader
-                        bg="white"
+                        bg={colors.bgCard}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={colors.borderSubtle}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">
                                     {t("add")}
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                     {t("create_new_floor")}
                                 </Text>
                             </Box>
@@ -150,7 +152,7 @@ const FloorCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("name")}
@@ -159,9 +161,9 @@ const FloorCreate = () => {
                                         {...register("name", { required: true })}
                                         type="text"
                                         placeholder={t("name")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -174,7 +176,7 @@ const FloorCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("sort_order")}
@@ -183,9 +185,9 @@ const FloorCreate = () => {
                                         {...register("sort_order", { valueAsNumber: true })}
                                         type="number"
                                         placeholder={t("sort_order")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -198,7 +200,7 @@ const FloorCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("description")}
@@ -206,9 +208,9 @@ const FloorCreate = () => {
                                     <Textarea
                                         {...register("description")}
                                         placeholder={t("description")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}

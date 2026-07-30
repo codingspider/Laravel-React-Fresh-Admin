@@ -10,7 +10,6 @@ import {
     Text,
     Badge,
     useToast,
-    useColorModeValue,
     Spinner,
     Card,
     CardHeader,
@@ -23,8 +22,11 @@ import {
 } from "@chakra-ui/react";
 import { EditIcon } from "@chakra-ui/icons";
 import api from "../../../axios";
-import { PLAN_LIST_PATH, PLAN_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { PLAN_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
+import useThemeColors from "../../../hooks/useThemeColors";
+
+const LIST_PATH = "/plan/list";
 
 const MODULE_COLORS = {
     hrm: "purple", crm: "blue", inventory: "orange", pos: "green",
@@ -43,18 +45,19 @@ export default function PlanView() {
     const [plan, setPlan] = useState(null);
     const [loading, setLoading] = useState(true);
     const { formatAmount } = useCurrencyFormatter();
+    const colors = useThemeColors();
 
-    const pageBg = useColorModeValue("gray.50", "gray.900");
-    const bg = useColorModeValue("white", "gray.800");
-    const cardBg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-    const headingColor = useColorModeValue("gray.800", "gray.100");
-    const textColor = useColorModeValue("gray.500", "gray.400");
-    const labelColor = useColorModeValue("gray.500", "gray.400");
-    const valueColor = useColorModeValue("gray.800", "gray.100");
-    const fieldBg = useColorModeValue("gray.50", "gray.700");
-    const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+    const pageBg = colors.bgPage;
+    const bg = colors.bgCard;
+    const cardBg = colors.bgCard;
+    const borderColor = colors.borderDefault;
+    const headerBorderColor = colors.borderSubtle;
+    const headingColor = colors.textPrimary;
+    const textColor = colors.textSecondary;
+    const labelColor = colors.textSecondary;
+    const valueColor = colors.textPrimary;
+    const fieldBg = colors.bgSubtle;
+    const fieldHoverBorder = colors.borderInput;
 
     useEffect(() => {
         const fetchPlan = async () => {
@@ -126,7 +129,7 @@ export default function PlanView() {
                                 </Button>
                                 <Button
                                     as={ReactRouterLink}
-                                    to={PLAN_LIST_PATH}
+                                    to={LIST_PATH}
                                     colorScheme="gray"
                                     variant="outline"
                                     size="sm"

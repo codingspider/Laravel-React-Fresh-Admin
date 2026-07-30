@@ -1,42 +1,50 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Card,
-    CardBody,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    SimpleGrid,
-    Td,
     Box,
     useToast,
+    Icon,
+    IconButton,
+    Text,
+    Badge,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Flex,
 } from "@chakra-ui/react";
-import { Link as ChakraLink } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
-import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
-import { ADMIN_DASHBOARD_PATH, BRANCH_ADD_PATH, BRANCH_EDIT_PATH } from "../../../routes/adminRoutes";
-import { DELETE_BRANCH, LIST_BRANCH } from "../../../routes/apiRoutes";
+import PageHeader from "../../ui/PageHeader";
+import TableExportButtons from "../../ui/TableExportButtons";
+import { LIST_BRANCH, DELETE_BRANCH } from "../../../routes/apiRoutes";
+import {
+    BRANCH_ADD_PATH,
+    BRANCH_EDIT_PATH,
+    ADMIN_DASHBOARD_PATH,
+} from "../../../routes/adminRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 export default function BranchList() {
     const [data, setData] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 10;
+    const [pageSize] = useState(15);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
+    const colors = useThemeColors();
 
-    // Fetch data whenever page or search changes
-    const fetchIngredients = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
-            // Browser online: request server data with pagination & filter
             const res = await api.get(LIST_BRANCH, {
                 params: {
                     page: pageIndex + 1,
@@ -44,56 +52,54 @@ export default function BranchList() {
                     search: globalFilter || "",
                 },
             });
-
-            const ingredients = res.data?.data?.data || [];
-            const total = res.data?.data?.total || ingredients.length;
-
-            // Update table
-            setData(ingredients);
+            const items = res.data?.data || [];
+            const total = res.data?.meta?.total || items.length;
+            setData(items);
             setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
         } catch (err) {
-            console.error("fetchIngredients error:", err);
+            console.error("fetchData error:", err);
         } finally {
             setIsLoading(false);
         }
-    };
-    useEffect(() => {
-        const app_name = localStorage.getItem('app_name');
-        document.title = `${app_name} | Ingredient List`;
-        fetchIngredients();
-    }, [pageIndex, globalFilter]);
+    }, [pageIndex, globalFilter, pageSize]);
 
-    const deleteBranch = async (id) => {
+    useEffect(() => {
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Branch Management`;
+        fetchData();
+    }, [fetchData]);
+
+    const deleteItem = async (id) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Data will be deleted.",
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete!",
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
         });
 
         if (result.isConfirmed) {
             try {
                 await api.delete(DELETE_BRANCH(id));
                 toast({
-                    position: "bottom-right",
-                    title: "Data deleted successfully",
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-
-                fetchIngredients();
+                fetchData();
             } catch (error) {
-                console.log(error);
                 toast({
-                    position: "bottom-right",
-                    title: "Error deleting data",
-                    description:
-                        error.response?.data?.message ||
-                        "Something went wrong.",
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -101,87 +107,135 @@ export default function BranchList() {
             }
         }
     };
-    const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1},
-        { header: "Name", accessorKey: "name"},
-        { header: "Area", accessorKey: "area"},
-        { header: "Address", accessorKey: "address"},
-        { header: t('status'), accessorFn: row => row.is_active == 1 ? 'Active' : 'Inactive' || ""},
-        {
-            header: "Actions",
-            cell: ({ row }) => (
-                <>
-                    <Box display="flex" gap={2}>
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
-                            borderRadius="md"
-                            onClick={() =>
-                                navigate(BRANCH_EDIT_PATH(row.original.id))
-                            }
-                        >
-                            <EditIcon />
-                        </ChakraLink>
 
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+    const columns = [
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ row }) => (
+                <Box>
+                    <Text fontSize="sm" fontWeight="600">
+                        {row.original.name}
+                    </Text>
+                    {row.original.area && (
+                        <Text fontSize="xs" color="gray.500">
+                            {row.original.area}
+                        </Text>
+                    )}
+                </Box>
+            ),
+        },
+        {
+            header: t("address"),
+            accessorKey: "address",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" maxW="200px" isTruncated>
+                    {getValue() || "-"}
+                </Text>
+            ),
+        },
+        {
+            header: t("status"),
+            accessorKey: "is_active",
+            cell: ({ getValue }) => {
+                const active = getValue() == 1;
+                return (
+                    <Badge
+                        colorScheme={active ? "green" : "red"}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="xs"
+                        fontWeight="600"
+                    >
+                        {active ? t("active") : t("inactive")}
+                    </Badge>
+                );
+            },
+        },
+        {
+            header: t("actions"),
+            cell: ({ row }) => (
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
-                            cursor="pointer"
-                            onClick={() => deleteBranch(row.original.id)}
+                            fontSize="sm"
+                            onClick={() => navigate(BRANCH_EDIT_PATH(row.original.id), { state: { branch: row.original } })}
                         >
-                            <DeleteIcon color="red.500" />
-                        </ChakraLink>
-                    </Box>
-                </>
-            ), enableColumnFilter: false,
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteItem(row.original.id)}
+                        >
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
         },
     ];
 
     return (
-        <>
-            {/* Breadcrumb */}
-            <Card mb={5}>
-                <CardBody>
-                    <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={ADMIN_DASHBOARD_PATH}
-                            >
-                                {t("dashboard")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={BRANCH_ADD_PATH}
-                            >
-                                {t("add")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </CardBody>
-            </Card>
+        <Box>
+            <PageHeader
+                title={t("branch_management")}
+                subtitle={t("manage_all_branches")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: ADMIN_DASHBOARD_PATH },
+                    { label: t("branches"), isCurrent: true },
+                ]}
+                action={BRANCH_ADD_PATH}
+                actionLabel={t("add_branch")}
+            >
+                <TableExportButtons data={data} columns={columns} filename="branches" />
+            </PageHeader>
 
-            <SimpleGrid columns={{ base: 1, md: 1 }} mt={5}>
-                <Card>
-                    <CardBody>
-                        <TanStackTable
-                            columns={columns}
-                            data={data}
-                            globalFilter={globalFilter}
-                            setGlobalFilter={setGlobalFilter}
-                            pageIndex={pageIndex}
-                            pageSize={pageSize}
-                            setPageIndex={setPageIndex}
-                            pageCount={pageCount}
-                            isLoading={isLoading}
-                            addURL={BRANCH_ADD_PATH}
-                        />
-                    </CardBody>
-                </Card>
-            </SimpleGrid>
-        </>
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={BRANCH_ADD_PATH}
+                    totalItems={totalItems}
+                />
+            </Box>
+        </Box>
     );
 }

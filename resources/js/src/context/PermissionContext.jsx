@@ -9,6 +9,7 @@ export const PermissionProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [restaurant, setRestaurant] = useState(null);
+    const [user, setUser] = useState(null);
 
     const can = (permissionName) => {
         return permissions.includes(permissionName);
@@ -18,19 +19,25 @@ export const PermissionProvider = ({ children }) => {
         return roles.includes(roleName);
     };
 
+    const applyUserData = (userData) => {
+        setPermissions(userData.permissions || []);
+        setRoles(userData.roles || []);
+        setRestaurant(userData.restaurant || null);
+        setUser(userData);
+        setIsAuthenticated(true);
+    };
+
     const fetchPermissions = useCallback(async () => {
         setLoading(true);
         try {
             const response = await api.get('/user');
             const userData = response.data.data || response.data;
-            setPermissions(userData.permissions || []);
-            setRoles(userData.roles || []);
-            setRestaurant(userData.restaurant || null);
-            setIsAuthenticated(true);
+            applyUserData(userData);
         } catch (error) {
             setPermissions([]);
             setRoles([]);
             setRestaurant(null);
+            setUser(null);
             setIsAuthenticated(false);
         } finally {
             setLoading(false);
@@ -42,10 +49,8 @@ export const PermissionProvider = ({ children }) => {
     }, [fetchPermissions]);
 
     const setUserPermission = (userData) => {
-        setPermissions(userData.permissions || []);
-        setRoles(userData.roles || []);
-        setRestaurant(userData.restaurant || null);
-        setIsAuthenticated(true);
+        const unwrapped = userData.data || userData;
+        applyUserData(unwrapped);
         setLoading(false);
     };
 
@@ -53,13 +58,14 @@ export const PermissionProvider = ({ children }) => {
         setPermissions([]);
         setRoles([]);
         setRestaurant(null);
+        setUser(null);
         setIsAuthenticated(false);
         localStorage.removeItem('role');
         window.location.href = '/login';
     };
 
     return (
-        <PermissionContext.Provider value={{ permissions, roles, restaurant, loading, isAuthenticated, can, hasRole, setUserPermission, logout, refetchPermissions: fetchPermissions }}>
+        <PermissionContext.Provider value={{ permissions, roles, restaurant, user, loading, isAuthenticated, can, hasRole, setUserPermission, logout, refetchPermissions: fetchPermissions }}>
             {children}
         </PermissionContext.Provider>
     );

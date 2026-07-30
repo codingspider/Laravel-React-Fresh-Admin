@@ -1,168 +1,285 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Box, Button, HStack, VStack, Text, Badge, IconButton, useToast,
-  useColorModeValue, Spinner, Center, Menu, MenuButton, MenuList, MenuItem,
-  AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader,
-  AlertDialogBody, AlertDialogFooter, useDisclosure, Flex, Input, InputGroup, InputLeftElement,
-  Select, Tag, TagLabel, Wrap, WrapItem,
-} from '@chakra-ui/react';
-import { FiPlus, FiEdit2, FiTrash2, FiEye, FiMoreVertical, FiSearch, FiFilter } from 'react-icons/fi';
-import PageHeader from '../ui/PageHeader';
-import api from '../../axios';
+    Box,
+    useToast,
+    Icon,
+    IconButton,
+    Text,
+    Badge,
+    Tag,
+    TagLabel,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Select,
+    Flex,
+} from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
+import Swal from "sweetalert2";
+import api from "../../axios";
+import {
+    RESTAURANT_ADD_PATH,
+    RESTAURANT_VIEW_PATH,
+    RESTAURANT_EDIT_PATH,
+    DASHBOARD_PATH,
+} from "../../routes/superAdminRoutes";
+import TanStackTable from "../../TanStackTable";
+import PageHeader from "../ui/PageHeader";
+import { LIST_RESTAURANT, DELETE_RESTAURANT } from "../../routes/apiRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
+import TableExportButtons from "../ui/TableExportButtons";
 
-const statusColors = { active: 'green', inactive: 'red', suspended: 'yellow' };
+const statusColors = { active: "green", inactive: "red", suspended: "yellow" };
 
 export default function RestaurantList() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const toast = useToast();
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const hoverBg = useColorModeValue('gray.50', 'gray.700');
-  const pageBg = useColorModeValue("gray.50", "gray.900");
-  const cardBg = useColorModeValue("white", "gray.800");
-  const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-  const headingColor = useColorModeValue("gray.800", "gray.100");
-  const textColor = useColorModeValue("gray.500", "gray.400");
-  const labelColor = useColorModeValue("gray.700", "gray.300");
-  const fieldBg = useColorModeValue("gray.50", "gray.700");
-  const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+    const [data, setData] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize] = useState(15);
+    const [pageCount, setPageCount] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
+    const [statusFilter, setStatusFilter] = useState("");
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const colors = useThemeColors();
 
-  const [restaurants, setRestaurants] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [page, setPage] = useState(1);
-  const [meta, setMeta] = useState({});
-  const [deleteItem, setDeleteItem] = useState(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = React.useRef();
+    const fetchData = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const res = await api.get(LIST_RESTAURANT, {
+                params: {
+                    page: pageIndex + 1,
+                    per_page: pageSize,
+                    search: globalFilter || "",
+                    status: statusFilter || "",
+                },
+            });
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const params = { page, per_page: 15 };
-      if (search) params.search = search;
-      if (statusFilter) params.status = statusFilter;
-      const res = await api.get('/v1/restaurants', { params });
-      setRestaurants(res.data.data || []);
-      setMeta(res.data.meta || {});
-    } catch (err) {
-      toast({ title: t('Error fetching data'), status: 'error', position: 'bottom-right' });
-    } finally {
-      setLoading(false);
-    }
-  };
+            const items = res.data?.data || [];
+            const total = res.data?.meta?.total || items.length;
 
-  useEffect(() => { fetchData(); }, [page, search, statusFilter]);
+            setData(items);
+            setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
+        } catch (err) {
+            console.error("fetchData error:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [pageIndex, globalFilter, pageSize, statusFilter]);
 
-  const handleDelete = async () => {
-    try {
-      await api.delete(`/v1/restaurants/${deleteItem.id}`);
-      toast({ title: t('Restaurant deleted successfully'), status: 'success', position: 'bottom-right' });
-      fetchData();
-    } catch (err) {
-      toast({ title: t('Error deleting restaurant'), status: 'error', position: 'bottom-right' });
-    }
-    onClose();
-  };
+    useEffect(() => {
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Restaurant Management`;
+        fetchData();
+    }, [fetchData]);
 
-  return (
-    <Box>
-      <PageHeader
-        title={t('Restaurants')}
-        subtitle={t('Manage all restaurants')}
-        breadcrumbs={[{ label: t('Dashboard'), link: '/dashboard' }, { label: t('Restaurants') }]}
-      >
-        <Button leftIcon={<FiPlus />} colorScheme="teal" onClick={() => navigate('/restaurant/create')}>
-          {t('Add Restaurant')}
-        </Button>
-      </PageHeader>
+    const deleteRestaurant = async (id) => {
+        const result = await Swal.fire({
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
+        });
 
-      <Box bg={cardBg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6}>
-        <Flex mb={4} gap={4} direction={{ base: 'column', md: 'row' }} align="center">
-          <InputGroup maxW="300px">
-            <InputLeftElement><FiSearch /></InputLeftElement>
-            <Input placeholder={t('Search restaurants...')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
-          </InputGroup>
-          <Select maxW="160px" placeholder={t('All Status')} value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
-            <option value="active">{t('Active')}</option>
-            <option value="inactive">{t('Inactive')}</option>
-            <option value="suspended">{t('Suspended')}</option>
-          </Select>
-        </Flex>
+        if (result.isConfirmed) {
+            try {
+                await api.delete(DELETE_RESTAURANT(id));
+                toast({
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                fetchData();
+            } catch (error) {
+                toast({
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        }
+    };
 
-        {loading ? (
-          <Center py={10}><Spinner size="lg" color="teal.500" /></Center>
-        ) : restaurants.length === 0 ? (
-          <Center py={10}><Text color={textColor}>{t('No restaurants found')}</Text></Center>
-        ) : (
-          <Box overflowX="auto">
-            <Box as="table" w="100%" fontSize="sm">
-              <Box as="thead">
-                <Box as="tr" borderBottom="1px solid" borderColor={borderColor}>
-                  {[t('Name'), t('Email'), t('Phone'), t('Currency'), t('Status'), t('Actions')].map((h) => (
-                    <Box as="th" key={h} px={4} py={3} textAlign="left" fontWeight="600" color={textColor}>{h}</Box>
-                  ))}
+    const columns = [
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ row }) => (
+                <Box>
+                    <Text fontSize="sm" fontWeight="600">
+                        {row.original.name}
+                    </Text>
+                    <Text fontSize="xs" color="gray.500">
+                        {row.original.slug}
+                    </Text>
                 </Box>
-              </Box>
-              <Box as="tbody">
-                {restaurants.map((r) => (
-                  <Box as="tr" key={r.id} borderBottom="1px solid" borderColor={borderColor} _hover={{ bg: hoverBg }}>
-                    <Box as="td" px={4} py={3}>
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="600">{r.name}</Text>
-                        <Text fontSize="xs" color={textColor}>{r.slug}</Text>
-                      </VStack>
-                    </Box>
-                    <Box as="td" px={4} py={3}>{r.email || '-'}</Box>
-                    <Box as="td" px={4} py={3}>{r.phone || '-'}</Box>
-                    <Box as="td" px={4} py={3}>
-                      <Tag size="sm" colorScheme="blue"><TagLabel>{r.currency} ({r.currency_symbol})</TagLabel></Tag>
-                    </Box>
-                    <Box as="td" px={4} py={3}>
-                      <Badge colorScheme={statusColors[r.status]} textTransform="capitalize">{t(r.status)}</Badge>
-                    </Box>
-                    <Box as="td" px={4} py={3}>
-                      <Menu>
-                        <MenuButton as={IconButton} icon={<FiMoreVertical />} variant="ghost" size="sm" />
-                        <MenuList>
-                          <MenuItem icon={<FiEye />} onClick={() => navigate(`/restaurant/view/${r.id}`)}>{t('View')}</MenuItem>
-                          <MenuItem icon={<FiEdit2 />} onClick={() => navigate(`/restaurant/edit/${r.id}`)}>{t('Edit')}</MenuItem>
-                          <MenuItem icon={<FiTrash2 />} color="red.500" onClick={() => { setDeleteItem(r); onOpen(); }}>{t('Delete')}</MenuItem>
-                        </MenuList>
-                      </Menu>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
+            ),
+        },
+        {
+            header: t("email"),
+            accessorKey: "email",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("phone"),
+            accessorKey: "phone",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("currency"),
+            accessorFn: (row) => `${row.currency} (${row.currency_symbol})`,
+            cell: ({ getValue }) => (
+                <Tag size="sm" colorScheme="blue" borderRadius="full">
+                    <TagLabel>{getValue()}</TagLabel>
+                </Tag>
+            ),
+        },
+        {
+            header: t("status"),
+            accessorKey: "status",
+            cell: ({ getValue }) => {
+                const val = getValue();
+                return (
+                    <Badge
+                        colorScheme={statusColors[val] || "gray"}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="xs"
+                        fontWeight="600"
+                        textTransform="capitalize"
+                    >
+                        {t(val)}
+                    </Badge>
+                );
+            },
+        },
+        {
+            header: t("actions"),
+            cell: ({ row }) => (
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={ViewIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(`/restaurant/view/${row.original.id}`)}
+                        >
+                            {t("view")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(`/restaurant/edit/${row.original.id}`)}
+                        >
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteRestaurant(row.original.id)}
+                        >
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
+        },
+    ];
+
+    return (
+        <Box>
+            <PageHeader
+                title={t("restaurant_management")}
+                subtitle={t("manage_all_restaurants")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: DASHBOARD_PATH },
+                    { label: t("restaurants"), isCurrent: true },
+                ]}
+                action={RESTAURANT_ADD_PATH}
+                actionLabel={t("add_restaurant")}
+            >
+                <TableExportButtons data={data} columns={columns} filename="restaurants" />
+            </PageHeader>
+
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={RESTAURANT_ADD_PATH}
+                    totalItems={totalItems}
+                >
+                    <Select
+                        maxW="160px"
+                        size="md"
+                        value={statusFilter}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                        placeholder={t("all_status")}
+                        borderRadius="lg"
+                    >
+                        <option value="active">{t("active")}</option>
+                        <option value="inactive">{t("inactive")}</option>
+                        <option value="suspended">{t("suspended")}</option>
+                    </Select>
+                </TanStackTable>
             </Box>
-          </Box>
-        )}
-
-        {meta.last_page > 1 && (
-          <Flex mt={4} justify="center" gap={2}>
-            <Button size="sm" isDisabled={page === 1} onClick={() => setPage(page - 1)}>{t('Previous')}</Button>
-            <Text alignSelf="center" fontSize="sm" mx={2}>{t('Page')} {meta.current_page} {t('of')} {meta.last_page}</Text>
-            <Button size="sm" isDisabled={page === meta.last_page} onClick={() => setPage(page + 1)}>{t('Next')}</Button>
-          </Flex>
-        )}
-      </Box>
-
-      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader>{t('Delete Restaurant')}</AlertDialogHeader>
-            <AlertDialogBody>{t('Are you sure you want to delete this restaurant?')}</AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>{t('Cancel')}</Button>
-              <Button colorScheme="red" onClick={handleDelete} ml={3}>{t('Delete')}</Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </Box>
-  );
+        </Box>
+    );
 }

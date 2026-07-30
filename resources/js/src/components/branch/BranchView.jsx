@@ -28,11 +28,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../axios";
 import { GET_BRANCH } from "../../routes/apiRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const BRANCH_LIST = '/branch/list';
 const DASHBOARD_PATH = '/dashboard';
 
 const BranchView = () => {
+    const colors = useThemeColors();
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { id } = useParams();
@@ -67,7 +69,7 @@ const BranchView = () => {
 
     if (isLoading) {
         return (
-            <Box bg="gray.50" minH="100vh" py={3}>
+            <Box bg={colors.bgSubtle} minH="100vh" py={3}>
                 <Box mx="auto">
                     <Flex justify="center" align="center" h="60">
                         <Spinner size="xl" color="teal.500" />
@@ -79,10 +81,10 @@ const BranchView = () => {
 
     if (!branch) {
         return (
-            <Box bg="gray.50" minH="100vh" py={3}>
+            <Box bg={colors.bgSubtle} minH="100vh" py={3}>
                 <Box mx="auto">
                     <Center h="60">
-                        <Text color="gray.500" fontSize="lg">
+                        <Text color={colors.textSecondary} fontSize="lg">
                             {t("branch_not_found")}
                         </Text>
                     </Center>
@@ -92,13 +94,13 @@ const BranchView = () => {
     }
 
     return (
-        <Box className="form-dark-surface" bg="gray.50" minH="100vh" py={3}>
+        <Box className="form-dark-surface" bg={colors.bgSubtle} minH="100vh" py={3}>
             <Box mx="auto">
 
                 {/* Modern Breadcrumb */}
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
@@ -120,7 +122,7 @@ const BranchView = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
                                     {t("view")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -129,16 +131,16 @@ const BranchView = () => {
                 </Card>
 
                 {/* Main View Card */}
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
                     <CardHeader
-                        bg="white"
+                        bg={colors.bgCard}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={colors.borderSubtle}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">
                                     {branch.name}
                                 </Heading>
                                 <HStack mt={2}>
@@ -190,117 +192,117 @@ const BranchView = () => {
                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                             {/* Branch Name */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("name")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.name || "-"}
                                 </Text>
                             </Box>
 
                             {/* Slug */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("slug")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.slug || "-"}
                                 </Text>
                             </Box>
 
                             {/* Email */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("email")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.email || "-"}
                                 </Text>
                             </Box>
 
                             {/* Phone */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("phone")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.phone || "-"}
                                 </Text>
                             </Box>
 
                             {/* Address */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("address")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.address || "-"}
                                 </Text>
                             </Box>
 
                             {/* City */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("city")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.city || "-"}
                                 </Text>
                             </Box>
 
                             {/* State */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("state")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.state || "-"}
                                 </Text>
                             </Box>
 
                             {/* Country */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("country")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.country || "-"}
                                 </Text>
                             </Box>
 
                             {/* Zip Code */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("zip_code")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.zip_code || "-"}
                                 </Text>
                             </Box>
 
                             {/* Timezone */}
                             <Box>
-                                <Text fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase" letterSpacing="wider" mb={1}>
+                                <Text fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
                                     {t("timezone")}
                                 </Text>
-                                <Text fontSize="md" color="gray.800" fontWeight="medium">
+                                <Text fontSize="md" color={colors.textPrimary} fontWeight="medium">
                                     {branch.timezone || "-"}
                                 </Text>
                             </Box>
                         </SimpleGrid>
 
-                        <Divider my={8} borderColor="gray.200" />
+                        <Divider my={8} borderColor={colors.borderDefault} />
 
                         {/* Summary Stats */}
                         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
                             <Stat
                                 p={4}
-                                bg="gray.50"
+                                bg={colors.bgSubtle}
                                 borderRadius="lg"
                                 border="1px solid"
-                                borderColor="gray.200"
+                                borderColor={colors.borderDefault}
                             >
-                                <StatLabel fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase">
+                                <StatLabel fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase">
                                     {t("status")}
                                 </StatLabel>
                                 <StatNumber fontSize="lg" color={branch.is_active ? "green.500" : "red.500"}>
@@ -310,12 +312,12 @@ const BranchView = () => {
 
                             <Stat
                                 p={4}
-                                bg="gray.50"
+                                bg={colors.bgSubtle}
                                 borderRadius="lg"
                                 border="1px solid"
-                                borderColor="gray.200"
+                                borderColor={colors.borderDefault}
                             >
-                                <StatLabel fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase">
+                                <StatLabel fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase">
                                     {t("branch_type")}
                                 </StatLabel>
                                 <StatNumber fontSize="lg" color={branch.is_main ? "teal.500" : "gray.600"}>
@@ -325,15 +327,15 @@ const BranchView = () => {
 
                             <Stat
                                 p={4}
-                                bg="gray.50"
+                                bg={colors.bgSubtle}
                                 borderRadius="lg"
                                 border="1px solid"
-                                borderColor="gray.200"
+                                borderColor={colors.borderDefault}
                             >
-                                <StatLabel fontSize="xs" fontWeight="semibold" color="gray.500" textTransform="uppercase">
+                                <StatLabel fontSize="xs" fontWeight="semibold" color={colors.textSecondary} textTransform="uppercase">
                                     {t("created_at")}
                                 </StatLabel>
-                                <StatNumber fontSize="lg" color="gray.700">
+                                <StatNumber fontSize="lg" color={colors.textPrimary}>
                                     {branch.created_at ? new Date(branch.created_at).toLocaleDateString() : "-"}
                                 </StatNumber>
                             </Stat>

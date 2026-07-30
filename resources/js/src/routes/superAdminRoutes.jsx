@@ -86,9 +86,16 @@ import ReservationEdit from "../components/table/ReservationEdit";
 
 import POSScreen from "../components/pos/POSScreen";
 import POSSalesList from "../components/pos/POSSalesList";
+import PosSettings from "../components/admin/pos/PosSettings";
+import CouponManagement from "../components/admin/pos/CouponManagement";
 
 
 export const DASHBOARD_PATH = `/dashboard`;
+
+export const RESTAURANT_LIST_PATH = "/restaurant/list";
+export const RESTAURANT_ADD_PATH = "/restaurant/create";
+export const RESTAURANT_VIEW_PATH = "/restaurant/view/:id";
+export const RESTAURANT_EDIT_PATH = "/restaurant/edit/:id";
 
 export const USER_LIST_PATH = "/user/list";
 export const USER_ADD_PATH = "/user/create";
@@ -248,4 +255,6 @@ export const superAdminRoutes = [
     // Phase 2 — POS
     { path: "/pos/terminal", element: <POSScreen /> },
     { path: "/pos/sales", element: <POSSalesList /> },
+    { path: "/pos/settings", element: <PosSettings /> },
+    { path: "/pos/coupons", element: <CouponManagement /> },
 ];

@@ -1,43 +1,46 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Card,
-    CardBody,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    SimpleGrid,
-    Td,
     Box,
     useToast,
-    Image,
-    Badge
+    Icon,
+    IconButton,
+    Text,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
 } from "@chakra-ui/react";
-import { Link as ChakraLink } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
-import { Link as ReactRouterLink } from "react-router-dom";
-import TanStackTable from './../../TanStackTable';
-import api from './../../axios';
-import { useCurrencyFormatter } from './../../useCurrencyFormatter';
-import { DELETE_USER, GET_EDIT_USER, LIST_USER } from "../../routes/apiRoutes";
-import { DASHBOARD_PATH, USER_ADD_PATH, USER_EDIT_PATH } from './../../routes/superAdminRoutes';
+import api from "../../axios";
+import {
+    USER_ADD_PATH,
+    USER_EDIT_PATH,
+    DASHBOARD_PATH,
+} from "../../routes/superAdminRoutes";
+import TanStackTable from "../../TanStackTable";
+import PageHeader from "../ui/PageHeader";
+import { LIST_USER, DELETE_USER } from "../../routes/apiRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
+import TableExportButtons from "../ui/TableExportButtons";
 
 export default function UserList() {
-    const [globalFilter, setGlobalFilter] = useState("");
     const [data, setData] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 10;
+    const [pageSize] = useState(15);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
-    const { formatAmount, currency } = useCurrencyFormatter();
+    const colors = useThemeColors();
 
-    // Fetch data whenever page or search changes
-    const fetchUnits = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
             const res = await api.get(LIST_USER, {
@@ -48,55 +51,55 @@ export default function UserList() {
                 },
             });
 
-            const bottles = res.data?.data?.data || [];
-            const total = res.data?.data?.total || bottles.length;
+            const items = res.data?.data?.data || res.data?.data || [];
+            const total = res.data?.meta?.total || res.data?.data?.total || items.length;
 
-            // Update table
-            setData(bottles);
+            setData(items);
             setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
         } catch (err) {
-            console.error("fetchUnits error:", err);
+            console.error("fetchData error:", err);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [pageIndex, globalFilter, pageSize]);
 
     useEffect(() => {
-        const app_name = localStorage.getItem('app_name');
+        const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | User Management`;
-        fetchUnits();
-    }, [pageIndex, globalFilter]);
+        fetchData();
+    }, [fetchData]);
 
-    const deleteUnit = async (id) => {
+    const deleteItem = async (id) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Data will be deleted.",
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete!",
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
         });
 
         if (result.isConfirmed) {
             try {
                 await api.delete(DELETE_USER(id));
                 toast({
-                    position: "bottom-right",
-                    title: "Data deleted successfully",
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-
-                fetchUnits();
+                fetchData();
             } catch (error) {
                 toast({
-                    position: "bottom-right",
-                    title: "Error deleting data",
-                    description:
-                        error.response?.data?.message ||
-                        "Something went wrong.",
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -106,108 +109,104 @@ export default function UserList() {
     };
 
     const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1},
-        { header: t('name'), accessorKey: "name"},
-        { header: t('username'), accessorKey: "username"},
-        { header: t('role'), accessorKey: "role"},
         {
-            header: t('status'),
-            accessorKey: 'status',
-            cell: ({ getValue }) => {
-                const status = (getValue() || '').toLowerCase();
-                const variantMap = {
-                    active: "green",
-                    inactive: "red",
-                    pending: "yellow",
-                    banned: "red",
-                };
-
-                return (
-                <Badge variant="subtle"
-                    px={2}
-                    py={1}
-                    borderRadius="md" 
-                    colorScheme={variantMap[status]}>
-                    {status}
-                </Badge>
-                );
-            },
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
         },
         {
-            header: "Actions",
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("email"),
+            accessorKey: "email",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("actions"),
             cell: ({ row }) => (
-                <>
-                    <Box display="flex" gap={2}>
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
-                            onClick={() =>
-                                navigate(USER_EDIT_PATH.replace(":id", row.original.id))
-                            }
+                            fontSize="sm"
+                            onClick={() => navigate(USER_EDIT_PATH.replace(":id", row.original.id))}
                         >
-                            <EditIcon />
-                        </ChakraLink>
-
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
                             borderRadius="md"
-                            cursor="pointer"
-                            onClick={() => deleteUnit(row.original.id)}
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteItem(row.original.id)}
                         >
-                            <DeleteIcon color="red.500" />
-                        </ChakraLink>
-                    </Box>
-                </>
-            ), enableColumnFilter: false,
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
         },
     ];
 
     return (
-        <Box className="form-dark-surface">
-            {/* Breadcrumb */}
-            <Card mb={5}>
-                <CardBody>
-                    <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={DASHBOARD_PATH}
-                            >
-                                {t("dashboard")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={USER_ADD_PATH}
-                            >
-                                {t("add")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </CardBody>
-            </Card>
+        <Box>
+            <PageHeader
+                title={t("user_management")}
+                subtitle={t("manage_users")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: DASHBOARD_PATH },
+                    { label: t("users"), isCurrent: true },
+                ]}
+                action={USER_ADD_PATH}
+                actionLabel={t("add_user")}
+            >
+                <TableExportButtons data={data} columns={columns} filename="users" />
+            </PageHeader>
 
-            <SimpleGrid columns={{ base: 1, md: 1 }} mt={5}>
-                <Card>
-                    <CardBody>
-                        <TanStackTable
-                            columns={columns}
-                            data={data}
-                            globalFilter={globalFilter}
-                            setGlobalFilter={setGlobalFilter}
-                            pageIndex={pageIndex}
-                            pageSize={pageSize}
-                            setPageIndex={setPageIndex}
-                            pageCount={pageCount}
-                            isLoading={isLoading}
-                            addURL={USER_ADD_PATH}
-                        />
-                    </CardBody>
-                </Card>
-            </SimpleGrid>
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={USER_ADD_PATH}
+                    totalItems={totalItems}
+                />
+            </Box>
         </Box>
     );
 }

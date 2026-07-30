@@ -32,10 +32,12 @@ class Sale extends Model
         'round_off',
         'total',
         'amount_paid',
+        'refund_amount',
         'change_amount',
         'payment_status',
         'notes',
         'kitchen_notes',
+        'coupon_code',
     ];
 
     protected $casts = [

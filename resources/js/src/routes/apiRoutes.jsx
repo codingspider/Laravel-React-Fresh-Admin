@@ -8,6 +8,7 @@ export const DELETE_PLAN = (id) => `/v1/plans/${id}`;
 // Business
 export const STORE_BUSINESS = '/business';
 export const LIST_BUSINESS = '/business';
+export const DELETE_BUSINESS = (id) => `/business/${id}`;
 export const GET_CURRENCIES = 'get/currencies';
 export const GET_TIMEZONES = 'get/timezones';
 export const STORE_BUSINESS_INFO = 'store/business/info';
@@ -199,9 +200,25 @@ export const POS_OPEN_SESSION = '/v1/pos/sessions/open';
 export const LIST_POS_SALES = '/v1/pos';
 export const STORE_POS_SALE = '/v1/pos';
 export const GET_POS_SALE = (id) => `/v1/pos/${id}`;
+export const POS_HELD_ORDERS = '/v1/pos/held';
+export const POS_MERGE_BILLS = '/v1/pos/merge';
 export const POS_PROCESS_PAYMENT = (id) => `/v1/pos/${id}/payments`;
+export const POS_PROCESS_MULTIPLE_PAYMENTS = (id) => `/v1/pos/${id}/payments/multiple`;
+export const POS_PROCESS_REFUND = (id) => `/v1/pos/${id}/refund`;
 export const POS_HOLD_ORDER = (id) => `/v1/pos/${id}/hold`;
 export const POS_RECALL_ORDER = (id) => `/v1/pos/${id}/recall`;
 export const POS_CANCEL_SALE = (id) => `/v1/pos/${id}/cancel`;
 export const POS_ADD_ITEM = (saleId) => `/v1/pos/${saleId}/items`;
 export const POS_REMOVE_ITEM = (saleId, itemId) => `/v1/pos/${saleId}/items/${itemId}`;
+export const POS_SETTINGS = '/v1/pos/settings';
+export const POS_COUPONS = '/v1/pos/coupons';
+export const POS_COUPON = (id) => `/v1/pos/coupons/${id}`;
+export const POS_VALIDATE_COUPON = '/v1/pos/coupons/validate';
+export const POS_REFUND = (saleId) => `/v1/pos/${saleId}/refund`;
+
+// Customers
+export const LIST_CUSTOMER = '/v1/customers';
+export const STORE_CUSTOMER = '/v1/customers';
+export const GET_CUSTOMER = (id) => `/v1/customers/${id}`;
+export const UPDATE_CUSTOMER = (id) => `/v1/customers/${id}`;
+export const DELETE_CUSTOMER = (id) => `/v1/customers/${id}`;

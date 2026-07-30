@@ -26,8 +26,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../axios";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const MenuCategoryEdit = () => {
+    const colors = useThemeColors();
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,11 +108,11 @@ const MenuCategoryEdit = () => {
     }, [id]);
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box bg={colors.bgSubtle} minH="100vh" py={3}>
             <Box mx="auto">
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
@@ -132,7 +134,7 @@ const MenuCategoryEdit = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
                                     {t("edit")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -140,19 +142,19 @@ const MenuCategoryEdit = () => {
                     </CardBody>
                 </Card>
 
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
                     <CardHeader
-                        bg="white"
+                        bg={colors.bgCard}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={colors.borderSubtle}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">
                                     {t("edit")}
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                     {t("update_menu_category_details")}
                                 </Text>
                             </Box>
@@ -179,16 +181,16 @@ const MenuCategoryEdit = () => {
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                     <FormControl isRequired isInvalid={errors.name}>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("name")}
                                         </FormLabel>
                                         <Input
                                             {...register("name", { required: true })}
                                             type="text"
                                             placeholder={t("name")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -199,16 +201,16 @@ const MenuCategoryEdit = () => {
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("slug")}
                                         </FormLabel>
                                         <Input
                                             {...register("slug")}
                                             type="text"
                                             placeholder={t("slug")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -218,15 +220,15 @@ const MenuCategoryEdit = () => {
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("parent_category")}
                                         </FormLabel>
                                         <Select
                                             {...register("parent_id")}
                                             placeholder={t("none_top_level")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -240,16 +242,16 @@ const MenuCategoryEdit = () => {
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("sort_order")}
                                         </FormLabel>
                                         <Input
                                             {...register("sort_order", { valueAsNumber: true })}
                                             type="number"
                                             placeholder={t("sort_order")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -259,15 +261,15 @@ const MenuCategoryEdit = () => {
                                     </FormControl>
 
                                     <FormControl gridColumn={{ md: "span 2" }}>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("description")}
                                         </FormLabel>
                                         <Textarea
                                             {...register("description")}
                                             placeholder={t("description")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}

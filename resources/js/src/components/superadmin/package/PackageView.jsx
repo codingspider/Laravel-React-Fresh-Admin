@@ -10,7 +10,6 @@ import {
     Text,
     Badge,
     useToast,
-    useColorModeValue,
     Spinner,
     Center,
     Divider,
@@ -30,7 +29,10 @@ import {
 import { EditIcon } from "@chakra-ui/icons";
 import { Link as ChakraLink } from "@chakra-ui/react";
 import api from "../../../axios";
-import { PACKAGE_LIST_PATH, PACKAGE_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { PACKAGE_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+
+const LIST_PATH = "/package/list";
 
 const MODULE_COLORS = {
     hrm: "purple", crm: "blue", inventory: "orange", pos: "green",
@@ -46,16 +48,17 @@ export default function PackageView() {
     const toast = useToast();
     const [pkg, setPkg] = useState(null);
     const [loading, setLoading] = useState(true);
+    const colors = useThemeColors();
 
-    const pageBg = useColorModeValue("gray.50", "gray.900");
-    const bg = useColorModeValue("white", "gray.800");
-    const cardBg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-    const headingColor = useColorModeValue("gray.800", "gray.100");
-    const textColor = useColorModeValue("gray.500", "gray.400");
-    const labelColor = useColorModeValue("gray.500", "gray.400");
-    const valueColor = useColorModeValue("gray.800", "gray.100");
+    const pageBg = colors.bgPage;
+    const bg = colors.bgCard;
+    const cardBg = colors.bgCard;
+    const borderColor = colors.borderDefault;
+    const headerBorderColor = colors.borderSubtle;
+    const headingColor = colors.textPrimary;
+    const textColor = colors.textSecondary;
+    const labelColor = colors.textSecondary;
+    const valueColor = colors.textPrimary;
 
     useEffect(() => {
         const fetchPackage = async () => {
@@ -107,7 +110,7 @@ export default function PackageView() {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem>
-                                <BreadcrumbLink as={ReactRouterLink} to={PACKAGE_LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>
+                                <BreadcrumbLink as={ReactRouterLink} to={LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>
                                     {t("packages")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -134,7 +137,7 @@ export default function PackageView() {
                             <HStack spacing={3}>
                                 <Button
                                     as={ReactRouterLink}
-                                    to={PACKAGE_LIST_PATH}
+                                    to={LIST_PATH}
                                     variant="outline"
                                     colorScheme="gray"
                                     size="sm"

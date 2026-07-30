@@ -10,11 +10,11 @@ import {
     Button,
     HStack,
     Icon,
-    useColorModeValue,
 } from '@chakra-ui/react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import useThemeColors from '../../hooks/useThemeColors';
 
 export default function PageHeader({
     title,
@@ -27,6 +27,7 @@ export default function PageHeader({
     children,
 }) {
     const { t } = useTranslation();
+    const colors = useThemeColors();
 
     return (
         <Box mb={{ base: 4, md: 6 }}>
@@ -67,8 +68,7 @@ export default function PageHeader({
                     <Heading
                         size="lg"
                         fontWeight="bold"
-                        color="gray.800"
-                        _dark={{ color: 'white' }}
+                        color={colors.textHeading}
                     >
                         {t(title)}
                     </Heading>

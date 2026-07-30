@@ -24,10 +24,14 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { DASHBOARD_PATH, UNIT_LIST_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { GET_EDIT_UNIT, UPDATE_UNIT } from "../../../routes/apiRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+
+const LIST_PATH = "/unit/list";
 
 const UnitEdit = () => {
+    const colors = useThemeColors();
     const { register, handleSubmit, reset, formState: { errors } } = useForm();
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,7 +51,7 @@ const UnitEdit = () => {
                 duration: 3000,
                 isClosable: true,
             });
-            navigate(UNIT_LIST_PATH);
+            navigate(LIST_PATH);
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
@@ -107,14 +111,14 @@ const UnitEdit = () => {
     }, [id]);
 
     return (
-        <Box className="form-dark-surface" bg="gray.50" minH="100vh" py={3}>
+        <Box py={3}>
             {/* Container for max width and centering */}
             <Box mx="auto">
 
                 {/* Modern Breadcrumb */}
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
@@ -128,7 +132,7 @@ const UnitEdit = () => {
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
-                                    to={UNIT_LIST_PATH}
+                                    to={LIST_PATH}
                                     fontWeight="medium"
                                     _hover={{ color: "teal.500" }}
                                 >
@@ -136,7 +140,7 @@ const UnitEdit = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
                                     {t("edit")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -145,26 +149,26 @@ const UnitEdit = () => {
                 </Card>
 
                 {/* Main Form Card */}
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
                     <CardHeader
-                        bg="white"
+                        bg={colors.bgCard}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={colors.borderSubtle}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">
                                     {t("edit")}
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                     Update category details for your platform
                                 </Text>
                             </Box>
                             <Button
                                 colorScheme="teal"
                                 as={ReactRouterLink}
-                                to={UNIT_LIST_PATH}
+                                to={LIST_PATH}
                                 variant="outline"
                                 display={{ base: "none", md: "inline-flex" }}
                                 size="sm"
@@ -178,7 +182,7 @@ const UnitEdit = () => {
                     <CardBody p={8}>
                         {isLoadingData ? (
                             <Flex justify="center" align="center" h="40">
-                                <Text color="gray.500">{t("loading_data")}</Text>
+                                <Text color={colors.textSecondary}>{t("loading_data")}</Text>
                             </Flex>
                         ) : (
                             <form onSubmit={handleSubmit(onSubmit)} encType="multipart/form-data">
@@ -187,7 +191,7 @@ const UnitEdit = () => {
                                         <FormLabel
                                             fontSize="sm"
                                             fontWeight="semibold"
-                                            color="gray.700"
+                                            color={colors.textPrimary}
                                             mb={2}
                                         >
                                             {t("name")}
@@ -196,9 +200,9 @@ const UnitEdit = () => {
                                             {...register("actual_name", { required: true })}
                                             type="text"
                                             placeholder={t("name")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -211,7 +215,7 @@ const UnitEdit = () => {
                                         <FormLabel
                                             fontSize="sm"
                                             fontWeight="semibold"
-                                            color="gray.700"
+                                            color={colors.textPrimary}
                                             mb={2}
                                         >
                                             {t("short_name")}
@@ -220,9 +224,9 @@ const UnitEdit = () => {
                                             {...register("short_name", { required: true })}
                                             type="text"
                                             placeholder={t("short_name")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -235,7 +239,7 @@ const UnitEdit = () => {
                                         <FormLabel
                                             fontSize="sm"
                                             fontWeight="semibold"
-                                            color="gray.700"
+                                            color={colors.textPrimary}
                                             mb={2}
                                         >
                                             {t("allow_decimal")}
@@ -256,7 +260,7 @@ const UnitEdit = () => {
                                     <Button
                                         type="button"
                                         as={ReactRouterLink}
-                                        to={UNIT_LIST_PATH}
+                                        to={LIST_PATH}
                                         colorScheme="gray"
                                         variant="outline"
                                         fontWeight="semibold"

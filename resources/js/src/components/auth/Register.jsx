@@ -24,7 +24,6 @@ import {
     InputGroup,
     InputRightElement,
     HStack,
-    useColorModeValue,
     FormErrorMessage,
     FormHelperText,
     SimpleGrid,
@@ -40,6 +39,7 @@ import { ArrowForwardIcon, ArrowBackIcon, CheckIcon } from "@chakra-ui/icons";
 import { UtensilsCrossed, Eye, EyeOff } from "lucide-react";
 import api from "../../axios";
 import { STORE_BUSINESS_INFO } from "../../routes/apiRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const Register = () => {
     const {
@@ -54,6 +54,7 @@ const Register = () => {
     const navigate = useNavigate();
     const toast = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const colors = useThemeColors();
 
     const steps = [
         { title: "Business", description: "Basic Info" },
@@ -135,7 +136,7 @@ const Register = () => {
     };
 
     const renderStepContent = () => {
-        const inputBg = useColorModeValue("gray.50", "gray.600");
+        const inputBg = colors.bgInput;
 
         switch (activeStep) {
             case 0:
@@ -207,7 +208,7 @@ const Register = () => {
 
                         <FormControl isInvalid={errors.fy_start_month} isRequired>
                             <FormLabel fontSize="sm" fontWeight="600">Financial Start Month</FormLabel>
-                            <Select bg={useColorModeValue("gray.50", "gray.600")} placeholder="Select month" borderRadius="lg" {...register("fy_start_month", { required: "Required" })}>
+                            <Select bg={colors.bgInput} placeholder="Select month" borderRadius="lg" {...register("fy_start_month", { required: "Required" })}>
                                 <option value="1">January</option>
                                 <option value="2">February</option>
                                 <option value="3">March</option>
@@ -226,7 +227,7 @@ const Register = () => {
 
                         <FormControl isInvalid={errors.accounting_method} isRequired>
                             <FormLabel fontSize="sm" fontWeight="600">Stock Accounting Method</FormLabel>
-                            <Select bg={useColorModeValue("gray.50", "gray.600")} placeholder="Select method" borderRadius="lg" {...register("accounting_method", { required: "Required" })}>
+                            <Select bg={colors.bgInput} placeholder="Select method" borderRadius="lg" {...register("accounting_method", { required: "Required" })}>
                                 <option value="fifo">FIFO (First In, First Out)</option>
                                 <option value="lifo">LIFO (Last In, First Out)</option>
                                 <option value="weighted">Weighted Average</option>
@@ -243,26 +244,26 @@ const Register = () => {
                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                             <FormControl isInvalid={errors.first_name} isRequired>
                                 <FormLabel fontSize="sm" fontWeight="600">First Name</FormLabel>
-                                <Input bg={useColorModeValue("gray.50", "gray.600")} placeholder="John" borderRadius="lg" {...register("first_name", { required: "Required" })} />
+                                <Input bg={colors.bgInput} placeholder="John" borderRadius="lg" {...register("first_name", { required: "Required" })} />
                                 <FormErrorMessage>{errors.first_name?.message}</FormErrorMessage>
                             </FormControl>
                             <FormControl isInvalid={errors.last_name} isRequired>
                                 <FormLabel fontSize="sm" fontWeight="600">Last Name</FormLabel>
-                                <Input bg={useColorModeValue("gray.50", "gray.600")} placeholder="Doe" borderRadius="lg" {...register("last_name", { required: "Required" })} />
+                                <Input bg={colors.bgInput} placeholder="Doe" borderRadius="lg" {...register("last_name", { required: "Required" })} />
                                 <FormErrorMessage>{errors.last_name?.message}</FormErrorMessage>
                             </FormControl>
                         </SimpleGrid>
 
                         <FormControl isInvalid={errors.username} isRequired>
                             <FormLabel fontSize="sm" fontWeight="600">Username</FormLabel>
-                            <Input bg={useColorModeValue("gray.50", "gray.600")} placeholder="johndoe123" borderRadius="lg" {...register("username", { required: "Required" })} />
+                            <Input bg={colors.bgInput} placeholder="johndoe123" borderRadius="lg" {...register("username", { required: "Required" })} />
                             <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
                         </FormControl>
 
                         <FormControl isInvalid={errors.email} isRequired>
                             <FormLabel fontSize="sm" fontWeight="600">Email Address</FormLabel>
                             <Input
-                                bg={useColorModeValue("gray.50", "gray.600")}
+                                bg={colors.bgInput}
                                 type="email"
                                 placeholder="john@example.com"
                                 borderRadius="lg"
@@ -281,7 +282,7 @@ const Register = () => {
                             <FormLabel fontSize="sm" fontWeight="600">Password</FormLabel>
                             <InputGroup size="md">
                                 <Input
-                                    bg={useColorModeValue("gray.50", "gray.600")}
+                                    bg={colors.bgInput}
                                     {...register("password", {
                                         required: "Password is required",
                                         minLength: { value: 6, message: "Minimum 6 characters" },
@@ -311,7 +312,7 @@ const Register = () => {
             minH="100vh"
             align="center"
             justify="center"
-            bg={useColorModeValue("gray.50", "gray.900")}
+            bg={colors.bgPage}
             p={{ base: 4, md: 8 }}
         >
             <Box w="full" maxW="800px" mx="auto">
@@ -328,7 +329,7 @@ const Register = () => {
                         <Icon as={UtensilsCrossed} boxSize={7} />
                     </Flex>
                     <Box textAlign="center">
-                        <Heading size="xl" fontWeight="bold" color="gray.800" _dark={{ color: "white" }}>
+                        <Heading size="xl" fontWeight="bold" color={colors.textHeading}>
                             Create your account
                         </Heading>
                         <Text color="gray.500" mt={2}>
@@ -338,11 +339,11 @@ const Register = () => {
                 </VStack>
 
                 <Box
-                    bg={useColorModeValue("white", "gray.800")}
+                    bg={colors.bgCard}
                     borderRadius="2xl"
                     boxShadow="lg"
                     border="1px solid"
-                    borderColor={useColorModeValue("gray.100", "gray.700")}
+                    borderColor={colors.borderSubtle}
                     p={{ base: 6, md: 8 }}
                 >
                     <Flex justify="space-between" align="center" mb={6}>
@@ -381,15 +382,15 @@ const Register = () => {
                     </Stepper>
 
                     <Box minH="300px">
-                        <Heading size="sm" mb={4} color="gray.700" _dark={{ color: "gray.300" }}>
+                        <Heading size="sm" mb={4} color={colors.textLabel}>
                             {steps[activeStep].title}
                         </Heading>
                         <Box
                             p={{ base: 4, md: 6 }}
-                            bg={useColorModeValue("gray.50", "gray.750")}
+                            bg={colors.bgSubtle}
                             borderRadius="xl"
                             border="1px solid"
-                            borderColor={useColorModeValue("gray.100", "gray.700")}
+                            borderColor={colors.borderSubtle}
                         >
                             {renderStepContent()}
                         </Box>

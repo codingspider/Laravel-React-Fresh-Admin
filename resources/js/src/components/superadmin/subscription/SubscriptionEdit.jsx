@@ -10,7 +10,6 @@ import {
     Select,
     Textarea,
     Text,
-    useColorModeValue,
     Spinner,
     Card,
     CardHeader,
@@ -26,7 +25,6 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import api from "../../../axios";
 import {
-    SUBSCRIPTION_LIST_PATH,
     DASHBOARD_PATH,
 } from "../../../routes/superAdminRoutes";
 import {
@@ -36,6 +34,9 @@ import {
     LIST_PLAN,
 } from "../../../routes/apiRoutes";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
+import useThemeColors from "../../../hooks/useThemeColors";
+
+const LIST_PATH = "/subscription/list";
 
 const SubscriptionEdit = () => {
     const { register, handleSubmit, reset, watch, setValue } = useForm();
@@ -47,16 +48,16 @@ const SubscriptionEdit = () => {
     const toast = useToast();
     const { id } = useParams();
     const { formatAmount } = useCurrencyFormatter();
+    const colors = useThemeColors();
 
-    const pageBg = useColorModeValue("gray.50", "gray.900");
-    const cardBg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-    const headingColor = useColorModeValue("gray.800", "gray.100");
-    const textColor = useColorModeValue("gray.500", "gray.400");
-    const labelColor = useColorModeValue("gray.700", "gray.300");
-    const fieldBg = useColorModeValue("gray.50", "gray.700");
-    const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+    const cardBg = colors.bgCard;
+    const borderColor = colors.borderInput;
+    const headerBorderColor = colors.borderSubtle;
+    const headingColor = colors.textPrimary;
+    const textColor = colors.textSecondary;
+    const labelColor = colors.textLabel;
+    const fieldBg = colors.bgInput;
+    const fieldHoverBorder = "gray.300";
 
     const selectedPlanId = watch("plan_id");
     const startsAt = watch("starts_at");
@@ -141,7 +142,7 @@ const SubscriptionEdit = () => {
                 duration: 3000,
                 isClosable: true,
             });
-            window.location.href = SUBSCRIPTION_LIST_PATH;
+            window.location.href = LIST_PATH;
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
@@ -183,7 +184,7 @@ const SubscriptionEdit = () => {
     }
 
     return (
-        <Box bg={pageBg} minH="100vh" py={3}>
+        <Box py={3}>
             <Box mx="auto">
                 <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
@@ -192,7 +193,7 @@ const SubscriptionEdit = () => {
                                 <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem>
-                                <BreadcrumbLink as={ReactRouterLink} to={SUBSCRIPTION_LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("subscriptions")}</BreadcrumbLink>
+                                <BreadcrumbLink as={ReactRouterLink} to={LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("subscriptions")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
                                 <BreadcrumbLink color={headingColor} fontWeight="bold">{t("edit")}</BreadcrumbLink>
@@ -208,7 +209,7 @@ const SubscriptionEdit = () => {
                                 <Heading size="sm" color={headingColor} fontWeight="bold">{t("edit_subscription")}</Heading>
                                 <Text fontSize="sm" color={textColor} mt={1}>{t("update_subscription_info")}</Text>
                             </Box>
-                            <Button colorScheme="teal" as={ReactRouterLink} to={SUBSCRIPTION_LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("subscriptions")}</Button>
+                            <Button colorScheme="teal" as={ReactRouterLink} to={LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("subscriptions")}</Button>
                         </Flex>
                     </CardHeader>
 
@@ -216,13 +217,13 @@ const SubscriptionEdit = () => {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("restaurant")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("restaurant")}</FormLabel>
                                     <Select
                                         {...register("restaurant_id", { required: true })}
                                         placeholder={t("select_restaurant")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -238,13 +239,13 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("plan")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("plan")}</FormLabel>
                                     <Select
                                         {...register("plan_id", { required: true })}
                                         placeholder={t("select_plan")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -269,13 +270,13 @@ const SubscriptionEdit = () => {
                                 )}
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("starts_at")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("starts_at")}</FormLabel>
                                     <Input
                                         {...register("starts_at", { required: true })}
                                         type="date"
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -285,13 +286,13 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("ends_at")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("ends_at")}</FormLabel>
                                     <Input
                                         {...register("ends_at", { required: true })}
                                         type="date"
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -304,12 +305,12 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("payment_status")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("payment_status")}</FormLabel>
                                     <Select
                                         {...register("payment_status")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -324,12 +325,12 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("payment_method")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("payment_method")}</FormLabel>
                                     <Select
                                         {...register("payment_method")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -343,15 +344,15 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("payment_amount")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("payment_amount")}</FormLabel>
                                     <Input
                                         {...register("payment_amount")}
                                         type="number"
                                         step="0.01"
                                         placeholder={t("payment_amount_placeholder")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -361,13 +362,13 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("payment_date")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("payment_date")}</FormLabel>
                                     <Input
                                         {...register("payment_date")}
                                         type="date"
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -377,13 +378,13 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("payment_reference")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("payment_reference")}</FormLabel>
                                     <Input
                                         {...register("payment_reference")}
                                         placeholder={t("payment_reference_placeholder")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -393,12 +394,12 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("status")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("status")}</FormLabel>
                                     <Select
                                         {...register("status")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -411,14 +412,14 @@ const SubscriptionEdit = () => {
                                 </FormControl>
 
                                 <FormControl gridColumn={{ md: "span 2" }}>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("notes")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("notes")}</FormLabel>
                                     <Textarea
                                         {...register("notes")}
                                         placeholder={t("notes_placeholder")}
                                         rows={3}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -429,7 +430,7 @@ const SubscriptionEdit = () => {
                             </SimpleGrid>
 
                             <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
-                                <Button type="button" as={ReactRouterLink} to={SUBSCRIPTION_LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: pageBg }}>{t("cancel")}</Button>
+                                <Button type="button" as={ReactRouterLink} to={LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>{t("cancel")}</Button>
                                 <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">{t("update")}</Button>
                             </Flex>
                         </form>

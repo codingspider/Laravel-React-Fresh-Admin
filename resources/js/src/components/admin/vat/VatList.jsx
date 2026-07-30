@@ -1,43 +1,71 @@
-import React, {useEffect, useState} from "react";
-import { Card, CardHeader, CardBody, CardFooter, SimpleGrid, Heading, Text, Button, ButtonGroup, Box, HStack, useDisclosure, useToast } from '@chakra-ui/react';
-import { t } from "i18next";
-import { CheckCircleIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import api from './../../../axios';
-import { DELETE_VAT, LIST_VAT } from './../../../routes/apiRoutes';
-import { FcCancel } from "react-icons/fc";
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+    Box,
+    useToast,
+    Icon,
+    IconButton,
+    Text,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+} from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
+import api from "../../../axios";
+import TanStackTable from "../../../TanStackTable";
+import PageHeader from "../../ui/PageHeader";
+import TableExportButtons from "../../ui/TableExportButtons";
+import { LIST_VAT, DELETE_VAT } from "../../../routes/apiRoutes";
+import {
+    VAT_ADD_PATH,
+    VAT_EDIT_PATH,
+    DASHBOARD_PATH,
+} from "../../../routes/superAdminRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
 
-const VatList = ({ onOpenCreate, onOpenEdit, vats, onSuccess }) => {
-    const toast = useToast(); 
+export default function VatList({ vats, onSuccess }) {
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize] = useState(15);
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const colors = useThemeColors();
 
-    const deleteLocation = async (id) => {
+    const deleteItem = async (id) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Data will be deleted.",
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete!",
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
         });
 
         if (result.isConfirmed) {
             try {
                 await api.delete(DELETE_VAT(id));
-                onSuccess();
                 toast({
-                    position: "bottom-right",
-                    title: "Data deleted successfully",
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-
+                if (onSuccess) onSuccess();
             } catch (error) {
                 toast({
-                    position: "bottom-right",
-                    title: "Error deleting data",
-                    description: error.response?.data?.message || "Something went wrong.",
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -46,84 +74,120 @@ const VatList = ({ onOpenCreate, onOpenEdit, vats, onSuccess }) => {
         }
     };
 
-    return (
-        <>
-            <SimpleGrid
-                spacing={4}
-                templateColumns="repeat(auto-fill, minmax(250px, 1fr))"
-                mt={5}
-            >
-            {vats.length > 0 ? (
-            vats.map((item, index) => {
-                // Parse use_for safely
-                let useFor = [];
+    const columns = [
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("vat_amount"),
+            accessorKey: "vat_amount",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}%
+                </Text>
+            ),
+        },
+        {
+            header: t("use_for"),
+            accessorKey: "use_for",
+            cell: ({ getValue }) => {
+                const val = getValue();
+                let items = [];
                 try {
-                useFor = JSON.parse(item.use_for || "[]");
-                } catch (e) {}
-
-                const formattedUseFor = useFor.map(v => v.charAt(0).toUpperCase() + v.slice(1));
-
+                    items = typeof val === "string" ? JSON.parse(val) : val || [];
+                } catch { items = []; }
                 return (
-                <Card key={index} mb={4}>
-                    <CardHeader>
-                    <Heading size="md">
-                        {item.vat_amount}% {t('vat')}
-                    </Heading>
-                    </CardHeader>
-
-                    <CardBody>
-                    {/* Use For */}
-                    <HStack spacing={2}>
-                        <CheckCircleIcon color="teal.500" />
-                        <Text>{formattedUseFor.join(", ")}</Text>
-                    </HStack>
-
-                    {/* Tax Included */}
-                    <HStack spacing={2} mt={2}>
-                        {item.item_tax_include === 1 ? (
-                        <>
-                            <CheckCircleIcon color="teal.500" />
-                            <Text>Tax Included</Text>
-                        </>
-                        ) : (
-                        <>
-                            <FcCancel />
-                            <Text>Tax Not Included</Text>
-                        </>
-                        )}
-                    </HStack>
-
-                    {/* Branch */}
-                    <HStack spacing={2} mt={2}>
-                        <CheckCircleIcon color="teal.500" />
-                        <Text>{item.branch?.name || "-"}</Text>
-                    </HStack>
-                    </CardBody>
-
-                    <CardFooter>
-                    <ButtonGroup gap="2">
-                        <Button 
-                        onClick={() => onOpenEdit(item)}
-                        colorScheme="teal">
-                        <EditIcon />
-                        </Button>
-                        <Button colorScheme="red" onClick={() => deleteLocation(item.id)}>
-                        <DeleteIcon />
-                        </Button>
-                    </ButtonGroup>
-                    </CardFooter>
-                </Card>
+                    <Text fontSize="sm" textTransform="capitalize">
+                        {Array.isArray(items) ? items.join(", ") : val || "-"}
+                    </Text>
                 );
-            })
-            ) : (
-            <Text>{t('no_data')}</Text>
-            )}
+            },
+        },
+        {
+            header: t("tax_included"),
+            accessorKey: "item_tax_include",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" color={getValue() == 1 ? "green.500" : "red.500"}>
+                    {getValue() == 1 ? t("tax_included") : t("tax_not_included")}
+                </Text>
+            ),
+        },
+        {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
+            header: t("actions"),
+            cell: ({ row }) => (
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(VAT_EDIT_PATH(row.original.id), { state: { vat: row.original } })}
+                        >
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteItem(row.original.id)}
+                        >
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
+        },
+    ];
 
+    const tableData = Array.isArray(vats) ? vats : [];
+    const totalItems = tableData.length;
+    const startIdx = pageIndex * pageSize;
+    const paginatedData = tableData.slice(startIdx, startIdx + pageSize);
+    const pageCount = Math.ceil(totalItems / pageSize);
 
-            </SimpleGrid>
-            <Button mt={3} colorScheme='teal'variant="outline" size='sm' onClick={onOpenCreate}>{t('add_vat')}</Button>  
-        </>
+    return (
+        <Box
+            bg={colors.bgCard}
+            p={{ base: 4, md: 6 }}
+            borderRadius="xl"
+            boxShadow="card"
+            border="1px solid"
+            borderColor={colors.borderDefault}
+        >
+            <TanStackTable
+                columns={columns}
+                data={paginatedData}
+                globalFilter={globalFilter}
+                setGlobalFilter={setGlobalFilter}
+                pageIndex={pageIndex}
+                pageSize={pageSize}
+                setPageIndex={setPageIndex}
+                pageCount={pageCount}
+                isLoading={false}
+                addURL={VAT_ADD_PATH}
+                totalItems={totalItems}
+            />
+        </Box>
     );
-};
-
-export default VatList;
+}

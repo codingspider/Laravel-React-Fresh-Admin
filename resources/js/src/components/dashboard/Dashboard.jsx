@@ -19,11 +19,11 @@ import {
     VStack,
     Divider,
     Select,
-    useColorModeValue,
     Card,
     CardBody,
     IconButton,
     Tooltip,
+    useColorModeValue,
 } from '@chakra-ui/react';
 import {
     TrendingUp,
@@ -59,6 +59,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import PageHeader from '../ui/PageHeader';
 import StatCard from '../ui/StatCard';
+import useThemeColors from '../../hooks/useThemeColors';
 
 const statsData = [
     { title: 'Total Revenue', value: '$45,231.89', change: '+20.1%', trend: 'up', icon: DollarSign, iconColor: 'green.600', iconBg: 'green.50' },
@@ -109,7 +110,8 @@ const recentActivity = [
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
-    const bg = useColorModeValue('white', 'gray.800');
+    const tooltipColors = useThemeColors();
+    const bg = tooltipColors.bgCard;
     if (!active || !payload?.length) return null;
     return (
         <Box
@@ -118,7 +120,7 @@ const CustomTooltip = ({ active, payload, label }) => {
             borderRadius="lg"
             boxShadow="lg"
             border="1px solid"
-            borderColor="gray.100"
+            borderColor={tooltipColors.borderDefault}
         >
             <Text fontSize="sm" fontWeight="600" mb={1}>{label}</Text>
             {payload.map((entry, i) => (
@@ -133,10 +135,11 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function Dashboard() {
     const [filterStatus, setFilterStatus] = useState('All');
     const { t } = useTranslation();
+    const colors = useThemeColors();
 
-    const bg = useColorModeValue('white', 'gray.800');
-    const borderColor = useColorModeValue('gray.200', 'gray.700');
-    const hoverBg = useColorModeValue('gray.50', 'gray.700');
+    const bg = colors.bgCard;
+    const borderColor = colors.borderDefault;
+    const hoverBg = colors.bgHover;
 
     useEffect(() => {
         const app_name = localStorage.getItem('app_name');
@@ -194,21 +197,21 @@ export default function Dashboard() {
                 >
                     <Flex justify="space-between" align="center" mb={6} wrap="wrap" gap={3}>
                         <Box>
-                            <Heading size="md" fontWeight="bold" color="gray.800" _dark={{ color: 'white' }}>
+                            <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                                 Revenue Overview
                             </Heading>
-                            <Text fontSize="sm" color="gray.500" mt={1}>
+                            <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                 Monthly revenue and profit
                             </Text>
                         </Box>
                         <HStack spacing={2}>
                             <Box display={{ base: 'none', md: 'flex' }} align="center" gap={1.5}>
                                 <Box w={2.5} h={2.5} borderRadius="full" bg="brand.500" />
-                                <Text fontSize="xs" color="gray.500">Revenue</Text>
+                                <Text fontSize="xs" color={colors.textSecondary}>Revenue</Text>
                             </Box>
                             <Box display={{ base: 'none', md: 'flex' }} align="center" gap={1.5}>
                                 <Box w={2.5} h={2.5} borderRadius="full" bg="purple.500" />
-                                <Text fontSize="xs" color="gray.500">Profit</Text>
+                                <Text fontSize="xs" color={colors.textSecondary}>Profit</Text>
                             </Box>
                         </HStack>
                     </Flex>
@@ -244,10 +247,10 @@ export default function Dashboard() {
                     border="1px solid"
                     borderColor={borderColor}
                 >
-                    <Heading size="md" fontWeight="bold" mb={1} color="gray.800" _dark={{ color: 'white' }}>
+                    <Heading size="md" fontWeight="bold" mb={1} color={colors.textHeading}>
                         Order Types
                     </Heading>
-                    <Text fontSize="sm" color="gray.500" mb={6}>
+                    <Text fontSize="sm" color={colors.textSecondary} mb={6}>
                         Distribution by order type
                     </Text>
                     <Box h={{ base: '180px', md: '200px' }} mb={6}>
@@ -277,7 +280,7 @@ export default function Dashboard() {
                                     <Box w={3} h={3} borderRadius="full" bg={COLORS[index]} />
                                     <Text fontSize="sm" fontWeight="500">{entry.name}</Text>
                                 </HStack>
-                                <Text fontSize="sm" fontWeight="bold" color="gray.700" _dark={{ color: 'gray.300' }}>
+                                <Text fontSize="sm" fontWeight="bold" color={colors.textLabel}>
                                     {entry.value}
                                 </Text>
                             </Flex>
@@ -302,10 +305,10 @@ export default function Dashboard() {
                 >
                     <Flex justify="space-between" align="center" mb={6}>
                         <Box>
-                            <Heading size="md" fontWeight="bold" color="gray.800" _dark={{ color: 'white' }}>
+                            <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                                 Sales This Week
                             </Heading>
-                            <Text fontSize="sm" color="gray.500" mt={1}>
+                            <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                 Daily breakdown
                             </Text>
                         </Box>
@@ -342,7 +345,7 @@ export default function Dashboard() {
                     borderColor={borderColor}
                 >
                     <Flex justify="space-between" align="center" mb={6}>
-                        <Heading size="md" fontWeight="bold" color="gray.800" _dark={{ color: 'white' }}>
+                        <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                             Recent Activity
                         </Heading>
                         <Button variant="secondary" size="sm">
@@ -371,7 +374,7 @@ export default function Dashboard() {
                                     <Text fontSize="sm" fontWeight="500" noOfLines={1}>
                                         {item.text}
                                     </Text>
-                                    <Text fontSize="xs" color="gray.500" mt={0.5}>
+                                    <Text fontSize="xs" color={colors.textSecondary} mt={0.5}>
                                         {item.time}
                                     </Text>
                                 </Box>
@@ -398,10 +401,10 @@ export default function Dashboard() {
                     gap={3}
                 >
                     <Box>
-                        <Heading size="md" fontWeight="bold" color="gray.800" _dark={{ color: 'white' }}>
+                        <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                             Recent Orders
                         </Heading>
-                        <Text fontSize="sm" color="gray.500" mt={1}>
+                        <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                             Latest transactions
                         </Text>
                     </Box>
@@ -441,7 +444,7 @@ export default function Dashboard() {
                                         key={key}
                                         fontSize="xs"
                                         fontWeight="600"
-                                        color="gray.500"
+                                        color={colors.textSecondary}
                                         borderColor={borderColor}
                                         py={3}
                                     >
@@ -469,7 +472,7 @@ export default function Dashboard() {
                                                 <Text fontSize="sm" fontWeight="500" noOfLines={1}>
                                                     {row.customer}
                                                 </Text>
-                                                <Text fontSize="xs" color="gray.500" noOfLines={1}>
+                                                <Text fontSize="xs" color={colors.textSecondary} noOfLines={1}>
                                                     {row.email}
                                                 </Text>
                                             </Box>
@@ -487,7 +490,7 @@ export default function Dashboard() {
                                             {row.status}
                                         </Badge>
                                     </Td>
-                                    <Td fontSize="sm" color="gray.500" borderColor={borderColor} py={3}>
+                                    <Td fontSize="sm" color={colors.textSecondary} borderColor={borderColor} py={3}>
                                         {row.date}
                                     </Td>
                                     <Td fontWeight="600" fontSize="sm" borderColor={borderColor} py={3}>
@@ -509,7 +512,7 @@ export default function Dashboard() {
                     direction={{ base: 'column', md: 'row' }}
                     gap={3}
                 >
-                    <Text fontSize="sm" color="gray.500">
+                    <Text fontSize="sm" color={colors.textSecondary}>
                         Showing 1-5 of 124 results
                     </Text>
                     <HStack spacing={1}>

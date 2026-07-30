@@ -1,182 +1,308 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
-import { useNavigate, Link as ReactRouterLink } from "react-router-dom";
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Badge, Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Card, CardBody,
-  Text, useToast, HStack, VStack, Image, useColorModeValue,
+    Box,
+    useToast,
+    Icon,
+    IconButton,
+    Text,
+    Image,
+    Badge,
+    Flex,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Select,
 } from "@chakra-ui/react";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
 import { useTranslation } from "react-i18next";
+import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
-import TanStackTable from "../../../TanStackTable";
 import api from "../../../axios";
-import { DELETE_INVENTORY_ITEM, LIST_INVENTORY_ITEM } from "../../../routes/apiRoutes";
-import { DASHBOARD_PATH, INVENTORY_ITEM_ADD_PATH, INVENTORY_ITEM_EDIT_PATH } from "../../../routes/superAdminRoutes";
+import TanStackTable from "../../../TanStackTable";
+import PageHeader from "../../ui/PageHeader";
+import TableExportButtons from "../../ui/TableExportButtons";
+import { LIST_INVENTORY_ITEM, DELETE_INVENTORY_ITEM } from "../../../routes/apiRoutes";
+import {
+    INVENTORY_ITEM_ADD_PATH,
+    INVENTORY_ITEM_EDIT_PATH,
+    DASHBOARD_PATH,
+} from "../../../routes/superAdminRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
 
 export default function InventoryItemList() {
-  const [data, setData] = useState([]);
-  const [pageIndex, setPageIndex] = useState(0);
-  const pageSize = 10;
-  const [pageCount, setPageCount] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
-  const [totalItems, setTotalItems] = useState(0);
-  const { t } = useTranslation();
-  const { formatAmount } = useCurrencyFormatter();
-  const navigate = useNavigate();
-  const toast = useToast();
-  const borderColor = useColorModeValue("gray.200", "gray.700");
-  const mountedRef = useRef(true);
+    const [data, setData] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize] = useState(15);
+    const [pageCount, setPageCount] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
+    const [statusFilter, setStatusFilter] = useState("");
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const colors = useThemeColors();
+    const { formatAmount } = useCurrencyFormatter();
 
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => { mountedRef.current = false; };
-  }, []);
+    const fetchData = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const res = await api.get(LIST_INVENTORY_ITEM, {
+                params: {
+                    page: pageIndex + 1,
+                    per_page: pageSize,
+                    search: globalFilter || "",
+                    status: statusFilter || "",
+                },
+            });
+            const items = res.data?.data || [];
+            const total = res.data?.meta?.total || items.length;
+            setData(items);
+            setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
+        } catch (err) {
+            console.error("fetchData error:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [pageIndex, globalFilter, pageSize, statusFilter]);
 
-  const fetchItems = useCallback(async (search = "") => {
-    if (!mountedRef.current) return;
-    try {
-      setIsLoading(true);
-      const res = await api.get(LIST_INVENTORY_ITEM, {
-        params: { page: pageIndex + 1, per_page: pageSize, search },
-      });
-      if (!mountedRef.current) return;
-      const items = res.data?.data?.data || [];
-      const total = res.data?.data?.total || items.length;
-      setData(items);
-      setPageCount(Math.ceil(total / pageSize));
-      setTotalItems(total);
-    } catch {
-      if (mountedRef.current) {
-        toast({ title: t("error_loading_inventory"), status: "error", duration: 3000, isClosable: true });
-      }
-    } finally {
-      if (mountedRef.current) setIsLoading(false);
-    }
-  }, [pageIndex]);
+    useEffect(() => {
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Inventory Item Management`;
+        fetchData();
+    }, [fetchData]);
 
-  useEffect(() => { fetchItems(); }, [fetchItems]);
+    const deleteItem = async (id) => {
+        const result = await Swal.fire({
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
+        });
 
-  const deleteItem = async (id) => {
-    const result = await Swal.fire({
-      title: t("are_you_sure"),
-      text: t("inventory_item_will_be_deleted"),
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: t("confirm_delete"),
-    });
-    if (!result.isConfirmed) return;
-    try {
-      await api.delete(DELETE_INVENTORY_ITEM(id));
-      toast({ title: t("inventory_item_deleted"), status: "success", duration: 3000, isClosable: true });
-      fetchItems();
-    } catch {
-      toast({ title: t("error_deleting_inventory"), status: "error", duration: 3000, isClosable: true });
-    }
-  };
+        if (result.isConfirmed) {
+            try {
+                await api.delete(DELETE_INVENTORY_ITEM(id));
+                toast({
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                fetchData();
+            } catch (error) {
+                toast({
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        }
+    };
 
-  const columns = useMemo(() => [
-    { header: t("sl_no"), cell: ({ row }) => row.index + 1 },
-    {
-      header: t("image"),
-      accessorKey: "image",
-      cell: ({ row }) => (
-        <Box boxSize="44px" borderRadius="md" overflow="hidden" bg="gray.100">
-          {row.original.image_url ? (
-            <Image src={row.original.image_url} alt={row.original.name} boxSize="44px" objectFit="cover" />
-          ) : null}
+    const columns = [
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("image"),
+            accessorKey: "image_url",
+            cell: ({ getValue }) => {
+                const img = getValue();
+                return img ? (
+                    <Image src={img} alt="" boxSize="40px" borderRadius="md" objectFit="cover" />
+                ) : (
+                    <Text fontSize="sm" color="gray.400">-</Text>
+                );
+            },
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("sku"),
+            accessorKey: "sku",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontFamily="mono">
+                    {getValue() || "-"}
+                </Text>
+            ),
+        },
+        {
+            header: t("unit"),
+            accessorKey: "unit",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("category"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.category?.name || "-"}</Text>
+            ),
+        },
+        {
+            header: t("supplier"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.supplier?.name || "-"}</Text>
+            ),
+        },
+        {
+            header: t("quantity"),
+            cell: ({ row }) => {
+                const qty = row.original.quantity;
+                const reorder = row.original.reorder_level;
+                const isLow = reorder > 0 && qty <= reorder;
+                return (
+                    <Flex align="center" gap={2}>
+                        <Text fontSize="sm">{qty} {row.original.unit || ""}</Text>
+                        {isLow && (
+                            <Badge colorScheme="red" variant="subtle" fontSize="xs" borderRadius="full">
+                                {t("low_stock")}
+                            </Badge>
+                        )}
+                    </Flex>
+                );
+            },
+        },
+        {
+            header: t("cost_price"),
+            accessorKey: "cost_price",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{formatAmount(getValue())}</Text>
+            ),
+        },
+        {
+            header: t("status"),
+            accessorKey: "is_active",
+            cell: ({ getValue }) => {
+                const active = getValue();
+                return (
+                    <Badge
+                        colorScheme={active ? "green" : "red"}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="xs"
+                        fontWeight="600"
+                    >
+                        {active ? t("active") : t("inactive")}
+                    </Badge>
+                );
+            },
+        },
+        {
+            header: t("actions"),
+            cell: ({ row }) => (
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(INVENTORY_ITEM_EDIT_PATH(row.original.id), { state: { item: row.original } })}
+                        >
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteItem(row.original.id)}
+                        >
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
+        },
+    ];
+
+    return (
+        <Box>
+            <PageHeader
+                title={t("inventory_item_management")}
+                subtitle={t("manage_all_inventory_items")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: DASHBOARD_PATH },
+                    { label: t("inventory_items"), isCurrent: true },
+                ]}
+                action={INVENTORY_ITEM_ADD_PATH}
+                actionLabel={t("add_inventory_item")}
+            >
+                <TableExportButtons data={data} columns={columns} filename="inventory-items" />
+            </PageHeader>
+
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={INVENTORY_ITEM_ADD_PATH}
+                    totalItems={totalItems}
+                >
+                    <Select
+                        maxW="160px"
+                        size="md"
+                        value={statusFilter}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                        placeholder={t("all_status")}
+                        borderRadius="lg"
+                    >
+                        <option value="1">{t("active")}</option>
+                        <option value="0">{t("inactive")}</option>
+                    </Select>
+                </TanStackTable>
+            </Box>
         </Box>
-      ),
-    },
-    { header: t("name"), accessorKey: "name" },
-    { header: t("sku"), accessorKey: "sku" },
-    { header: t("unit"), accessorKey: "unit" },
-    {
-      header: t("category"),
-      cell: ({ row }) => row.original.category?.name || "-",
-    },
-    {
-      header: t("supplier"),
-      cell: ({ row }) => row.original.supplier?.name || "-",
-    },
-    {
-      header: t("quantity"),
-      accessorKey: "quantity",
-      cell: ({ row }) => {
-        const qty = parseFloat(row.original.quantity || 0);
-        const reorder = parseFloat(row.original.reorder_level || 0);
-        const isLow = qty <= reorder && reorder > 0;
-        return (
-          <Badge colorScheme={isLow ? "red" : "green"}>
-            {qty} {row.original.unit}
-          </Badge>
-        );
-      },
-    },
-    { header: t("cost_price"), accessorKey: "cost_price", cell: ({ row }) => formatAmount(parseFloat(row.original.cost_price || 0)) },
-    {
-      header: t("status"),
-      cell: ({ row }) => (
-        <Badge colorScheme={row.original.is_active ? "green" : "red"}>
-          {row.original.is_active ? t("active") : t("inactive")}
-        </Badge>
-      ),
-    },
-    {
-      header: t("actions"),
-      cell: ({ row }) => (
-        <HStack spacing={1}>
-          <Box
-            as="button" p={2} borderRadius="md" border="1px solid" borderColor={borderColor}
-            cursor="pointer" onClick={() => navigate(INVENTORY_ITEM_EDIT_PATH(row.original.id))}
-            _hover={{ bg: "gray.100", _dark: { bg: "gray.600" } }}
-          >
-            <EditIcon boxSize={4} />
-          </Box>
-          <Box
-            as="button" p={2} borderRadius="md" border="1px solid" borderColor={borderColor}
-            cursor="pointer" onClick={() => deleteItem(row.original.id)}
-            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
-          >
-            <DeleteIcon color="red.500" boxSize={4} />
-          </Box>
-        </HStack>
-      ),
-    },
-  ], [t, borderColor, navigate, toast]);
-
-  return (
-    <Box>
-      <Card mb={5}>
-        <CardBody>
-          <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-            <BreadcrumbItem>
-              <BreadcrumbLink as={ReactRouterLink} to={DASHBOARD_PATH}>{t("dashboard")}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem isCurrentPage>
-              <BreadcrumbLink>{t("all_inventory_items")}</BreadcrumbLink>
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </CardBody>
-      </Card>
-
-      <Card>
-        <CardBody>
-          <TanStackTable
-            columns={columns}
-            data={data}
-            pageIndex={pageIndex}
-            pageSize={pageSize}
-            setPageIndex={setPageIndex}
-            pageCount={pageCount}
-            isLoading={isLoading}
-            addURL={INVENTORY_ITEM_ADD_PATH}
-            totalItems={totalItems}
-            searchPlaceholder={`${t("search")}...`}
-          />
-        </CardBody>
-      </Card>
-    </Box>
-  );
+    );
 }

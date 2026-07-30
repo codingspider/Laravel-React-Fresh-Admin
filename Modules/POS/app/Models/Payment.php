@@ -17,9 +17,11 @@ class Payment extends Model
         'branch_id',
         'user_id',
         'payment_method',
+        'type',
         'reference_number',
         'amount',
         'notes',
+        'refund_reason',
     ];
 
     protected $casts = [

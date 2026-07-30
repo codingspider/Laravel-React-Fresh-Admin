@@ -3,12 +3,16 @@
 namespace Modules\Restaurant\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Modules\Restaurant\Http\Requests\StoreRestaurantRequest;
 use Modules\Restaurant\Http\Requests\UpdateRestaurantRequest;
 use Modules\Restaurant\Resources\RestaurantResource;
 use Modules\Restaurant\Services\RestaurantService;
+use Spatie\Permission\Models\Role;
 
 class RestaurantController extends Controller
 {
@@ -48,13 +52,43 @@ class RestaurantController extends Controller
         $data = $request->validated();
         $data['owner_id'] = $request->user()->id;
 
-        $restaurant = $this->service->create($data);
+        $createOwner = $data['create_owner'] ?? false;
 
-        return response()->json([
-            'status' => 'success',
-            'message' => trans($this->langKey . '.created'),
-            'data' => new RestaurantResource($restaurant),
-        ], 201);
+        DB::beginTransaction();
+
+        try {
+            $restaurant = $this->service->create($data);
+
+            if ($createOwner) {
+                $ownerUser = User::create([
+                    'name'          => $data['owner_name'],
+                    'email'         => $data['owner_email'],
+                    'password'      => Hash::make($data['owner_password']),
+                    'restaurant_id' => $restaurant->id,
+                ]);
+
+                $ownerRole = Role::where('name', 'restaurant_owner')->where('guard_name', 'web')->first();
+                if ($ownerRole) {
+                    $ownerUser->assignRole($ownerRole);
+                }
+
+                $restaurant->update(['owner_id' => $ownerUser->id]);
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => trans($this->langKey . '.created'),
+                'data' => new RestaurantResource($restaurant->fresh()),
+            ], 201);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => trans($this->langKey . '.creation_failed'),
+            ], 500);
+        }
     }
 
     public function show($id): JsonResponse

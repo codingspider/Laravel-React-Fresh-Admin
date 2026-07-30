@@ -1,44 +1,46 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Card,
-    CardBody,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    SimpleGrid,
-    Td,
     Box,
     useToast,
-    Image
+    Icon,
+    IconButton,
+    Text,
+    Image,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
 } from "@chakra-ui/react";
-import { Link as ChakraLink } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
-import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
+import {
+    CATEGORY_ADD_PATH,
+    CATEGORY_EDIT,
+    DASHBOARD_PATH,
+} from "../../../routes/superAdminRoutes";
 import TanStackTable from "../../../TanStackTable";
-import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
-import { DELETE_CATEGORY, LIST_CATEGORY } from "../../../routes/apiRoutes";
-import { CATEGORY_ADD_PATH, CATEGORY_EDIT, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
-
+import PageHeader from "../../ui/PageHeader";
+import { LIST_CATEGORY, DELETE_CATEGORY } from "../../../routes/apiRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 export default function CategoryList() {
-    const [globalFilter, setGlobalFilter] = useState("");
     const [data, setData] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 10;
+    const [pageSize] = useState(10);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
-    const { formatAmount, currency } = useCurrencyFormatter();
+    const colors = useThemeColors();
 
-    // Fetch data whenever page or search changes
-    const fetchCategories = async () => {
+    const fetchCategories = useCallback(async () => {
         try {
             setIsLoading(true);
             const res = await api.get(LIST_CATEGORY, {
@@ -49,24 +51,24 @@ export default function CategoryList() {
                 },
             });
 
-            const bottles = res.data?.data?.data || [];
-            const total = res.data?.data?.total || bottles.length;
+            const items = res.data?.data?.data || res.data?.data || [];
+            const total = res.data?.meta?.total || res.data?.data?.total || items.length;
 
-            // Update table
-            setData(bottles);
+            setData(items);
             setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
         } catch (err) {
             console.error("fetchCategories error:", err);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [pageIndex, globalFilter, pageSize]);
 
     useEffect(() => {
-        const app_name = localStorage.getItem('app_name');
+        const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Category Management`;
         fetchCategories();
-    }, [pageIndex, globalFilter]);
+    }, [fetchCategories]);
 
     const deleteCategory = async (id) => {
         const result = await Swal.fire({
@@ -74,29 +76,30 @@ export default function CategoryList() {
             text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
             confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
         });
 
         if (result.isConfirmed) {
             try {
                 await api.delete(DELETE_CATEGORY(id));
                 toast({
-                    position: "bottom-right",
+                    position: "top-right",
                     title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-
                 fetchCategories();
             } catch (error) {
                 toast({
-                    position: "bottom-right",
+                    position: "top-right",
                     title: t("error_deleting_data"),
-                    description:
-                        error.response?.data?.message || t("something_went_wrong"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -106,13 +109,20 @@ export default function CategoryList() {
     };
 
     const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1 },
         {
-            header: t('image'),
-            accessorKey: 'image',
+            header: "#",
             cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("image"),
+            accessorKey: "image",
+            cell: ({ getValue }) => (
                 <Image
-                    src={row.original.image}
+                    src={getValue()}
                     alt="category"
                     boxSize="30px"
                     objectFit="cover"
@@ -120,83 +130,96 @@ export default function CategoryList() {
                 />
             ),
         },
-        { header: t('name'), accessorKey: "name" },
-        { header: t('description'), accessorKey: "description" },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("description"),
+            accessorKey: "description",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" noOfLines={1} maxW="200px">
+                    {getValue() || "-"}
+                </Text>
+            ),
+        },
         {
             header: t("actions"),
             cell: ({ row }) => (
-                <>
-                    <Box display="flex" gap={2}>
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
-                            onClick={() =>
-                                navigate(CATEGORY_EDIT.replace(":id", row.original.id))
-                            }
+                            fontSize="sm"
+                            onClick={() => navigate(CATEGORY_EDIT.replace(":id", row.original.id))}
                         >
-                            <EditIcon />
-                        </ChakraLink>
-
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
                             borderRadius="md"
-                            cursor="pointer"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
                             onClick={() => deleteCategory(row.original.id)}
                         >
-                            <DeleteIcon color="red.500" />
-                        </ChakraLink>
-                    </Box>
-                </>
-            ), enableColumnFilter: false,
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
         },
     ];
 
     return (
-        <Box className="form-dark-surface">
-            {/* Breadcrumb */}
-            <Card mb={5}>
-                <CardBody>
-                    <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={DASHBOARD_PATH}
-                            >
-                                {t("dashboard")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={CATEGORY_ADD_PATH}
-                            >
-                                {t("add")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </CardBody>
-            </Card>
+        <Box>
+            <PageHeader
+                title={t("category_management")}
+                subtitle={t("manage_categories")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: DASHBOARD_PATH },
+                    { label: t("categories"), isCurrent: true },
+                ]}
+                action={CATEGORY_ADD_PATH}
+                actionLabel={t("add_category")}
+            />
 
-            <SimpleGrid columns={{ base: 1, md: 1 }} mt={5}>
-                <Card>
-                    <CardBody>
-                        <TanStackTable
-                            columns={columns}
-                            data={data}
-                            globalFilter={globalFilter}
-                            setGlobalFilter={setGlobalFilter}
-                            pageIndex={pageIndex}
-                            pageSize={pageSize}
-                            setPageIndex={setPageIndex}
-                            pageCount={pageCount}
-                            isLoading={isLoading}
-                            addURL={CATEGORY_ADD_PATH}
-                        />
-                    </CardBody>
-                </Card>
-            </SimpleGrid>
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={CATEGORY_ADD_PATH}
+                    totalItems={totalItems}
+                />
+            </Box>
         </Box>
     );
 }

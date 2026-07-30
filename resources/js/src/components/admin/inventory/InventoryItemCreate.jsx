@@ -10,7 +10,7 @@ import api from "../../../axios";
 import {
   STORE_INVENTORY_ITEM, LIST_BRANCH, LIST_INVENTORY_CATEGORY, LIST_SUPPLIER, LIST_UNIT,
 } from "../../../routes/apiRoutes";
-import { DASHBOARD_PATH, INVENTORY_ITEM_LIST_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import InventoryItemForm from "./InventoryItemForm";
 
 export default function InventoryItemCreate() {
@@ -76,7 +76,7 @@ export default function InventoryItemCreate() {
         headers: { "Content-Type": "multipart/form-data" },
       });
       toast({ title: res.data.message || t("inventory_item_created"), status: "success", duration: 3000, isClosable: true });
-      navigate(INVENTORY_ITEM_LIST_PATH);
+      navigate("/inventory/list");
     } catch (err) {
       const msg = err?.response?.data?.data
         ? Object.values(err.response.data.data).flat().join(" ")
@@ -96,7 +96,7 @@ export default function InventoryItemCreate() {
               <BreadcrumbLink as={ReactRouterLink} to={DASHBOARD_PATH}>{t("dashboard")}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem>
-              <BreadcrumbLink as={ReactRouterLink} to={INVENTORY_ITEM_LIST_PATH}>{t("all_inventory_items")}</BreadcrumbLink>
+              <BreadcrumbLink as={ReactRouterLink} to="/inventory/list">{t("all_inventory_items")}</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbItem isCurrentPage>
               <BreadcrumbLink>{t("add_inventory_item")}</BreadcrumbLink>
@@ -117,7 +117,7 @@ export default function InventoryItemCreate() {
           units={units}
           isSubmitting={isSubmitting}
           submitLabel={t("create")}
-          cancelPath={INVENTORY_ITEM_LIST_PATH}
+          cancelPath="/inventory/list"
           LinkComponent={ReactRouterLink}
         />
       )}

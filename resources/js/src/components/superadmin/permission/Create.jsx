@@ -1,15 +1,11 @@
 import {
     Box,
     Button,
-    Card,
-    CardHeader,
-    CardBody,
     Heading,
     SimpleGrid,
     FormControl,
     FormLabel,
     Input,
-    HStack,
     useToast,
     Flex,
     Text,
@@ -18,19 +14,20 @@ import {
     Divider,
     Stack,
     Spinner,
-    useColorModeValue,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { DASHBOARD_PATH, ROLE_LIST_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { STORE_ROLE } from "../../../routes/apiRoutes";
 import PageHeader from "../../ui/PageHeader";
 import FormCard from "../../ui/FormCard";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 const PERMISSIONS_ENDPOINT = "/api/permissions";
+const LIST_PATH = "/role/list";
 
 const Create = () => {
     const { register, handleSubmit, reset } = useForm();
@@ -39,15 +36,7 @@ const Create = () => {
     const [isLoadingPermissions, setIsLoadingPermissions] = useState(true);
     const toast = useToast();
     const navigate = useNavigate();
-    const pageBg = useColorModeValue("gray.50", "gray.900");
-    const cardBg = useColorModeValue("white", "gray.800");
-    const fieldBg = useColorModeValue("gray.50", "gray.900");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const subtleBorderColor = useColorModeValue("gray.100", "gray.700");
-    const headingColor = useColorModeValue("gray.800", "gray.100");
-    const textColor = useColorModeValue("gray.700", "gray.100");
-    const mutedTextColor = useColorModeValue("gray.500", "gray.300");
-    const permissionHoverBorder = useColorModeValue("teal.200", "teal.500");
+    const colors = useThemeColors();
 
     const [permissionsList, setPermissionsList] = useState([]);
     const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -138,19 +127,19 @@ const Create = () => {
             reset();
             setSelectedPermissions([]);
             toast({
-                position: "bottom-right",
+                position: "top-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
                 isClosable: true,
             });
-            navigate(ROLE_LIST_PATH);
+            navigate(LIST_PATH);
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
-                    position: "bottom-right",
+                    position: "top-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -159,7 +148,7 @@ const Create = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
+                    position: "top-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",
@@ -179,7 +168,7 @@ const Create = () => {
                 subtitle={t("create_new_role")}
                 breadcrumbs={[
                     { label: t("dashboard"), path: DASHBOARD_PATH },
-                    { label: t("roles"), path: ROLE_LIST_PATH },
+                    { label: t("roles"), path: LIST_PATH },
                     { label: t("add"), isCurrent: true },
                 ]}
             />
@@ -187,13 +176,14 @@ const Create = () => {
             <FormCard
                 title={t("role_details")}
                 subtitle={t("define_role_name_and_permissions")}
-                backUrl={ROLE_LIST_PATH}
+                backUrl={LIST_PATH}
                 onSubmit={handleSubmit(onSubmit)}
+                maxWidth="full"
                 footer={
                     <>
                         <Button
                             as={ReactRouterLink}
-                            to={ROLE_LIST_PATH}
+                            to={LIST_PATH}
                             variant="outline"
                             colorScheme="gray"
                         >
@@ -212,20 +202,28 @@ const Create = () => {
             >
                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
                     <FormControl isRequired>
-                        <FormLabel>{t("role_name")}</FormLabel>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("role_name")}</FormLabel>
                         <Input
                             {...register("name", { required: true })}
                             placeholder={t("role_name_placeholder")}
+                            bg={colors.bgInput}
+                            border="1px solid"
+                            borderColor={colors.borderInput}
+                            borderRadius="md"
+                            focusBorderColor="teal.500"
+                            _hover={{ borderColor: "gray.300" }}
+                            size="md"
+                            transition="all 0.2s"
                         />
                     </FormControl>
 
                     <Box>
-                        <FormLabel>{t("selection_summary")}</FormLabel>
+                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("selection_summary")}</FormLabel>
                         <Flex
                             align="center"
-                            bg={fieldBg}
+                            bg={colors.bgInput}
                             border="1px solid"
-                            borderColor={borderColor}
+                            borderColor={colors.borderInput}
                             borderRadius="md"
                             h="42px"
                             px={4}
@@ -239,7 +237,7 @@ const Create = () => {
                     </Box>
                 </SimpleGrid>
 
-                <Divider my={6} borderColor={subtleBorderColor} />
+                <Divider my={6} borderColor={colors.borderSubtle} />
 
                 <Box mb={8}>
                     <Flex justify="space-between" align="center" mb={4}>
@@ -263,10 +261,10 @@ const Create = () => {
                                         key={index}
                                         p={5}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderDefault}
                                         borderRadius="lg"
-                                        bg={cardBg}
-                                        _hover={{ borderColor: permissionHoverBorder, boxShadow: "sm" }}
+                                        bg={colors.bgCard}
+                                        _hover={{ borderColor: "teal.200", boxShadow: "sm" }}
                                         transition="all 0.2s"
                                     >
                                         <Flex
@@ -275,7 +273,7 @@ const Create = () => {
                                             mb={4}
                                             pb={2}
                                             borderBottom="1px dashed"
-                                            borderColor={subtleBorderColor}
+                                            borderColor={colors.borderSubtle}
                                         >
                                             <Text fontWeight="bold" fontSize="md">
                                                 {group.module}

@@ -7,6 +7,7 @@ return [
     'bulk_updated' => '{count} restaurants updated successfully.',
     'confirm_delete' => 'Are you sure you want to delete this restaurant?',
     'created' => 'Restaurant created successfully.',
+    'creation_failed' => 'Failed to create restaurant. Please try again.',
     'deactivated' => 'Restaurant deactivated successfully.',
     'deleted' => 'Restaurant deleted successfully.',
     'deleted_permanently' => 'Restaurant deleted permanently.',

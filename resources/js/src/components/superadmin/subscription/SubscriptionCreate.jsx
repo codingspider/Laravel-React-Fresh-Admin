@@ -10,7 +10,6 @@ import {
     Select,
     Textarea,
     Text,
-    useColorModeValue,
     Spinner,
     Card,
     CardHeader,
@@ -26,7 +25,6 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import api from "../../../axios";
 import {
-    SUBSCRIPTION_LIST_PATH,
     DASHBOARD_PATH,
 } from "../../../routes/superAdminRoutes";
 import {
@@ -34,7 +32,10 @@ import {
     LIST_RESTAURANT,
     LIST_PLAN,
 } from "../../../routes/apiRoutes";
+
+const LIST_PATH = "/subscription/list";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 const SubscriptionCreate = () => {
     const { register, handleSubmit, reset, watch, setValue } = useForm({
@@ -51,16 +52,16 @@ const SubscriptionCreate = () => {
     const [isLoadingData, setIsLoadingData] = useState(true);
     const toast = useToast();
     const { formatAmount } = useCurrencyFormatter();
+    const colors = useThemeColors();
 
-    const pageBg = useColorModeValue("gray.50", "gray.900");
-    const cardBg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-    const headingColor = useColorModeValue("gray.800", "gray.100");
-    const textColor = useColorModeValue("gray.500", "gray.400");
-    const labelColor = useColorModeValue("gray.700", "gray.300");
-    const fieldBg = useColorModeValue("gray.50", "gray.700");
-    const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+    const cardBg = colors.bgCard;
+    const borderColor = colors.borderInput;
+    const headerBorderColor = colors.borderSubtle;
+    const headingColor = colors.textPrimary;
+    const textColor = colors.textSecondary;
+    const labelColor = colors.textLabel;
+    const fieldBg = colors.bgInput;
+    const fieldHoverBorder = "gray.300";
 
     const selectedPlanId = watch("plan_id");
     const startsAt = watch("starts_at");
@@ -129,7 +130,7 @@ const SubscriptionCreate = () => {
                 duration: 3000,
                 isClosable: true,
             });
-            window.location.href = SUBSCRIPTION_LIST_PATH;
+            window.location.href = LIST_PATH;
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
@@ -171,7 +172,7 @@ const SubscriptionCreate = () => {
     }
 
     return (
-        <Box bg={pageBg} minH="100vh" py={3}>
+        <Box py={3}>
             <Box mx="auto">
                 <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
@@ -180,7 +181,7 @@ const SubscriptionCreate = () => {
                                 <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem>
-                                <BreadcrumbLink as={ReactRouterLink} to={SUBSCRIPTION_LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("subscriptions")}</BreadcrumbLink>
+                                <BreadcrumbLink as={ReactRouterLink} to={LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("subscriptions")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
                                 <BreadcrumbLink color={headingColor} fontWeight="bold">{t("add")}</BreadcrumbLink>
@@ -196,7 +197,7 @@ const SubscriptionCreate = () => {
                                 <Heading size="sm" color={headingColor} fontWeight="bold">{t("add_subscription")}</Heading>
                                 <Text fontSize="sm" color={textColor} mt={1}>{t("create_new_subscription")}</Text>
                             </Box>
-                            <Button colorScheme="teal" as={ReactRouterLink} to={SUBSCRIPTION_LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("subscriptions")}</Button>
+                            <Button colorScheme="teal" as={ReactRouterLink} to={LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("subscriptions")}</Button>
                         </Flex>
                     </CardHeader>
 
@@ -422,7 +423,7 @@ const SubscriptionCreate = () => {
                             </SimpleGrid>
 
                             <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
-                                <Button type="button" as={ReactRouterLink} to={SUBSCRIPTION_LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: pageBg }}>{t("cancel")}</Button>
+                                <Button type="button" as={ReactRouterLink} to={LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>{t("cancel")}</Button>
                                 <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">{t("save")}</Button>
                             </Flex>
                         </form>

@@ -4,16 +4,15 @@ import {
     Box,
     useToast,
     Icon,
-    HStack,
     IconButton,
     Text,
-    Flex,
     Badge,
+    HStack,
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
-    useColorModeValue,
+    Select,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
@@ -30,21 +29,25 @@ import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import { LIST_PLAN, DELETE_PLAN } from "../../../routes/apiRoutes";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
+import useThemeColors from "../../../hooks/useThemeColors";
+import TableExportButtons from "../../ui/TableExportButtons";
 
 export default function PlanList() {
     const [data, setData] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize] = useState(10);
+    const [pageSize] = useState(15);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
+    const [statusFilter, setStatusFilter] = useState("");
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
+    const colors = useThemeColors();
     const { formatAmount } = useCurrencyFormatter();
 
-    const fetchPlans = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
             const res = await api.get(LIST_PLAN, {
@@ -52,6 +55,7 @@ export default function PlanList() {
                     page: pageIndex + 1,
                     per_page: pageSize,
                     search: globalFilter || "",
+                    status: statusFilter || "",
                 },
             });
 
@@ -62,27 +66,27 @@ export default function PlanList() {
             setPageCount(Math.ceil(total / pageSize));
             setTotalItems(total);
         } catch (err) {
-            console.error("fetchPlans error:", err);
+            console.error("fetchData error:", err);
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize]);
+    }, [pageIndex, globalFilter, pageSize, statusFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Plans`;
-        fetchPlans();
-    }, [fetchPlans]);
+        fetchData();
+    }, [fetchData]);
 
-    const deletePlan = async (id) => {
+    const deleteItem = async (id) => {
         const result = await Swal.fire({
-            title: t("delete_plan"),
-            text: t("action_cannot_be_undone"),
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#0d9488",
             cancelButtonColor: "#6b7280",
-            confirmButtonText: t("yes_delete_it"),
+            confirmButtonText: t("yes_delete"),
             cancelButtonText: t("cancel"),
             reverseButtons: true,
             customClass: { popup: "swal-popup" },
@@ -93,16 +97,16 @@ export default function PlanList() {
                 await api.delete(DELETE_PLAN(id));
                 toast({
                     position: "top-right",
-                    title: t("plan_deleted_successfully"),
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-                fetchPlans();
+                fetchData();
             } catch (error) {
                 toast({
                     position: "top-right",
-                    title: t("error_deleting_plan"),
+                    title: t("error_deleting_data"),
                     description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
@@ -246,7 +250,7 @@ export default function PlanList() {
                             fontSize="sm"
                             color="red.500"
                             _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
-                            onClick={() => deletePlan(row.original.id)}
+                            onClick={() => deleteItem(row.original.id)}
                         >
                             {t("delete")}
                         </MenuItem>
@@ -267,15 +271,17 @@ export default function PlanList() {
                 ]}
                 action={PLAN_ADD_PATH}
                 actionLabel={t("add_plan")}
-            />
+            >
+                <TableExportButtons data={data} columns={columns} filename="plans" />
+            </PageHeader>
 
             <Box
-                bg={useColorModeValue("white", "gray.800")}
+                bg={colors.bgCard}
                 p={{ base: 4, md: 6 }}
                 borderRadius="xl"
                 boxShadow="card"
                 border="1px solid"
-                borderColor={useColorModeValue("gray.200", "gray.700")}
+                borderColor={colors.borderDefault}
             >
                 <TanStackTable
                     columns={columns}
@@ -289,7 +295,19 @@ export default function PlanList() {
                     isLoading={isLoading}
                     addURL={PLAN_ADD_PATH}
                     totalItems={totalItems}
-                />
+                >
+                    <Select
+                        maxW="160px"
+                        size="md"
+                        value={statusFilter}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                        placeholder={t("all_status")}
+                        borderRadius="lg"
+                    >
+                        <option value="active">{t("active")}</option>
+                        <option value="inactive">{t("inactive")}</option>
+                    </Select>
+                </TanStackTable>
             </Box>
         </Box>
     );

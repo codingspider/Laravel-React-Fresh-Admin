@@ -29,8 +29,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { FiPlus, FiTrash2 } from "react-icons/fi";
 import api from "../../axios";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const ModifierGroupEdit = () => {
+    const colors = useThemeColors();
     const { register, handleSubmit, reset, control, formState: { errors } } = useForm({
         defaultValues: { modifiers: [{ name: "", price: "" }] },
     });
@@ -111,11 +113,11 @@ const ModifierGroupEdit = () => {
     }, [id]);
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box bg={colors.bgSubtle} minH="100vh" py={3}>
             <Box mx="auto">
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
@@ -137,7 +139,7 @@ const ModifierGroupEdit = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
                                     {t("edit")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -145,19 +147,19 @@ const ModifierGroupEdit = () => {
                     </CardBody>
                 </Card>
 
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
                     <CardHeader
-                        bg="white"
+                        bg={colors.bgCard}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={colors.borderSubtle}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">
                                     {t("edit")}
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                     {t("update_modifier_group_details")}
                                 </Text>
                             </Box>
@@ -184,16 +186,16 @@ const ModifierGroupEdit = () => {
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                     <FormControl isRequired isInvalid={errors.name}>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("name")}
                                         </FormLabel>
                                         <Input
                                             {...register("name", { required: true })}
                                             type="text"
                                             placeholder={t("name")}
-                                            bg="gray.50"
-                                            border="1px solid"
-                                            borderColor="gray.200"
+bg={colors.bgInput}
+                                                border="1px solid"
+                                                borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -204,16 +206,16 @@ const ModifierGroupEdit = () => {
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("max_selections")}
                                         </FormLabel>
                                         <Input
                                             {...register("max_selections", { valueAsNumber: true })}
                                             type="number"
                                             placeholder={t("max_selections")}
-                                            bg="gray.50"
-                                            border="1px solid"
-                                            borderColor="gray.200"
+bg={colors.bgInput}
+                                                border="1px solid"
+                                                borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -225,14 +227,14 @@ const ModifierGroupEdit = () => {
                                     <FormControl>
                                         <HStack>
                                             <Switch {...register("is_required")} colorScheme="teal" />
-                                            <Text fontSize="sm" fontWeight="semibold" color="gray.700">{t("required")}</Text>
+                                            <Text fontSize="sm" fontWeight="semibold" color={colors.textPrimary}>{t("required")}</Text>
                                         </HStack>
                                     </FormControl>
                                 </SimpleGrid>
 
-                                <Divider my={8} borderColor="gray.200" />
+                                <Divider my={8} borderColor={colors.borderDefault} />
 
-                                <Text fontWeight="semibold" color="gray.700" mb={4} fontSize="sm">
+                                <Text fontWeight="semibold" color={colors.textPrimary} mb={4} fontSize="sm">
                                     {t("modifiers")}
                                 </Text>
 
@@ -242,9 +244,9 @@ const ModifierGroupEdit = () => {
                                             <Input
                                                 {...register(`modifiers.${index}.name`, { required: true })}
                                                 placeholder={t("modifier_name")}
-                                                bg="gray.50"
+                                                bg={colors.bgInput}
                                                 border="1px solid"
-                                                borderColor="gray.200"
+                                                borderColor={colors.borderInput}
                                                 borderRadius="md"
                                                 focusBorderColor="teal.500"
                                                 _hover={{ borderColor: "gray.300" }}
@@ -258,9 +260,9 @@ const ModifierGroupEdit = () => {
                                                 type="number"
                                                 step="0.01"
                                                 placeholder={t("price")}
-                                                bg="gray.50"
+                                                bg={colors.bgInput}
                                                 border="1px solid"
-                                                borderColor="gray.200"
+                                                borderColor={colors.borderInput}
                                                 borderRadius="md"
                                                 focusBorderColor="teal.500"
                                                 _hover={{ borderColor: "gray.300" }}

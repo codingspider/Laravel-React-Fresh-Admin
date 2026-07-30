@@ -97,6 +97,7 @@ class UserSeeder extends Seeder
             // POS
             'view_pos',
             'process_sale',
+            'manage_pos_settings',
 
             // Products (legacy admin)
             'view_products',
@@ -236,6 +237,7 @@ class UserSeeder extends Seeder
                 'update_orders',
                 'view_pos',
                 'process_sale',
+                'manage_pos_settings',
                 'view_products',
                 'create_products',
                 'update_products',
@@ -310,6 +312,7 @@ class UserSeeder extends Seeder
                 'update_orders',
                 'view_pos',
                 'process_sale',
+                'manage_pos_settings',
                 'view_inventory',
                 'view_customers',
                 'create_customers',

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams, Link as ReactRouterLink } from "react-router-dom";
+import { useNavigate, Link as ReactRouterLink } from "react-router-dom";
 import {
     Box,
     useToast,
@@ -9,26 +9,20 @@ import {
     Input,
     Select,
     Spinner,
-    Card,
-    CardHeader,
-    CardBody,
-    Flex,
-    Heading,
-    Text,
     Button,
     InputGroup,
     InputRightElement,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import api from "../../axios";
 import { GET_ALL_ROLES, STORE_USER } from "../../routes/apiRoutes";
 import { DASHBOARD_PATH, USER_LIST_PATH } from "../../routes/superAdminRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
+import PageHeader from "../ui/PageHeader";
 
 const UserCreate = () => {
+    const colors = useThemeColors();
     const { register, handleSubmit, reset } = useForm();
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,7 +53,7 @@ const UserCreate = () => {
             const res = await api.post(STORE_USER, data);
             reset();
             toast({
-                position: "bottom-right",
+                position: "top-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -70,9 +64,9 @@ const UserCreate = () => {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
-                toast({ position: "bottom-right", title: t("error"), description: errorMessage, status: "error", duration: 3000, isClosable: true });
+                toast({ position: "top-right", title: t("error"), description: errorMessage, status: "error", duration: 3000, isClosable: true });
             } else if (errorResponse?.message) {
-                toast({ position: "bottom-right", title: t("error"), description: errorResponse.message, status: "error", duration: 3000, isClosable: true });
+                toast({ position: "top-right", title: t("error"), description: errorResponse.message, status: "error", duration: 3000, isClosable: true });
             }
         } finally {
             setIsSubmitting(false);
@@ -93,46 +87,37 @@ const UserCreate = () => {
     }
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box py={3}>
             <Box mx="auto">
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
-                    <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
-                            <BreadcrumbItem>
-                                <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbItem>
-                                <BreadcrumbLink as={ReactRouterLink} to={USER_LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("users")}</BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">{t("add")}</BreadcrumbLink>
-                            </BreadcrumbItem>
-                        </Breadcrumb>
-                    </CardBody>
-                </Card>
+                <PageHeader
+                    title={t("add_user")}
+                    subtitle={t("create_new_user")}
+                    breadcrumbs={[
+                        { label: t("dashboard"), path: DASHBOARD_PATH },
+                        { label: t("users"), path: USER_LIST_PATH },
+                        { label: t("add"), isCurrent: true },
+                    ]}
+                />
 
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
-                    <CardHeader bg="white" borderBottom="1px solid" borderColor="gray.100" pb={6}>
-                        <Flex justify="space-between" align="center">
-                            <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">{t("add_user")}</Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>{t("create_new_user")}</Text>
-                            </Box>
-                            <Button colorScheme="teal" as={ReactRouterLink} to={USER_LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("users")}</Button>
-                        </Flex>
-                    </CardHeader>
-
-                    <CardBody p={8}>
+                <Box
+                    bg={colors.bgCard}
+                    shadow="xl"
+                    borderRadius="xl"
+                    overflow="hidden"
+                    border="1px solid"
+                    borderColor={colors.borderDefault}
+                >
+                    <Box p={8}>
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("name")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("name")}</FormLabel>
                                     <Input
                                         {...register("name", { required: true })}
                                         placeholder={t("enter_name")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -142,14 +127,14 @@ const UserCreate = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("email")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("email")}</FormLabel>
                                     <Input
                                         {...register("email", { required: true })}
                                         type="email"
                                         placeholder={t("enter_email")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -159,15 +144,15 @@ const UserCreate = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("password")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("password")}</FormLabel>
                                     <InputGroup size="md">
                                         <Input
                                             {...register("password", { required: true, minLength: 6 })}
                                             type={show ? "text" : "password"}
                                             placeholder={t("enter_password")}
-                                            bg="gray.50"
+                                            bg={colors.bgInput}
                                             border="1px solid"
-                                            borderColor="gray.200"
+                                            borderColor={colors.borderInput}
                                             borderRadius="md"
                                             focusBorderColor="teal.500"
                                             _hover={{ borderColor: "gray.300" }}
@@ -182,13 +167,13 @@ const UserCreate = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("role")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("role")}</FormLabel>
                                     <Select
                                         placeholder={t("select_role")}
                                         {...register("role", { required: true })}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -204,13 +189,44 @@ const UserCreate = () => {
                                 </FormControl>
                             </SimpleGrid>
 
-                            <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
-                                <Button type="button" as={ReactRouterLink} to={USER_LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>{t("cancel")}</Button>
-                                <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">{t("save")}</Button>
-                            </Flex>
+                            <Box mt={10} display="flex" justifyContent={{ base: "stretch", md: "flex-end" }} gap={4}>
+                                <Button
+                                    type="button"
+                                    as={ReactRouterLink}
+                                    to={USER_LIST_PATH}
+                                    colorScheme="gray"
+                                    variant="outline"
+                                    fontWeight="semibold"
+                                    px={6}
+                                    h={12}
+                                    borderRadius="md"
+                                    w={{ base: "full", md: "auto" }}
+                                    _hover={{ bg: "gray.50" }}
+                                >
+                                    {t("cancel")}
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    isLoading={isSubmitting}
+                                    loadingText={t("saving")}
+                                    colorScheme="teal"
+                                    bg="teal.500"
+                                    color="white"
+                                    fontWeight="semibold"
+                                    px={8}
+                                    h={12}
+                                    borderRadius="md"
+                                    w={{ base: "full", md: "auto" }}
+                                    _hover={{ bg: "teal.600" }}
+                                    _active={{ bg: "teal.700" }}
+                                    boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)"
+                                >
+                                    {t("save")}
+                                </Button>
+                            </Box>
                         </form>
-                    </CardBody>
-                </Card>
+                    </Box>
+                </Box>
             </Box>
         </Box>
     );

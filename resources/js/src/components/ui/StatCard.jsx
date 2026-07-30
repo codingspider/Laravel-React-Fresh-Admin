@@ -8,6 +8,7 @@ import {
     useColorModeValue,
 } from '@chakra-ui/react';
 import { ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import useThemeColors from '../../hooks/useThemeColors';
 
 export default function StatCard({
     title,
@@ -18,8 +19,9 @@ export default function StatCard({
     iconColor = 'brand.600',
     iconBg = 'brand.50',
 }) {
-    const bg = useColorModeValue('white', 'gray.800');
-    const shadow = useColorModeValue('card', 'cardDark');
+    const colors = useThemeColors();
+    const bg = colors.bgCard;
+    const shadow = colors.shadowCard;
 
     return (
         <Box
@@ -30,16 +32,16 @@ export default function StatCard({
             transition="all 0.2s ease"
             _hover={{
                 transform: 'translateY(-2px)',
-                boxShadow: useColorModeValue('lg', '2xl'),
+                boxShadow: colors.shadowModal,
             }}
             border="1px solid"
-            borderColor={useColorModeValue('gray.100', 'gray.700')}
+            borderColor={colors.borderSubtle}
         >
             <Flex justify="space-between" align="flex-start">
                 <Box flex="1">
                     <Text
                         fontSize="sm"
-                        color="gray.500"
+                        color={colors.textSecondary}
                         fontWeight="500"
                         mb={1}
                         noOfLines={1}
@@ -49,8 +51,7 @@ export default function StatCard({
                     <Heading
                         size="lg"
                         fontWeight="bold"
-                        color="gray.800"
-                        _dark={{ color: 'white' }}
+                        color={colors.textHeading}
                         noOfLines={1}
                     >
                         {value}
@@ -82,7 +83,7 @@ export default function StatCard({
                     >
                         {change}
                     </Text>
-                    <Text fontSize="xs" color="gray.400" ml={1}>
+                    <Text fontSize="xs" color={colors.textMuted} ml={1}>
                         vs last month
                     </Text>
                 </Flex>

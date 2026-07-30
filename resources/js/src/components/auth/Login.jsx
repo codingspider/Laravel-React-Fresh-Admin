@@ -10,7 +10,6 @@ import {
     Button,
     Heading,
     Text,
-    useColorModeValue,
     InputRightElement,
     InputGroup,
     useToast,
@@ -29,6 +28,7 @@ import { usePermission } from '../../context/PermissionContext';
 import api from '../../axios';
 import { DASHBOARD_PATH } from './../../routes/superAdminRoutes';
 import { Eye, EyeOff, UtensilsCrossed } from 'lucide-react';
+import useThemeColors from '../../hooks/useThemeColors';
 
 export default function Login() {
     const [show, setShow] = useState(false);
@@ -39,11 +39,12 @@ export default function Login() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const { setUserPermission } = usePermission();
     const [checkedAuth, setCheckedAuth] = useState(false);
+    const colors = useThemeColors();
 
-    const bgLight = useColorModeValue('gray.50', 'gray.900');
-    const cardBg = useColorModeValue('white', 'gray.800');
-    const cardShadow = useColorModeValue('lg', '2xl');
-    const cardBorder = useColorModeValue('gray.100', 'gray.700');
+    const bgLight = colors.bgPage;
+    const cardBg = colors.bgCard;
+    const cardShadow = colors.shadowModal;
+    const cardBorder = colors.borderSubtle;
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -138,12 +139,11 @@ export default function Login() {
                         <Heading
                             size="xl"
                             fontWeight="bold"
-                            color="gray.800"
-                            _dark={{ color: 'white' }}
+                            color={colors.textHeading}
                         >
                             Welcome back
                         </Heading>
-                        <Text color="gray.500" mt={2}>
+                        <Text color={colors.textSecondary} mt={2}>
                             Sign in to your restaurant dashboard
                         </Text>
                     </Box>
@@ -160,7 +160,7 @@ export default function Login() {
                     <form onSubmit={handleSubmit(onSubmit)}>
                         <Stack spacing={5}>
                             <FormControl id="login" isInvalid={errors.login}>
-                                <FormLabel fontSize="sm" fontWeight="600" color="gray.700" _dark={{ color: 'gray.300' }}>
+                                <FormLabel fontSize="sm" fontWeight="600" color={colors.textLabel}>
                                     Email or Username
                                 </FormLabel>
                                 <Input
@@ -173,7 +173,7 @@ export default function Login() {
                             </FormControl>
 
                             <FormControl id="password" isInvalid={errors.password}>
-                                <FormLabel fontSize="sm" fontWeight="600" color="gray.700" _dark={{ color: 'gray.300' }}>
+                                <FormLabel fontSize="sm" fontWeight="600" color={colors.textLabel}>
                                     Password
                                 </FormLabel>
                                 <InputGroup size="lg">
@@ -191,7 +191,7 @@ export default function Login() {
                                             p={2}
                                             borderRadius="lg"
                                         >
-                                            <Icon as={show ? EyeOff : Eye} boxSize={4} color="gray.500" />
+                                            <Icon as={show ? EyeOff : Eye} boxSize={4} color={colors.textMuted} />
                                         </Button>
                                     </InputRightElement>
                                 </InputGroup>
@@ -203,7 +203,7 @@ export default function Login() {
                                     size="sm"
                                     colorScheme="brand"
                                 >
-                                    <Text fontSize="sm" color="gray.600" _dark={{ color: 'gray.400' }}>
+                                    <Text fontSize="sm" color={colors.textSecondary}>
                                         Remember me
                                     </Text>
                                 </Checkbox>
@@ -235,7 +235,7 @@ export default function Login() {
                     </form>
 
                     <Flex justify="center" mt={6}>
-                        <Text fontSize="sm" color="gray.500">
+                        <Text fontSize="sm" color={colors.textSecondary}>
                             Don't have an account?{' '}
                             <ChakraLink
                                 as={ReactRouterLink}

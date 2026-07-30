@@ -1,17 +1,19 @@
 import {
   Box, Button, Card, CardBody, CardHeader, Flex,
   FormControl, FormLabel, Input, Select, SimpleGrid, Switch, Text,
-  Textarea, useColorModeValue,
+  Textarea,
 } from "@chakra-ui/react";
 import { Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 export default function InventoryItemForm({
   register, control, handleSubmit, onSubmit, branches, categories, suppliers, units,
   isSubmitting, submitLabel, cancelPath, LinkComponent,
 }) {
   const { t } = useTranslation();
-  const inputBg = useColorModeValue("gray.50", "gray.700");
+  const colors = useThemeColors();
+  const inputBg = colors.bgInput;
 
   return (
     <Box mx="auto">

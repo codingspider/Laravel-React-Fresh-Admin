@@ -102,6 +102,25 @@ class POSController extends Controller
         $data['branch_id'] = $data['branch_id'] ?? $request->input('branch_id');
         $data['user_id'] = $request->user()->id;
 
+        if (isset($data['discount_type']) && isset($data['discount_value'])) {
+            $val = (float) ($data['discount_value'] ?? 0);
+            if ($data['discount_type'] === 'percent') {
+                $data['discount_percent'] = $val;
+                $data['discount_amount'] = 0;
+            } else {
+                $data['discount_amount'] = $val;
+                $data['discount_percent'] = 0;
+            }
+        }
+
+        $data['delivery_charge'] = $data['shipping'] ?? $data['delivery_charge'] ?? 0;
+
+        if (isset($data['tax_rate'])) {
+            $data['tax_percent'] = (float) $data['tax_rate'];
+        }
+
+        unset($data['discount_type'], $data['discount_value'], $data['shipping'], $data['tax_rate'], $data['tax_name']);
+
         $sale = $this->posService->createSale($data);
 
         return response()->json([
@@ -163,6 +182,143 @@ class POSController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.deleted'),
+            'data' => new SaleResource($sale),
+        ]);
+    }
+
+    public function getHeldOrders(Request $request): JsonResponse
+    {
+        $restaurantId = getRestaurantId();
+        $branchId = $request->input('branch_id');
+
+        $query = \Modules\POS\Models\Sale::where('status', 'pending')
+            ->where('restaurant_id', $restaurantId)
+            ->with(['items.menuItem', 'customer', 'table']);
+
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
+        }
+
+        $held = $query->latest()->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => SaleResource::collection($held),
+        ]);
+    }
+
+    public function mergeBills(Request $request): JsonResponse
+    {
+        $request->validate([
+            'sale_ids' => 'required|array|min:2',
+            'sale_ids.*' => 'required|exists:sales,id',
+        ]);
+
+        $saleIds = $request->input('sale_ids');
+        $restaurantId = getRestaurantId();
+
+        $sales = \Modules\POS\Models\Sale::whereIn('id', $saleIds)
+            ->where('restaurant_id', $restaurantId)
+            ->where('status', 'pending')
+            ->with('items')
+            ->get();
+
+        if ($sales->count() < 2) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Need at least 2 held orders to merge',
+            ], 422);
+        }
+
+        $firstSale = $sales->first();
+        $allItems = [];
+        $totalDiscount = 0;
+        $totalTax = 0;
+
+        foreach ($sales as $sale) {
+            foreach ($sale->items as $item) {
+                $allItems[] = [
+                    'menu_item_id' => $item->menu_item_id,
+                    'item_name' => $item->item_name,
+                    'quantity' => $item->quantity,
+                    'unit_price' => $item->unit_price,
+                    'discount_amount' => $item->discount_amount,
+                    'tax_amount' => $item->tax_amount,
+                    'total' => $item->total,
+                    'kitchen_notes' => $item->kitchen_notes,
+                ];
+            }
+            $totalDiscount += $sale->discount_amount ?? 0;
+            $totalTax += $sale->tax_amount ?? 0;
+        }
+
+        $subtotal = array_sum(array_column($allItems, 'total'));
+
+        $firstSale->update([
+            'subtotal' => $subtotal,
+            'discount_amount' => $totalDiscount,
+            'tax_amount' => $totalTax,
+            'total' => $subtotal - $totalDiscount + $totalTax,
+        ]);
+
+        $firstSale->items()->delete();
+        foreach ($allItems as $itemData) {
+            $firstSale->items()->create($itemData);
+        }
+
+        $otherSaleIds = $sales->pluck('id')->filter(fn($id) => $id !== $firstSale->id)->toArray();
+        \Modules\POS\Models\Payment::whereIn('sale_id', $otherSaleIds)->delete();
+        \Modules\POS\Models\Sale::whereIn('id', $otherSaleIds)->delete();
+
+        $firstSale->load(['items.menuItem', 'customer', 'table']);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.updated'),
+            'data' => new SaleResource($firstSale),
+        ]);
+    }
+
+    public function processMultiplePayments(Request $request, $saleId): JsonResponse
+    {
+        $request->validate([
+            'payments' => 'required|array|min:1',
+            'payments.*.payment_method' => 'required|in:cash,card,upi,online,credit,loyalty,gift_card,other',
+            'payments.*.amount' => 'required|numeric|min:0.01',
+            'payments.*.reference_number' => 'nullable|string|max:255',
+            'payments.*.notes' => 'nullable|string|max:255',
+        ]);
+
+        $sale = $this->saleRepo->find($saleId);
+
+        foreach ($request->payments as $paymentData) {
+            $this->posService->processPayment($sale->fresh(), $paymentData);
+        }
+
+        $sale = $this->saleRepo->find($saleId);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.success'),
+            'data' => new SaleResource($sale),
+        ]);
+    }
+
+    public function processRefund(Request $request, $saleId): JsonResponse
+    {
+        $request->validate([
+            'amount' => 'required|numeric|min:0.01',
+            'payment_method' => 'required|in:cash,card,upi,online,credit,loyalty,gift_card,other',
+            'refund_reason' => 'nullable|string|max:500',
+            'notes' => 'nullable|string|max:500',
+        ]);
+
+        $sale = $this->saleRepo->find($saleId);
+        $sale = $this->posService->processRefund($sale, $request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.updated'),
             'data' => new SaleResource($sale),
         ]);
     }

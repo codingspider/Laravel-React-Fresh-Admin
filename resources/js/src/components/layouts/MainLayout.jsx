@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Flex, Box, useColorModeValue, useMediaQuery } from '@chakra-ui/react';
+import { Flex, Box, useMediaQuery } from '@chakra-ui/react';
 import { Outlet, useLocation } from 'react-router-dom';
 import SidebarContent from './SidebarContent';
 import TopNav from './TopNav';
+import useThemeColors from '../../hooks/useThemeColors';
 
 export default function MainLayout() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const [isMobileOpen, setIsMobileOpen] = useState(false);
     const [isLargerThanLG] = useMediaQuery('(min-width: 992px)');
     const location = useLocation();
+    const colors = useThemeColors();
 
     const sidebarW = isCollapsed ? '72px' : '260px';
 
@@ -25,7 +27,7 @@ export default function MainLayout() {
     }, [location.pathname, isLargerThanLG]);
 
     return (
-        <Flex h="100vh" overflow="hidden" bg={useColorModeValue('gray.50', 'gray.900')}>
+        <Flex h="100vh" overflow="hidden" bg={colors.bgPage}>
             <SidebarContent
                 isCollapsed={isCollapsed}
                 setIsCollapsed={setIsCollapsed}

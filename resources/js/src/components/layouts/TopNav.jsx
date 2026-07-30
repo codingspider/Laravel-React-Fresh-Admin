@@ -16,7 +16,6 @@ import {
     Text,
     Tooltip,
     useColorMode,
-    useColorModeValue,
     Box,
     Select,
     Badge,
@@ -40,6 +39,7 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../axios';
 import { LOGIN } from '../../routes/commonRoutes';
 import { usePermission } from '../../context/PermissionContext';
+import useThemeColors from '../../hooks/useThemeColors';
 
 const ThemeToggle = () => {
     const { colorMode, toggleColorMode } = useColorMode();
@@ -79,6 +79,7 @@ const LanguageSelector = () => {
 };
 
 const NotificationBell = () => {
+    const notifColors = useThemeColors();
     return (
         <Tooltip label="Notifications" hasArrow placement="bottom">
             <Box position="relative">
@@ -98,7 +99,7 @@ const NotificationBell = () => {
                     top={1.5}
                     right={1.5}
                     border="2px solid"
-                    borderColor={useColorModeValue('white', 'gray.900')}
+                    borderColor={notifColors.borderNav}
                 />
             </Box>
         </Tooltip>
@@ -108,8 +109,9 @@ const NotificationBell = () => {
 function ProfileMenu() {
     const navigate = useNavigate();
     const { user } = usePermission();
-    const bg = useColorModeValue('white', 'gray.800');
-    const borderColor = useColorModeValue('gray.100', 'gray.700');
+    const colors = useThemeColors();
+    const bg = colors.bgCard;
+    const borderColor = colors.borderSubtle;
 
     const handleLogout = async () => {
         try {
@@ -128,7 +130,7 @@ function ProfileMenu() {
                 variant="ghost"
                 p={1}
                 borderRadius="lg"
-                _hover={{ bg: useColorModeValue('gray.100', 'gray.700') }}
+                _hover={{ bg: colors.borderSubtle }}
             >
                 <HStack spacing={2}>
                     <Avatar
@@ -194,8 +196,7 @@ function ProfileMenu() {
 }
 
 export default function TopNav({ onMobileMenuOpen }) {
-    const bg = useColorModeValue('white', 'gray.900');
-    const borderColor = useColorModeValue('gray.100', 'gray.800');
+    const colors = useThemeColors();
 
     return (
         <Flex
@@ -206,8 +207,8 @@ export default function TopNav({ onMobileMenuOpen }) {
             py={0}
             h="64px"
             borderBottom="1px solid"
-            borderColor={borderColor}
-            bg={useColorModeValue('rgba(255,255,255,0.95)', 'rgba(26,32,44,0.95)')}
+            borderColor={colors.borderSubtle}
+            bg={colors.navBg}
             position="sticky"
             top={0}
             zIndex="sticky"
@@ -231,9 +232,9 @@ export default function TopNav({ onMobileMenuOpen }) {
                         <Input
                             placeholder="Search..."
                             borderRadius="lg"
-                            bg={useColorModeValue('gray.50', 'gray.800')}
+                            bg={colors.navSearchBg}
                             border="1px solid"
-                            borderColor={useColorModeValue('gray.200', 'gray.700')}
+                            borderColor={colors.borderDefault}
                             _focus={{
                                 bg: 'white',
                                 borderColor: 'brand.500',
@@ -254,7 +255,7 @@ export default function TopNav({ onMobileMenuOpen }) {
                     <Flex
                         h="24px"
                         w="1px"
-                        bg={useColorModeValue('gray.200', 'gray.700')}
+                        bg={colors.borderDefault}
                     />
                 </Box>
                 <ProfileMenu />

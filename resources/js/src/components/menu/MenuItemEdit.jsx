@@ -9,8 +9,10 @@ import { useForm, Controller } from "react-hook-form";
 import React, { useState, useEffect } from "react";
 import { Link as ReactRouterLink, useParams, useNavigate } from "react-router-dom";
 import api from "../../axios";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const MenuItemEdit = () => {
+    const colors = useThemeColors();
     const { id } = useParams();
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -117,11 +119,11 @@ const MenuItemEdit = () => {
     };
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box bg={colors.bgSubtle} minH="100vh" py={3}>
             <Box mx="auto">
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
                             </BreadcrumbItem>
@@ -129,18 +131,18 @@ const MenuItemEdit = () => {
                                 <BreadcrumbLink as={ReactRouterLink} to="/menu/items" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("list")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">{t("edit")}</BreadcrumbLink>
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">{t("edit")}</BreadcrumbLink>
                             </BreadcrumbItem>
                         </Breadcrumb>
                     </CardBody>
                 </Card>
 
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
-                    <CardHeader bg="white" borderBottom="1px solid" borderColor="gray.100" pb={6}>
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
+                    <CardHeader bg={colors.bgCard} borderBottom="1px solid" borderColor={colors.borderSubtle} pb={6}>
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">{t("edit")}</Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>{item ? `${item.name} - ${t("edit")}` : t("edit_menu_item")}</Text>
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">{t("edit")}</Heading>
+                                <Text fontSize="sm" color={colors.textSecondary} mt={1}>{item ? `${item.name} - ${t("edit")}` : t("edit_menu_item")}</Text>
                             </Box>
                             <Button colorScheme="teal" as={ReactRouterLink} to="/menu/items" variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("list")}</Button>
                         </Flex>
@@ -155,19 +157,19 @@ const MenuItemEdit = () => {
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                     <FormControl isRequired isInvalid={errors.name}>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("name")}</FormLabel>
-                                        <Input {...register("name", { required: true })} placeholder={t("name")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" />
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("name")}</FormLabel>
+                                        <Input {...register("name", { required: true })} placeholder={t("name")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
                                         <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("sku")}</FormLabel>
-                                        <Input {...register("sku")} placeholder={t("sku")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" />
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("sku")}</FormLabel>
+                                        <Input {...register("sku")} placeholder={t("sku")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
                                     </FormControl>
 
                                     <FormControl isRequired isInvalid={errors.menu_category_id}>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("category")}</FormLabel>
-                                        <Select {...register("menu_category_id", { required: true })} placeholder={t("select_category")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500">
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("category")}</FormLabel>
+                                        <Select {...register("menu_category_id", { required: true })} placeholder={t("select_category")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s">
                                             {categories.map((cat) => (
                                                 <option key={cat.id} value={cat.id}>{cat.name}</option>
                                             ))}
@@ -176,35 +178,35 @@ const MenuItemEdit = () => {
                                     </FormControl>
 
                                     <FormControl isRequired isInvalid={errors.price}>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("price")}</FormLabel>
-                                        <Input {...register("price", { required: true, valueAsNumber: true })} type="number" step="0.01" placeholder={t("price")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" />
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("price")}</FormLabel>
+                                        <Input {...register("price", { required: true, valueAsNumber: true })} type="number" step="0.01" placeholder={t("price")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
                                         <FormErrorMessage>{errors.price?.message}</FormErrorMessage>
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("cost_price")}</FormLabel>
-                                        <Input {...register("cost_price", { valueAsNumber: true })} type="number" step="0.01" placeholder={t("cost_price")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" />
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("cost_price")}</FormLabel>
+                                        <Input {...register("cost_price", { valueAsNumber: true })} type="number" step="0.01" placeholder={t("cost_price")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("preparation_time")}</FormLabel>
-                                        <Input {...register("preparation_time", { valueAsNumber: true })} type="number" placeholder={t("preparation_time")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" />
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("preparation_time")}</FormLabel>
+                                        <Input {...register("preparation_time", { valueAsNumber: true })} type="number" placeholder={t("preparation_time")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" />
                                     </FormControl>
 
                                     <FormControl gridColumn={{ md: "span 2" }}>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("description")}</FormLabel>
-                                        <Textarea {...register("description")} placeholder={t("description")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" rows={3} />
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("description")}</FormLabel>
+                                        <Textarea {...register("description")} placeholder={t("description")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" rows={3} />
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("image")}</FormLabel>
-                                        <Input type="file" accept="image/*" {...register("image")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500" p={1} sx={{ "&::file-selector-button": { bg: "gray.100", border: "none", borderRadius: "md", px: 3, py: 1, mr: 3, cursor: "pointer", _hover: { bg: "gray.200" } } }} />
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("image")}</FormLabel>
+                                        <Input type="file" accept="image/*" {...register("image")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s" p={1} sx={{ "&::file-selector-button": { bg: "gray.100", border: "none", borderRadius: "md", px: 3, py: 1, mr: 3, cursor: "pointer", _hover: { bg: "gray.200" } } }} />
                                         {imagePreview && <Image src={imagePreview} mt={3} maxH="120px" borderRadius="md" objectFit="cover" />}
                                     </FormControl>
 
                                     <FormControl>
-                                        <FormLabel fontSize="sm" fontWeight="semibold" color="gray.700" mb={2}>{t("status")}</FormLabel>
-                                        <Select {...register("status")} bg="gray.50" border="1px solid" borderColor="gray.200" borderRadius="md" focusBorderColor="teal.500">
+                                        <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("status")}</FormLabel>
+                                        <Select {...register("status")} bg={colors.bgInput} border="1px solid" borderColor={colors.borderInput} borderRadius="md" focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md" transition="all 0.2s">
                                             <option value="active">{t("active")}</option>
                                             <option value="inactive">{t("inactive")}</option>
                                         </Select>
@@ -218,7 +220,7 @@ const MenuItemEdit = () => {
                                                 render={({ field }) => (
                                                     <HStack>
                                                         <Switch isChecked={field.value} onChange={field.onChange} colorScheme="teal" />
-                                                        <Text fontSize="sm" fontWeight="semibold" color="gray.700">{t("featured")}</Text>
+                                                        <Text fontSize="sm" fontWeight="semibold" color={colors.textPrimary}>{t("featured")}</Text>
                                                     </HStack>
                                                 )}
                                             />
@@ -228,8 +230,8 @@ const MenuItemEdit = () => {
 
                                 {modifierGroups.length > 0 && (
                                     <Box mt={8}>
-                                        <Text fontWeight="semibold" color="gray.700" mb={3} fontSize="sm">{t("modifier_groups")}</Text>
-                                        <Text fontSize="xs" color="gray.500" mb={4}>{t("select_modifier_groups_help")}</Text>
+                                        <Text fontWeight="semibold" color={colors.textPrimary} mb={3} fontSize="sm">{t("modifier_groups")}</Text>
+                                        <Text fontSize="xs" color={colors.textSecondary} mb={4}>{t("select_modifier_groups_help")}</Text>
                                         <Controller
                                             name="modifier_group_ids"
                                             control={control}
@@ -237,7 +239,7 @@ const MenuItemEdit = () => {
                                                 <CheckboxGroup value={(field.value || []).map(String)} onChange={(val) => field.onChange(val.map(Number))}>
                                                     <VStack align="start" spacing={3}>
                                                         {modifierGroups.map((group) => (
-                                                            <Box key={group.id} p={3} border="1px solid" borderColor="gray.200" borderRadius="md" w="100%" _hover={{ bg: "gray.50" }}>
+                                                            <Box key={group.id} p={3} border="1px solid" borderColor={colors.borderDefault} borderRadius="md" w="100%" _hover={{ bg: colors.bgSubtle }}>
                                                                 <Checkbox value={String(group.id)} colorScheme="teal">
                                                                     <Text fontWeight="semibold" fontSize="sm">{group.name}</Text>
                                                                 </Checkbox>
@@ -265,8 +267,8 @@ const MenuItemEdit = () => {
                                 )}
 
                                 <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
-                                    <Button type="button" as={ReactRouterLink} to="/menu/items" colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }}>{t("cancel")}</Button>
-                                    <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }}>{t("save")}</Button>
+                                    <Button type="button" as={ReactRouterLink} to="/menu/items" colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>{t("cancel")}</Button>
+                                    <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">{t("save")}</Button>
                                 </Flex>
                             </form>
                         )}

@@ -14,7 +14,6 @@ import {
     HStack,
     Badge,
     Divider,
-    useColorModeValue,
     Spinner,
     Flex,
     Card,
@@ -29,8 +28,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import api from "../../../axios";
-import { PLAN_LIST_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { STORE_PLAN, LIST_PACKAGE } from "../../../routes/apiRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+
+const LIST_PATH = "/plan/list";
 
 const PlanCreate = () => {
     const { register, handleSubmit, reset } = useForm({
@@ -46,16 +48,16 @@ const PlanCreate = () => {
     const [selectedPackages, setSelectedPackages] = useState([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const toast = useToast();
+    const colors = useThemeColors();
 
-    const pageBg = useColorModeValue("gray.50", "gray.900");
-    const cardBg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-    const headingColor = useColorModeValue("gray.800", "gray.100");
-    const textColor = useColorModeValue("gray.500", "gray.400");
-    const labelColor = useColorModeValue("gray.700", "gray.300");
-    const fieldBg = useColorModeValue("gray.50", "gray.700");
-    const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+    const cardBg = colors.bgCard;
+    const borderColor = colors.borderInput;
+    const headerBorderColor = colors.borderSubtle;
+    const headingColor = colors.textPrimary;
+    const textColor = colors.textSecondary;
+    const labelColor = colors.textLabel;
+    const fieldBg = colors.bgInput;
+    const fieldHoverBorder = "gray.300";
 
     useEffect(() => {
         const fetchPackages = async () => {
@@ -92,7 +94,7 @@ const PlanCreate = () => {
                 duration: 3000,
                 isClosable: true,
             });
-            window.location.href = PLAN_LIST_PATH;
+            window.location.href = LIST_PATH;
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
@@ -134,7 +136,7 @@ const PlanCreate = () => {
     }
 
     return (
-        <Box bg={pageBg} minH="100vh" py={3}>
+        <Box py={3}>
             <Box mx="auto">
                 <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
@@ -143,7 +145,7 @@ const PlanCreate = () => {
                                 <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem>
-                                <BreadcrumbLink as={ReactRouterLink} to={PLAN_LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("plans")}</BreadcrumbLink>
+                                <BreadcrumbLink as={ReactRouterLink} to={LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("plans")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
                                 <BreadcrumbLink color={headingColor} fontWeight="bold">{t("add")}</BreadcrumbLink>
@@ -159,7 +161,7 @@ const PlanCreate = () => {
                                 <Heading size="sm" color={headingColor} fontWeight="bold">{t("add_plan")}</Heading>
                                 <Text fontSize="sm" color={textColor} mt={1}>{t("create_new_plan")}</Text>
                             </Box>
-                            <Button colorScheme="teal" as={ReactRouterLink} to={PLAN_LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("plans")}</Button>
+                            <Button colorScheme="teal" as={ReactRouterLink} to={LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("plans")}</Button>
                         </Flex>
                     </CardHeader>
 
@@ -347,7 +349,7 @@ const PlanCreate = () => {
                                                     border="1px solid"
                                                     borderColor={isSelected ? "teal.300" : borderColor}
                                                     borderRadius="lg"
-                                                    bg={isSelected ? "teal.50" : pageBg}
+                                                    bg={isSelected ? "teal.50" : colors.bgSubtle}
                                                     cursor="pointer"
                                                     onClick={() => handlePackageToggle(pkg.id)}
                                                     transition="all 0.2s"
@@ -385,7 +387,7 @@ const PlanCreate = () => {
                             </Box>
 
                             <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
-                                <Button type="button" as={ReactRouterLink} to={PLAN_LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: pageBg }}>{t("cancel")}</Button>
+                                <Button type="button" as={ReactRouterLink} to={LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>{t("cancel")}</Button>
                                 <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">{t("save")}</Button>
                             </Flex>
                         </form>

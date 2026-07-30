@@ -18,7 +18,6 @@ import {
     HStack,
     VStack,
     Badge,
-    useColorModeValue,
     IconButton,
     Menu,
     MenuButton,
@@ -27,6 +26,7 @@ import {
     Tooltip,
     Select,
 } from "@chakra-ui/react";
+import useThemeColors from "./hooks/useThemeColors";
 import {
     useReactTable,
     getCoreRowModel,
@@ -71,11 +71,10 @@ export default function TanStackTable({
     onSearch,
     searchPlaceholder = "Search...",
     totalItems = 0,
+    children,
 }) {
     const [globalFilter, setGlobalFilter] = useState("");
-    const bg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const hoverBg = useColorModeValue("gray.50", "gray.700");
+    const colors = useThemeColors();
 
     const table = useReactTable({
         data,
@@ -123,10 +122,12 @@ export default function TanStackTable({
                         value={globalFilter ?? ""}
                         onChange={(e) => handleSearch(e.target.value)}
                         borderRadius="lg"
-                        bg={useColorModeValue("gray.50", "gray.700")}
+                        bg={colors.bgSubtle}
                         _placeholder={{ color: "gray.400" }}
                     />
                 </InputGroup>
+
+                {children}
 
                 <HStack spacing={3}>
                     <Text fontSize="sm" color="gray.500" display={{ base: "none", md: "block" }}>
@@ -146,16 +147,16 @@ export default function TanStackTable({
                 </HStack>
             </Flex>
 
-            <Box overflowX="auto" borderRadius="lg" border="1px solid" borderColor={borderColor}>
+            <Box overflowX="auto" borderRadius="lg" border="1px solid" borderColor={colors.borderDefault}>
                 <Table variant="simple" size="sm">
-                    <Thead bg={useColorModeValue("gray.50", "gray.750")}>
+                    <Thead bg={colors.bgSubtle}>
                         {table.getHeaderGroups().map((headerGroup) => (
                             <Tr key={headerGroup.id}>
                                 {headerGroup.headers.map((header) => (
                                     <Th
                                         key={header.id}
                                         whiteSpace="nowrap"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderDefault}
                                         fontSize="xs"
                                         fontWeight="600"
                                         color="gray.500"
@@ -177,7 +178,7 @@ export default function TanStackTable({
                                     colSpan={columns.length}
                                     textAlign="center"
                                     py={12}
-                                    borderColor={borderColor}
+                                    borderColor={colors.borderDefault}
                                 >
                                     <VStack spacing={3}>
                                         <Spinner size="lg" color="brand.500" />
@@ -193,7 +194,7 @@ export default function TanStackTable({
                                     colSpan={columns.length}
                                     textAlign="center"
                                     py={12}
-                                    borderColor={borderColor}
+                                    borderColor={colors.borderDefault}
                                 >
                                     <VStack spacing={2}>
                                         <Text fontSize="sm" color="gray.500">
@@ -206,12 +207,12 @@ export default function TanStackTable({
                             table.getRowModel().rows.map((row) => (
                                 <Tr
                                     key={row.id}
-                                    _hover={{ bg: hoverBg }}
+                                    _hover={{ bg: colors.bgHover }}
                                     transition="background 0.15s ease"
-                                    borderColor={borderColor}
+                                    borderColor={colors.borderDefault}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <Td key={cell.id} borderColor={borderColor} py={3}>
+                                        <Td key={cell.id} borderColor={colors.borderDefault} py={3}>
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()
@@ -232,7 +233,7 @@ export default function TanStackTable({
                     mt={4}
                     pt={4}
                     borderTop="1px solid"
-                    borderColor={borderColor}
+                    borderColor={colors.borderDefault}
                     direction={{ base: "column", md: "row" }}
                     gap={3}
                 >

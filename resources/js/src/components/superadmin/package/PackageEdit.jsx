@@ -16,7 +16,6 @@ import {
     Badge,
     Divider,
     Stack,
-    useColorModeValue,
     Spinner,
     Card,
     CardHeader,
@@ -30,8 +29,11 @@ import {
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import api from "../../../axios";
-import { PACKAGE_LIST_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { GET_EDIT_PACKAGE, UPDATE_PACKAGE } from "../../../routes/apiRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+
+const LIST_PATH = "/package/list";
 
 const AVAILABLE_MODULES = [
     "hrm", "crm", "inventory", "pos", "reports", "kitchen", "accounts",
@@ -47,16 +49,16 @@ const PackageEdit = () => {
     const toast = useToast();
     const { id } = useParams();
     const [selectedModules, setSelectedModules] = useState([]);
+    const colors = useThemeColors();
 
-    const pageBg = useColorModeValue("gray.50", "gray.900");
-    const cardBg = useColorModeValue("white", "gray.800");
-    const borderColor = useColorModeValue("gray.200", "gray.700");
-    const headerBorderColor = useColorModeValue("gray.100", "gray.700");
-    const headingColor = useColorModeValue("gray.800", "gray.100");
-    const textColor = useColorModeValue("gray.500", "gray.400");
-    const labelColor = useColorModeValue("gray.700", "gray.300");
-    const fieldBg = useColorModeValue("gray.50", "gray.700");
-    const fieldHoverBorder = useColorModeValue("gray.300", "gray.600");
+    const cardBg = colors.bgCard;
+    const borderColor = colors.borderInput;
+    const headerBorderColor = colors.borderSubtle;
+    const headingColor = colors.textPrimary;
+    const textColor = colors.textSecondary;
+    const labelColor = colors.textLabel;
+    const fieldBg = colors.bgInput;
+    const fieldHoverBorder = "gray.300";
 
     const nameValue = watch("name");
 
@@ -113,7 +115,7 @@ const PackageEdit = () => {
                 duration: 3000,
                 isClosable: true,
             });
-            window.location.href = PACKAGE_LIST_PATH;
+            window.location.href = LIST_PATH;
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
@@ -155,7 +157,7 @@ const PackageEdit = () => {
     }
 
     return (
-        <Box bg={pageBg} minH="100vh" py={3}>
+        <Box py={3}>
             <Box mx="auto">
                 <Card mb={4} bg={cardBg} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
@@ -164,7 +166,7 @@ const PackageEdit = () => {
                                 <BreadcrumbLink as={ReactRouterLink} to="/dashboard" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem>
-                                <BreadcrumbLink as={ReactRouterLink} to={PACKAGE_LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("packages")}</BreadcrumbLink>
+                                <BreadcrumbLink as={ReactRouterLink} to={LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("packages")}</BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
                                 <BreadcrumbLink color={headingColor} fontWeight="bold">{t("edit")}</BreadcrumbLink>
@@ -180,7 +182,7 @@ const PackageEdit = () => {
                                 <Heading size="sm" color={headingColor} fontWeight="bold">{t("edit_package")}</Heading>
                                 <Text fontSize="sm" color={textColor} mt={1}>{t("update_package_info")}</Text>
                             </Box>
-                            <Button colorScheme="teal" as={ReactRouterLink} to={PACKAGE_LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("packages")}</Button>
+                            <Button colorScheme="teal" as={ReactRouterLink} to={LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">{t("packages")}</Button>
                         </Flex>
                     </CardHeader>
 
@@ -188,13 +190,13 @@ const PackageEdit = () => {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("name")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("name")}</FormLabel>
                                     <Input
                                         {...register("name", { required: true })}
                                         placeholder={t("package_name_placeholder")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -204,13 +206,13 @@ const PackageEdit = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("slug")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("slug")}</FormLabel>
                                     <Input
                                         {...register("slug", { required: true })}
                                         placeholder={t("package_slug_placeholder")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -220,12 +222,12 @@ const PackageEdit = () => {
                                 </FormControl>
 
                                 <FormControl isRequired>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("status")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("status")}</FormLabel>
                                     <Select
                                         {...register("status")}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -238,14 +240,14 @@ const PackageEdit = () => {
                                 </FormControl>
 
                                 <FormControl gridColumn={{ md: "span 2" }}>
-                                    <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("description")}</FormLabel>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("description")}</FormLabel>
                                     <Textarea
                                         {...register("description")}
                                         placeholder={t("description_placeholder")}
                                         rows={3}
-                                        bg={fieldBg}
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor={borderColor}
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: fieldHoverBorder }}
@@ -289,7 +291,7 @@ const PackageEdit = () => {
                                             border="1px solid"
                                             borderColor={selectedModules.includes(mod) ? "teal.300" : borderColor}
                                             borderRadius="lg"
-                                            bg={selectedModules.includes(mod) ? "teal.50" : pageBg}
+                                            bg={selectedModules.includes(mod) ? "teal.50" : colors.bgSubtle}
                                             cursor="pointer"
                                             onClick={() => handleModuleChange(mod)}
                                             transition="all 0.2s"
@@ -321,7 +323,7 @@ const PackageEdit = () => {
                             </Box>
 
                             <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
-                                <Button type="button" as={ReactRouterLink} to={PACKAGE_LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: pageBg }}>{t("cancel")}</Button>
+                                <Button type="button" as={ReactRouterLink} to={LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>{t("cancel")}</Button>
                                 <Button type="submit" isLoading={isSubmitting} loadingText={t("saving")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">{t("update")}</Button>
                             </Flex>
                         </form>

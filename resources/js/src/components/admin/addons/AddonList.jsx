@@ -1,44 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    Card,
-    CardBody,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
-    SimpleGrid,
-    Td,
     Box,
     useToast,
+    Icon,
+    IconButton,
+    Text,
+    Badge,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
 } from "@chakra-ui/react";
-import { Link as ChakraLink } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
-import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
-import { DELETE_ADDON, LIST_ADDON } from "../../../routes/apiRoutes";
-import { ADDON_ADD_PATH, ADDON_EDIT_PATH, ADMIN_DASHBOARD_PATH } from "../../../routes/adminRoutes";
-import { useCurrencyFormatter } from './../../../useCurrencyFormatter';
+import PageHeader from "../../ui/PageHeader";
+import TableExportButtons from "../../ui/TableExportButtons";
+import { LIST_ADDON, DELETE_ADDON } from "../../../routes/apiRoutes";
+import {
+    ADDON_ADD_PATH,
+    ADDON_EDIT_PATH,
+    ADMIN_DASHBOARD_PATH,
+} from "../../../routes/adminRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
 
 export default function AddonList() {
     const [data, setData] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const pageSize = 10;
+    const [pageSize] = useState(15);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
-    const { formatAmount, currency } = useCurrencyFormatter(); 
+    const colors = useThemeColors();
+    const { formatAmount } = useCurrencyFormatter();
 
-    // Fetch data whenever page or search changes
-    const fetchAddons = async () => {
+    const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
-            // Browser online: request server data with pagination & filter
             const res = await api.get(LIST_ADDON, {
                 params: {
                     page: pageIndex + 1,
@@ -46,57 +53,54 @@ export default function AddonList() {
                     search: globalFilter || "",
                 },
             });
-
-            const ingredients = res.data?.data?.data || [];
-            const total = res.data?.data?.total || ingredients.length;
-
-            // Update table
-            setData(ingredients);
+            const items = res.data?.data || [];
+            const total = res.data?.meta?.total || items.length;
+            setData(items);
             setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
         } catch (err) {
-            console.error("fetchAddons error:", err);
+            console.error("fetchData error:", err);
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [pageIndex, globalFilter, pageSize]);
 
     useEffect(() => {
-        const app_name = localStorage.getItem('app_name');
-        document.title = `${app_name} | Addon List`;
-        fetchAddons();
-    }, [pageIndex, globalFilter]);
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Addon Management`;
+        fetchData();
+    }, [fetchData]);
 
-    const deleteAddon = async (id) => {
+    const deleteItem = async (id) => {
         const result = await Swal.fire({
-            title: "Are you sure?",
-            text: "Data will be deleted.",
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
             icon: "warning",
             showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Delete!",
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
         });
 
         if (result.isConfirmed) {
             try {
                 await api.delete(DELETE_ADDON(id));
                 toast({
-                    position: "bottom-right",
-                    title: "Data deleted successfully",
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-
-                fetchAddons();
+                fetchData();
             } catch (error) {
-                console.log(error);
                 toast({
-                    position: "bottom-right",
-                    title: "Error deleting data",
-                    description:
-                        error.response?.data?.message ||
-                        "Something went wrong.",
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
                     duration: 3000,
                     isClosable: true,
@@ -106,88 +110,130 @@ export default function AddonList() {
     };
 
     const columns = [
-        { header: t("sl"), cell: ({ row }) => row.index + 1},
-        { header: t('name'), accessorKey: "name"},
-        { header: t('price'), accessorFn: (row) => formatAmount(row.price)},
-        { header: t('branches'), accessorFn: (row) => (row.branch.name)},
-        { header: t('is_active'), accessorFn: (row) => row.is_active ? 'Active' : ''},
         {
-            header: "Actions",
+            header: "#",
             cell: ({ row }) => (
-                <>
-                    <Box display="flex" gap={2}>
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm" fontWeight="600">
+                    {getValue()}
+                </Text>
+            ),
+        },
+        {
+            header: t("price"),
+            accessorKey: "price",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{formatAmount(getValue())}</Text>
+            ),
+        },
+        {
+            header: t("branches"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
+            header: t("status"),
+            accessorKey: "is_active",
+            cell: ({ getValue }) => {
+                const active = getValue();
+                return (
+                    <Badge
+                        colorScheme={active ? "green" : "red"}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="xs"
+                        fontWeight="600"
+                    >
+                        {active ? t("active") : t("inactive")}
+                    </Badge>
+                );
+            },
+        },
+        {
+            header: t("actions"),
+            cell: ({ row }) => (
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
-                            onClick={() =>
-                                navigate(ADDON_EDIT_PATH(row.original.id), {
-                                    state: { addon: row.original }
-                                })
-                            }
+                            fontSize="sm"
+                            onClick={() => navigate(ADDON_EDIT_PATH(row.original.id), { state: { addon: row.original } })}
                         >
-                            <EditIcon />
-                        </ChakraLink>
-
-                        <ChakraLink
-                            border="1px solid black"
-                            padding={2}
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
                             borderRadius="md"
-                            cursor="pointer"
-                            onClick={() => deleteAddon(row.original.id)}
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteItem(row.original.id)}
                         >
-                            <DeleteIcon color="red.500" />
-                        </ChakraLink>
-                    </Box>
-                </>
-            ), enableColumnFilter: false,
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
         },
     ];
 
     return (
-        <>
-            {/* Breadcrumb */}
-            <Card mb={5}>
-                <CardBody>
-                    <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-                        <BreadcrumbItem>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={ADMIN_DASHBOARD_PATH}
-                            >
-                                {t("dashboard")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={ADDON_ADD_PATH}
-                            >
-                                {t("add")}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                    </Breadcrumb>
-                </CardBody>
-            </Card>
+        <Box>
+            <PageHeader
+                title={t("addon_management")}
+                subtitle={t("manage_all_addons")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: ADMIN_DASHBOARD_PATH },
+                    { label: t("addons"), isCurrent: true },
+                ]}
+                action={ADDON_ADD_PATH}
+                actionLabel={t("add_addon")}
+            >
+                <TableExportButtons data={data} columns={columns} filename="addons" />
+            </PageHeader>
 
-            <SimpleGrid columns={{ base: 1, md: 1 }} mt={5}>
-                <Card>
-                    <CardBody>
-                        <TanStackTable
-                            columns={columns}
-                            data={data}
-                            globalFilter={globalFilter}
-                            setGlobalFilter={setGlobalFilter}
-                            pageIndex={pageIndex}
-                            pageSize={pageSize}
-                            setPageIndex={setPageIndex}
-                            pageCount={pageCount}
-                            isLoading={isLoading}
-                            addURL={ADDON_ADD_PATH}
-                        />
-                    </CardBody>
-                </Card>
-            </SimpleGrid>
-        </>
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL={ADDON_ADD_PATH}
+                    totalItems={totalItems}
+                />
+            </Box>
+        </Box>
     );
 }

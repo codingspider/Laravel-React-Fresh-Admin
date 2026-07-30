@@ -6,19 +6,20 @@ import {
     Text,
     Button,
     Icon,
-    useColorModeValue,
 } from "@chakra-ui/react";
 import { Link as ReactRouterLink } from "react-router-dom";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { DASHBOARD_PATH } from "../../routes/superAdminRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const ErrorPage = () => {
+    const colors = useThemeColors();
     return (
         <Flex
             minH="100vh"
             align="center"
             justify="center"
-            bg={useColorModeValue("gray.50", "gray.900")}
+            bg={colors.bgPage}
             p={{ base: 4, md: 8 }}
         >
             <VStack spacing={6} textAlign="center" maxW="md">
@@ -39,8 +40,7 @@ const ErrorPage = () => {
                     <Heading
                         size="xl"
                         fontWeight="bold"
-                        color="gray.800"
-                        _dark={{ color: "white" }}
+                        color={colors.textHeading}
                     >
                         Something went wrong
                     </Heading>

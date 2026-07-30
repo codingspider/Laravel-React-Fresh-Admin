@@ -7,12 +7,12 @@ import {
     Button,
     HStack,
     Icon,
-    useColorModeValue,
     Divider,
 } from '@chakra-ui/react';
 import { ArrowLeft } from 'lucide-react';
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import useThemeColors from '../../hooks/useThemeColors';
 
 export default function FormCard({
     title,
@@ -25,8 +25,9 @@ export default function FormCard({
     maxWidth = '4xl',
 }) {
     const { t } = useTranslation();
-    const bg = useColorModeValue('white', 'gray.800');
-    const borderColor = useColorModeValue('gray.200', 'gray.700');
+    const colors = useThemeColors();
+    const bg = colors.bgCard;
+    const borderColor = colors.borderDefault;
 
     return (
         <Box maxW={maxWidth} mx="auto">
@@ -54,7 +55,7 @@ export default function FormCard({
                                 </Button>
                             )}
                             <Box>
-                                <Heading size="md" fontWeight="bold" color="gray.800" _dark={{ color: 'white' }}>
+                                <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                                     {t(title)}
                                 </Heading>
                                 {subtitle && (
@@ -74,7 +75,7 @@ export default function FormCard({
                 {footer && (
                     <>
                         <Divider borderColor={borderColor} />
-                        <Box px={{ base: 4, md: 6 }} py={4} bg={useColorModeValue('gray.50', 'gray.750')}>
+                        <Box px={{ base: 4, md: 6 }} py={4} bg={colors.bgSubtle}>
                             <Flex justify="flex-end" gap={3}>
                                 {footer}
                             </Flex>

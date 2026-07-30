@@ -10,14 +10,17 @@ import useOnlineSync from './hooks/useOnlineSync';
 import 'virtual:pwa-register';
 import theme from './theme';
 import { PermissionProvider, usePermission } from './context/PermissionContext';
+import useThemeColors from './hooks/useThemeColors';
 
 function AppContent() {
   useOnlineSync();
   const { loading } = usePermission();
+  const colors = useThemeColors();
+  const bg = colors.bgPage;
 
   if (loading) {
     return (
-      <Flex minH="100vh" align="center" justify="center" bg="gray.50">
+      <Flex minH="100vh" align="center" justify="center" bg={bg}>
         <Spinner size="xl" color="teal.500" />
       </Flex>
     );

@@ -81,10 +81,10 @@ Each restaurant has isolated data. `restaurant_id` exists in every table.
 
 ### 4. POS System
 - Touch Screen, Category tabs, Product search, Barcode, QR Scan
-- Customer selection, Discount, Coupon, Tax, Modifier, Notes
-- Split Bill, Merge Bill, Hold Bill, Recall Bill
-- Partial Payment, Tips, Multiple Payment Methods
-- Refund, Exchange, Returns, Quick Checkout
+- Customer selection, Discount, Coupon, Tax, Modifier, Notes, table, shipping
+- Split Bill, Merge Bill, Hold Bill
+- Partial Payment, Multiple Payment Methods
+- Refund, Returns, Quick Checkout
 
 ### 5. Table Management
 - Dining hall, Table, Reservation, Floor
@@ -319,3 +319,460 @@ Each restaurant has isolated data. `restaurant_id` exists in every table.
 29. Marketing Module
 30. Notification Module
 31. Review Module
+
+---
+
+## Development Rules & Conventions
+
+**IMPORTANT:** Always read `requirements.md` before starting any task. Follow all rules and conventions defined here.
+
+### Language / Translation Keys
+- All frontend translation keys (used via `t('key')` in React) **must** be defined in `lang/en/message.php`.
+- When adding a new `t('key')` call in any JSX/JS file, always add the corresponding key-value pair to `lang/en/message.php`.
+- Never leave missing translation keys — always verify the key exists in `message.php` before using it in the frontend.
+- Backend module-specific translation keys go in their respective `Modules/{Module}/lang/en/module.php` files.
+
+---
+
+## Frontend Design Guidelines (Light & Dark Mode)
+
+### Design Standard
+
+The **Admin Branch Create/Edit pages** are the official design reference for all **form** pages. The **RestaurantList** page is the official design reference for all **list/table** pages. All existing and future pages must follow these exact patterns. No deviations are permitted.
+
+### Color Rules
+
+1. **All colors must be referenced exclusively from `theme.js`.** Never hardcode color values such as `gray.50`, `gray.800`, `white`, `black`, or any hex code in components.
+2. Every component—tables, forms, cards, inputs, buttons, modals, borders, text, hover states, focus states, shadows, and backgrounds—must use the centralized theme configuration via the `useThemeColors` hook.
+3. The `useThemeColors` hook reads from `theme.js` semantic tokens and resolves the correct value for the current color mode (`default` for light, `_dark` for dark).
+4. Do not introduce new colors, new color tokens, or new shade values outside of `theme.js`.
+5. Do not use Chakra's built-in color scale directly (e.g., `color="gray.500"`, `bg="white"`) in any component. Always use theme tokens instead.
+
+### Page Layout Pattern
+
+Every page must follow this structure:
+
+```jsx
+<Box py={3}>
+    <Box mx="auto">
+        {/* Breadcrumb Card */}
+        <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
+            <CardBody py={3}>
+                <Breadcrumb>...</Breadcrumb>
+            </CardBody>
+        </Card>
+
+        {/* Form / Content Card */}
+        <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
+            <CardHeader
+                bg={colors.bgCard}
+                borderBottom="1px solid"
+                borderColor={colors.borderSubtle}
+                pb={6}
+            >
+                {/* Title + List Button */}
+            </CardHeader>
+            <CardBody p={8}>
+                {/* Form or Content */}
+            </CardBody>
+        </Card>
+    </Box>
+</Box>
+```
+
+- Do **not** set `bg={colors.bgSubtle}` or `minH="100vh"` on the outer `<Box>`. The `MainLayout` already provides the page background via `bg={colors.bgPage}`.
+
+### Input Styling Pattern
+
+All form inputs (Input, Textarea, Select) must use this consistent pattern:
+
+```jsx
+bg={colors.bgInput}
+border="1px solid"
+borderColor={colors.borderInput}
+borderRadius="md"
+focusBorderColor="teal.500"
+_hover={{ borderColor: "gray.300" }}
+size="md"
+transition="all 0.2s"
+```
+
+### Button Styling Pattern
+
+**Save / Primary Button:**
+```jsx
+<Button
+    type="submit"
+    colorScheme="teal"
+    bg="teal.500"
+    color="white"
+    fontWeight="semibold"
+    px={8}
+    h={12}
+    borderRadius="md"
+    _hover={{ bg: "teal.600" }}
+    _active={{ bg: "teal.700" }}
+    boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)"
+/>
+```
+
+**Cancel / Secondary Button:**
+```jsx
+<Button
+    type="button"
+    colorScheme="gray"
+    variant="outline"
+    fontWeight="semibold"
+    px={6}
+    h={12}
+    borderRadius="md"
+    _hover={{ bg: "gray.50" }}
+/>
+```
+
+### Form Label Pattern
+
+```jsx
+<FormLabel
+    fontSize="sm"
+    fontWeight="semibold"
+    color={colors.textPrimary}
+    mb={2}
+/>
+```
+
+### Theme Token Usage Reference
+
+| Element | Light Mode Token | Dark Mode Token | Theme Key |
+|---|---|---|---|
+| Page background | `gray.50` | `gray.900` | `colors.bgPage` |
+| Card background | `white` | `gray.800` | `colors.bgCard` |
+| Input background | `gray.100` | `gray.700` | `colors.bgInput` |
+| Primary text | `gray.800` | `white` | `colors.textPrimary` |
+| Secondary text | `gray.500` | `gray.400` | `colors.textSecondary` |
+| Input border | `gray.200` | `gray.600` | `colors.borderInput` |
+| Card border | `gray.100` | `gray.700` | `colors.borderSubtle` |
+| Default border | `gray.200` | `gray.700` | `colors.borderDefault` |
+
+### Mandatory Rule
+
+This design guideline is a **permanent project requirement**. It applies to all existing pages (retroactively) and all future pages. Every new component must be built following this standard. No exceptions.
+
+---
+
+## Table & List Page Design Guidelines
+
+### Design Standard
+
+The **RestaurantList** page (`restaurant/RestaurantList.jsx`) is the official design reference for all list/table pages. Every existing and future list page must match this exact pattern. No deviations are permitted.
+
+### Reference Files
+
+- `RestaurantList.jsx` — List page structure, data fetching, columns, actions, inline filters
+- `TanStackTable.jsx` — Shared table component (search, pagination, table rendering, children slot for inline filters)
+- `PageHeader.jsx` — Page header with breadcrumbs, title, subtitle, action buttons
+- `TableExportButtons.jsx` — Print and Download CSV buttons (reusable)
+
+### Table Structure Pattern
+
+Every list page must follow this structure:
+
+```jsx
+<Box>
+    <PageHeader
+        title={t("page_title")}
+        subtitle={t("page_subtitle")}
+        breadcrumbs={[
+            { label: t("dashboard"), path: DASHBOARD_PATH },
+            { label: t("list"), isCurrent: true },
+        ]}
+        action={ADD_PATH}
+        actionLabel={t("add_item")}
+    >
+        <TableExportButtons data={data} columns={columns} filename="export_name" />
+    </PageHeader>
+
+    <Box
+        bg={colors.bgCard}
+        p={{ base: 4, md: 6 }}
+        borderRadius="xl"
+        boxShadow="card"
+        border="1px solid"
+        borderColor={colors.borderDefault}
+    >
+        <TanStackTable
+            columns={columns}
+            data={data}
+            globalFilter={globalFilter}
+            setGlobalFilter={setGlobalFilter}
+            pageIndex={pageIndex}
+            pageSize={pageSize}
+            setPageIndex={setPageIndex}
+            pageCount={pageCount}
+            isLoading={isLoading}
+            addURL={ADD_PATH}
+            totalItems={totalItems}
+        >
+            {/* Inline filters — rendered on same line as search input */}
+            <Select
+                maxW="160px"
+                size="md"
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                placeholder={t("all_status")}
+                borderRadius="lg"
+            >
+                <option value="active">{t("active")}</option>
+                <option value="inactive">{t("inactive")}</option>
+            </Select>
+        </TanStackTable>
+    </Box>
+</Box>
+```
+
+### Toolbar Layout (Search + Filters + Actions)
+
+The search box and all filter controls must be **inline on a single row** (side by side). `TanStackTable` supports a `children` prop that renders filter controls directly between the search input and the action buttons — use this for inline dropdowns.
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│ [Search Box] [Filter Dropdowns (children)] [Print] [CSV]     │
+└──────────────────────────────────────────────────────────────┘
+```
+
+- Search input: `maxW={{ base: "100%", md: "280px" }}`, `size="md"`, `borderRadius="lg"`
+- Filter dropdowns: passed as `children` to `TanStackTable`, rendered inline with search
+- Action buttons: Print and Download CSV via `TableExportButtons` (passed as `children` to `PageHeader`)
+- On mobile, controls stack vertically with `gap={3}`
+
+### Action Buttons (Header Area)
+
+Use the reusable `TableExportButtons` component (passed as `children` to `PageHeader`). It provides Print and Download CSV buttons with consistent styling.
+
+```jsx
+import TableExportButtons from "../ui/TableExportButtons";
+
+<PageHeader ... >
+    <TableExportButtons data={data} columns={columns} filename="export_name" />
+</PageHeader>
+```
+
+- **Print Button** — Opens same-page overlay with table-only content, triggers browser print
+- **Download CSV Button** — Exports current table data as CSV file
+- Both accept `data` (array), `columns` (column definitions), and `filename` (string) props
+
+### Table Styling
+
+| Element | Styling |
+|---|---|
+| **Table wrapper** | `borderRadius="lg"`, `border="1px solid"`, `borderColor={colors.borderDefault}`, `overflowX="auto"` |
+| **Table header row** | `bg={colors.bgSubtle}` |
+| **Table header cell** | `fontSize="xs"`, `fontWeight="600"`, `color="gray.500"`, `py={3}`, `whiteSpace="nowrap"`, `borderColor={colors.borderDefault}` |
+| **Table body row** | `_hover={{ bg: colors.bgHover }}`, `transition="background 0.15s ease"`, `borderColor={colors.borderDefault}` |
+| **Table body cell** | `fontSize="sm"`, `py={3}`, `borderColor={colors.borderDefault}` |
+| **Table size** | `size="sm"` on `<Table>` |
+
+### Column Cell Patterns
+
+**Row number column:**
+```jsx
+<Text fontSize="sm" fontWeight="500" color="gray.500">
+    {row.index + 1}
+</Text>
+```
+
+**Text column:**
+```jsx
+<Text fontSize="sm" fontWeight="600">
+    {getValue()}
+</Text>
+```
+
+**Price/currency column:**
+```jsx
+<Text fontSize="sm" fontWeight="600" color="green.600">
+    {getValue()}
+</Text>
+```
+
+**Status badge column:**
+```jsx
+<Badge
+    colorScheme={isActive ? "green" : "gray"}
+    variant="subtle"
+    borderRadius="full"
+    px={2.5}
+    py={0.5}
+    fontSize="xs"
+    fontWeight="600"
+>
+    {getValue()}
+</Badge>
+```
+
+**Category/tag badge column:**
+```jsx
+<Badge
+    colorScheme="blue"
+    variant="subtle"
+    borderRadius="full"
+    px={2.5}
+    py={0.5}
+    fontSize="xs"
+    textTransform="capitalize"
+>
+    {getValue()}
+</Badge>
+```
+
+**Multi-value badge column (e.g., packages, tags):**
+```jsx
+<HStack spacing={1} flexWrap="wrap">
+    {items.slice(0, 2).map((item, i) => (
+        <Badge key={i} colorScheme="purple" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="xs">
+            {item.name}
+        </Badge>
+    ))}
+    {items.length > 2 && (
+        <Badge colorScheme="gray" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="xs">
+            +{items.length - 2}
+        </Badge>
+    )}
+</HStack>
+```
+
+**Empty/null value:**
+```jsx
+<Text fontSize="sm" color="gray.400">-</Text>
+```
+
+### Actions Column (Row Menu)
+
+Use a `Menu` dropdown for row actions (view, edit, delete):
+
+```jsx
+<Menu>
+    <MenuButton
+        as={IconButton}
+        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+        variant="ghost"
+        size="sm"
+        borderRadius="lg"
+        aria-label={t("actions")}
+    />
+    <MenuList minW="140px" p={1.5}>
+        <MenuItem
+            icon={<Icon as={ViewIcon} boxSize={4} />}
+            borderRadius="md"
+            fontSize="sm"
+            onClick={() => navigate(viewPath)}
+        >
+            {t("view")}
+        </MenuItem>
+        <MenuItem
+            icon={<Icon as={EditIcon} boxSize={4} />}
+            borderRadius="md"
+            fontSize="sm"
+            onClick={() => navigate(editPath)}
+        >
+            {t("edit")}
+        </MenuItem>
+        <MenuItem
+            icon={<Icon as={DeleteIcon} boxSize={4} />}
+            borderRadius="md"
+            fontSize="sm"
+            color="red.500"
+            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+            onClick={() => handleDelete(id)}
+        >
+            {t("delete")}
+        </MenuItem>
+    </MenuList>
+</Menu>
+```
+
+### Pagination Pattern
+
+Pagination is handled by `TanStackTable`. The pattern:
+
+- Left side: `Page X of Y` text (`fontSize="sm"`, `color="gray.500"`)
+- Right side: Navigation buttons (First, Previous, Page numbers, Next, Last)
+- Active page button: `variant="primary"`, `minW="36px"`, `borderRadius="lg"`
+- Inactive page button: `variant="ghost"`
+- Separator: `borderTop="1px solid"`, `borderColor={colors.borderDefault}`, `mt={4}`, `pt={4}`
+
+### Search Input Styling
+
+```jsx
+<InputGroup maxW={{ base: "100%", md: "280px" }} size="md">
+    <InputLeftElement pointerEvents="none">
+        <Icon as={Search} color="gray.400" boxSize={4} />
+    </InputLeftElement>
+    <Input
+        placeholder={searchPlaceholder}
+        value={globalFilter ?? ""}
+        onChange={(e) => handleSearch(e.target.value)}
+        borderRadius="lg"
+        bg={colors.bgSubtle}
+        _placeholder={{ color: "gray.400" }}
+    />
+</InputGroup>
+```
+
+### Data Fetching Pattern
+
+Every list page must implement server-side pagination:
+
+```jsx
+const fetchData = useCallback(async () => {
+    try {
+        setIsLoading(true);
+        const res = await api.get(ENDPOINT, {
+            params: {
+                page: pageIndex + 1,
+                per_page: pageSize,
+                search: globalFilter || "",
+            },
+        });
+        const items = res.data?.data?.data || res.data?.data || [];
+        const total = res.data?.meta?.total || res.data?.data?.total || items.length;
+        setData(items);
+        setPageCount(Math.ceil(total / pageSize));
+        setTotalItems(total);
+    } catch (err) {
+        console.error("fetchData error:", err);
+    } finally {
+        setIsLoading(false);
+    }
+}, [pageIndex, globalFilter, pageSize]);
+```
+
+### Delete Confirmation Pattern
+
+Use SweetAlert2 for delete confirmation:
+
+```jsx
+const result = await Swal.fire({
+    title: t("delete_item"),
+    text: t("action_cannot_be_undone"),
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#0d9488",
+    cancelButtonColor: "#6b7280",
+    confirmButtonText: t("yes_delete_it"),
+    cancelButtonText: t("cancel"),
+    reverseButtons: true,
+    customClass: { popup: "swal-popup" },
+});
+```
+
+### Mandatory Rules
+
+1. **All list pages must use `TanStackTable`** — do not build custom tables.
+2. **All list pages must use `PageHeader`** — for consistent breadcrumbs and titles.
+3. **Inline filters** — pass filter dropdowns as `children` to `TanStackTable` so they render on the same line as search.
+4. **Action buttons** — use `TableExportButtons` (Print + Download CSV) passed as `children` to `PageHeader`.
+5. **No hardcoded colors** — all table styling must use `useThemeColors` tokens.
+6. **Consistent row hover** — `_hover={{ bg: colors.bgHover }}` on all body rows.
+7. **Consistent cell padding** — `py={3}` on all header and body cells.
+8. **This design is permanent** — applies to all existing and future list pages. No exceptions.

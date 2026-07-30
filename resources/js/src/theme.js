@@ -11,39 +11,126 @@ const theme = extendTheme({
     },
     colors: {
         brand: {
-            50: '#f0fdfa',
-            100: '#ccfbf1',
-            200: '#99f6e4',
-            300: '#5eead4',
-            400: '#2dd4bf',
-            500: '#14b8a6',
-            600: '#0d9488',
-            700: '#0f766e',
-            800: '#115e59',
-            900: '#134e4a',
-            950: '#042f2e',
+            50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+            400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+            800: '#115e59', 900: '#134e4a', 950: '#042f2e',
         },
         gray: {
-            50: '#f9fafb',
-            100: '#f3f4f6',
-            200: '#e5e7eb',
-            300: '#d1d5db',
-            400: '#9ca3af',
-            500: '#6b7280',
-            600: '#4b5563',
-            700: '#374151',
-            800: '#1f2937',
-            900: '#111827',
-            950: '#030712',
+            50: '#f9fafb', 100: '#f3f4f6', 200: '#e5e7eb', 300: '#d1d5db',
+            400: '#9ca3af', 500: '#6b7280', 600: '#4b5563', 700: '#374151',
+            800: '#1f2937', 900: '#111827', 950: '#030712',
+        },
+    },
+    semanticTokens: {
+        colors: {
+            // ── Page & Surface Backgrounds ──
+            'bg.page': { default: 'gray.50', _dark: 'gray.900' },
+            'bg.card': { default: 'white', _dark: 'gray.800' },
+            'bg.subtle': { default: 'gray.50', _dark: 'gray.700' },
+            'bg.input': { default: 'gray.100', _dark: 'gray.700' },
+            'bg.hover': { default: 'gray.50', _dark: 'gray.700' },
+            'bg.active': { default: 'gray.100', _dark: 'gray.600' },
+            'bg.overlay': { default: 'blackAlpha.600', _dark: 'blackAlpha.700' },
+
+            // ── Text Colours ──
+            'text.primary': { default: 'gray.800', _dark: 'white' },
+            'text.secondary': { default: 'gray.500', _dark: 'gray.400' },
+            'text.muted': { default: 'gray.400', _dark: 'gray.500' },
+            'text.inverse': { default: 'white', _dark: 'gray.800' },
+            'text.label': { default: 'gray.700', _dark: 'gray.300' },
+            'text.heading': { default: 'gray.800', _dark: 'white' },
+
+            // ── Border Colours ──
+            'border.default': { default: 'gray.200', _dark: 'gray.700' },
+            'border.subtle': { default: 'gray.100', _dark: 'gray.700' },
+            'border.input': { default: 'gray.200', _dark: 'gray.600' },
+            'border.strong': { default: 'gray.300', _dark: 'gray.600' },
+            'border.nav': { default: 'white', _dark: 'gray.900' },
+
+            // ── Status Colours ──
+            'status.success': { default: 'green.500', _dark: 'green.400' },
+            'status.warning': { default: 'yellow.500', _dark: 'yellow.400' },
+            'status.error': { default: 'red.500', _dark: 'red.400' },
+            'status.info': { default: 'blue.500', _dark: 'blue.400' },
+
+            'status.successBg': { default: 'green.50', _dark: 'green.900' },
+            'status.warningBg': { default: 'yellow.50', _dark: 'yellow.900' },
+            'status.errorBg': { default: 'red.50', _dark: 'red.900' },
+            'status.infoBg': { default: 'blue.50', _dark: 'blue.900' },
+
+            'status.successText': { default: 'green.600', _dark: 'green.200' },
+            'status.warningText': { default: 'yellow.600', _dark: 'yellow.200' },
+            'status.errorText': { default: 'red.600', _dark: 'red.200' },
+            'status.infoText': { default: 'blue.600', _dark: 'blue.200' },
+
+            // ── Brand ──
+            'brand.solid': { default: 'brand.600', _dark: 'brand.500' },
+            'brand.solidHover': { default: 'brand.700', _dark: 'brand.400' },
+            'brand.subtle': { default: 'brand.50', _dark: 'brand.900' },
+            'brand.subtleText': { default: 'brand.600', _dark: 'brand.200' },
+            'brand.active': { default: 'brand.50', _dark: 'brand.900' },
+
+            // ── Shadows (semantic) ──
+            'shadow.card': { default: 'card', _dark: 'cardDark' },
+            'shadow.modal': { default: 'lg', _dark: '2xl' },
+
+            // ── POS Button Colours ──
+            'btn.hold': { default: 'orange.50', _dark: 'orange.900' },
+            'btn.holdColor': { default: 'orange.600', _dark: 'orange.200' },
+            'btn.holdHover': { default: 'orange.100', _dark: 'orange.800' },
+            'btn.recall': { default: 'blue.50', _dark: 'blue.900' },
+            'btn.recallColor': { default: 'blue.600', _dark: 'blue.200' },
+            'btn.recallHover': { default: 'blue.100', _dark: 'blue.800' },
+            'btn.clear': { default: 'red.50', _dark: 'red.900' },
+            'btn.clearColor': { default: 'red.600', _dark: 'red.200' },
+            'btn.clearHover': { default: 'red.100', _dark: 'red.800' },
+
+            // ── POS Action Button Colours ──
+            'action.hold': { default: 'orange.500', _dark: 'orange.400' },
+            'action.holdHover': { default: 'orange.600', _dark: 'orange.300' },
+            'action.reset': { default: 'red.500', _dark: 'red.400' },
+            'action.resetHover': { default: 'red.600', _dark: 'red.300' },
+            'action.pay': { default: 'green.500', _dark: 'green.400' },
+            'action.payHover': { default: 'green.600', _dark: 'green.300' },
+
+            // ── POS TopBar Button Colours ──
+            'topbar.orderType': { default: 'blue.500', _dark: 'blue.400' },
+            'topbar.orderTypeHover': { default: 'blue.600', _dark: 'blue.300' },
+            'topbar.discount': { default: 'teal.500', _dark: 'teal.400' },
+            'topbar.discountHover': { default: 'teal.600', _dark: 'teal.300' },
+            'topbar.coupon': { default: 'purple.500', _dark: 'purple.400' },
+            'topbar.couponHover': { default: 'purple.600', _dark: 'purple.300' },
+            'topbar.calc': { default: 'green.500', _dark: 'green.400' },
+            'topbar.calcHover': { default: 'green.600', _dark: 'green.300' },
+            'topbar.fullscreen': { default: 'gray.500', _dark: 'gray.400' },
+            'topbar.fullscreenHover': { default: 'gray.600', _dark: 'gray.300' },
+            'topbar.print': { default: 'orange.500', _dark: 'orange.400' },
+            'topbar.printHover': { default: 'orange.600', _dark: 'orange.300' },
+
+            // ── POS Category Chips ──
+            'chip.bg': { default: 'brand.50', _dark: 'brand.900' },
+            'chip.activeBg': { default: 'brand.500', _dark: 'brand.400' },
+            'chip.color': { default: 'brand.600', _dark: 'brand.200' },
+            'chip.activeColor': { default: 'white', _dark: 'gray.900' },
+
+            // ── POS Product Grid ──
+            'product.bg': { default: 'white', _dark: 'gray.750' },
+            'product.border': { default: 'gray.200', _dark: 'gray.600' },
+
+            // ── POS Recall Icon ──
+            'recall.iconBg': { default: 'orange.50', _dark: 'orange.900' },
+            'recall.iconColor': { default: 'orange.500', _dark: 'orange.300' },
+
+            // ── POS Discount Text ──
+            'discount.text': { default: 'red.500', _dark: 'red.300' },
+
+            // ── Nav ──
+            'nav.bg': { default: 'rgba(255,255,255,0.95)', _dark: 'rgba(26,32,44,0.95)' },
+            'nav.searchBg': { default: 'gray.50', _dark: 'gray.800' },
         },
     },
     radii: {
-        sm: '6px',
-        md: '8px',
-        lg: '12px',
-        xl: '16px',
-        '2xl': '20px',
-        full: '9999px',
+        sm: '6px', md: '8px', lg: '12px', xl: '16px', '2xl': '20px', full: '9999px',
     },
     shadows: {
         xs: '0 1px 2px rgba(0,0,0,0.05)',
@@ -129,21 +216,11 @@ const theme = extendTheme({
                     },
                 },
             },
-            defaultProps: {
-                variant: 'outline',
-                size: 'md',
-            },
+            defaultProps: { variant: 'outline', size: 'md' },
         },
         Select: {
-            baseStyle: {
-                field: {
-                    borderRadius: 'lg',
-                },
-            },
-            defaultProps: {
-                variant: 'outline',
-                size: 'md',
-            },
+            baseStyle: { field: { borderRadius: 'lg' } },
+            defaultProps: { variant: 'outline', size: 'md' },
         },
         Card: {
             baseStyle: {

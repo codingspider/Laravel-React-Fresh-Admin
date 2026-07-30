@@ -4,13 +4,12 @@ import {
     Box,
     useToast,
     Icon,
-    HStack,
+    IconButton,
     Text,
     Menu,
     MenuButton,
     MenuList,
     MenuItem,
-    useColorModeValue,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
@@ -21,20 +20,23 @@ import TanStackTable from "../../../TanStackTable";
 import { ROLE_ADD_PATH, ROLE_EDIT_PATH, DASHBOARD_PATH } from "./../../../routes/superAdminRoutes";
 import { DELETE_ROLE, LIST_ROLE } from "../../../routes/apiRoutes";
 import PageHeader from "../../ui/PageHeader";
+import useThemeColors from "../../../hooks/useThemeColors";
+import TableExportButtons from "../../ui/TableExportButtons";
 
 export default function List() {
-    const [globalFilter, setGlobalFilter] = useState("");
     const [data, setData] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize] = useState(10);
+    const [pageSize] = useState(15);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
+    const colors = useThemeColors();
 
-    const fetchRole = useCallback(async () => {
+    const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
             const res = await api.get(LIST_ROLE, {
@@ -52,7 +54,7 @@ export default function List() {
             setPageCount(Math.ceil(total / pageSize));
             setTotalItems(total);
         } catch (err) {
-            console.error("fetchRole error:", err);
+            console.error("fetchData error:", err);
         } finally {
             setIsLoading(false);
         }
@@ -61,10 +63,10 @@ export default function List() {
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Roles & Permissions`;
-        fetchRole();
-    }, [fetchRole]);
+        fetchData();
+    }, [fetchData]);
 
-    const deleteRole = async (id) => {
+    const deleteItem = async (id) => {
         const result = await Swal.fire({
             title: t("are_you_sure"),
             text: t("data_will_be_deleted"),
@@ -73,6 +75,7 @@ export default function List() {
             confirmButtonColor: "#0d9488",
             cancelButtonColor: "#6b7280",
             confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
             reverseButtons: true,
             customClass: { popup: "swal-popup" },
         });
@@ -81,16 +84,16 @@ export default function List() {
             try {
                 await api.delete(DELETE_ROLE(id));
                 toast({
-                    position: "bottom-right",
+                    position: "top-right",
                     title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
                     isClosable: true,
                 });
-                fetchRole();
+                fetchData();
             } catch (error) {
                 toast({
-                    position: "bottom-right",
+                    position: "top-right",
                     title: t("error_deleting_data"),
                     description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",
@@ -124,12 +127,11 @@ export default function List() {
             cell: ({ row }) => (
                 <Menu>
                     <MenuButton
+                        as={IconButton}
                         icon={<Icon as={MoreHorizontal} boxSize={4} />}
-                        as={HStack}
                         variant="ghost"
                         size="sm"
                         borderRadius="lg"
-                        cursor="pointer"
                         aria-label={t("actions")}
                     />
                     <MenuList minW="140px" p={1.5}>
@@ -147,7 +149,7 @@ export default function List() {
                             fontSize="sm"
                             color="red.500"
                             _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
-                            onClick={() => deleteRole(row.original.id)}
+                            onClick={() => deleteItem(row.original.id)}
                         >
                             {t("delete")}
                         </MenuItem>
@@ -168,15 +170,17 @@ export default function List() {
                 ]}
                 action={ROLE_ADD_PATH}
                 actionLabel={t("add_role")}
-            />
+            >
+                <TableExportButtons data={data} columns={columns} filename="roles" />
+            </PageHeader>
 
             <Box
-                bg={useColorModeValue("white", "gray.800")}
+                bg={colors.bgCard}
                 p={{ base: 4, md: 6 }}
                 borderRadius="xl"
                 boxShadow="card"
                 border="1px solid"
-                borderColor={useColorModeValue("gray.200", "gray.700")}
+                borderColor={colors.borderDefault}
             >
                 <TanStackTable
                     columns={columns}

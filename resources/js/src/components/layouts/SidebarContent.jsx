@@ -7,7 +7,6 @@ import {
     Button,
     VStack,
     HStack,
-    useColorModeValue,
     Tooltip,
     Divider,
     Avatar,
@@ -15,6 +14,7 @@ import {
 import { Link as ReactRouterLink } from 'react-router-dom';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
+import useThemeColors from '../../hooks/useThemeColors';
 import {
     LayoutDashboard,
     Users,
@@ -108,6 +108,8 @@ const navItems = [
         children: [
             { path: '/pos/terminal', label: 'POS Terminal', permission: 'view_pos' },
             { path: '/pos/sales', label: 'Sales History', permission: 'view_pos' },
+            { path: '/pos/coupons', label: 'Coupons', permission: 'view_pos' },
+            { path: '/pos/settings', label: 'POS Settings', permission: 'view_pos' },
         ],
     },
     {
@@ -156,14 +158,15 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
     const { can, hasRole } = usePermission();
     const [openMenus, setOpenMenus] = useState({});
     const location = useLocation();
+    const colors = useThemeColors();
 
-    const bg = useColorModeValue('white', 'gray.900');
-    const borderColor = useColorModeValue('gray.100', 'gray.800');
-    const hoverBg = useColorModeValue('gray.50', 'gray.800');
-    const activeBg = useColorModeValue('brand.50', 'brand.900');
+    const bg = colors.bgCard;
+    const borderColor = colors.borderDefault;
+    const hoverBg = colors.bgHover;
+    const activeBg = colors.brandActive;
     const activeColor = 'brand.600';
-    const textColor = useColorModeValue('gray.600', 'gray.400');
-    const textHover = useColorModeValue('gray.900', 'white');
+    const textColor = colors.textSecondary;
+    const textHover = colors.textPrimary;
 
     const checkActive = (path) => location.pathname === path;
     const checkActiveParent = (children) => children?.some(child => location.pathname === child.path);
@@ -444,7 +447,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                                 <Text fontSize="sm" fontWeight="600" noOfLines={1}>
                                     {localStorage.getItem('app_name') || 'Restaurant'}
                                 </Text>
-                                <Text fontSize="xs" color="gray.400" noOfLines={1}>
+                                <Text fontSize="xs" color={colors.textMuted} noOfLines={1}>
                                     Admin
                                 </Text>
                             </Box>

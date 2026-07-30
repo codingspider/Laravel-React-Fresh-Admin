@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from "react";
 import {
-  Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Card, CardBody,
-  Text, useToast, Flex, Spinner,
-  FormControl, FormLabel, Input, Textarea, Switch, Button, SimpleGrid,
+  Box, Card, CardHeader, CardBody, useToast, Flex,
+  FormControl, FormLabel, Input, Textarea, Switch, Button, SimpleGrid, Text,
+  Breadcrumb, BreadcrumbItem, BreadcrumbLink, Heading,
 } from "@chakra-ui/react";
 import { useForm, Controller } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link as ReactRouterLink, useNavigate, useParams } from "react-router-dom";
 import api from "../../../axios";
 import { UPDATE_INVENTORY_CATEGORY, LIST_INVENTORY_CATEGORY } from "../../../routes/apiRoutes";
-import { DASHBOARD_PATH, INVENTORY_CATEGORY_LIST_PATH } from "../../../routes/superAdminRoutes";
+import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
+import useThemeColors from "../../../hooks/useThemeColors";
+
+const LIST_PATH = "/inventory/categories";
 
 export default function InventoryCategoryEdit() {
+  const colors = useThemeColors();
   const { t } = useTranslation();
   const toast = useToast();
   const navigate = useNavigate();
@@ -43,7 +47,7 @@ export default function InventoryCategoryEdit() {
     try {
       const res = await api.put(UPDATE_INVENTORY_CATEGORY(id), data);
       toast({ title: res.data.message || t("inventory_category_updated"), status: "success", duration: 3000, isClosable: true });
-      navigate(INVENTORY_CATEGORY_LIST_PATH);
+      navigate(LIST_PATH);
     } catch (err) {
       const msg = err?.response?.data?.message || t("error");
       toast({ title: t("error"), description: msg, status: "error", duration: 3000, isClosable: true });
@@ -53,64 +57,135 @@ export default function InventoryCategoryEdit() {
   };
 
   return (
-    <Box>
-      <Card mb={5}>
-        <CardBody>
-          <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-            <BreadcrumbItem>
-              <BreadcrumbLink as={ReactRouterLink} to={DASHBOARD_PATH}>{t("dashboard")}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              <BreadcrumbLink as={ReactRouterLink} to={INVENTORY_CATEGORY_LIST_PATH}>{t("all_inventory_categories")}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem isCurrentPage>
-              <BreadcrumbLink>{t("edit")}</BreadcrumbLink>
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </CardBody>
-      </Card>
+    <Box py={3}>
+      <Box mx="auto">
+        {/* Breadcrumb */}
+        <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
+          <CardBody py={3}>
+            <Breadcrumb fontSize="sm" color={colors.textSecondary}>
+              <BreadcrumbItem>
+                <BreadcrumbLink as={ReactRouterLink} to={DASHBOARD_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>
+                  {t("dashboard")}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbLink as={ReactRouterLink} to={LIST_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>
+                  {t("list")}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbItem isCurrentPage>
+                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
+                  {t("edit")}
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+            </Breadcrumb>
+          </CardBody>
+        </Card>
 
-      <Card>
-        <CardBody>
-          {isLoadingData ? (
-            <Flex justify="center" py={12}><Spinner size="xl" color="brand.500" /></Flex>
-          ) : (
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                <FormControl isRequired>
-                  <FormLabel>{t("name")}</FormLabel>
-                  <Input {...register("name")} placeholder={t("name")} />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>{t("sort_order")}</FormLabel>
-                  <Input {...register("sort_order")} type="number" min="0" placeholder="0" />
-                </FormControl>
-                <FormControl gridColumn={{ base: "auto", md: "span 2" }}>
-                  <FormLabel>{t("description")}</FormLabel>
-                  <Textarea {...register("description")} placeholder={t("description")} />
-                </FormControl>
-                <FormControl>
-                  <Controller
-                    name="is_active"
-                    control={control}
-                    render={({ field }) => (
-                      <Flex alignItems="center" gap={3}>
-                        <Switch colorScheme="teal" isChecked={!!field.value} onChange={(e) => field.onChange(e.target.checked)} />
-                        <Text>{t("is_active")}</Text>
-                      </Flex>
-                    )}
-                  />
-                </FormControl>
-              </SimpleGrid>
-
-              <Flex justify="flex-end" gap={3} mt={6}>
-                <Button variant="outline" as={ReactRouterLink} to={INVENTORY_CATEGORY_LIST_PATH}>{t("cancel")}</Button>
-                <Button type="submit" isLoading={isSubmitting} colorScheme="teal">{t("save")}</Button>
+        {/* Main Form Card */}
+        <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
+          <CardHeader bg={colors.bgCard} borderBottom="1px solid" borderColor={colors.borderSubtle} pb={6}>
+            <Flex justify="space-between" align="center">
+              <Box>
+                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">{t("edit")}</Heading>
+                <Text fontSize="sm" color={colors.textSecondary} mt={1}>{t("update_inventory_category_details")}</Text>
+              </Box>
+              <Button colorScheme="teal" as={ReactRouterLink} to={LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">
+                {t("list")}
+              </Button>
+            </Flex>
+          </CardHeader>
+          <CardBody p={8}>
+            {isLoadingData ? (
+              <Flex justify="center" align="center" h="40">
+                <Text color={colors.textSecondary}>{t("loading_data")}</Text>
               </Flex>
-            </form>
-          )}
-        </CardBody>
-      </Card>
+            ) : (
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={8}>
+                  <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                      {t("name")}
+                    </FormLabel>
+                    <Input
+                      {...register("name")}
+                      placeholder={t("name")}
+                      bg={colors.bgInput}
+                      border="1px solid"
+                      borderColor={colors.borderInput}
+                      borderRadius="md"
+                      focusBorderColor="teal.500"
+                      _hover={{ borderColor: "gray.300" }}
+                      size="md"
+                      transition="all 0.2s"
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                      {t("sort_order")}
+                    </FormLabel>
+                    <Input
+                      {...register("sort_order")}
+                      type="number"
+                      min="0"
+                      placeholder="0"
+                      bg={colors.bgInput}
+                      border="1px solid"
+                      borderColor={colors.borderInput}
+                      borderRadius="md"
+                      focusBorderColor="teal.500"
+                      _hover={{ borderColor: "gray.300" }}
+                      size="md"
+                      transition="all 0.2s"
+                    />
+                  </FormControl>
+
+                  <FormControl gridColumn={{ base: "auto", md: "span 2" }}>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                      {t("description")}
+                    </FormLabel>
+                    <Textarea
+                      {...register("description")}
+                      placeholder={t("description")}
+                      bg={colors.bgInput}
+                      border="1px solid"
+                      borderColor={colors.borderInput}
+                      borderRadius="md"
+                      focusBorderColor="teal.500"
+                      _hover={{ borderColor: "gray.300" }}
+                      size="md"
+                      transition="all 0.2s"
+                    />
+                  </FormControl>
+
+                  <FormControl>
+                    <Controller
+                      name="is_active"
+                      control={control}
+                      render={({ field }) => (
+                        <Flex alignItems="center" gap={3}>
+                          <Switch colorScheme="teal" isChecked={!!field.value} onChange={(e) => field.onChange(e.target.checked)} />
+                          <Text color={colors.textPrimary}>{t("is_active")}</Text>
+                        </Flex>
+                      )}
+                    />
+                  </FormControl>
+                </SimpleGrid>
+
+                <Flex mt={10} justify={{ base: "stretch", md: "flex-end" }} gap={4}>
+                  <Button type="button" as={ReactRouterLink} to={LIST_PATH} colorScheme="gray" variant="outline" fontWeight="semibold" px={6} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "gray.50" }}>
+                    {t("cancel")}
+                  </Button>
+                  <Button type="submit" isLoading={isSubmitting} loadingText={t("saving_data")} colorScheme="teal" bg="teal.500" color="white" fontWeight="semibold" px={8} h={12} borderRadius="md" w={{ base: "full", md: "auto" }} _hover={{ bg: "teal.600" }} _active={{ bg: "teal.700" }} boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)">
+                    {t("save")}
+                  </Button>
+                </Flex>
+              </form>
+            )}
+          </CardBody>
+        </Card>
+      </Box>
     </Box>
   );
 }

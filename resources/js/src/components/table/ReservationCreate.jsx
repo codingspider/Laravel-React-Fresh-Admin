@@ -24,6 +24,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../axios";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const ReservationCreate = () => {
     const { register, handleSubmit, reset } = useForm({
@@ -34,6 +35,7 @@ const ReservationCreate = () => {
     const [tables, setTables] = useState([]);
     const toast = useToast();
     const navigate = useNavigate();
+    const colors = useThemeColors();
 
     useEffect(() => {
         api.get("/v1/tables", { params: { per_page: 200 } })
@@ -91,11 +93,11 @@ const ReservationCreate = () => {
     }, []);
 
     return (
-        <Box bg="gray.50" minH="100vh" py={3}>
+        <Box py={3}>
             <Box mx="auto">
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
@@ -117,7 +119,7 @@ const ReservationCreate = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
                                     {t("add")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -125,19 +127,19 @@ const ReservationCreate = () => {
                     </CardBody>
                 </Card>
 
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
                     <CardHeader
-                        bg="white"
+                        bg={colors.bgCard}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={colors.borderSubtle}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">
                                     {t("add")}
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                     {t("create_new_reservation")}
                                 </Text>
                             </Box>
@@ -162,7 +164,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("guest_name")}
@@ -171,9 +173,9 @@ const ReservationCreate = () => {
                                         {...register("guest_name", { required: true })}
                                         type="text"
                                         placeholder={t("guest_name")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -186,7 +188,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("guest_phone")}
@@ -195,9 +197,9 @@ const ReservationCreate = () => {
                                         {...register("guest_phone")}
                                         type="text"
                                         placeholder={t("guest_phone")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -210,7 +212,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("guest_email")}
@@ -219,9 +221,9 @@ const ReservationCreate = () => {
                                         {...register("guest_email")}
                                         type="email"
                                         placeholder={t("guest_email")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -234,7 +236,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("guest_count")}
@@ -246,9 +248,9 @@ const ReservationCreate = () => {
                                         })}
                                         type="number"
                                         placeholder={t("guest_count")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -261,7 +263,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("reservation_date")}
@@ -269,9 +271,9 @@ const ReservationCreate = () => {
                                     <Input
                                         {...register("reservation_date", { required: true })}
                                         type="date"
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -284,7 +286,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("reservation_time")}
@@ -292,9 +294,9 @@ const ReservationCreate = () => {
                                     <Input
                                         {...register("reservation_time", { required: true })}
                                         type="time"
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -307,7 +309,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("duration")}
@@ -316,9 +318,9 @@ const ReservationCreate = () => {
                                         {...register("duration", { valueAsNumber: true })}
                                         type="number"
                                         placeholder={t("duration")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -331,7 +333,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("table")}
@@ -339,9 +341,9 @@ const ReservationCreate = () => {
                                     <Select
                                         {...register("table_id")}
                                         placeholder={t("select_table")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -360,16 +362,16 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("status")}
                                     </FormLabel>
                                     <Select
                                         {...register("status")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -389,7 +391,7 @@ const ReservationCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("special_requests")}
@@ -397,9 +399,9 @@ const ReservationCreate = () => {
                                     <Textarea
                                         {...register("special_requests")}
                                         placeholder={t("special_requests")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}

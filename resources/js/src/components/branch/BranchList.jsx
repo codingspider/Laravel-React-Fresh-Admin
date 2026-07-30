@@ -1,158 +1,272 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
+import React, { useEffect, useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Box, Button, HStack, VStack, Text, Badge, IconButton, useToast,
-  useColorModeValue, Spinner, Center, Menu, MenuButton, MenuList, MenuItem,
-  AlertDialog, AlertDialogOverlay, AlertDialogContent, AlertDialogHeader,
-  AlertDialogBody, AlertDialogFooter, useDisclosure, Flex, Input, InputGroup, InputLeftElement, Select,
-} from '@chakra-ui/react';
-import { FiPlus, FiEdit2, FiTrash2, FiEye, FiMoreVertical, FiSearch } from 'react-icons/fi';
-import PageHeader from '../ui/PageHeader';
-import api from '../../axios';
-
-const statusColors = { active: 'green', inactive: 'red' };
+    Box,
+    useToast,
+    Icon,
+    IconButton,
+    Text,
+    Badge,
+    Menu,
+    MenuButton,
+    MenuList,
+    MenuItem,
+    Select,
+} from "@chakra-ui/react";
+import { useTranslation } from "react-i18next";
+import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { MoreHorizontal } from "lucide-react";
+import Swal from "sweetalert2";
+import api from "../../axios";
+import TanStackTable from "../../TanStackTable";
+import PageHeader from "../ui/PageHeader";
+import TableExportButtons from "../ui/TableExportButtons";
+import { LIST_BRANCH, DELETE_BRANCH } from "../../routes/apiRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
 
 export default function BranchList() {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const toast = useToast();
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const hoverBg = useColorModeValue('gray.50', 'gray.700');
+    const [data, setData] = useState([]);
+    const [globalFilter, setGlobalFilter] = useState("");
+    const [pageIndex, setPageIndex] = useState(0);
+    const [pageSize] = useState(15);
+    const [pageCount, setPageCount] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
+    const [totalItems, setTotalItems] = useState(0);
+    const [statusFilter, setStatusFilter] = useState("");
+    const { t } = useTranslation();
+    const navigate = useNavigate();
+    const toast = useToast();
+    const colors = useThemeColors();
 
-  const [branches, setBranches] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('');
-  const [page, setPage] = useState(1);
-  const [meta, setMeta] = useState({});
-  const [deleteItem, setDeleteItem] = useState(null);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  const cancelRef = React.useRef();
+    const fetchData = useCallback(async () => {
+        try {
+            setIsLoading(true);
+            const res = await api.get(LIST_BRANCH, {
+                params: {
+                    page: pageIndex + 1,
+                    per_page: pageSize,
+                    search: globalFilter || "",
+                    status: statusFilter || "",
+                },
+            });
+            const items = res.data?.data || [];
+            const total = res.data?.meta?.total || items.length;
+            setData(items);
+            setPageCount(Math.ceil(total / pageSize));
+            setTotalItems(total);
+        } catch (err) {
+            console.error("fetchData error:", err);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [pageIndex, globalFilter, pageSize, statusFilter]);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const params = { page, per_page: 15 };
-      if (search) params.search = search;
-      if (statusFilter) params.status = statusFilter;
-      const res = await api.get('/v1/branches', { params });
-      setBranches(res.data.data || []);
-      setMeta(res.data.meta || {});
-    } catch (err) {
-      toast({ title: t('Error fetching data'), status: 'error', position: 'bottom-right' });
-    } finally {
-      setLoading(false);
-    }
-  };
+    useEffect(() => {
+        const app_name = localStorage.getItem("app_name");
+        document.title = `${app_name} | Branch Management`;
+        fetchData();
+    }, [fetchData]);
 
-  useEffect(() => { fetchData(); }, [page, search, statusFilter]);
+    const deleteItem = async (id) => {
+        const result = await Swal.fire({
+            title: t("are_you_sure"),
+            text: t("data_will_be_deleted"),
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#0d9488",
+            cancelButtonColor: "#6b7280",
+            confirmButtonText: t("yes_delete"),
+            cancelButtonText: t("cancel"),
+            reverseButtons: true,
+            customClass: { popup: "swal-popup" },
+        });
 
-  const handleDelete = async () => {
-    try {
-      await api.delete(`/v1/branches/${deleteItem.id}`);
-      toast({ title: t('Branch deleted successfully'), status: 'success', position: 'bottom-right' });
-      fetchData();
-    } catch (err) {
-      toast({ title: t('Error deleting branch'), status: 'error', position: 'bottom-right' });
-    }
-    onClose();
-  };
+        if (result.isConfirmed) {
+            try {
+                await api.delete(DELETE_BRANCH(id));
+                toast({
+                    position: "top-right",
+                    title: t("data_deleted_successfully"),
+                    status: "success",
+                    duration: 3000,
+                    isClosable: true,
+                });
+                fetchData();
+            } catch (error) {
+                toast({
+                    position: "top-right",
+                    title: t("error_deleting_data"),
+                    description: error.response?.data?.message || t("something_went_wrong"),
+                    status: "error",
+                    duration: 3000,
+                    isClosable: true,
+                });
+            }
+        }
+    };
 
-  return (
-    <Box>
-      <PageHeader
-        title={t('Branches')}
-        subtitle={t('Manage all branches')}
-        breadcrumbs={[{ label: t('Dashboard'), link: '/dashboard' }, { label: t('Branches') }]}
-      >
-        <Button leftIcon={<FiPlus />} colorScheme="teal" onClick={() => navigate('/branch/create')}>
-          {t('Add Branch')}
-        </Button>
-      </PageHeader>
+    const statusColors = { active: "green", inactive: "red" };
 
-      <Box bg={bg} borderRadius="xl" border="1px solid" borderColor={borderColor} p={6}>
-        <Flex mb={4} gap={4} direction={{ base: 'column', md: 'row' }} align="center">
-          <InputGroup maxW="300px">
-            <InputLeftElement><FiSearch /></InputLeftElement>
-            <Input placeholder={t('Search branches...')} value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
-          </InputGroup>
-          <Select maxW="160px" placeholder={t('All Status')} value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}>
-            <option value="active">{t('Active')}</option>
-            <option value="inactive">{t('Inactive')}</option>
-          </Select>
-        </Flex>
-
-        {loading ? (
-          <Center py={10}><Spinner size="lg" color="teal.500" /></Center>
-        ) : branches.length === 0 ? (
-          <Center py={10}><Text color="gray.500">{t('No branches found')}</Text></Center>
-        ) : (
-          <Box overflowX="auto">
-            <Box as="table" w="100%" fontSize="sm">
-              <Box as="thead">
-                <Box as="tr" borderBottom="1px solid" borderColor={borderColor}>
-                  {[t('Name'), t('Email'), t('Phone'), t('Main'), t('Status'), t('Actions')].map((h) => (
-                    <Box as="th" key={h} px={4} py={3} textAlign="left" fontWeight="600" color="gray.500">{h}</Box>
-                  ))}
+    const columns = [
+        {
+            header: "#",
+            cell: ({ row }) => (
+                <Text fontSize="sm" fontWeight="500" color="gray.500">
+                    {row.index + 1}
+                </Text>
+            ),
+        },
+        {
+            header: t("name"),
+            accessorKey: "name",
+            cell: ({ row }) => (
+                <Box>
+                    <Text fontSize="sm" fontWeight="600">
+                        {row.original.name}
+                    </Text>
+                    {row.original.full_address && (
+                        <Text fontSize="xs" color="gray.500">
+                            {row.original.full_address}
+                        </Text>
+                    )}
                 </Box>
-              </Box>
-              <Box as="tbody">
-                {branches.map((b) => (
-                  <Box as="tr" key={b.id} borderBottom="1px solid" borderColor={borderColor} _hover={{ bg: hoverBg }}>
-                    <Box as="td" px={4} py={3}>
-                      <VStack align="start" spacing={0}>
-                        <Text fontWeight="600">{b.name}</Text>
-                        <Text fontSize="xs" color="gray.500">{b.full_address}</Text>
-                      </VStack>
-                    </Box>
-                    <Box as="td" px={4} py={3}>{b.email || '-'}</Box>
-                    <Box as="td" px={4} py={3}>{b.phone || '-'}</Box>
-                    <Box as="td" px={4} py={3}>
-                      {b.is_main ? <Badge colorScheme="teal">{t('Main')}</Badge> : <Badge colorScheme="gray">{t('Branch')}</Badge>}
-                    </Box>
-                    <Box as="td" px={4} py={3}>
-                      <Badge colorScheme={statusColors[b.status]} textTransform="capitalize">{t(b.status)}</Badge>
-                    </Box>
-                    <Box as="td" px={4} py={3}>
-                      <Menu>
-                        <MenuButton as={IconButton} icon={<FiMoreVertical />} variant="ghost" size="sm" />
-                        <MenuList>
-                          <MenuItem icon={<FiEye />} onClick={() => navigate(`/branch/view/${b.id}`)}>{t('View')}</MenuItem>
-                          <MenuItem icon={<FiEdit2 />} onClick={() => navigate(`/branch/edit/${b.id}`)}>{t('Edit')}</MenuItem>
-                          <MenuItem icon={<FiTrash2 />} color="red.500" onClick={() => { setDeleteItem(b); onOpen(); }}>{t('Delete')}</MenuItem>
-                        </MenuList>
-                      </Menu>
-                    </Box>
-                  </Box>
-                ))}
-              </Box>
+            ),
+        },
+        {
+            header: t("email"),
+            accessorKey: "email",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("phone"),
+            accessorKey: "phone",
+            cell: ({ getValue }) => (
+                <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("main"),
+            accessorKey: "is_main",
+            cell: ({ getValue }) => {
+                const isMain = getValue();
+                return isMain ? (
+                    <Badge colorScheme="blue" variant="subtle" borderRadius="full" px={2.5} py={0.5} fontSize="xs" fontWeight="600">
+                        {t("main")}
+                    </Badge>
+                ) : (
+                    <Text fontSize="sm" color="gray.400">-</Text>
+                );
+            },
+        },
+        {
+            header: t("status"),
+            accessorKey: "status",
+            cell: ({ getValue }) => {
+                const val = getValue();
+                return (
+                    <Badge
+                        colorScheme={statusColors[val] || "gray"}
+                        variant="subtle"
+                        borderRadius="full"
+                        px={2.5}
+                        py={0.5}
+                        fontSize="xs"
+                        fontWeight="600"
+                        textTransform="capitalize"
+                    >
+                        {t(val)}
+                    </Badge>
+                );
+            },
+        },
+        {
+            header: t("actions"),
+            cell: ({ row }) => (
+                <Menu>
+                    <MenuButton
+                        as={IconButton}
+                        icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                        variant="ghost"
+                        size="sm"
+                        borderRadius="lg"
+                        aria-label={t("actions")}
+                    />
+                    <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={EditIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(`/branch/edit/${row.original.id}`, { state: { branch: row.original } })}
+                        >
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={DeleteIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                            _hover={{ bg: "red.50", _dark: { bg: "red.900" } }}
+                            onClick={() => deleteItem(row.original.id)}
+                        >
+                            {t("delete")}
+                        </MenuItem>
+                    </MenuList>
+                </Menu>
+            ),
+        },
+    ];
+
+    return (
+        <Box>
+            <PageHeader
+                title={t("branch_management")}
+                subtitle={t("manage_all_branches")}
+                breadcrumbs={[
+                    { label: t("dashboard"), path: "/dashboard" },
+                    { label: t("branches"), isCurrent: true },
+                ]}
+                action="/branch/create"
+                actionLabel={t("add_branch")}
+            >
+                <TableExportButtons data={data} columns={columns} filename="branches" />
+            </PageHeader>
+
+            <Box
+                bg={colors.bgCard}
+                p={{ base: 4, md: 6 }}
+                borderRadius="xl"
+                boxShadow="card"
+                border="1px solid"
+                borderColor={colors.borderDefault}
+            >
+                <TanStackTable
+                    columns={columns}
+                    data={data}
+                    globalFilter={globalFilter}
+                    setGlobalFilter={setGlobalFilter}
+                    pageIndex={pageIndex}
+                    pageSize={pageSize}
+                    setPageIndex={setPageIndex}
+                    pageCount={pageCount}
+                    isLoading={isLoading}
+                    addURL="/branch/create"
+                    totalItems={totalItems}
+                >
+                    <Select
+                        maxW="160px"
+                        size="md"
+                        value={statusFilter}
+                        onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
+                        placeholder={t("all_status")}
+                        borderRadius="lg"
+                    >
+                        <option value="active">{t("active")}</option>
+                        <option value="inactive">{t("inactive")}</option>
+                    </Select>
+                </TanStackTable>
             </Box>
-          </Box>
-        )}
-
-        {meta.last_page > 1 && (
-          <Flex mt={4} justify="center" gap={2}>
-            <Button size="sm" isDisabled={page === 1} onClick={() => setPage(page - 1)}>{t('Previous')}</Button>
-            <Text alignSelf="center" fontSize="sm" mx={2}>{t('Page')} {meta.current_page} {t('of')} {meta.last_page}</Text>
-            <Button size="sm" isDisabled={page === meta.last_page} onClick={() => setPage(page + 1)}>{t('Next')}</Button>
-          </Flex>
-        )}
-      </Box>
-
-      <AlertDialog isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
-        <AlertDialogOverlay>
-          <AlertDialogContent>
-            <AlertDialogHeader>{t('Delete Branch')}</AlertDialogHeader>
-            <AlertDialogBody>{t('Are you sure you want to delete this branch?')}</AlertDialogBody>
-            <AlertDialogFooter>
-              <Button ref={cancelRef} onClick={onClose}>{t('Cancel')}</Button>
-              <Button colorScheme="red" onClick={handleDelete} ml={3}>{t('Delete')}</Button>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialogOverlay>
-      </AlertDialog>
-    </Box>
-  );
+        </Box>
+    );
 }

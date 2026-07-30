@@ -6,7 +6,6 @@ import {
     Heading,
     Input,
     Text,
-    useColorModeValue,
     useToast,
     VStack,
     Icon,
@@ -21,10 +20,12 @@ import { resettPassword } from "../../services/authService";
 import { useParams, useNavigate } from "react-router-dom";
 import { LOGIN } from "../../routes/commonRoutes";
 import { UtensilsCrossed, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import useThemeColors from "../../hooks/useThemeColors";
 
 export default function ResetPassword() {
     const toast = useToast();
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const colors = useThemeColors();
     const {
         register,
         handleSubmit,
@@ -72,7 +73,7 @@ export default function ResetPassword() {
             minH="100vh"
             align="center"
             justify="center"
-            bg={useColorModeValue("gray.50", "gray.900")}
+            bg={colors.bgPage}
             p={{ base: 4, md: 8 }}
         >
             <VStack spacing={8} mx="auto" maxW="lg" w="100%">
@@ -92,8 +93,7 @@ export default function ResetPassword() {
                         <Heading
                             size="xl"
                             fontWeight="bold"
-                            color="gray.800"
-                            _dark={{ color: "white" }}
+                            color={colors.textHeading}
                         >
                             Set new password
                         </Heading>
@@ -104,11 +104,11 @@ export default function ResetPassword() {
                 </VStack>
 
                 <Box
-                    bg={useColorModeValue("white", "gray.800")}
+                    bg={colors.bgCard}
                     borderRadius="2xl"
-                    boxShadow={useColorModeValue("lg", "2xl")}
+                    boxShadow={colors.shadowModal}
                     border="1px solid"
-                    borderColor={useColorModeValue("gray.100", "gray.700")}
+                    borderColor={colors.borderSubtle}
                     p={{ base: 6, md: 8 }}
                     w="100%"
                 >
@@ -117,7 +117,7 @@ export default function ResetPassword() {
                             <FormControl isInvalid={errors.email} isRequired>
                                 <Flex align="center" gap={2} mb={2}>
                                     <Icon as={Mail} boxSize={4} color="gray.400" />
-                                    <Text fontSize="sm" fontWeight="600" color="gray.700" _dark={{ color: "gray.300" }}>
+                                    <Text fontSize="sm" fontWeight="600" color={colors.textLabel}>
                                         Email Address
                                     </Text>
                                 </Flex>
@@ -144,7 +144,7 @@ export default function ResetPassword() {
                             <FormControl isInvalid={errors.password} isRequired>
                                 <Flex align="center" gap={2} mb={2}>
                                     <Icon as={Lock} boxSize={4} color="gray.400" />
-                                    <Text fontSize="sm" fontWeight="600" color="gray.700" _dark={{ color: "gray.300" }}>
+                                    <Text fontSize="sm" fontWeight="600" color={colors.textLabel}>
                                         New Password
                                     </Text>
                                 </Flex>

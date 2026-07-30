@@ -26,11 +26,13 @@ import { useNavigate } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../axios";
 import { STORE_BRANCH } from "../../routes/apiRoutes";
+import useThemeColors from "../../hooks/useThemeColors";
 
 const BRANCH_LIST = '/branch/list';
 const DASHBOARD_PATH = '/dashboard';
 
 const BranchCreate = () => {
+    const colors = useThemeColors();
     const { register, handleSubmit, reset } = useForm();
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -85,13 +87,13 @@ const BranchCreate = () => {
     }, []);
 
     return (
-        <Box className="form-dark-surface" bg="gray.50" minH="100vh" py={3}>
+        <Box className="form-dark-surface" bg={colors.bgSubtle} minH="100vh" py={3}>
             <Box mx="auto">
 
                 {/* Modern Breadcrumb */}
-                <Card mb={4} bg="white" shadow="sm" borderRadius="lg" border="none">
+                <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>
-                        <Breadcrumb fontSize="sm" color="gray.500">
+                        <Breadcrumb fontSize="sm" color={colors.textSecondary}>
                             <BreadcrumbItem>
                                 <BreadcrumbLink
                                     as={ReactRouterLink}
@@ -113,7 +115,7 @@ const BranchCreate = () => {
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             <BreadcrumbItem isCurrentPage>
-                                <BreadcrumbLink color="gray.800" fontWeight="bold">
+                                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">
                                     {t("add")}
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
@@ -122,19 +124,19 @@ const BranchCreate = () => {
                 </Card>
 
                 {/* Main Form Card */}
-                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg="white">
+                <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
                     <CardHeader
-                        bg="white"
+                        bg={colors.bgCard}
                         borderBottom="1px solid"
-                        borderColor="gray.100"
+                        borderColor={colors.borderSubtle}
                         pb={6}
                     >
                         <Flex justify="space-between" align="center">
                             <Box>
-                                <Heading size="sm" color="gray.800" fontWeight="bold">
+                                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">
                                     {t("add")}
                                 </Heading>
-                                <Text fontSize="sm" color="gray.500" mt={1}>
+                                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
                                     {t("create_new_branch")}
                                 </Text>
                             </Box>
@@ -159,7 +161,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("name")}
@@ -168,9 +170,9 @@ const BranchCreate = () => {
                                         {...register("name", { required: true })}
                                         type="text"
                                         placeholder={t("name")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -183,7 +185,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("slug")}
@@ -192,9 +194,9 @@ const BranchCreate = () => {
                                         {...register("slug")}
                                         type="text"
                                         placeholder={t("auto-generated-from-name")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -207,7 +209,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("email")}
@@ -216,9 +218,9 @@ const BranchCreate = () => {
                                         {...register("email")}
                                         type="email"
                                         placeholder={t("email")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -231,7 +233,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("phone")}
@@ -240,9 +242,9 @@ const BranchCreate = () => {
                                         {...register("phone")}
                                         type="text"
                                         placeholder={t("phone")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -255,7 +257,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("address")}
@@ -264,9 +266,9 @@ const BranchCreate = () => {
                                         {...register("address")}
                                         type="text"
                                         placeholder={t("address")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -279,7 +281,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("city")}
@@ -288,9 +290,9 @@ const BranchCreate = () => {
                                         {...register("city")}
                                         type="text"
                                         placeholder={t("city")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -303,7 +305,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("state")}
@@ -312,9 +314,9 @@ const BranchCreate = () => {
                                         {...register("state")}
                                         type="text"
                                         placeholder={t("state")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -327,7 +329,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("country")}
@@ -336,9 +338,9 @@ const BranchCreate = () => {
                                         {...register("country")}
                                         type="text"
                                         placeholder={t("country")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -351,7 +353,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("zip_code")}
@@ -360,9 +362,9 @@ const BranchCreate = () => {
                                         {...register("zip_code")}
                                         type="text"
                                         placeholder={t("zip_code")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -375,7 +377,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("timezone")}
@@ -383,9 +385,9 @@ const BranchCreate = () => {
                                     <Select
                                         {...register("timezone")}
                                         placeholder={t("select_timezone")}
-                                        bg="gray.50"
+                                        bg={colors.bgInput}
                                         border="1px solid"
-                                        borderColor="gray.200"
+                                        borderColor={colors.borderInput}
                                         borderRadius="md"
                                         focusBorderColor="teal.500"
                                         _hover={{ borderColor: "gray.300" }}
@@ -412,7 +414,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("is_main")}
@@ -422,7 +424,7 @@ const BranchCreate = () => {
                                             {...register("is_main")}
                                             colorScheme="teal"
                                         />
-                                        <Text fontSize="sm" color="gray.600">
+                                        <Text fontSize="sm" color={colors.textSecondary}>
                                             {t("main_branch")}
                                         </Text>
                                     </HStack>
@@ -432,7 +434,7 @@ const BranchCreate = () => {
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
-                                        color="gray.700"
+                                        color={colors.textPrimary}
                                         mb={2}
                                     >
                                         {t("status")}
@@ -443,7 +445,7 @@ const BranchCreate = () => {
                                             defaultChecked
                                             colorScheme="teal"
                                         />
-                                        <Text fontSize="sm" color="gray.600">
+                                        <Text fontSize="sm" color={colors.textSecondary}>
                                             {t("active")}
                                         </Text>
                                     </HStack>
