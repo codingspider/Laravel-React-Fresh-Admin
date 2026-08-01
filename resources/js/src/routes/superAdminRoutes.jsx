@@ -90,6 +90,7 @@ import ReservationEdit from "../components/table/ReservationEdit";
 
 import POSScreen from "../components/pos/POSScreen";
 import POSSalesList from "../components/pos/POSSalesList";
+import POSSalesView from "../components/pos/POSSalesView";
 import PosSettings from "../components/admin/pos/PosSettings";
 import CouponManagement from "../components/admin/pos/CouponManagement";
 
@@ -268,6 +269,7 @@ export const superAdminRoutes = [
     // Phase 2 — POS
     { path: "/pos/terminal", element: <POSScreen /> },
     { path: "/pos/sales", element: <POSSalesList /> },
+    { path: "/pos/sales/view/:id", element: <POSSalesView /> },
     { path: "/pos/settings", element: <PosSettings /> },
     { path: "/pos/coupons", element: <CouponManagement /> },
 ];

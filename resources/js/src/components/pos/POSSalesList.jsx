@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
     Box,
@@ -11,6 +11,7 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
+    MenuDivider,
     Select,
     NumberInput,
     NumberInputField,
@@ -27,17 +28,21 @@ import {
     Button,
     useDisclosure,
     Flex,
+    Spinner,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { MoreHorizontal, RotateCw } from "lucide-react";
+import { MoreHorizontal, RotateCw, Eye, Printer, FileText, CreditCard, ChefHat } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "../../axios";
 import TanStackTable from "../../TanStackTable";
 import PageHeader from "../ui/PageHeader";
 import TableExportButtons from "../ui/TableExportButtons";
-import { LIST_POS_SALES, POS_REFUND } from "../../routes/apiRoutes";
+import { LIST_POS_SALES, GET_POS_SALE, POS_REFUND } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../useCurrencyFormatter";
+import ReceiptPrint from "./partials/ReceiptPrint";
+import KOTPrint from "./partials/KOTPrint";
+import MakePaymentModal from "./partials/MakePaymentModal";
 
 const statusColors = {
     pending: "yellow",
@@ -71,6 +76,13 @@ export default function POSSalesList() {
     const [refundReason, setRefundReason] = useState("");
     const [refundNotes, setRefundNotes] = useState("");
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
+    const [paymentSale, setPaymentSale] = useState(null);
+    const a4PrintRef = useRef(null);
+    const thermalPrintRef = useRef(null);
+    const kotPrintRef = useRef(null);
+    const [printSale, setPrintSale] = useState(null);
+    const [loadingSaleId, setLoadingSaleId] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -157,6 +169,51 @@ export default function POSSalesList() {
                 isClosable: true,
             });
         }
+    };
+
+    const fetchSaleForAction = async (saleId) => {
+        setLoadingSaleId(saleId);
+        try {
+            const res = await api.get(GET_POS_SALE(saleId));
+            return res.data.data;
+        } catch {
+            toast({ position: "top-right", title: t("Failed to load sale details"), status: "error", duration: 2000, isClosable: true });
+            return null;
+        } finally {
+            setLoadingSaleId(null);
+        }
+    };
+
+    const handlePrintReceipt = async (saleId, type) => {
+        const fullSale = await fetchSaleForAction(saleId);
+        if (!fullSale) return;
+        setPrintSale(fullSale);
+        setTimeout(() => {
+            const ref = type === "thermal" ? thermalPrintRef : a4PrintRef;
+            if (ref.current) ref.current();
+        }, 100);
+    };
+
+    const handleKOTPrint = async (saleId) => {
+        const fullSale = await fetchSaleForAction(saleId);
+        if (!fullSale) return;
+        setPrintSale(fullSale);
+        setTimeout(() => {
+            if (kotPrintRef.current) kotPrintRef.current();
+        }, 100);
+    };
+
+    const handleMakePayment = async (sale) => {
+        if (sale.payment_status === "unpaid" || sale.payment_status === "partial") {
+            const fullSale = await fetchSaleForAction(sale.id);
+            if (!fullSale) return;
+            setPaymentSale(fullSale);
+            onPaymentOpen();
+        }
+    };
+
+    const handlePaymentSuccess = () => {
+        fetchData();
     };
 
     const columns = [
@@ -250,13 +307,6 @@ export default function POSSalesList() {
             ),
         },
         {
-            header: t("paid"),
-            accessorKey: "amount_paid",
-            cell: ({ getValue }) => (
-                <Text fontSize="sm">{formatAmount(getValue())}</Text>
-            ),
-        },
-        {
             header: t("refunded"),
             accessorKey: "refunded_amount",
             cell: ({ getValue }) => {
@@ -290,36 +340,82 @@ export default function POSSalesList() {
                 const sale = row.original;
                 const maxRefund = (parseFloat(sale.total) || 0) - (parseFloat(sale.refunded_amount) || 0);
                 const canRefund = sale.payment_status !== "unpaid" && maxRefund > 0 && !["cancelled", "refunded"].includes(sale.status);
+                const canPay = (sale.payment_status === "unpaid" || sale.payment_status === "partial") && !["cancelled", "refunded"].includes(sale.status);
+                const isLoading = loadingSaleId === sale.id;
                 return (
                     <Menu>
                         <MenuButton
                             as={IconButton}
-                            icon={<Icon as={MoreHorizontal} boxSize={4} />}
+                            icon={isLoading ? <Spinner size="xs" /> : <Icon as={MoreHorizontal} boxSize={4} />}
                             variant="ghost"
                             size="sm"
                             borderRadius="lg"
                             aria-label={t("actions")}
+                            isDisabled={isLoading}
                         />
-                        <MenuList minW="140px" p={1.5}>
+                        <MenuList minW="180px" p={1.5}>
                             <MenuItem
-                                icon={<Icon as={ViewIcon} boxSize={4} />}
+                                icon={<Icon as={Eye} boxSize={4} />}
                                 borderRadius="md"
                                 fontSize="sm"
                                 onClick={() => navigate("/pos/sales/view/" + sale.id)}
                             >
                                 {t("view")}
                             </MenuItem>
+                            <MenuDivider />
+                            <MenuItem
+                                icon={<Icon as={FileText} boxSize={4} />}
+                                borderRadius="md"
+                                fontSize="sm"
+                                onClick={() => handlePrintReceipt(sale.id, "a4")}
+                            >
+                                {t("Print Invoice (A4)")}
+                            </MenuItem>
+                            <MenuItem
+                                icon={<Icon as={Printer} boxSize={4} />}
+                                borderRadius="md"
+                                fontSize="sm"
+                                onClick={() => handlePrintReceipt(sale.id, "thermal")}
+                            >
+                                {t("Print Receipt (80mm)")}
+                            </MenuItem>
+                            <MenuItem
+                                icon={<Icon as={ChefHat} boxSize={4} />}
+                                borderRadius="md"
+                                fontSize="sm"
+                                onClick={() => handleKOTPrint(sale.id)}
+                            >
+                                {t("Print KOT")}
+                            </MenuItem>
+                            {canPay && (
+                                <>
+                                    <MenuDivider />
+                                    <MenuItem
+                                        icon={<Icon as={CreditCard} boxSize={4} />}
+                                        borderRadius="md"
+                                        fontSize="sm"
+                                        color="green.500"
+                                        _hover={{ bg: "green.50", _dark: { bg: "green.900" } }}
+                                        onClick={() => handleMakePayment(sale)}
+                                    >
+                                        {t("Make Payment")}
+                                    </MenuItem>
+                                </>
+                            )}
                             {canRefund && (
-                                <MenuItem
-                                    icon={<Icon as={RotateCw} boxSize={4} />}
-                                    borderRadius="md"
-                                    fontSize="sm"
-                                    color="orange.500"
-                                    _hover={{ bg: "orange.50", _dark: { bg: "orange.900" } }}
-                                    onClick={() => handleRefundOpen(sale)}
-                                >
-                                    {t("refund")}
-                                </MenuItem>
+                                <>
+                                    <MenuDivider />
+                                    <MenuItem
+                                        icon={<Icon as={RotateCw} boxSize={4} />}
+                                        borderRadius="md"
+                                        fontSize="sm"
+                                        color="orange.500"
+                                        _hover={{ bg: "orange.50", _dark: { bg: "orange.900" } }}
+                                        onClick={() => handleRefundOpen(sale)}
+                                    >
+                                        {t("refund")}
+                                    </MenuItem>
+                                </>
                             )}
                         </MenuList>
                     </Menu>
@@ -467,6 +563,23 @@ export default function POSSalesList() {
                     </ModalFooter>
                 </ModalContent>
             </Modal>
+
+            {printSale && (
+                <>
+                    <ReceiptPrint sale={printSale} type="a4" triggerRef={a4PrintRef} />
+                    <ReceiptPrint sale={printSale} type="thermal" triggerRef={thermalPrintRef} />
+                    <KOTPrint sale={printSale} triggerRef={kotPrintRef} />
+                </>
+            )}
+
+            {paymentSale && (
+                <MakePaymentModal
+                    isOpen={isPaymentOpen}
+                    onClose={() => { onPaymentClose(); setPaymentSale(null); }}
+                    sale={paymentSale}
+                    onPaymentSuccess={handlePaymentSuccess}
+                />
+            )}
         </Box>
     );
 }

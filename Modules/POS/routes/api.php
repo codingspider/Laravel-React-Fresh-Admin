@@ -22,8 +22,8 @@ Route::middleware(['auth:sanctum', 'restaurant.scope', 'module.access'])->prefix
 
     Route::get('pos', [POSController::class, 'index'])->name('pos.index');
     Route::post('pos', [POSController::class, 'store'])->name('pos.store');
-    Route::get('pos/{id}', [POSController::class, 'show'])->name('pos.show');
     Route::get('pos/held', [POSController::class, 'getHeldOrders'])->name('pos.held');
+    Route::get('pos/{id}', [POSController::class, 'show'])->name('pos.show');
     Route::post('pos/merge', [POSController::class, 'mergeBills'])->name('pos.merge');
     Route::post('pos/{saleId}/payments', [POSController::class, 'processPayment'])->name('pos.payments');
     Route::post('pos/{saleId}/payments/multiple', [POSController::class, 'processMultiplePayments'])->name('pos.payments.multiple');

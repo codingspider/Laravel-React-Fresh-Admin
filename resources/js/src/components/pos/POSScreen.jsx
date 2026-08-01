@@ -110,7 +110,7 @@ export default function POSScreen() {
     try {
       const res = await axios.get(POS_HELD_ORDERS);
       setHeldOrders(res.data?.data?.data || res.data?.data || []);
-    } catch {}
+    } catch { }
   }, []);
 
   useEffect(() => { fetchData(); fetchHeldOrders(); }, [fetchData, fetchHeldOrders]);

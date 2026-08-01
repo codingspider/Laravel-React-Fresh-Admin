@@ -15,7 +15,7 @@ class SaleRepository
 
     public function find($id): Sale
     {
-        return $this->model->with(['items.menuItem', 'payments', 'table', 'customer', 'user'])->findOrFail($id);
+        return $this->model->with(['items.menuItem', 'payments', 'table', 'customer', 'user', 'branch'])->findOrFail($id);
     }
 
     public function create(array $data): Sale

@@ -36,6 +36,11 @@ export default function PaymentModal({
     return paymentMethodIcons[pm.value] || CreditCard;
   };
 
+  const PaymentIcon = ({ pm, size }) => {
+    const Icon = getPaymentIcon(pm);
+    return <Icon size={size} />;
+  };
+
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
       <ModalOverlay />
@@ -105,7 +110,7 @@ export default function PaymentModal({
                         onClick={() => setPaymentMethod(pm.value)}
                         borderRadius="lg"
                         fontWeight="600"
-                        leftIcon={React.cloneElement(getPaymentIcon(pm), { size: 14 })}
+                        leftIcon={<PaymentIcon pm={pm} size={14} />}
                       >
                         {t(pm.label)}
                       </Button>
