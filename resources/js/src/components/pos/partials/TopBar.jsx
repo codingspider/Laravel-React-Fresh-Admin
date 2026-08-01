@@ -107,7 +107,7 @@ export default function TopBar({
                     <User size={14} />
                     <VStack spacing={0} align="start">
                       <Text fontSize="sm">{c.name || c.first_name || `Customer #${c.id}`}</Text>
-                      {c.phone &&               <Text fontSize="xs" color={colors.textMuted}>{c.phone}</Text>}
+                      {c.phone && <Text fontSize="xs" color={colors.textMuted}>{c.phone}</Text>}
                     </VStack>
                     {selectedCustomer?.id === c.id && <CheckIcon ml="auto" boxSize={3} color="green.500" />}
                   </HStack>
@@ -160,20 +160,16 @@ export default function TopBar({
               </MenuList>
             </Menu>
           </Tooltip>
-          <Tooltip label={t('Discount')} placement="top">
-            <IconButton size="sm" icon={<TagIcon size={16} />} borderRadius="lg"
-              bg={colors.topbarDiscount} color="white"
-              _hover={{ bg: colors.topbarDiscountHover }} onClick={() => {}} />
-          </Tooltip>
+
           <Tooltip label={t('Coupons')} placement="top">
             <IconButton size="sm" icon={<Gift size={16} />} borderRadius="lg"
               bg={colors.topbarCoupon} color="white"
-              _hover={{ bg: colors.topbarCouponHover }} onClick={() => {}} />
+              _hover={{ bg: colors.topbarCouponHover }} onClick={() => { }} />
           </Tooltip>
           <Tooltip label={t('Calculator')} placement="top">
             <IconButton size="sm" icon={<Calculator size={16} />} borderRadius="lg"
               bg={colors.topbarCalc} color="white"
-              _hover={{ bg: colors.topbarCalcHover }} onClick={() => {}} />
+              _hover={{ bg: colors.topbarCalcHover }} onClick={() => { }} />
           </Tooltip>
           <Tooltip label={isFullscreen ? t('Exit Fullscreen') : t('Fullscreen')} placement="top">
             <IconButton size="sm" icon={isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
