@@ -46,14 +46,23 @@ class CouponController extends Controller
     public function store(StoreCouponRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['restaurant_id'] = $request->user()->restaurant_id;
+
+        $restaurantId = $data['restaurant_id'] ?? $request->input('restaurant_id') ?? getRestaurantId();
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('pos::module.restaurant_required'),
+            ], 422);
+        }
+
+        $data['restaurant_id'] = $restaurantId;
         $data['used_count'] = 0;
 
         $coupon = $this->service->create($data);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Coupon created successfully',
+            'message' => trans('pos::module.created'),
             'data' => new CouponResource($coupon),
         ], 201);
     }
@@ -68,11 +77,24 @@ class CouponController extends Controller
 
     public function update(StoreCouponRequest $request, Coupon $coupon): JsonResponse
     {
-        $coupon = $this->service->update($coupon->id, $request->validated());
+        $data = $request->validated();
+
+        if (empty($data['restaurant_id'])) {
+            $data['restaurant_id'] = $coupon->restaurant_id ?? $request->input('restaurant_id') ?? getRestaurantId();
+        }
+
+        if (!$data['restaurant_id']) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('pos::module.restaurant_required'),
+            ], 422);
+        }
+
+        $coupon = $this->service->update($coupon->id, $data);
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Coupon updated successfully',
+            'message' => trans('pos::module.updated'),
             'data' => new CouponResource($coupon),
         ]);
     }
@@ -83,7 +105,7 @@ class CouponController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Coupon deleted successfully',
+            'message' => trans('pos::module.deleted'),
         ]);
     }
 

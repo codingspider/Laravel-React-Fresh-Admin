@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'restaurant_id',
+        'branch_id',
     ];
 
     /**
@@ -51,6 +52,11 @@ class User extends Authenticatable
     public function restaurant()
     {
         return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
     public function isSuperAdmin(): bool

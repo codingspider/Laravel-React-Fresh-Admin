@@ -10,9 +10,10 @@ import {
 import { useTranslation } from 'react-i18next';
 import { AddIcon, DeleteIcon, EditIcon, SettingsIcon } from '@chakra-ui/icons';
 import { Save, Tag, Search } from 'lucide-react';
-import axios from 'axios';
+import api from '../../../axios';
 import { POS_COUPONS, POS_COUPON } from '../../../routes/apiRoutes';
 import useThemeColors from '../../../hooks/useThemeColors';
+import { usePermission } from '../../../context/PermissionContext';
 
 const defaultForm = {
   code: '',
@@ -33,6 +34,7 @@ export default function CouponManagement() {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const deleteModal = useDisclosure();
   const colors = useThemeColors();
+  const { user } = usePermission();
 
   const pageBg = colors.bgPage;
   const panelBg = colors.bgCard;
@@ -54,7 +56,7 @@ export default function CouponManagement() {
     try {
       const params = {};
       if (search) params.search = search;
-      const res = await axios.get(POS_COUPONS, { params });
+      const res = await api.get(POS_COUPONS, { params });
       setCoupons(res.data.data?.data || []);
     } catch {
       toast({ title: t('Failed to load coupons'), status: 'error', duration: 3000, isClosable: true });
@@ -76,14 +78,14 @@ export default function CouponManagement() {
         per_customer_limit: form.per_customer_limit ? parseInt(form.per_customer_limit) : null,
         starts_at: form.starts_at || null,
         expires_at: form.expires_at || null,
-        restaurant_id: 1,
+        restaurant_id: user?.restaurant_id || null,
       };
 
       if (editingId) {
-        await axios.put(POS_COUPON(editingId), payload);
+        await api.put(POS_COUPON(editingId), payload);
         toast({ title: t('Coupon updated successfully'), status: 'success', duration: 2000, isClosable: true });
       } else {
-        await axios.post(POS_COUPONS, payload);
+        await api.post(POS_COUPONS, payload);
         toast({ title: t('Coupon created successfully'), status: 'success', duration: 2000, isClosable: true });
       }
       onClose();
@@ -98,7 +100,7 @@ export default function CouponManagement() {
   const handleDelete = async () => {
     if (!deletingCoupon) return;
     try {
-      await axios.delete(POS_COUPON(deletingCoupon.id));
+      await api.delete(POS_COUPON(deletingCoupon.id));
       toast({ title: t('Coupon deleted successfully'), status: 'success', duration: 2000, isClosable: true });
       setDeletingCoupon(null);
       deleteModal.onClose();

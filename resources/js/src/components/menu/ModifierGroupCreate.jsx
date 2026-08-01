@@ -82,7 +82,7 @@ const ModifierGroupCreate = () => {
     };
 
     return (
-        <Box bg={colors.bgSubtle} minH="100vh" py={3}>
+        <Box className="form-dark-surface" bg={colors.bgSubtle} minH="100vh" py={3}>
             <Box mx="auto">
                 <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
                     <CardBody py={3}>

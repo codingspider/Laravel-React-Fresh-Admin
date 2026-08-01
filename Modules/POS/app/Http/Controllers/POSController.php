@@ -99,8 +99,7 @@ class POSController extends Controller
     {
         $data = $request->validated();
         $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
-        $data['branch_id'] = $data['branch_id'] ?? $request->input('branch_id');
-        $data['user_id'] = $request->user()->id;
+        $data['branch_id'] = $data['branch_id'] ?? $request->input('branch_id');        $data['user_id'] = $request->user()->id;
 
         if (isset($data['discount_type']) && isset($data['discount_value'])) {
             $val = (float) ($data['discount_value'] ?? 0);

@@ -61,17 +61,17 @@ class CouponRepository
         $coupon = $this->findByCode($code, $restaurantId, $branchId);
 
         if (!$coupon) {
-            return ['valid' => false, 'message' => 'Coupon not found or expired'];
+            return ['valid' => false, 'message' => trans('pos::module.coupon_not_found')];
         }
 
         if (!$coupon->isValid()) {
-            return ['valid' => false, 'message' => 'Coupon is no longer valid'];
+            return ['valid' => false, 'message' => trans('pos::module.coupon_invalid')];
         }
 
         if ($orderAmount < $coupon->min_order_amount) {
             return [
                 'valid' => false,
-                'message' => "Minimum order amount is {$coupon->min_order_amount}",
+                'message' => trans('pos::module.coupon_minimum_amount', ['amount' => $coupon->min_order_amount]),
             ];
         }
 
@@ -83,7 +83,7 @@ class CouponRepository
                 ->count();
 
             if ($usedCount >= $coupon->per_customer_limit) {
-                return ['valid' => false, 'message' => 'Coupon usage limit reached for this customer'];
+                return ['valid' => false, 'message' => trans('pos::module.coupon_usage_limit_reached')];
             }
         }
 
@@ -95,7 +95,9 @@ class CouponRepository
             'discount' => $discount,
             'type' => $coupon->type,
             'value' => $coupon->value,
-            'message' => "Coupon applied: " . ($coupon->type === 'fixed' ? number_format($discount, 2) : "{$coupon->value}% off"),
+            'message' => trans('pos::module.coupon_applied', [
+                'detail' => $coupon->type === 'fixed' ? number_format($discount, 2) : "{$coupon->value}% off",
+            ]),
         ];
     }
 

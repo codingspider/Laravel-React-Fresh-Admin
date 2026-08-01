@@ -18,7 +18,7 @@ class ValidateCouponRequest extends FormRequest
             'order_amount' => 'required|numeric|min:0',
             'restaurant_id' => 'nullable|exists:restaurants,id',
             'branch_id' => 'nullable|exists:branches,id',
-            'customer_id' => 'nullable|exists:users,id',
+            'customer_id' => 'nullable|exists:customers,id',
         ];
     }
 }

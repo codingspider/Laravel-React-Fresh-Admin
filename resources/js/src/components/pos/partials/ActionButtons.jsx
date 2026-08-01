@@ -9,10 +9,10 @@ export default function ActionButtons({ cartLength, holdOrder, resetCart, submit
   const colors = useThemeColors();
 
   return (
-    <Box px={4} py={3} borderTop="1px solid" borderColor={colors.borderDefault}>
+    <Box px={4} py={2} borderTop="1px solid" borderColor={colors.borderDefault}>
       <Grid templateColumns="1fr 1fr 1.5fr" gap={2}>
         <Button
-          size="lg"
+          size="md"
           bg={colors.actionHold}
           color="white"
           _hover={{ bg: colors.actionHoldHover }}
@@ -25,7 +25,7 @@ export default function ActionButtons({ cartLength, holdOrder, resetCart, submit
           {t('Hold')}
         </Button>
         <Button
-          size="lg"
+          size="md"
           bg={colors.actionReset}
           color="white"
           _hover={{ bg: colors.actionResetHover }}
@@ -38,7 +38,7 @@ export default function ActionButtons({ cartLength, holdOrder, resetCart, submit
           {t('Reset')}
         </Button>
         <Button
-          size="lg"
+          size="md"
           bg={colors.actionPay}
           color="white"
           _hover={{ bg: colors.actionPayHover }}

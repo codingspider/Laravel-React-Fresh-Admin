@@ -133,6 +133,12 @@ Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Req
                 'status' => $restaurant->status,
                 'trial_ends_at' => $restaurant->trial_ends_at?->toISOString(),
             ] : null,
+            'branch_id' => $user->branch_id,
+            'branch' => $user->branch ? [
+                'id' => $user->branch->id,
+                'name' => $user->branch->name,
+                'is_main' => $user->branch->is_main,
+            ] : null,
             'subscription' => $subscription ? [
                 'id' => $subscription->id,
                 'plan' => $subscription->plan ? [

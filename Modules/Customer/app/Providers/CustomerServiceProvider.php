@@ -2,6 +2,7 @@
 
 namespace Modules\Customer\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class CustomerServiceProvider extends ServiceProvider
@@ -15,7 +16,9 @@ class CustomerServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        Route::middleware('api')->prefix('api')->name('api.')->group(function () {
+            $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
+        });
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->moduleNameLower);
     }

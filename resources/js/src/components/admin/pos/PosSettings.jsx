@@ -6,7 +6,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { AddIcon, DeleteIcon, SettingsIcon } from '@chakra-ui/icons';
 import { Save } from 'lucide-react';
-import axios from 'axios';
+import api from '../../../axios';
 import { POS_SETTINGS } from '../../../routes/apiRoutes';
 import useThemeColors from '../../../hooks/useThemeColors';
 
@@ -79,7 +79,7 @@ export default function PosSettings() {
 
   const fetchSettings = useCallback(async () => {
     try {
-      const res = await axios.get(POS_SETTINGS);
+      const res = await api.get(POS_SETTINGS);
       const data = res.data.data;
       setOrderTypes(data.order_types || DEFAULT_ORDER_TYPES);
       setPaymentMethods(data.payment_methods || DEFAULT_PAYMENT_METHODS);
@@ -108,7 +108,7 @@ export default function PosSettings() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      await axios.put(POS_SETTINGS, {
+      await api.put(POS_SETTINGS, {
         order_types: orderTypes,
         payment_methods: paymentMethods,
         default_tax_rate: parseFloat(taxRate) || 0,

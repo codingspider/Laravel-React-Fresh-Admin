@@ -55,6 +55,7 @@ class UserManagementController extends BaseController
             'password' => 'required|min:6',
             'role'     => 'required|exists:roles,id',
             'restaurant_id' => 'nullable|exists:restaurants,id',
+            'branch_id' => 'nullable|exists:branches,id',
         ]);
 
         if ($validator->fails()) {
@@ -69,6 +70,7 @@ class UserManagementController extends BaseController
                 'email'         => $request->email,
                 'password'      => Hash::make($request->password),
                 'restaurant_id' => $request->restaurant_id ?? getRestaurantId(),
+                'branch_id'     => $request->branch_id ?? null,
             ]);
 
             $role = Role::findById($request->role, 'web');
@@ -97,6 +99,7 @@ class UserManagementController extends BaseController
             'password' => 'nullable|min:6',
             'role'     => 'required|exists:roles,id',
             'restaurant_id' => 'nullable|exists:restaurants,id',
+            'branch_id' => 'nullable|exists:branches,id',
         ]);
 
         if ($validator->fails()) {
@@ -110,6 +113,7 @@ class UserManagementController extends BaseController
                 'name'          => $request->name,
                 'email'         => $request->email,
                 'restaurant_id' => $request->restaurant_id ?? $user->restaurant_id,
+                'branch_id'     => $request->branch_id ?? $user->branch_id,
             ];
 
             if ($request->filled('password')) {

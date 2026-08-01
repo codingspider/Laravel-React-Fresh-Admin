@@ -68,17 +68,22 @@ class PosService
     {
         foreach ($items as $item) {
             $menuItem = MenuItem::findOrFail($item['menu_item_id']);
+            $unitPrice = $item['unit_price'] ?? $menuItem->price;
+            $quantity = $item['quantity'] ?? 1;
+            $discountAmount = $item['discount_amount'] ?? 0;
+            $modifiers = $item['modifiers'] ?? null;
 
             $saleItem = SaleItem::create([
                 'sale_id' => $sale->id,
                 'menu_item_id' => $menuItem->id,
                 'item_name' => $menuItem->name,
-                'quantity' => $item['quantity'] ?? 1,
-                'unit_price' => $menuItem->price,
-                'discount_amount' => $item['discount_amount'] ?? 0,
+                'quantity' => $quantity,
+                'unit_price' => $unitPrice,
+                'discount_amount' => $discountAmount,
                 'tax_amount' => $item['tax_amount'] ?? 0,
-                'total' => ($menuItem->price * ($item['quantity'] ?? 1)) - ($item['discount_amount'] ?? 0),
+                'total' => ($unitPrice * $quantity) - $discountAmount,
                 'notes' => $item['notes'] ?? null,
+                'modifiers' => $modifiers,
             ]);
         }
     }

@@ -18,7 +18,7 @@ export default function ProductGrid({ filteredItems, addToCart }) {
   const softShadow = useColorModeValue('soft', 'softDark');
 
   return (
-    <Box flex="1" overflowY="auto" px={4} py={4}>
+    <Box flex="1" overflowY="auto" px={3} py={2}>
       {filteredItems.length === 0 ? (
         <Center h="100%" flexDirection="column">
           <Box p={8} borderRadius="2xl" bg={colors.bgSubtle} mb={4}>
@@ -36,7 +36,7 @@ export default function ProductGrid({ filteredItems, addToCart }) {
             lg: 'repeat(4, 1fr)',
             xl: 'repeat(5, 1fr)',
           }}
-          gap={3}
+          gap={2.5}
         >
           {filteredItems.map(item => (
             <GridItem key={item.id}>
@@ -48,25 +48,25 @@ export default function ProductGrid({ filteredItems, addToCart }) {
                 bg={itemBg}
                 border="1px solid"
                 borderColor={itemBorder}
-                borderRadius="xl"
+                borderRadius="lg"
                 overflow="hidden"
                 size="sm"
               >
-                <AspectRatio ratio={4 / 3}>
+                <AspectRatio ratio={16 / 9}>
                   <Box bg={colors.bgSubtle} display="flex" alignItems="center" justifyContent="center">
                     {item.image_url ? (
                       <Image src={item.image_url} alt={item.name} objectFit="cover" w="100%" h="100%" />
                     ) : (
-                      <Package size={32} color={emptyColor} strokeWidth={1.2} />
+                      <Package size={28} color={emptyColor} strokeWidth={1.2} />
                     )}
                   </Box>
                 </AspectRatio>
-                <CardBody p={3}>
-                  <Text fontWeight="700" fontSize="sm" color={colors.textPrimary} noOfLines={1} mb={1}>
+                <CardBody p={2}>
+                  <Text fontWeight="700" fontSize="sm" color={colors.textPrimary} noOfLines={1} mb={0.5}>
                     {item.name}
                   </Text>
                   <HStack justify="space-between" align="center">
-                    <Text color="brand.500" fontWeight="800" fontSize="md">
+                    <Text color="brand.500" fontWeight="800" fontSize="sm">
                       {formatAmount(parseFloat(item.price || 0))}
                     </Text>
                     {item.sku && (

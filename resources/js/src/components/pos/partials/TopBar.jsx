@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import { SearchIcon, ChevronDownIcon, CheckIcon } from '@chakra-ui/icons';
 import {
   ShoppingBag, User, Printer, Calculator, Maximize2, Minimize2,
-  Tag as TagIcon, Gift, Store,
+  Tag as TagIcon, Gift, Store, Building2, Utensils, Coffee, Bike,
 } from 'lucide-react';
 import useThemeColors from '../../../hooks/useThemeColors';
 
@@ -15,6 +15,7 @@ export default function TopBar({
   customers, selectedCustomer, setSelectedCustomer, searchQuery, setSearchQuery,
   orderType, setOrderType, cart, cartItemCount, isFullscreen, toggleFullscreen,
   setMobileCartOpen, orderTypes, enableCustomer,
+  branches, selectedBranchId, setSelectedBranchId, canSelectBranch, selectedBranch,
 }) {
   const { t } = useTranslation();
   const colors = useThemeColors();
@@ -24,9 +25,58 @@ export default function TopBar({
     return c.name || c.first_name || c.phone || t('Customer');
   };
 
+  const orderTypeIcons = {
+    dine_in: Utensils,
+    takeaway: Coffee,
+    delivery: Bike,
+  };
+
+  const getOrderTypeIcon = (ot) => {
+    if (typeof ot.icon === 'string' && orderTypeIcons[ot.icon]) {
+      return orderTypeIcons[ot.icon];
+    }
+    return orderTypeIcons[ot.value] || Store;
+  };
+
   return (
-    <Box px={4} py={3} bg={colors.bgCard} borderBottom="1px solid" borderColor={colors.borderDefault}>
+    <Box px={4} py={2} bg={colors.bgCard} borderBottom="1px solid" borderColor={colors.borderDefault}>
       <Flex gap={3} align="center" wrap={{ base: 'wrap', md: 'nowrap' }}>
+        {branches.length > 0 && (
+          <Menu>
+            <MenuButton
+              as={Button}
+              size="sm"
+              variant="outline"
+              rightIcon={canSelectBranch ? <ChevronDownIcon /> : undefined}
+              leftIcon={<Building2 size={14} />}
+              borderRadius="lg"
+              borderColor={colors.borderInput}
+              fontWeight="600"
+              isDisabled={!canSelectBranch}
+              minW={{ base: '100%', sm: '150px' }}
+              justifyContent="space-between"
+            >
+              {selectedBranch?.name || t('Select Branch')}
+            </MenuButton>
+            <MenuList maxH="300px" overflowY="auto">
+              {branches.map(b => (
+                <MenuItem key={b.id} onClick={() => setSelectedBranchId(b.id)}>
+                  <HStack>
+                    <Building2 size={14} />
+                    <Text fontSize="sm">{b.name}</Text>
+                    {selectedBranchId === b.id && <CheckIcon ml="auto" boxSize={3} color="green.500" />}
+                  </HStack>
+                </MenuItem>
+              ))}
+              {branches.length === 0 && (
+                <MenuItem isDisabled>
+                  <Text color={colors.textMuted}>{t('No branches found')}</Text>
+                </MenuItem>
+              )}
+            </MenuList>
+          </Menu>
+        )}
+
         {enableCustomer && (
           <Menu>
             <MenuButton
@@ -95,15 +145,18 @@ export default function TopBar({
                 bg={colors.topbarOrderType} color="white"
                 _hover={{ bg: colors.topbarOrderTypeHover }} />
               <MenuList>
-                {(orderTypes || []).map(ot => (
-                  <MenuItem key={ot.value} onClick={() => setOrderType(ot.value)}>
-                    <HStack>
-                      <ot.icon size={14} />
-                      <Text>{t(ot.label)}</Text>
-                      {orderType === ot.value && <CheckIcon ml={2} boxSize={3} color="green.500" />}
-                    </HStack>
-                  </MenuItem>
-                ))}
+                {(orderTypes || []).map(ot => {
+                  const Icon = getOrderTypeIcon(ot);
+                  return (
+                    <MenuItem key={ot.value} onClick={() => setOrderType(ot.value)}>
+                      <HStack>
+                        <Icon size={14} />
+                        <Text>{t(ot.label)}</Text>
+                        {orderType === ot.value && <CheckIcon ml={2} boxSize={3} color="green.500" />}
+                      </HStack>
+                    </MenuItem>
+                  );
+                })}
               </MenuList>
             </Menu>
           </Tooltip>

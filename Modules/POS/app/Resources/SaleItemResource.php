@@ -19,6 +19,7 @@ class SaleItemResource extends JsonResource
             'tax_amount' => $this->tax_amount,
             'total' => $this->total,
             'notes' => $this->notes,
+            'modifiers' => $this->modifiers,
             'menu_item' => $this->whenLoaded('menu_item', fn() => [
                 'id' => $this->menu_item->id,
                 'name' => $this->menu_item->name,

@@ -6,32 +6,38 @@ import {
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { WarningIcon } from '@chakra-ui/icons';
-import axios from 'axios';
+import axios from '../../axios';
 import {
   LIST_MENU_CATEGORY, LIST_MENU_ITEM, LIST_TABLE,
   STORE_POS_SALE, POS_PROCESS_PAYMENT, POS_PROCESS_MULTIPLE_PAYMENTS,
   POS_CANCEL_SALE, POS_HELD_ORDERS, POS_RECALL_ORDER,
   LIST_CUSTOMER, POS_SETTINGS, POS_VALIDATE_COUPON, POS_MERGE_BILLS,
+  LIST_BRANCH,
 } from '../../routes/apiRoutes';
 import useThemeColors from '../../hooks/useThemeColors';
+import { usePermission } from '../../context/PermissionContext';
 import TopBar from './partials/TopBar';
 import CategoryChips from './partials/CategoryChips';
 import ProductGrid from './partials/ProductGrid';
 import CartPanel from './partials/CartPanel';
 import PaymentModal from './partials/PaymentModal';
 import RecallModal from './partials/RecallModal';
+import ModifierModal from './partials/ModifierModal';
 
 export default function POSScreen() {
   const { t } = useTranslation();
   const toast = useToast();
   const cancelRef = useRef();
   const colors = useThemeColors();
+  const { user, hasRole } = usePermission();
 
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [tables, setTables] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [branches, setBranches] = useState([]);
+  const [selectedBranchId, setSelectedBranchId] = useState(null);
   const [cart, setCart] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -57,25 +63,36 @@ export default function POSScreen() {
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
   const { isOpen: isRecallOpen, onOpen: onRecallOpen, onClose: onRecallClose } = useDisclosure();
   const { isOpen: isCancelOpen, onOpen: onCancelOpen, onClose: onCancelClose } = useDisclosure();
+  const { isOpen: isModifierOpen, onOpen: onModifierOpen, onClose: onModifierClose } = useDisclosure();
+  const [modifierItem, setModifierItem] = useState(null);
   const [isSplitPayment, setIsSplitPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [paymentAmount, setPaymentAmount] = useState('');
   const [splitPayments, setSplitPayments] = useState([{ method: 'cash', amount: '', reference: '' }]);
 
+  const canSelectBranch = useMemo(() => {
+    return hasRole('super_admin') || hasRole('admin') || hasRole('restaurant_owner') || hasRole('manager');
+  }, [hasRole]);
+
   const fetchData = useCallback(async () => {
     try {
-      const [catRes, itemRes, tableRes, custRes, settingsRes] = await Promise.all([
+      const [catRes, itemRes, tableRes, custRes, settingsRes, branchRes] = await Promise.all([
         axios.get(`${LIST_MENU_CATEGORY}?per_page=100`),
         axios.get(`${LIST_MENU_ITEM}?per_page=200`),
         axios.get(`${LIST_TABLE}?per_page=100`).catch(() => ({ data: { data: [] } })),
         axios.get(`${LIST_CUSTOMER}?per_page=500`).catch(() => ({ data: { data: [] } })),
         axios.get(POS_SETTINGS).catch(() => ({ data: { data: null } })),
+        axios.get(`${LIST_BRANCH}?per_page=100`).catch(() => ({ data: { data: [] } })),
       ]);
-      setCategories(catRes.data.data || []);
-      setMenuItems(itemRes.data.data || []);
-      setFilteredItems(itemRes.data.data || []);
-      setTables(tableRes.data.data || []);
-      setCustomers(custRes.data.data || []);
+      setCategories(catRes.data?.data?.data || catRes.data?.data || []);
+      setMenuItems(itemRes.data?.data?.data || itemRes.data?.data || []);
+      setFilteredItems(itemRes.data?.data?.data || itemRes.data?.data || []);
+      setTables(tableRes.data?.data?.data || tableRes.data?.data || []);
+      setCustomers(custRes.data?.data?.data || custRes.data?.data || []);
+      const branchList = branchRes.data?.data?.data || branchRes.data?.data || [];
+      setBranches(branchList);
+      setSelectedBranchId(prev => prev || user?.branch_id ||
+        branchList.find(b => b.is_main)?.id || branchList[0]?.id || null);
       const settings = settingsRes.data.data;
       setPosSettings(settings);
       if (settings) {
@@ -87,12 +104,12 @@ export default function POSScreen() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user, t, toast]);
 
   const fetchHeldOrders = useCallback(async () => {
     try {
       const res = await axios.get(POS_HELD_ORDERS);
-      setHeldOrders(res.data.data || []);
+      setHeldOrders(res.data?.data?.data || res.data?.data || []);
     } catch {}
   }, []);
 
@@ -115,36 +132,61 @@ export default function POSScreen() {
     setFilteredItems(items);
   }, [selectedCategory, searchQuery, menuItems]);
 
-  const addToCart = useCallback((item) => {
+  const addToCartWithModifiers = useCallback((item, selectedModifiers) => {
+    const modifierPrice = selectedModifiers.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0);
+    const unitPrice = (parseFloat(item.price) || 0) + modifierPrice;
+    const key = `${item.id}_${selectedModifiers.map(m => m.id).sort().join('_')}`;
     setCart(prev => {
-      const existing = prev.find(c => c.menu_item_id === item.id);
+      const existing = prev.find(c => c.modifier_key && c.modifier_key === key);
       if (existing) {
-        return prev.map(c => c.menu_item_id === item.id
+        return prev.map(c => c.modifier_key === key
           ? { ...c, quantity: c.quantity + 1, total: (c.quantity + 1) * c.unit_price }
           : c);
       }
       return [...prev, {
         menu_item_id: item.id,
+        modifier_key: key,
         item_name: item.name,
         quantity: 1,
-        unit_price: parseFloat(item.price) || 0,
+        unit_price: unitPrice,
         discount_amount: 0,
         tax_amount: 0,
-        total: parseFloat(item.price) || 0,
+        total: unitPrice,
+        modifiers: selectedModifiers,
+        modifiers_label: selectedModifiers.length > 0
+          ? selectedModifiers.map(m => m.name).join(', ')
+          : null,
       }];
     });
   }, []);
 
-  const updateCartQty = useCallback((menuItemId, delta) => {
+  const addToCart = useCallback((item) => {
+    const activeGroups = (item.modifier_groups || [])
+      .filter(g => g.status === 'active' && (g.modifiers || []).some(m => m.status === 'active'));
+    if (activeGroups.length > 0) {
+      setModifierItem(item);
+      onModifierOpen();
+      return;
+    }
+    addToCartWithModifiers(item, []);
+  }, [addToCartWithModifiers, onModifierOpen]);
+
+  const handleModifierConfirm = useCallback((selectedModifiers) => {
+    if (!modifierItem) return;
+    addToCartWithModifiers(modifierItem, selectedModifiers);
+    setModifierItem(null);
+  }, [modifierItem, addToCartWithModifiers]);
+
+  const updateCartQty = useCallback((key, delta) => {
     setCart(prev => prev.map(c => {
-      if (c.menu_item_id !== menuItemId) return c;
+      if (c.modifier_key !== key) return c;
       const newQty = Math.max(1, c.quantity + delta);
       return { ...c, quantity: newQty, total: newQty * c.unit_price };
     }));
   }, []);
 
-  const removeFromCart = useCallback((menuItemId) => {
-    setCart(prev => prev.filter(c => c.menu_item_id !== menuItemId));
+  const removeFromCart = useCallback((key) => {
+    setCart(prev => prev.filter(c => c.modifier_key !== key));
   }, []);
 
   const cartSubtotal = useMemo(() => cart.reduce((sum, c) => sum + c.total, 0), [cart]);
@@ -156,6 +198,22 @@ export default function POSScreen() {
   const taxAmount = taxableAmount * (taxRate / 100);
   const shippingAmount = parseFloat(shipping) || 0;
   const cartTotal = taxableAmount + taxAmount + shippingAmount;
+
+  const branchTables = useMemo(() => {
+    if (!selectedBranchId) return tables;
+    return tables.filter(tb => tb.branch_id === selectedBranchId || !tb.branch_id);
+  }, [tables, selectedBranchId]);
+
+  useEffect(() => {
+    if (selectedTable && branchTables.length > 0 && !branchTables.some(tb => tb.id === selectedTable)) {
+      setSelectedTable(null);
+    }
+  }, [branchTables, selectedTable]);
+
+  const selectedBranch = useMemo(
+    () => branches.find(b => b.id === selectedBranchId) || null,
+    [branches, selectedBranchId]
+  );
 
   const resetCart = useCallback(() => {
     setCart([]);
@@ -191,8 +249,8 @@ export default function POSScreen() {
       const res = await axios.post(POS_VALIDATE_COUPON, {
         code: couponCode,
         order_amount: cartSubtotal,
-        restaurant_id: null,
-        branch_id: null,
+        restaurant_id: user?.restaurant_id || null,
+        branch_id: selectedBranchId || null,
         customer_id: selectedCustomer?.id || null,
       });
       const result = res.data.data;
@@ -211,7 +269,7 @@ export default function POSScreen() {
       const msg = err.response?.data?.message || t('Invalid coupon');
       toast({ title: msg, status: 'error', duration: 3000, isClosable: true });
     }
-  }, [couponCode, cartSubtotal, selectedCustomer, toast, t]);
+  }, [couponCode, cartSubtotal, selectedCustomer, selectedBranchId, user, toast, t]);
 
   const mergeBills = useCallback(async (saleIds) => {
     try {
@@ -225,6 +283,11 @@ export default function POSScreen() {
         discount_amount: parseFloat(item.discount_amount || 0),
         tax_amount: parseFloat(item.tax_amount || 0),
         total: parseFloat(item.total),
+        modifiers: item.modifiers || null,
+        modifiers_label: (item.modifiers || []).map(m => m.name).join(', ') || null,
+        modifier_key: (item.modifiers || []).length > 0
+          ? `${item.menu_item_id}_${item.modifiers.map(m => m.id).sort().join('_')}`
+          : `${item.menu_item_id}_`,
       }));
       setCart(mergedCart);
       setCurrentSale(sale);
@@ -249,6 +312,7 @@ export default function POSScreen() {
     try {
       const payload = {
         order_type: orderType,
+        branch_id: selectedBranchId || null,
         table_id: selectedTable,
         customer_id: selectedCustomer?.id || null,
         items: cart,
@@ -272,7 +336,7 @@ export default function POSScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [cart, orderType, selectedTable, selectedCustomer, discountType, discountValue, couponCode, shippingAmount, taxRate, taxName, notes, kitchenNotes, cartTotal, toast, t, onPaymentOpen, fetchHeldOrders]);
+  }, [cart, orderType, selectedBranchId, selectedTable, selectedCustomer, discountType, discountValue, couponCode, shippingAmount, taxRate, taxName, notes, kitchenNotes, cartTotal, toast, t, onPaymentOpen, fetchHeldOrders]);
 
   const processPayment = useCallback(async () => {
     if (!currentSale) return;
@@ -318,6 +382,7 @@ export default function POSScreen() {
     try {
       const res = await axios.post(STORE_POS_SALE, {
         order_type: orderType,
+        branch_id: selectedBranchId || null,
         table_id: selectedTable,
         customer_id: selectedCustomer?.id || null,
         items: cart,
@@ -337,7 +402,7 @@ export default function POSScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [cart, orderType, selectedTable, selectedCustomer, discountType, discountValue, couponCode, shippingAmount, notes, kitchenNotes, toast, t, resetCart, fetchHeldOrders]);
+  }, [cart, orderType, selectedBranchId, selectedTable, selectedCustomer, discountType, discountValue, couponCode, shippingAmount, notes, kitchenNotes, toast, t, resetCart, fetchHeldOrders]);
 
   const recallOrder = useCallback(async (held) => {
     try {
@@ -351,6 +416,11 @@ export default function POSScreen() {
         discount_amount: parseFloat(item.discount_amount || 0),
         tax_amount: parseFloat(item.tax_amount || 0),
         total: parseFloat(item.total),
+        modifiers: item.modifiers || null,
+        modifiers_label: (item.modifiers || []).map(m => m.name).join(', ') || null,
+        modifier_key: (item.modifiers || []).length > 0
+          ? `${item.menu_item_id}_${item.modifiers.map(m => m.id).sort().join('_')}`
+          : `${item.menu_item_id}_`,
       }));
       setCart(recalledCart);
       setCurrentSale(sale);
@@ -394,7 +464,7 @@ export default function POSScreen() {
 
   const cartPanelProps = useMemo(() => ({
     cart, cartItemCount, cartSubtotal, discountAmount, taxRate, taxName, taxAmount,
-    shippingAmount, cartTotal, orderType, selectedTable, tables, setSelectedTable,
+    shippingAmount, cartTotal, orderType, selectedTable, tables: branchTables, setSelectedTable,
     heldOrders, holdOrder, onRecallOpen, removeFromCart, updateCartQty,
     onClearCart: clearCartOnly, submitting, submitOrder, onPaymentOpen,
     discountType, setDiscountType, discountValue, setDiscountValue,
@@ -408,7 +478,7 @@ export default function POSScreen() {
     enableTableManagement: posSettings?.enable_table_management ?? true,
     validateCoupon,
   }), [cart, cartItemCount, cartSubtotal, discountAmount, taxRate, taxName, taxAmount,
-    shippingAmount, cartTotal, orderType, selectedTable, tables, heldOrders, holdOrder,
+    shippingAmount, cartTotal, orderType, selectedTable, branchTables, heldOrders, holdOrder,
     onRecallOpen, removeFromCart, updateCartQty, clearCartOnly, submitting, submitOrder,
     onPaymentOpen, discountType, discountValue, couponCode, shipping, notes, kitchenNotes,
     posSettings]);
@@ -444,6 +514,11 @@ export default function POSScreen() {
           setMobileCartOpen={setMobileCartOpen}
           orderTypes={posSettings?.active_order_types || []}
           enableCustomer={posSettings?.enable_customer ?? true}
+          branches={branches}
+          selectedBranchId={selectedBranchId}
+          setSelectedBranchId={setSelectedBranchId}
+          canSelectBranch={canSelectBranch}
+          selectedBranch={selectedBranch}
         />
 
         <CategoryChips
@@ -490,6 +565,13 @@ export default function POSScreen() {
         heldOrders={heldOrders}
         recallOrder={recallOrder}
         mergeBills={mergeBills}
+      />
+
+      <ModifierModal
+        isOpen={isModifierOpen}
+        onClose={() => { onModifierClose(); setModifierItem(null); }}
+        item={modifierItem}
+        onConfirm={handleModifierConfirm}
       />
 
       <AlertDialog isOpen={isCancelOpen} leastDestructiveRef={cancelRef} onClose={onCancelClose} isCentered>

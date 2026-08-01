@@ -20,8 +20,8 @@ export default function CartSummarySections({
   const [showNotes, setShowNotes] = useState(false);
 
   return (
-    <Box px={4} py={3} borderTop="1px solid" borderColor={colors.borderDefault} bg={colors.bgSubtle}>
-      <VStack spacing={3} align="stretch">
+    <Box px={4} py={2} borderTop="1px solid" borderColor={colors.borderDefault} bg={colors.bgSubtle}>
+      <VStack spacing={2} align="stretch">
         <HStack justify="space-between" align="center">
           <Text fontSize="xs" fontWeight="600" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider">
             {t('Tax')}
@@ -33,7 +33,7 @@ export default function CartSummarySections({
 
         {enableDiscount && (
           <Box>
-            <Text fontSize="xs" fontWeight="600" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1.5}>
+            <Text fontSize="xs" fontWeight="600" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
               {t('Discount')}
             </Text>
             <HStack spacing={2}>
@@ -61,7 +61,7 @@ export default function CartSummarySections({
 
         {enableCoupon && (
           <Box>
-            <Text fontSize="xs" fontWeight="600" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1.5}>
+            <Text fontSize="xs" fontWeight="600" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
               {t('Coupon')}
             </Text>
             <HStack spacing={2}>
@@ -90,7 +90,7 @@ export default function CartSummarySections({
 
         {enableShipping && (
           <Box>
-            <Text fontSize="xs" fontWeight="600" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1.5}>
+            <Text fontSize="xs" fontWeight="600" color={colors.textSecondary} textTransform="uppercase" letterSpacing="wider" mb={1}>
               {t('Shipping')}
             </Text>
             <Input

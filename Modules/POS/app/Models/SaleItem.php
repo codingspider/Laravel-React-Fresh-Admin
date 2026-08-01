@@ -20,6 +20,7 @@ class SaleItem extends Model
         'tax_amount',
         'total',
         'notes',
+        'modifiers',
     ];
 
     protected $casts = [
@@ -28,6 +29,7 @@ class SaleItem extends Model
         'discount_amount' => 'decimal:2',
         'tax_amount' => 'decimal:2',
         'total' => 'decimal:2',
+        'modifiers' => 'array',
     ];
 
     public function sale(): BelongsTo

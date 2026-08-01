@@ -47,7 +47,7 @@ class MenuItemRepository
 
     public function paginate($perPage = 15, array $filters = [])
     {
-        return $this->model->with(['category', 'variants'])
+        return $this->model->with(['category', 'variants', 'modifierGroups.modifiers'])
             ->when($filters['restaurant_id'] ?? null, fn($q, $r) => $q->where('restaurant_id', $r))
             ->when($filters['category_id'] ?? null, fn($q, $c) => $q->where('menu_category_id', $c))
             ->when($filters['search'] ?? null, fn($q, $s) => $q->where(function ($query) use ($s) {

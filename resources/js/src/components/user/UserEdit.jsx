@@ -16,7 +16,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import api from "../../axios";
-import { GET_ALL_ROLES, UPDATE_USER, GET_EDIT_USER } from "../../routes/apiRoutes";
+import { GET_ALL_ROLES, UPDATE_USER, GET_EDIT_USER, LIST_BRANCH } from "../../routes/apiRoutes";
 import { DASHBOARD_PATH, USER_LIST_PATH } from "../../routes/superAdminRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 import PageHeader from "../ui/PageHeader";
@@ -28,6 +28,7 @@ const UserEdit = () => {
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [roles, setRoles] = useState([]);
+    const [branches, setBranches] = useState([]);
     const [isLoadingData, setIsLoadingData] = useState(true);
     const toast = useToast();
     const navigate = useNavigate();
@@ -37,15 +38,18 @@ const UserEdit = () => {
         const fetchData = async () => {
             try {
                 setIsLoadingData(true);
-                const [roleRes, userRes] = await Promise.all([
+                const [roleRes, userRes, branchRes] = await Promise.all([
                     api.get(GET_ALL_ROLES),
                     api.get(GET_EDIT_USER(id)),
+                    api.get(`${LIST_BRANCH}?per_page=100`).catch(() => ({ data: { data: [] } })),
                 ]);
                 setRoles(roleRes.data?.data || roleRes.data || []);
+                setBranches(branchRes.data?.data?.data || branchRes.data?.data || []);
                 const user = userRes.data?.data || userRes.data;
                 reset({
                     name: user.name,
                     email: user.email,
+                    branch_id: user.branch_id ? String(user.branch_id) : "",
                     role: user.roles?.[0]?.id || "",
                 });
             } catch (err) {
@@ -168,6 +172,28 @@ const UserEdit = () => {
                                             </Button>
                                         </InputRightElement>
                                     </InputGroup>
+                                </FormControl>
+
+                                <FormControl>
+                                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("branch")}</FormLabel>
+                                    <Select
+                                        placeholder={t("select_branch")}
+                                        {...register("branch_id")}
+                                        bg={colors.bgInput}
+                                        border="1px solid"
+                                        borderColor={colors.borderInput}
+                                        borderRadius="md"
+                                        focusBorderColor="teal.500"
+                                        _hover={{ borderColor: "gray.300" }}
+                                        size="md"
+                                        transition="all 0.2s"
+                                    >
+                                        {branches.map((item) => (
+                                            <option key={item.id} value={item.id}>
+                                                {item.name}
+                                            </option>
+                                        ))}
+                                    </Select>
                                 </FormControl>
 
                                 <FormControl isRequired>

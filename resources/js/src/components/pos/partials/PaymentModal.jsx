@@ -5,9 +5,20 @@ import {
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
-import { CreditCard, GitMerge } from 'lucide-react';
+import { CreditCard, GitMerge, Banknote, Smartphone, HandCoins } from 'lucide-react';
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
 import useThemeColors from '../../../hooks/useThemeColors';
+
+const paymentMethodIcons = {
+  cash: Banknote,
+  card: CreditCard,
+  upi: Smartphone,
+  online: Smartphone,
+  credit: HandCoins,
+  loyalty: CreditCard,
+  gift_card: CreditCard,
+  other: CreditCard,
+};
 
 export default function PaymentModal({
   isOpen, onClose, isSplitPayment, setIsSplitPayment,
@@ -19,6 +30,11 @@ export default function PaymentModal({
   const { t } = useTranslation();
   const { formatAmount } = useCurrencyFormatter();
   const colors = useThemeColors();
+
+  const getPaymentIcon = (pm) => {
+    if (pm.icon && typeof pm.icon !== 'string') return pm.icon;
+    return paymentMethodIcons[pm.value] || CreditCard;
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="lg" isCentered>
@@ -89,7 +105,7 @@ export default function PaymentModal({
                         onClick={() => setPaymentMethod(pm.value)}
                         borderRadius="lg"
                         fontWeight="600"
-                        leftIcon={React.cloneElement(pm.icon, { size: 14 })}
+                        leftIcon={React.cloneElement(getPaymentIcon(pm), { size: 14 })}
                       >
                         {t(pm.label)}
                       </Button>

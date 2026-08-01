@@ -10,8 +10,8 @@ export default function SummarySection({ cartItemCount, cartSubtotal, discountAm
   const colors = useThemeColors();
 
   return (
-    <Box px={4} py={3} borderTop="1px solid" borderColor={colors.borderDefault}>
-      <VStack spacing={2} align="stretch">
+    <Box px={4} py={2} borderTop="1px solid" borderColor={colors.borderDefault}>
+      <VStack spacing={1.5} align="stretch">
         <HStack justify="space-between">
           <Text fontSize="sm" color={colors.textSecondary}>{t('Total Qty')}</Text>
           <Text fontSize="sm" fontWeight="700" color={colors.textPrimary}>{cartItemCount}</Text>

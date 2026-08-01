@@ -16,7 +16,7 @@ class StoreCouponRequest extends FormRequest
         $couponId = $this->route('coupon')?->id;
 
         return [
-            'code' => "required|string|max:100|unique:coupons,code,{$couponId},id,restaurant_id," . $this->restaurant_id,
+            'code' => "required|string|max:100|unique:coupons,code,{$couponId},id,restaurant_id," . ($this->restaurant_id ?? 'NULL'),
             'type' => 'required|in:fixed,percent',
             'value' => 'required|numeric|min:0',
             'min_order_amount' => 'nullable|numeric|min:0',
@@ -26,7 +26,7 @@ class StoreCouponRequest extends FormRequest
             'is_active' => 'nullable|boolean',
             'starts_at' => 'nullable|date',
             'expires_at' => 'nullable|date|after_or_equal:starts_at',
-            'restaurant_id' => 'required|exists:restaurants,id',
+            'restaurant_id' => 'nullable|exists:restaurants,id',
             'branch_id' => 'nullable|exists:branches,id',
         ];
     }
