@@ -49,6 +49,10 @@ import SupplierList from "../components/admin/supplier/SupplierList";
 import SupplierCreate from "../components/admin/supplier/SupplierCreate";
 import SupplierEdit from "../components/admin/supplier/SupplierEdit";
 
+import CustomerList from "../components/admin/customer/CustomerList";
+import CustomerCreate from "../components/admin/customer/CustomerCreate";
+import CustomerEdit from "../components/admin/customer/CustomerEdit";
+
 import CurrencyList from "../components/admin/currency/CurrencyList";
 import CurrencyCreate from "../components/admin/currency/CurrencyCreate";
 import CurrencyEdit from "../components/admin/currency/CurrencyEdit";
@@ -146,6 +150,11 @@ export const SUPPLIER_ADD_PATH = "/inventory/supplier/create";
 export const SUPPLIER_EDIT = "/inventory/supplier/edit/:id";
 export const SUPPLIER_EDIT_PATH = (id) => `/inventory/supplier/edit/${id}`;
 
+export const CUSTOMER_LIST_PATH = "/inventory/customers";
+export const CUSTOMER_ADD_PATH = "/inventory/customer/create";
+export const CUSTOMER_EDIT = "/inventory/customer/edit/:id";
+export const CUSTOMER_EDIT_PATH = (id) => `/inventory/customer/edit/${id}`;
+
 export const CURRENCY_LIST_PATH = "/currency/list";
 export const CURRENCY_ADD_PATH = "/currency/create";
 export const CURRENCY_EDIT = "/currency/edit/:id";
@@ -203,6 +212,10 @@ export const superAdminRoutes = [
     { path: SUPPLIER_LIST_PATH, element: <SupplierList /> },
     { path: SUPPLIER_ADD_PATH, element: <SupplierCreate /> },
     { path: SUPPLIER_EDIT, element: <SupplierEdit /> },
+
+    { path: CUSTOMER_LIST_PATH, element: <CustomerList /> },
+    { path: CUSTOMER_ADD_PATH, element: <CustomerCreate /> },
+    { path: CUSTOMER_EDIT, element: <CustomerEdit /> },
 
     { path: CURRENCY_LIST_PATH, element: <CurrencyList /> },
     { path: CURRENCY_ADD_PATH, element: <CurrencyCreate /> },

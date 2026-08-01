@@ -10,8 +10,23 @@ class Customer extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['restaurant_id', 'name', 'status'];
-    protected $casts = ['metadata' => 'array'];
+    protected $fillable = [
+        'restaurant_id',
+        'name',
+        'company',
+        'email',
+        'phone',
+        'address',
+        'city',
+        'country',
+        'notes',
+        'is_active',
+        'status',
+    ];
+    protected $casts = [
+        'metadata' => 'array',
+        'is_active' => 'boolean',
+    ];
 
     public function restaurant()
     {

@@ -38,7 +38,14 @@ class CustomerRepository
     public function paginate($perPage = 15, array $filters = [])
     {
         return $this->model->query()
-            ->when($filters['search'] ?? null, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
+            ->when($filters['restaurant_id'] ?? null, fn($q, $rid) => $q->where('restaurant_id', $rid))
+            ->when($filters['search'] ?? null, fn($q, $s) => $q->where(function ($q) use ($s) {
+                $q->where('name', 'like', "%{$s}%")
+                    ->orWhere('company', 'like', "%{$s}%")
+                    ->orWhere('email', 'like', "%{$s}%")
+                    ->orWhere('phone', 'like', "%{$s}%");
+            }))
+            ->when(isset($filters['is_active']), fn($q) => $q->where('is_active', (bool) $filters['is_active']))
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }

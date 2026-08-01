@@ -42,6 +42,7 @@ import {
     INVENTORY_ITEM_LIST_PATH,
     INVENTORY_CATEGORY_LIST_PATH,
     SUPPLIER_LIST_PATH,
+    CUSTOMER_LIST_PATH,
     UNIT_LIST_PATH,
     CATEGORY_LIST_PATH,
     CURRENCY_LIST_PATH,
@@ -120,6 +121,7 @@ const navItems = [
         children: [
             { path: INVENTORY_ITEM_LIST_PATH, label: 'All Items', permission: 'view_inventory' },
             { path: INVENTORY_CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_inventory' },
+            { path: CUSTOMER_LIST_PATH, label: 'Customers', permission: 'view_inventory' },
             { path: SUPPLIER_LIST_PATH, label: 'Suppliers', permission: 'view_inventory' },
             { path: UNIT_LIST_PATH, label: 'Units', permission: 'view_units' },
         ],

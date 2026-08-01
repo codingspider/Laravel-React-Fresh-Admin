@@ -21,6 +21,7 @@ return [
     'login_required' => 'Please login to continue.',
     'loyalty_points_updated' => 'Loyalty points updated.',
     'not_found' => 'Customer not found.',
+    'restaurant_required' => 'A restaurant is required to create a customer.',
     'restored' => 'Customer restored successfully.',
     'status_changed' => 'Customer status changed successfully.',
     'success' => 'Operation completed successfully.',

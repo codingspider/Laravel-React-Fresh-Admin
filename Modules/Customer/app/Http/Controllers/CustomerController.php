@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Customer\Services\CustomerService;
+use Modules\Customer\Http\Requests\StoreCustomerRequest;
+use Modules\Customer\Http\Requests\UpdateCustomerRequest;
 
 class CustomerController extends Controller
 {
@@ -15,8 +17,11 @@ class CustomerController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->only(['search', 'status']);
-        $filters['restaurant_id'] = getRestaurantId();
+        $filters = [
+            'search' => $request->input('search'),
+            'is_active' => $request->filled('is_active') ? (bool) $request->input('is_active') : null,
+            'restaurant_id' => $request->input('restaurant_id') ?? getRestaurantId(),
+        ];
 
         $data = $this->service->paginate(
             $request->input('per_page', 15),
@@ -30,10 +35,19 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreCustomerRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
+        $data['restaurant_id'] = $request->input('restaurant_id') ?? getRestaurantId();
+
+        if (!$data['restaurant_id']) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans($this->langKey . '.restaurant_required'),
+            ], 422);
+        }
+
+        $data['is_active'] = $data['is_active'] ?? true;
 
         $item = $this->service->create($data);
 
@@ -58,14 +72,17 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateCustomerRequest $request, $id): JsonResponse
     {
         $item = $this->service->find($id);
         if (getRestaurantId() && $item->restaurant_id != getRestaurantId()) {
             abort(403, 'Unauthorized');
         }
 
-        $item = $this->service->update($id, $request->validated());
+        $data = $request->validated();
+        $data['restaurant_id'] = $request->input('restaurant_id') ?? $item->restaurant_id;
+
+        $item = $this->service->update($id, $data);
 
         return response()->json([
             'status' => 'success',
