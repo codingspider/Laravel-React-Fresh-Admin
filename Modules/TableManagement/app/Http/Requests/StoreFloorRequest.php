@@ -15,6 +15,7 @@ class StoreFloorRequest extends FormRequest
             'sort_order' => 'nullable|integer|min:0',
             'description' => 'nullable|string|max:500',
             'layout_data' => 'nullable|array',
+            'restaurant_id' => 'nullable|exists:restaurants,id',
         ];
     }
 }

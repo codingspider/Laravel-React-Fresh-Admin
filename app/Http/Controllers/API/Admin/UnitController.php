@@ -13,8 +13,9 @@ class UnitController extends Controller
     {
         $query = Unit::query();
 
-        if (!isSuperAdmin($request->user())) {
-            $query->where('restaurant_id', $request->user()->id);
+        $restaurantId = getRestaurantId($request->user());
+        if ($restaurantId) {
+            $query->where('restaurant_id', $restaurantId);
         }
 
         $query->when($request->filled('search'), function ($q) use ($request) {
@@ -43,8 +44,15 @@ class UnitController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $validated['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $restaurantId = $request->input('restaurant_id') ?? getRestaurantId($request->user());
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('message.restaurant_required'),
+            ], 422);
+        }
+
+        $validated['restaurant_id'] = $restaurantId;
         $validated['is_active'] = $validated['is_active'] ?? true;
 
         $unit = Unit::create($validated);
@@ -70,6 +78,11 @@ class UnitController extends Controller
     {
         $unit = Unit::findOrFail($id);
 
+        $restaurantId = getRestaurantId($request->user());
+        if ($restaurantId && $unit->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         $validated = $request->validate([
             'actual_name' => 'sometimes|required|string|max:255',
             'short_name' => 'sometimes|required|string|max:50',
@@ -89,6 +102,12 @@ class UnitController extends Controller
     public function destroy($id)
     {
         $unit = Unit::findOrFail($id);
+
+        $restaurantId = getRestaurantId();
+        if ($restaurantId && $unit->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         $unit->delete();
 
         return response()->json([

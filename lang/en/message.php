@@ -374,6 +374,7 @@ return [
     'unit_deleted' => 'Unit deleted successfully',
     'units_fetched' => 'Units fetched successfully',
     'select_unit' => 'Select unit',
+    'restaurant_required' => 'Restaurant selection is required.',
 
     // Suppliers
     'supplier_created' => 'Supplier created successfully',
@@ -582,6 +583,8 @@ return [
     'search_floors' => 'Search floors...',
     'select_floor' => 'Select Floor',
     'update_floor_details' => 'Update floor details',
+    'restaurant' => 'Restaurant',
+    'select_restaurant' => 'Select Restaurant',
 
     // Reservation Module
     'Are you sure you want to delete this reservation?' => 'Are you sure you want to delete this reservation?',
@@ -702,6 +705,7 @@ return [
     'subscription' => 'Subscription',
     'days remaining' => 'days remaining',
     'No active subscription found.' => 'No active subscription found.',
+    'You do not have a subscription yet. Please subscribe to start using the system.' => 'You do not have a subscription yet. Please subscribe to start using the system.',
     'Your subscription has expired. Please renew to continue using all features.' => 'Your subscription has expired. Please renew to continue using all features.',
     'Your trial period will expire in {{days}} days on {{date}}.' => 'Your trial period will expire in {{days}} days on {{date}}.',
     'Your subscription will expire in {{days}} days on {{date}}.' => 'Your subscription will expire in {{days}} days on {{date}}.',

@@ -306,6 +306,23 @@ The `/user` API endpoint returns the authenticated user's permission names as a 
 * Follow consistent naming conventions.
 * Build responsive interfaces with Chakra UI.
 
+### Paginated List Response Unwrapping (CRITICAL — recurring bug)
+
+Laravel paginators are serialised as an object with a `data` key, so a `data` payload that is paginated nests the array one level deeper. When reading list data from ANY API response, ALWAYS use the safe unwrapping pattern — never read `res.data?.data` directly (that returns the paginator object, not the array, and the list renders empty):
+
+```js
+const items = res.data?.data?.data || res.data?.data || [];
+const total = res.data?.meta?.total || res.data?.data?.total || items.length;
+```
+
+This pattern handles all three shapes:
+- `{ data: [ ... ] }` (plain array) → `res.data.data`
+- `{ data: { data: [ ... ], total: N } }` (paginator nested in `data`) → `res.data.data.data`
+- `{ data: { data: [ ... ] }, meta: { total: N } }` (paginator + `meta`) → `res.data.data.data` + `res.data.meta.total`
+
+**This bug has occurred repeatedly across list pages (InventoryCategoryList, SupplierList, InventoryItemList, AddonList, BranchList, CurrencyList, CategoryList, RestaurantList, MenuCategoryList, MenuItemList, ModifierGroupList, POSSalesList, ItemList, VariationList, TableList, ReservationList, FloorList). Every new list page MUST use the pattern above.**
+
+
 ## Localization & Language Files
 
 All static text must be stored in language files — never hardcode strings in controllers, services, or other PHP classes.

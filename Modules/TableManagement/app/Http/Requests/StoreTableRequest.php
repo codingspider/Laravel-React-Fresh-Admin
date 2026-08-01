@@ -20,6 +20,7 @@ class StoreTableRequest extends FormRequest
             'position.x' => 'nullable|numeric',
             'position.y' => 'nullable|numeric',
             'metadata' => 'nullable|array',
+            'restaurant_id' => 'nullable|exists:restaurants,id',
         ];
     }
 }

@@ -30,7 +30,17 @@ class FloorController extends Controller
     public function store(StoreFloorRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
+
+        $restaurantId = getRestaurantId();
+
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans($this->langKey . '.restaurant_required'),
+            ], 422);
+        }
+
+        $data['restaurant_id'] = $restaurantId;
 
         $floor = $this->service->create($data);
 
@@ -44,6 +54,9 @@ class FloorController extends Controller
     public function show($id): JsonResponse
     {
         $floor = $this->service->find($id);
+        if (getRestaurantId() && $floor->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -54,7 +67,12 @@ class FloorController extends Controller
 
     public function update(Request $request, $id): JsonResponse
     {
-        $request->validate([
+        $floor = $this->service->find($id);
+        if (getRestaurantId() && $floor->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $validated = $request->validate([
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string|max:500',
             'sort_order' => 'nullable|integer|min:0',
@@ -62,7 +80,7 @@ class FloorController extends Controller
             'status' => 'sometimes|in:active,inactive',
         ]);
 
-        $floor = $this->service->update($id, $request->validated());
+        $floor = $this->service->update($id, $validated);
 
         return response()->json([
             'status' => 'success',
@@ -73,6 +91,11 @@ class FloorController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $floor = $this->service->find($id);
+        if (getRestaurantId() && $floor->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([

@@ -111,7 +111,7 @@ export const DELETE_PACKAGE = (id) => `/v1/packages/${id}`;
 // Subscription
 export const LIST_SUBSCRIPTION = '/v1/subscriptions';
 export const STORE_SUBSCRIPTION = '/v1/subscriptions';
-export const GET_EDIT_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}/edit`;
+export const GET_EDIT_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}`;
 export const UPDATE_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}`;
 export const DELETE_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}`;
 
@@ -160,11 +160,11 @@ export const UPDATE_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
 export const DELETE_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
 
 // Modifier Groups
-export const LIST_MODIFIER_GROUP = '/v1/modifier-groups';
-export const STORE_MODIFIER_GROUP = '/v1/modifier-groups';
-export const GET_MODIFIER_GROUP = (id) => `/v1/modifier-groups/${id}`;
-export const UPDATE_MODIFIER_GROUP = (id) => `/v1/modifier-groups/${id}`;
-export const DELETE_MODIFIER_GROUP = (id) => `/v1/modifier-groups/${id}`;
+export const LIST_MODIFIER_GROUP = '/v1/menu/modifier-groups';
+export const STORE_MODIFIER_GROUP = '/v1/menu/modifier-groups';
+export const GET_MODIFIER_GROUP = (id) => `/v1/menu/modifier-groups/${id}`;
+export const UPDATE_MODIFIER_GROUP = (id) => `/v1/menu/modifier-groups/${id}`;
+export const DELETE_MODIFIER_GROUP = (id) => `/v1/menu/modifier-groups/${id}`;
 
 // Floors
 export const LIST_FLOOR = '/v1/floors';

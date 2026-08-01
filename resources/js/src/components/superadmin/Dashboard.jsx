@@ -85,7 +85,7 @@ const SubscriptionAlert = () => {
             {t('Subscription')} {t('status')}
           </AlertTitle>
           <AlertDescription fontSize="sm">
-            {t('No active subscription found.')}
+            {t('You do not have a subscription yet. Please subscribe to start using the system.')}
           </AlertDescription>
         </Box>
       </Alert>
@@ -106,7 +106,23 @@ const SubscriptionAlert = () => {
     expiryDate = endsAt;
   }
 
-  if (daysLeft < 0) return null;
+  if (daysLeft < 0) {
+    return (
+      <Alert status="error" borderRadius="lg" mb={6} py={4} px={6} variant="subtle">
+        <AlertIcon boxSize={5} />
+        <Box flex="1">
+          <AlertTitle fontSize="md" fontWeight="600" mb={1}>
+            {t('Subscription')} {t('status')}
+          </AlertTitle>
+          <AlertDescription fontSize="sm">
+            {t('Your subscription has expired. Please renew to continue using all features.')}
+          </AlertDescription>
+        </Box>
+      </Alert>
+    );
+  }
+
+  if (!expiryDate) return null;
 
   const alertStatus = daysLeft <= 7 ? 'warning' : daysLeft <= 30 ? 'warning' : 'success';
   const badgeColor = daysLeft <= 7 ? 'orange' : daysLeft <= 30 ? 'yellow' : 'green';

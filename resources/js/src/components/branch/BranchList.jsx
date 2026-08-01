@@ -49,8 +49,8 @@ export default function BranchList() {
                     status: statusFilter || "",
                 },
             });
-            const items = res.data?.data || [];
-            const total = res.data?.meta?.total || items.length;
+            const items = res.data?.data?.data || res.data?.data || [];
+            const total = res.data?.meta?.total || res.data?.data?.total || items.length;
             setData(items);
             setPageCount(Math.ceil(total / pageSize));
             setTotalItems(total);

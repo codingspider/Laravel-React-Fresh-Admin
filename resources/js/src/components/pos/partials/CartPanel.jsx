@@ -52,18 +52,18 @@ function CartItems({ cart, cartItemCount, cartSubtotal, discountAmount, taxRate,
           <HStack spacing={1}>
             <Tooltip label={t('Hold Order')} placement="top">
               <IconButton size="sm" icon={<Pause size={16} />} onClick={holdOrder}
-                bg={holdBtnBg} color={holdBtnColor} _hover={{ bg: holdBtnHover }}
+                bg={colors.btnHold} color={colors.btnHoldColor} _hover={{ bg: colors.btnHoldHover }}
                 isDisabled={cart.length === 0} borderRadius="lg" />
             </Tooltip>
             {heldOrders.length > 0 && (
               <Tooltip label={`${t('Recall')} (${heldOrders.length})`} placement="top">
                 <IconButton size="sm" icon={<RepeatClockIcon />} onClick={onRecallOpen}
-                  bg={recallBtnBg} color={recallBtnColor} _hover={{ bg: recallBtnHover }} borderRadius="lg" />
+                  bg={colors.btnRecall} color={colors.btnRecallColor} _hover={{ bg: colors.btnRecallHover }} borderRadius="lg" />
               </Tooltip>
             )}
             <Tooltip label={t('Clear Cart')} placement="top">
               <IconButton size="sm" icon={<RotateCcw size={16} />} onClick={onClearCart}
-                bg={clearBtnBg} color={clearBtnColor} _hover={{ bg: clearBtnHover }}
+                bg={colors.btnClear} color={colors.btnClearColor} _hover={{ bg: colors.btnClearHover }}
                 isDisabled={cart.length === 0} borderRadius="lg" />
             </Tooltip>
           </HStack>

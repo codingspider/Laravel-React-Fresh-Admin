@@ -13,8 +13,9 @@ class SupplierController extends Controller
     {
         $query = Supplier::query();
 
-        if (!isSuperAdmin($request->user())) {
-            $query->where('restaurant_id', $request->user()->id);
+        $restaurantId = getRestaurantId($request->user());
+        if ($restaurantId) {
+            $query->where('restaurant_id', $restaurantId);
         }
 
         $query->when($request->filled('search'), function ($q) use ($request) {
@@ -52,8 +53,15 @@ class SupplierController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $validated['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $restaurantId = $request->input('restaurant_id') ?? getRestaurantId($request->user());
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('message.restaurant_required'),
+            ], 422);
+        }
+
+        $validated['restaurant_id'] = $restaurantId;
         $validated['is_active'] = $validated['is_active'] ?? true;
 
         $supplier = Supplier::create($validated);
@@ -69,6 +77,11 @@ class SupplierController extends Controller
     {
         $supplier = Supplier::findOrFail($id);
 
+        $restaurantId = getRestaurantId();
+        if ($restaurantId && $supplier->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $supplier,
@@ -78,6 +91,11 @@ class SupplierController extends Controller
     public function update(Request $request, $id)
     {
         $supplier = Supplier::findOrFail($id);
+
+        $restaurantId = getRestaurantId($request->user());
+        if ($restaurantId && $supplier->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -103,6 +121,12 @@ class SupplierController extends Controller
     public function destroy($id)
     {
         $supplier = Supplier::findOrFail($id);
+
+        $restaurantId = getRestaurantId();
+        if ($restaurantId && $supplier->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         $supplier->delete();
 
         return response()->json([

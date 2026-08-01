@@ -42,7 +42,20 @@ class TableController extends Controller
     public function store(StoreTableRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
+
+        $restaurantId = $request->input('restaurant_id') ?? getRestaurantId();
+        if (!$restaurantId && !empty($data['floor_id'])) {
+            $restaurantId = \Modules\TableManagement\Models\Floor::where('id', $data['floor_id'])->value('restaurant_id');
+        }
+
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans($this->langKey . '.restaurant_required'),
+            ], 422);
+        }
+
+        $data['restaurant_id'] = $restaurantId;
 
         $table = $this->service->create($data);
 

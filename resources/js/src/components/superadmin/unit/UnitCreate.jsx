@@ -27,6 +27,7 @@ import api from "../../../axios";
 import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import { STORE_UNIT } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
+import { usePermission } from "../../../context/PermissionContext";
 
 const LIST_PATH = "/unit/list";
 
@@ -34,6 +35,7 @@ const UnitCreate = () => {
     const colors = useThemeColors();
     const { register, handleSubmit, reset } = useForm();
     const { t } = useTranslation();
+    const { user } = usePermission();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useToast();
     const navigate = useNavigate();
@@ -45,6 +47,7 @@ const UnitCreate = () => {
             formData.append("actual_name", data.actual_name);
             formData.append("short_name", data.short_name);
             formData.append("allow_decimal", data.allow_decimal);
+            formData.append("restaurant_id", user?.restaurant_id || "");
             const res = await api.post(STORE_UNIT, formData);
             reset();
             toast({

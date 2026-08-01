@@ -24,10 +24,12 @@ import { useNavigate } from "react-router-dom";
 import { Link as ReactRouterLink } from "react-router-dom";
 import api from "../../axios";
 import useThemeColors from "../../hooks/useThemeColors";
+import { usePermission } from "../../context/PermissionContext";
 
 const FloorCreate = () => {
     const { register, handleSubmit, reset } = useForm();
     const { t } = useTranslation();
+    const { user } = usePermission();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const toast = useToast();
     const navigate = useNavigate();
@@ -36,7 +38,8 @@ const FloorCreate = () => {
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            const res = await api.post("/v1/floors", data);
+            const payload = { ...data, restaurant_id: user?.restaurant_id };
+            const res = await api.post("/v1/floors", payload);
             reset();
             toast({
                 position: "bottom-right",

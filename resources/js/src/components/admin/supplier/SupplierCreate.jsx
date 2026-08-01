@@ -27,6 +27,7 @@ import api from "../../../axios";
 import { STORE_SUPPLIER } from "../../../routes/apiRoutes";
 import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
+import { usePermission } from "../../../context/PermissionContext";
 
 const LIST_PATH = "/inventory/suppliers";
 
@@ -34,6 +35,7 @@ const SupplierCreate = () => {
     const { t } = useTranslation();
     const toast = useToast();
     const navigate = useNavigate();
+    const { user } = usePermission();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const colors = useThemeColors();
     const { register, handleSubmit, control } = useForm({
@@ -46,7 +48,8 @@ const SupplierCreate = () => {
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            const res = await api.post(STORE_SUPPLIER, data);
+            const payload = { ...data, restaurant_id: user?.restaurant_id };
+            const res = await api.post(STORE_SUPPLIER, payload);
             toast({ title: res.data.message || t("supplier_created"), status: "success", duration: 3000, isClosable: true });
             navigate(LIST_PATH);
         } catch (err) {

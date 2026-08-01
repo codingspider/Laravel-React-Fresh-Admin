@@ -10,7 +10,7 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'restaurant.scope', 'module.acc
     Route::apiResource('tables', TableController::class);
     Route::put('tables/{table}/status', [TableController::class, 'updateStatus']);
 
-    Route::apiResource('floors', FloorController::class)->except(['update']);
+    Route::apiResource('floors', FloorController::class);
 
     Route::apiResource('reservations', ReservationController::class);
     Route::put('reservations/{reservation}/confirm', [ReservationController::class, 'confirm']);

@@ -20,6 +20,7 @@ return [
     'login_required' => 'Please login to continue.',
     'not_found' => 'Table not found.',
     'restored' => 'Table restored successfully.',
+    'restaurant_required' => 'Restaurant selection is required.',
     'status_changed' => 'Table status changed successfully.',
     'success' => 'Operation completed successfully.',
     'table_available' => 'Table marked as available.',

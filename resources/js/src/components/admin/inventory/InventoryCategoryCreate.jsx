@@ -27,6 +27,7 @@ import api from "../../../axios";
 import { STORE_INVENTORY_CATEGORY } from "../../../routes/apiRoutes";
 import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
+import { usePermission } from "../../../context/PermissionContext";
 
 const LIST_PATH = "/inventory/categories";
 
@@ -34,6 +35,7 @@ const InventoryCategoryCreate = () => {
     const { t } = useTranslation();
     const toast = useToast();
     const navigate = useNavigate();
+    const { user } = usePermission();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const colors = useThemeColors();
     const { register, handleSubmit, control } = useForm({
@@ -43,7 +45,8 @@ const InventoryCategoryCreate = () => {
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            const res = await api.post(STORE_INVENTORY_CATEGORY, data);
+            const payload = { ...data, restaurant_id: user?.restaurant_id };
+            const res = await api.post(STORE_INVENTORY_CATEGORY, payload);
             toast({ title: res.data.message || t("inventory_category_created"), status: "success", duration: 3000, isClosable: true });
             navigate(LIST_PATH);
         } catch (err) {

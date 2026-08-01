@@ -13,8 +13,9 @@ class InventoryCategoryController extends Controller
     {
         $query = InventoryCategory::query();
 
-        if (!isSuperAdmin($request->user())) {
-            $query->where('restaurant_id', $request->user()->id);
+        $restaurantId = getRestaurantId($request->user());
+        if ($restaurantId) {
+            $query->where('restaurant_id', $restaurantId);
         }
 
         $query->when($request->filled('search'), function ($q) use ($request) {
@@ -41,8 +42,15 @@ class InventoryCategoryController extends Controller
             'is_active' => 'nullable|boolean',
         ]);
 
-        $restaurant = Restaurant::where('owner_id', $request->user()->id)->first();
-        $validated['restaurant_id'] = $restaurant?->id ?? $request->user()->id;
+        $restaurantId = $request->input('restaurant_id') ?? getRestaurantId($request->user());
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('message.restaurant_required'),
+            ], 422);
+        }
+
+        $validated['restaurant_id'] = $restaurantId;
         $validated['is_active'] = $validated['is_active'] ?? true;
 
         $category = InventoryCategory::create($validated);
@@ -58,6 +66,11 @@ class InventoryCategoryController extends Controller
     {
         $category = InventoryCategory::findOrFail($id);
 
+        $restaurantId = getRestaurantId();
+        if ($restaurantId && $category->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $category,
@@ -67,6 +80,11 @@ class InventoryCategoryController extends Controller
     public function update(Request $request, $id)
     {
         $category = InventoryCategory::findOrFail($id);
+
+        $restaurantId = getRestaurantId($request->user());
+        if ($restaurantId && $category->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -87,6 +105,12 @@ class InventoryCategoryController extends Controller
     public function destroy($id)
     {
         $category = InventoryCategory::findOrFail($id);
+
+        $restaurantId = getRestaurantId();
+        if ($restaurantId && $category->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         $category->delete();
 
         return response()->json([
