@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class InventoryItem extends Model
 {
@@ -14,8 +15,18 @@ class InventoryItem extends Model
 
     protected $casts = [
         'cost_price' => 'decimal:2',
+        'unit_cost' => 'decimal:2',
+        'selling_price' => 'decimal:2',
         'quantity' => 'decimal:2',
+        'current_stock' => 'decimal:2',
+        'opening_stock' => 'decimal:2',
+        'minimum_stock' => 'decimal:2',
+        'maximum_stock' => 'decimal:2',
         'reorder_level' => 'decimal:2',
+        'expiry_date' => 'date',
+        'track_expiry' => 'boolean',
+        'track_stock' => 'boolean',
+        'is_finished_product' => 'boolean',
         'is_active' => 'boolean',
         'metadata' => 'array',
     ];
@@ -42,12 +53,32 @@ class InventoryItem extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    public function batches(): HasMany
+    {
+        return $this->hasMany(InventoryBatch::class, 'item_id');
+    }
+
+    public function transactions(): HasMany
+    {
+        return $this->hasMany(InventoryTransaction::class, 'item_id');
+    }
+
+    public function recipeIngredients(): HasMany
+    {
+        return $this->hasMany(RecipeIngredient::class, 'inventory_item_id');
+    }
+
     public function getImageUrlAttribute(): ?string
     {
         if ($this->image) {
             return asset($this->image);
         }
         return null;
+    }
+
+    public function getStockValueAttribute(): float
+    {
+        return round((float) $this->current_stock * (float) $this->unit_cost, 2);
     }
 
     public function scopeActive($query)
@@ -57,6 +88,11 @@ class InventoryItem extends Model
 
     public function scopeLowStock($query)
     {
-        return $query->whereColumn('quantity', '<=', 'reorder_level');
+        return $query->whereColumn('current_stock', '<=', 'minimum_stock');
+    }
+
+    public function scopeRawMaterial($query)
+    {
+        return $query->whereIn('type', ['raw_material', 'both']);
     }
 }

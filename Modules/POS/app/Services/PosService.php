@@ -9,6 +9,8 @@ use Modules\POS\Repositories\PosSessionRepository;
 use Modules\POS\Repositories\SaleRepository;
 use Modules\POS\Repositories\PaymentRepository;
 use Modules\Menu\Models\MenuItem;
+use Modules\Branch\Models\Branch;
+use Modules\Restaurant\Models\Restaurant;
 
 class PosService
 {
@@ -38,6 +40,9 @@ class PosService
     public function createSale(array $data): Sale
     {
         return DB::transaction(function () use ($data) {
+            $data['restaurant_id'] = $this->resolveRestaurantId($data['branch_id'] ?? null);
+            $data['branch_id'] = $this->resolveBranchId($data['restaurant_id'] ?? null);
+
             $invoiceNumber = Sale::generateInvoiceNumber();
             $data['invoice_number'] = $invoiceNumber;
             $data['payment_status'] = 'unpaid';
@@ -252,5 +257,39 @@ class PosService
         $session = $this->sessionRepo->find($sessionId);
         $totalSales = $session->sales()->where('payment_status', 'paid')->sum('amount_paid');
         return $session->opening_balance + $totalSales;
+    }
+
+    public function resolveRestaurantId(?int $branchId = null): ?int
+    {
+        $id = getRestaurantId();
+        if ($id) {
+            return $id;
+        }
+
+        if ($branchId) {
+            $restaurantId = Branch::whereKey($branchId)->value('restaurant_id');
+            if ($restaurantId) {
+                return $restaurantId;
+            }
+        }
+
+        return Restaurant::orderBy('id')->value('id');
+    }
+
+    public function resolveBranchId(?int $restaurantId = null): ?int
+    {
+        $user = auth()->user();
+        if ($user && $user->branch_id) {
+            return $user->branch_id;
+        }
+
+        if ($restaurantId) {
+            return Branch::where('restaurant_id', $restaurantId)
+                ->orderByDesc('is_main')
+                ->orderBy('id')
+                ->value('id');
+        }
+
+        return null;
     }
 }

@@ -11,6 +11,11 @@ use App\Http\Controllers\API\Admin\UnitController;
 use App\Http\Controllers\API\Admin\RoleController;
 use App\Http\Controllers\API\Admin\UserManagementController;
 use App\Http\Controllers\API\Admin\VariationController;
+use App\Http\Controllers\API\Admin\RecipeController;
+use App\Http\Controllers\API\Admin\RecipeCategoryController;
+use App\Http\Controllers\API\Admin\PurchaseController;
+use App\Http\Controllers\API\Admin\InventoryStockController;
+use App\Http\Controllers\API\Admin\SupplierCrmController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\BranchController;
 use App\Http\Controllers\API\BusinessController;
@@ -53,6 +58,46 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 're
     Route::apiResource('inventory-categories', InventoryCategoryController::class);
     Route::apiResource('suppliers', SupplierController::class);
     Route::apiResource('units', UnitController::class);
+    Route::apiResource('recipes', RecipeController::class);
+    Route::apiResource('recipe-categories', RecipeCategoryController::class);
+    Route::apiResource('purchases', PurchaseController::class);
+
+    // Recipes
+    Route::get('recipe/options', [RecipeController::class, 'options']);
+
+    // Inventory stock movements
+    Route::get('inventory/overview', [InventoryStockController::class, 'overview']);
+    Route::get('inventory/transactions', [InventoryStockController::class, 'transactions']);
+    Route::get('inventory/batches', [InventoryStockController::class, 'batches']);
+    Route::get('inventory/transfers', [InventoryStockController::class, 'transfers']);
+    Route::post('inventory/transfers', [InventoryStockController::class, 'storeTransfer']);
+    Route::post('inventory/transfers/{id}/receive', [InventoryStockController::class, 'receiveTransfer']);
+    Route::get('inventory/wastes', [InventoryStockController::class, 'wastes']);
+    Route::post('inventory/wastes', [InventoryStockController::class, 'storeWaste']);
+    Route::get('inventory/adjustments', [InventoryStockController::class, 'adjustments']);
+    Route::post('inventory/adjustments', [InventoryStockController::class, 'storeAdjustment']);
+    Route::post('inventory/adjustments/{id}/approve', [InventoryStockController::class, 'approveAdjustment']);
+    Route::post('inventory/items/{id}/adjust-stock', [InventoryStockController::class, 'adjustStock']);
+
+    // Purchases - GRN / payments / returns
+    Route::post('purchases/{id}/receive-goods', [PurchaseController::class, 'receiveGoods']);
+    Route::post('purchases/{id}/payments', [PurchaseController::class, 'addPayment']);
+    Route::get('purchases/{id}/payments', [PurchaseController::class, 'payments']);
+    Route::post('purchases/{id}/returns', [PurchaseController::class, 'createReturn']);
+    Route::get('purchases/{id}/returns', [PurchaseController::class, 'returns']);
+
+    // Supplier CRM
+    Route::get('suppliers/{id}/overview', [SupplierCrmController::class, 'overview']);
+    Route::get('suppliers/{id}/contacts', [SupplierCrmController::class, 'contacts']);
+    Route::post('suppliers/{id}/contacts', [SupplierCrmController::class, 'storeContact']);
+    Route::delete('suppliers/{id}/contacts/{contactId}', [SupplierCrmController::class, 'destroyContact']);
+    Route::get('suppliers/{id}/documents', [SupplierCrmController::class, 'documents']);
+    Route::post('suppliers/{id}/documents', [SupplierCrmController::class, 'storeDocument']);
+    Route::delete('suppliers/{id}/documents/{documentId}', [SupplierCrmController::class, 'destroyDocument']);
+    Route::get('suppliers/{id}/transactions', [SupplierCrmController::class, 'transactions']);
+    Route::post('suppliers/{id}/transactions', [SupplierCrmController::class, 'storeTransaction']);
+    Route::post('suppliers/{id}/rate', [SupplierCrmController::class, 'rate']);
+
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('user-management', UserManagementController::class);
 

@@ -81,6 +81,54 @@ export const DELETE_UNIT = (id) => `/units/${id}`;
 export const UPDATE_UNIT = (id) => `/units/${id}`;
 export const GET_EDIT_UNIT = (id) => `/units/${id}`;
 
+// Recipes
+export const STORE_RECIPE = '/recipes';
+export const LIST_RECIPE = '/recipes';
+export const DELETE_RECIPE = (id) => `/recipes/${id}`;
+export const UPDATE_RECIPE = (id) => `/recipes/${id}`;
+export const GET_EDIT_RECIPE = (id) => `/recipes/${id}`;
+export const RECIPE_OPTIONS = '/recipe/options';
+
+// Recipe Categories
+export const STORE_RECIPE_CATEGORY = '/recipe-categories';
+export const LIST_RECIPE_CATEGORY = '/recipe-categories';
+export const DELETE_RECIPE_CATEGORY = (id) => `/recipe-categories/${id}`;
+export const UPDATE_RECIPE_CATEGORY = (id) => `/recipe-categories/${id}`;
+export const GET_EDIT_RECIPE_CATEGORY = (id) => `/recipe-categories/${id}`;
+
+// Purchases
+export const STORE_PURCHASE = '/purchases';
+export const LIST_PURCHASE = '/purchases';
+export const DELETE_PURCHASE = (id) => `/purchases/${id}`;
+export const UPDATE_PURCHASE = (id) => `/purchases/${id}`;
+export const GET_EDIT_PURCHASE = (id) => `/purchases/${id}`;
+export const RECEIVE_GOODS = (id) => `/purchases/${id}/receive-goods`;
+export const ADD_PURCHASE_PAYMENT = (id) => `/purchases/${id}/payments`;
+export const LIST_PURCHASE_PAYMENTS = (id) => `/purchases/${id}/payments`;
+export const CREATE_PURCHASE_RETURN = (id) => `/purchases/${id}/returns`;
+export const LIST_PURCHASE_RETURNS = (id) => `/purchases/${id}/returns`;
+
+// Inventory stock movements
+export const STOCK_OVERVIEW = '/inventory/overview';
+export const STOCK_TRANSACTIONS = '/inventory/transactions';
+export const STOCK_BATCHES = '/inventory/batches';
+export const STOCK_TRANSFERS = '/inventory/transfers';
+export const RECEIVE_STOCK_TRANSFER = (id) => `/inventory/transfers/${id}/receive`;
+export const STOCK_WASTES = '/inventory/wastes';
+export const STOCK_ADJUSTMENTS = '/inventory/adjustments';
+export const APPROVE_STOCK_ADJUSTMENT = (id) => `/inventory/adjustments/${id}/approve`;
+export const ADJUST_ITEM_STOCK = (id) => `/inventory/items/${id}/adjust-stock`;
+
+// Supplier CRM
+export const SUPPLIER_OVERVIEW = (id) => `/suppliers/${id}/overview`;
+export const SUPPLIER_CONTACTS = (id) => `/suppliers/${id}/contacts`;
+export const DELETE_SUPPLIER_CONTACT = (id, contactId) => `/suppliers/${id}/contacts/${contactId}`;
+export const SUPPLIER_DOCUMENTS = (id) => `/suppliers/${id}/documents`;
+export const DELETE_SUPPLIER_DOCUMENT = (id, documentId) => `/suppliers/${id}/documents/${documentId}`;
+export const SUPPLIER_TRANSACTIONS = (id) => `/suppliers/${id}/transactions`;
+export const STORE_SUPPLIER_TRANSACTION = (id) => `/suppliers/${id}/transactions`;
+export const RATE_SUPPLIER = (id) => `/suppliers/${id}/rate`;
+
 // Role
 export const STORE_ROLE = '/roles';
 export const LIST_ROLE = '/roles';

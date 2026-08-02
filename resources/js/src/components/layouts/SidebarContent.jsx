@@ -51,6 +51,15 @@ import {
     PACKAGE_LIST_PATH,
     PLAN_LIST_PATH,
     SUBSCRIPTION_LIST_PATH,
+    RECIPE_LIST_PATH,
+    RECIPE_CATEGORY_LIST_PATH,
+    PURCHASE_LIST_PATH,
+    STOCK_OVERVIEW_PATH,
+    STOCK_TRANSACTIONS_PATH,
+    STOCK_BATCHES_PATH,
+    STOCK_TRANSFERS_PATH,
+    STOCK_ADJUSTMENTS_PATH,
+    STOCK_WASTE_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -144,6 +153,42 @@ const navItems = [
             { path: CUSTOMER_LIST_PATH, label: 'Customers', permission: 'view_inventory' },
             { path: SUPPLIER_LIST_PATH, label: 'Suppliers', permission: 'view_inventory' },
             { path: UNIT_LIST_PATH, label: 'Units', permission: 'view_units' },
+        ],
+    },
+
+    {
+        icon: ChefHat,
+        label: 'Recipes',
+        permission: 'view_recipes',
+        excludeRole: 'super_admin',
+        children: [
+            { path: RECIPE_LIST_PATH, label: 'All Recipes', permission: 'view_recipes' },
+            { path: RECIPE_CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_recipes' },
+        ],
+    },
+
+    {
+        icon: ShoppingCart,
+        label: 'Purchases',
+        permission: 'view_purchases',
+        excludeRole: 'super_admin',
+        children: [
+            { path: PURCHASE_LIST_PATH, label: 'All Purchases', permission: 'view_purchases' },
+        ],
+    },
+
+    {
+        icon: Boxes,
+        label: 'Stock Movements',
+        permission: 'view_stock_movements',
+        excludeRole: 'super_admin',
+        children: [
+            { path: STOCK_OVERVIEW_PATH, label: 'Overview', permission: 'view_stock_movements' },
+            { path: STOCK_TRANSACTIONS_PATH, label: 'Transactions', permission: 'view_stock_movements' },
+            { path: STOCK_BATCHES_PATH, label: 'Batches', permission: 'view_stock_movements' },
+            { path: STOCK_TRANSFERS_PATH, label: 'Transfers', permission: 'view_stock_movements' },
+            { path: STOCK_ADJUSTMENTS_PATH, label: 'Adjustments', permission: 'view_stock_movements' },
+            { path: STOCK_WASTE_PATH, label: 'Waste', permission: 'view_stock_movements' },
         ],
     },
 

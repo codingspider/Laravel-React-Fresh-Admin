@@ -1,0 +1,34 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class RecipeCategory extends Model
+{
+    use SoftDeletes;
+
+    protected $guarded = ['id'];
+
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
+
+    public function restaurant(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
+    }
+
+    public function recipes(): HasMany
+    {
+        return $this->hasMany(Recipe::class, 'category_id');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+}

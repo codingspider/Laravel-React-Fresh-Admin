@@ -98,8 +98,7 @@ class POSController extends Controller
     public function store(StoreSaleRequest $request): JsonResponse
     {
         $data = $request->validated();
-        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
-        $data['branch_id'] = $data['branch_id'] ?? $request->input('branch_id');        $data['user_id'] = $request->user()->id;
+        $data['user_id'] = $request->user()->id;
 
         if (isset($data['discount_type']) && isset($data['discount_value'])) {
             $val = (float) ($data['discount_value'] ?? 0);
@@ -187,8 +186,8 @@ class POSController extends Controller
 
     public function getHeldOrders(Request $request): JsonResponse
     {
-        $restaurantId = getRestaurantId();
         $branchId = $request->input('branch_id');
+        $restaurantId = $this->posService->resolveRestaurantId($branchId);
 
         $query = \Modules\POS\Models\Sale::where('status', 'pending')
             ->where('restaurant_id', $restaurantId)

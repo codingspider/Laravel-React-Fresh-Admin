@@ -115,29 +115,32 @@ Each restaurant has isolated data. `restaurant_id` exists in every table.
 - Tracking, OTP, Route, Distance, Status
 
 ### 12. Inventory ERP
-- Stock, Warehouse, Branches
-- Raw Materials, Finished Products, Recipes
+- Stock
+- Raw Materials, Finished Products (Menu Items), Recipes
 - Stock Transfer, Waste, Expiry, Stock Adjustment
-- Purchase, Suppliers, GRN, Consumption
-- Stock Valuation, Batch, Serial
+- Purchase, GRN, Consumption
+- Stock Valuation
 
 ### 13. Recipe Management
 - Recipe, Ingredients, Quantity, Unit, Cost
-- Preparation, Cooking Time, Nutritional Info
 - Automatic stock deduction
 
 ### 14. Purchase Management
-- Purchase Order, Supplier, Quotation
+- Purchase
 - Goods Receive Note, Purchase Return
 - Debit Note, Payments
 
 ### 15. Supplier CRM
-- Suppliers, Contacts, Payments, History, Outstanding, Documents
+- Payments, History, Outstanding, Documents
 
 ### 16. Finance ERP
 - Income, Expense, Ledger, Journal, Cashbook, Bank
 - Tax, VAT, Profit & Loss, Balance Sheet, Cash Flow
 - Budget, Assets, Liabilities
+
+### 23. Accounting
+- Double Entry, Chart of Accounts, General Ledger
+- Trial Balance, Journal Entries, Bank Reconciliation
 
 ### 17. HRM
 - Employees, Departments, Designation
@@ -162,16 +165,12 @@ Each restaurant has isolated data. `restaurant_id` exists in every table.
 - Waste Analysis, Best Selling Items, Slow Moving Items, Peak Hours
 
 ### 21. Marketing
-- Coupons, Promo, Birthday Wishes
-- WhatsApp, SMS, Email, Push Notification
-- Referral, Campaign
+- Coupons, Birthday Wishes
+- WhatsApp, SMS, Email
 
 ### 22. Reviews
 - Google Review, Feedback, Complaint, Rating
 
-### 23. Accounting
-- Double Entry, Chart of Accounts, General Ledger
-- Trial Balance, Journal Entries, Bank Reconciliation
 
 ### 24. Invoice
 - Thermal, A4, PDF, Email, Print

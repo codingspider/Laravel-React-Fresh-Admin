@@ -35,6 +35,38 @@ export default function TopBar({
   const [couponsLoading, setCouponsLoading] = useState(false);
   const [couponError, setCouponError] = useState(null);
 
+  // Customer search
+  const [customerSearchResults, setCustomerSearchResults] = useState(customers || []);
+  const [customerSearch, setCustomerSearch] = useState('');
+
+  // Update search results when customers change
+  useEffect(() => {
+    if (!customerSearch) {
+      setCustomerSearchResults(customers || []);
+    }
+  }, [customers, customerSearch]);
+
+  const handleCustomerSearch = (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    setCustomerSearch(searchTerm);
+    if (!searchTerm) {
+      setCustomerSearchResults(customers || []);
+    } else {
+      const filtered = (customers || []).filter(c =>
+        (c.name?.toLowerCase() || '').includes(searchTerm) ||
+        (c.phone?.toLowerCase() || '').includes(searchTerm) ||
+        (c.email?.toLowerCase() || '').includes(searchTerm)
+      );
+      setCustomerSearchResults(filtered);
+    }
+  };
+
+  const handleCustomerSelect = (customer) => {
+    setSelectedCustomer(customer);
+    setCustomerSearch('');
+    setCustomerSearchResults(customers || []);
+  };
+
   // Calculator modal
   const [calcOpen, setCalcOpen] = useState(false);
   const [calcDisplay, setCalcDisplay] = useState('0');
@@ -209,7 +241,7 @@ export default function TopBar({
         )}
 
         {enableCustomer && (
-          <Menu>
+          <Menu closeOnSelect={false}>
             <MenuButton
               as={Button}
               size="sm"
@@ -224,31 +256,52 @@ export default function TopBar({
             >
               {getCustomerName(selectedCustomer)}
             </MenuButton>
-            <MenuList maxH="300px" overflowY="auto">
-              <MenuItem onClick={() => setSelectedCustomer(null)}>
-                <HStack>
-                  <User size={14} />
-                  <Text>{t('Walk-in Customer')}</Text>
-                  {!selectedCustomer && <CheckIcon ml={2} boxSize={3} color="green.500" />}
-                </HStack>
-              </MenuItem>
-              {customers.map(c => (
-                <MenuItem key={c.id} onClick={() => setSelectedCustomer(c)}>
+            <MenuList p={2} minW="280px">
+              <Input
+                size="sm"
+                placeholder={t('Search customer...')}
+                mb={2}
+                autoFocus
+                value={customerSearch}
+                onClick={(e) => e.stopPropagation()}
+                onChange={handleCustomerSearch}
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+              <Box maxH="250px" overflowY="auto">
+                <MenuItem onClick={() => handleCustomerSelect(null)}>
                   <HStack>
                     <User size={14} />
-                    <VStack spacing={0} align="start">
-                      <Text fontSize="sm">{c.name || c.first_name || `Customer #${c.id}`}</Text>
-                      {c.phone && <Text fontSize="xs" color={colors.textMuted}>{c.phone}</Text>}
-                    </VStack>
-                    {selectedCustomer?.id === c.id && <CheckIcon ml="auto" boxSize={3} color="green.500" />}
+                    <Text>{t('Walk-in Customer')}</Text>
+                    {!selectedCustomer && <CheckIcon ml={2} boxSize={3} color="green.500" />}
                   </HStack>
                 </MenuItem>
-              ))}
-              {customers.length === 0 && (
-                <MenuItem isDisabled>
-                  <Text color={colors.textMuted}>{t('No customers found')}</Text>
-                </MenuItem>
-              )}
+                {customerSearch && customerSearchResults.length === 0 ? (
+                  <MenuItem isDisabled>
+                    <HStack spacing={2}>
+                      <User size={14} />
+                      <Text color={colors.textMuted}>{t('No customers found')}</Text>
+                    </HStack>
+                  </MenuItem>
+                ) : (
+                  (customerSearchResults.length > 0 ? customerSearchResults : (customers || [])).slice(0, 50).map(c => (
+                    <MenuItem key={c.id} onClick={() => handleCustomerSelect(c)}>
+                      <HStack>
+                        <User size={14} />
+                        <VStack spacing={0} align="start">
+                          <Text fontSize="sm">{c.name || c.first_name || `Customer #${c.id}`}</Text>
+                          {c.phone && <Text fontSize="xs" color={colors.textMuted}>{c.phone}</Text>}
+                        </VStack>
+                        {selectedCustomer?.id === c.id && <CheckIcon ml="auto" boxSize={3} color="green.500" />}
+                      </HStack>
+                    </MenuItem>
+                  ))
+                )}
+                {!customerSearch && (customers || []).length === 0 && (
+                  <MenuItem isDisabled>
+                    <Text color={colors.textMuted}>{t('No customers found')}</Text>
+                  </MenuItem>
+                )}
+              </Box>
             </MenuList>
           </Menu>
         )}

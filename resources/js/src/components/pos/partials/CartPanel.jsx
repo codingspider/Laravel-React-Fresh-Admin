@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Text, HStack, VStack, Button, Center, Flex, Select, Tooltip, IconButton,
-  Table, Thead, Tbody, Tr, Th, Td,
+  Table, Thead, Tbody, Tr, Th, Td, Input,
   Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody,
+  Menu, MenuButton, MenuList, MenuItem,
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
-import { MinusIcon, AddIcon, DeleteIcon, RepeatClockIcon } from '@chakra-ui/icons';
+import { MinusIcon, AddIcon, DeleteIcon, RepeatClockIcon, ChevronDownIcon, CheckIcon } from '@chakra-ui/icons';
 import { ShoppingBag, Pause, RotateCcw } from 'lucide-react';
 import CartSummarySections from './CartSummarySections';
 import SummarySection from './SummarySection';
@@ -27,6 +28,29 @@ function CartItems({ cart, cartItemCount, cartSubtotal, discountAmount, taxRate,
   const { t } = useTranslation();
   const { formatAmount } = useCurrencyFormatter();
   const colors = useThemeColors();
+
+  // Table search
+  const [tableSearch, setTableSearch] = useState('');
+  const [tableSearchResults, setTableSearchResults] = useState(tables || []);
+
+  useEffect(() => {
+    if (!tableSearch) {
+      setTableSearchResults(tables || []);
+    } else {
+      const filtered = (tables || []).filter(t =>
+        (t.name?.toLowerCase() || '').includes(tableSearch.toLowerCase())
+      );
+      setTableSearchResults(filtered);
+    }
+  }, [tables, tableSearch]);
+
+  const handleTableSelect = (tableId) => {
+    setSelectedTable(tableId);
+    setTableSearch('');
+    setTableSearchResults(tables || []);
+  };
+
+  const availableTables = tableSearchResults.filter(tb => tb.status === 'available' || tb.id === selectedTable);
 
   return (
     <Flex
@@ -72,82 +96,119 @@ function CartItems({ cart, cartItemCount, cartSubtotal, discountAmount, taxRate,
 
       {enableTableManagement && orderType === 'dine_in' && (
         <Box px={3} py={1.5} borderBottom="1px solid" borderColor={colors.borderDefault}>
-          <Select size="sm" placeholder={t('Select table...')}
-            value={selectedTable || ''}
-            onChange={e => setSelectedTable(e.target.value ? parseInt(e.target.value) : null)}
-            borderRadius="lg" bg={colors.bgInput}>
-            {tables.filter(tb => tb.status === 'available' || tb.id === selectedTable).map(table => (
-              <option key={table.id} value={table.id}>{table.name}</option>
-            ))}
-          </Select>
+          <Menu closeOnSelect={false}>
+            <MenuButton
+              as={Button}
+              size="sm"
+              variant="outline"
+              rightIcon={<ChevronDownIcon />}
+              borderRadius="lg"
+              borderColor={colors.borderInput}
+              bg={colors.bgInput}
+              w="100%"
+              fontWeight="500"
+            >
+              {selectedTable ? tables?.find(t => t.id === selectedTable)?.name || t('Select table...') : t('Select table...')}
+            </MenuButton>
+            <MenuList p={2} maxH="250px" overflowY="auto" w="200px">
+              <Input
+                size="sm"
+                placeholder={t('Search table...')}
+                mb={2}
+                value={tableSearch}
+                onChange={(e) => setTableSearch(e.target.value)}
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+              <MenuItem onClick={() => handleTableSelect(null)} fontWeight={!selectedTable ? '600' : '400'}>
+                <HStack>
+                  <Text>{t('No table')}</Text>
+                  {!selectedTable && <CheckIcon ml={2} boxSize={3} color="green.500" />}
+                </HStack>
+              </MenuItem>
+              {availableTables.length > 0 ? availableTables.map(table => (
+                <MenuItem key={table.id} onClick={() => handleTableSelect(table.id)}>
+                  <HStack>
+                    <Text>{table.name}</Text>
+                    <Text fontSize="xs" color={colors.textMuted}>({table.status})</Text>
+                    {selectedTable === table.id && <CheckIcon ml="auto" boxSize={3} color="green.500" />}
+                  </HStack>
+                </MenuItem>
+              )) : (
+                <MenuItem isDisabled>
+                  <Text color={colors.textMuted}>{t('No tables found')}</Text>
+                </MenuItem>
+              )}
+            </MenuList>
+          </Menu>
         </Box>
       )}
 
       <Box flex="1" overflowY="auto" px={2}>        {cart.length === 0 ? (
-          <Center h="100%" flexDirection="column" px={2}>
-            <Box p={4} borderRadius="2xl" bg={colors.bgSubtle} mb={2}>
-              <ShoppingBag size={32} color={colors.textMuted} strokeWidth={1} />
-            </Box>
-            <Text color={colors.textSecondary} fontSize="sm" fontWeight="600">{t('No items in cart')}</Text>
-            <Text color={colors.textMuted} fontSize="xs" mt={1}>{t('Click products to add them')}</Text>
-          </Center>
-        ) : (
-          <Box>
-            <Table size="sm" variant="unstyled">
-              <Thead>
-                <Tr>
-                  <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={2} py={1.5} textTransform="uppercase" letterSpacing="wider">
-                    {t('Product')}
-                  </Th>
-                  <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={1} py={1.5} textTransform="uppercase" letterSpacing="wider" textAlign="center">
-                    {t('Qty')}
-                  </Th>
-                  <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={1} py={1.5} textTransform="uppercase" letterSpacing="wider" textAlign="right">
-                    {t('Price')}
-                  </Th>
-                  <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={2} py={1.5} textTransform="uppercase" letterSpacing="wider" textAlign="right">
-                    {t('Total')}
-                  </Th>
-                  <Th w={8} px={0} py={1.5}></Th>
-                </Tr>
-              </Thead>
-              <Tbody>
-                {cart.map(item => (
-                  <Tr key={item.modifier_key || item.menu_item_id} borderBottom="1px solid" borderColor={colors.borderDefault}>
-                    <Td px={2} py={1.5}>
-                      <Text fontSize="sm" fontWeight="600" color={colors.textPrimary} noOfLines={1}>{item.item_name}</Text>
-                      {item.modifiers_label && (
-                        <Text fontSize="xs" color={colors.textMuted} noOfLines={2}>{item.modifiers_label}</Text>
-                      )}
-                      <Text fontSize="xs" color={colors.textMuted}>{t('each')} {formatAmount(item.unit_price)}</Text>
-                    </Td>
-                    <Td px={1} py={1.5}>
-                      <HStack spacing={0} justify="center">
-                        <IconButton size="xs" variant="ghost" icon={<MinusIcon boxSize={3} />}
-                          onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, -1)} borderRadius="md" />
-                        <Text fontSize="sm" fontWeight="700" minW="24px" textAlign="center" color={colors.textPrimary}>
-                          {item.quantity}
-                        </Text>
-                        <IconButton size="xs" variant="ghost" icon={<AddIcon boxSize={3} />}
-                          onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, 1)} borderRadius="md" />
-                      </HStack>
-                    </Td>
-                    <Td px={1} py={1.5} textAlign="right">
-                      <Text fontSize="sm" color={colors.textSecondary}>{formatAmount(item.unit_price)}</Text>
-                    </Td>
-                    <Td px={2} py={1.5} textAlign="right">
-                      <Text fontSize="sm" fontWeight="700" color="brand.500">{formatAmount(item.total)}</Text>
-                    </Td>
-                    <Td px={0} py={1.5}>
-                      <IconButton size="xs" variant="ghost" icon={<DeleteIcon boxSize={3} />}
-                        colorScheme="red" onClick={() => removeFromCart(item.modifier_key || item.menu_item_id)} borderRadius="md" />
-                    </Td>
-                  </Tr>
-                ))}
-              </Tbody>
-            </Table>
+        <Center h="100%" flexDirection="column" px={2}>
+          <Box p={4} borderRadius="2xl" bg={colors.bgSubtle} mb={2}>
+            <ShoppingBag size={32} color={colors.textMuted} strokeWidth={1} />
           </Box>
-        )}
+          <Text color={colors.textSecondary} fontSize="sm" fontWeight="600">{t('No items in cart')}</Text>
+          <Text color={colors.textMuted} fontSize="xs" mt={1}>{t('Click products to add them')}</Text>
+        </Center>
+      ) : (
+        <Box>
+          <Table size="sm" variant="unstyled">
+            <Thead>
+              <Tr>
+                <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={2} py={1.5} textTransform="uppercase" letterSpacing="wider">
+                  {t('Product')}
+                </Th>
+                <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={1} py={1.5} textTransform="uppercase" letterSpacing="wider" textAlign="center">
+                  {t('Qty')}
+                </Th>
+                <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={1} py={1.5} textTransform="uppercase" letterSpacing="wider" textAlign="right">
+                  {t('Price')}
+                </Th>
+                <Th fontSize="xs" fontWeight="600" color={colors.textSecondary} px={2} py={1.5} textTransform="uppercase" letterSpacing="wider" textAlign="right">
+                  {t('Total')}
+                </Th>
+                <Th w={8} px={0} py={1.5}></Th>
+              </Tr>
+            </Thead>
+            <Tbody>
+              {cart.map(item => (
+                <Tr key={item.modifier_key || item.menu_item_id} borderBottom="1px solid" borderColor={colors.borderDefault}>
+                  <Td px={2} py={1.5}>
+                    <Text fontSize="sm" fontWeight="600" color={colors.textPrimary} noOfLines={1}>{item.item_name}</Text>
+                    {item.modifiers_label && (
+                      <Text fontSize="xs" color={colors.textMuted} noOfLines={2}>{item.modifiers_label}</Text>
+                    )}
+                    <Text fontSize="xs" color={colors.textMuted}>{t('each')} {formatAmount(item.unit_price)}</Text>
+                  </Td>
+                  <Td px={1} py={1.5}>
+                    <HStack spacing={0} justify="center">
+                      <IconButton size="xs" variant="ghost" icon={<MinusIcon boxSize={3} />}
+                        onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, -1)} borderRadius="md" />
+                      <Text fontSize="sm" fontWeight="700" minW="24px" textAlign="center" color={colors.textPrimary}>
+                        {item.quantity}
+                      </Text>
+                      <IconButton size="xs" variant="ghost" icon={<AddIcon boxSize={3} />}
+                        onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, 1)} borderRadius="md" />
+                    </HStack>
+                  </Td>
+                  <Td px={1} py={1.5} textAlign="right">
+                    <Text fontSize="sm" color={colors.textSecondary}>{formatAmount(item.unit_price)}</Text>
+                  </Td>
+                  <Td px={2} py={1.5} textAlign="right">
+                    <Text fontSize="sm" fontWeight="700" color="brand.500">{formatAmount(item.total)}</Text>
+                  </Td>
+                  <Td px={0} py={1.5}>
+                    <IconButton size="xs" variant="ghost" icon={<DeleteIcon boxSize={3} />}
+                      colorScheme="red" onClick={() => removeFromCart(item.modifier_key || item.menu_item_id)} borderRadius="md" />
+                  </Td>
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        </Box>
+      )}
       </Box>
 
       <CartSummarySections

@@ -48,6 +48,29 @@ import InventoryCategoryEdit from "../components/admin/inventory/InventoryCatego
 import SupplierList from "../components/admin/supplier/SupplierList";
 import SupplierCreate from "../components/admin/supplier/SupplierCreate";
 import SupplierEdit from "../components/admin/supplier/SupplierEdit";
+import SupplierView from "../components/admin/supplier/SupplierView";
+
+// Inventory ERP — Recipes
+import RecipeList from "../components/admin/recipe/RecipeList";
+import RecipeCreate from "../components/admin/recipe/RecipeCreate";
+import RecipeEdit from "../components/admin/recipe/RecipeEdit";
+import RecipeCategoryList from "../components/admin/recipe/RecipeCategoryList";
+import RecipeCategoryCreate from "../components/admin/recipe/RecipeCategoryCreate";
+import RecipeCategoryEdit from "../components/admin/recipe/RecipeCategoryEdit";
+
+// Inventory ERP — Purchases
+import PurchaseList from "../components/admin/purchase/PurchaseList";
+import PurchaseCreate from "../components/admin/purchase/PurchaseCreate";
+import PurchaseEdit from "../components/admin/purchase/PurchaseEdit";
+import PurchaseView from "../components/admin/purchase/PurchaseView";
+
+// Inventory ERP — Stock Movements
+import StockOverview from "../components/admin/inventory/StockOverview";
+import StockTransactions from "../components/admin/inventory/StockTransactions";
+import StockBatches from "../components/admin/inventory/StockBatches";
+import StockTransfers from "../components/admin/inventory/StockTransfers";
+import StockAdjustments from "../components/admin/inventory/StockAdjustments";
+import StockWaste from "../components/admin/inventory/StockWaste";
 
 import CustomerList from "../components/admin/customer/CustomerList";
 import CustomerCreate from "../components/admin/customer/CustomerCreate";
@@ -153,6 +176,32 @@ export const SUPPLIER_LIST_PATH = "/inventory/suppliers";
 export const SUPPLIER_ADD_PATH = "/inventory/supplier/create";
 export const SUPPLIER_EDIT = "/inventory/supplier/edit/:id";
 export const SUPPLIER_EDIT_PATH = (id) => `/inventory/supplier/edit/${id}`;
+export const SUPPLIER_VIEW_PATH = (id) => `/inventory/supplier/view/${id}`;
+
+// Inventory ERP — Recipes
+export const RECIPE_LIST_PATH = "/inventory/recipes";
+export const RECIPE_ADD_PATH = "/inventory/recipe/create";
+export const RECIPE_EDIT = "/inventory/recipe/edit/:id";
+export const RECIPE_EDIT_PATH = (id) => `/inventory/recipe/edit/${id}`;
+export const RECIPE_CATEGORY_LIST_PATH = "/inventory/recipe-categories";
+export const RECIPE_CATEGORY_ADD_PATH = "/inventory/recipe-category/create";
+export const RECIPE_CATEGORY_EDIT = "/inventory/recipe-category/edit/:id";
+export const RECIPE_CATEGORY_EDIT_PATH = (id) => `/inventory/recipe-category/edit/${id}`;
+
+// Inventory ERP — Purchases
+export const PURCHASE_LIST_PATH = "/inventory/purchases";
+export const PURCHASE_ADD_PATH = "/inventory/purchase/create";
+export const PURCHASE_EDIT = "/inventory/purchase/edit/:id";
+export const PURCHASE_EDIT_PATH = (id) => `/inventory/purchase/edit/${id}`;
+export const PURCHASE_VIEW_PATH = (id) => `/inventory/purchase/view/${id}`;
+
+// Inventory ERP — Stock Movements
+export const STOCK_OVERVIEW_PATH = "/inventory/stock/overview";
+export const STOCK_TRANSACTIONS_PATH = "/inventory/stock/transactions";
+export const STOCK_BATCHES_PATH = "/inventory/stock/batches";
+export const STOCK_TRANSFERS_PATH = "/inventory/stock/transfers";
+export const STOCK_ADJUSTMENTS_PATH = "/inventory/stock/adjustments";
+export const STOCK_WASTE_PATH = "/inventory/stock/waste";
 
 export const CUSTOMER_LIST_PATH = "/inventory/customers";
 export const CUSTOMER_ADD_PATH = "/inventory/customer/create";
@@ -217,6 +266,29 @@ export const superAdminRoutes = [
     { path: SUPPLIER_LIST_PATH, element: <SupplierList /> },
     { path: SUPPLIER_ADD_PATH, element: <SupplierCreate /> },
     { path: SUPPLIER_EDIT, element: <SupplierEdit /> },
+    { path: SUPPLIER_VIEW_PATH(":id"), element: <SupplierView /> },
+
+    // Inventory ERP — Recipes
+    { path: RECIPE_LIST_PATH, element: <RecipeList /> },
+    { path: RECIPE_ADD_PATH, element: <RecipeCreate /> },
+    { path: RECIPE_EDIT, element: <RecipeEdit /> },
+    { path: RECIPE_CATEGORY_LIST_PATH, element: <RecipeCategoryList /> },
+    { path: RECIPE_CATEGORY_ADD_PATH, element: <RecipeCategoryCreate /> },
+    { path: RECIPE_CATEGORY_EDIT, element: <RecipeCategoryEdit /> },
+
+    // Inventory ERP — Purchases
+    { path: PURCHASE_LIST_PATH, element: <PurchaseList /> },
+    { path: PURCHASE_ADD_PATH, element: <PurchaseCreate /> },
+    { path: PURCHASE_EDIT, element: <PurchaseEdit /> },
+    { path: PURCHASE_VIEW_PATH(":id"), element: <PurchaseView /> },
+
+    // Inventory ERP — Stock Movements
+    { path: STOCK_OVERVIEW_PATH, element: <StockOverview /> },
+    { path: STOCK_TRANSACTIONS_PATH, element: <StockTransactions /> },
+    { path: STOCK_BATCHES_PATH, element: <StockBatches /> },
+    { path: STOCK_TRANSFERS_PATH, element: <StockTransfers /> },
+    { path: STOCK_ADJUSTMENTS_PATH, element: <StockAdjustments /> },
+    { path: STOCK_WASTE_PATH, element: <StockWaste /> },
 
     { path: CUSTOMER_LIST_PATH, element: <CustomerList /> },
     { path: CUSTOMER_ADD_PATH, element: <CustomerCreate /> },

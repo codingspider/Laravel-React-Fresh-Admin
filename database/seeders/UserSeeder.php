@@ -129,6 +129,27 @@ class UserSeeder extends Seeder
             'update_purchases',
             'delete_purchases',
 
+            // Recipes
+            'view_recipes',
+            'create_recipes',
+            'update_recipes',
+            'delete_recipes',
+            'manage_recipe_ingredients',
+
+            // Stock movements (transfers, adjustments, waste, valuation)
+            'view_stock_movements',
+            'create_stock_movements',
+            'manage_stock_transfers',
+            'manage_stock_adjustments',
+            'manage_stock_waste',
+            'view_stock_valuation',
+
+            // Supplier CRM
+            'manage_supplier_contacts',
+            'manage_supplier_documents',
+            'manage_supplier_transactions',
+            'manage_supplier_ratings',
+
             // Customers
             'view_customers',
             'create_customers',
@@ -255,6 +276,9 @@ class UserSeeder extends Seeder
                 'view_customers',
                 'create_customers',
                 'view_suppliers',
+                'view_recipes',
+                'view_stock_movements',
+                'view_stock_valuation',
                 'view_reports',
                 'access_business_settings',
                 'view_currencies',
@@ -462,6 +486,19 @@ class UserSeeder extends Seeder
                 'view_suppliers',
                 'create_suppliers',
                 'update_suppliers',
+                'view_recipes',
+                'create_recipes',
+                'update_recipes',
+                'view_stock_movements',
+                'create_stock_movements',
+                'manage_stock_transfers',
+                'manage_stock_adjustments',
+                'manage_stock_waste',
+                'view_stock_valuation',
+                'manage_supplier_contacts',
+                'manage_supplier_documents',
+                'manage_supplier_transactions',
+                'manage_supplier_ratings',
                 'view_reports',
             ])
             ->pluck('id');

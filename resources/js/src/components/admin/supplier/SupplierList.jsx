@@ -14,7 +14,7 @@ import {
     Select,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
 import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "../../../axios";
@@ -25,6 +25,7 @@ import { LIST_SUPPLIER, DELETE_SUPPLIER } from "../../../routes/apiRoutes";
 import {
     SUPPLIER_ADD_PATH,
     SUPPLIER_EDIT_PATH,
+    SUPPLIER_VIEW_PATH,
     DASHBOARD_PATH,
 } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
@@ -189,6 +190,14 @@ export default function SupplierList() {
                         aria-label={t("actions")}
                     />
                     <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={ViewIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(SUPPLIER_VIEW_PATH(row.original.id))}
+                        >
+                            {t("view")}
+                        </MenuItem>
                         <MenuItem
                             icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"

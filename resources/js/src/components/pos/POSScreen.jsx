@@ -10,7 +10,7 @@ import axios from '../../axios';
 import {
   LIST_MENU_CATEGORY, LIST_MENU_ITEM, LIST_TABLE,
   STORE_POS_SALE, POS_PROCESS_PAYMENT, POS_PROCESS_MULTIPLE_PAYMENTS,
-  POS_CANCEL_SALE, POS_HELD_ORDERS, POS_RECALL_ORDER,
+  POS_CANCEL_SALE, POS_HELD_ORDERS, POS_RECALL_ORDER, POS_HOLD_ORDER,
   LIST_CUSTOMER, POS_SETTINGS, POS_VALIDATE_COUPON, POS_MERGE_BILLS,
   LIST_BRANCH,
 } from '../../routes/apiRoutes';
@@ -465,7 +465,7 @@ export default function POSScreen() {
     }
     setSubmitting(true);
     try {
-      const res = await axios.post(STORE_POS_SALE, {
+      const storeRes = await axios.post(STORE_POS_SALE, {
         order_type: orderType,
         branch_id: selectedBranchId || null,
         table_id: selectedTable,
@@ -478,11 +478,18 @@ export default function POSScreen() {
         notes: notes || null,
         kitchen_notes: kitchenNotes || null,
       });
-      await axios.post(POS_HOLD_ORDER(res.data.data.id));
+      
+      const saleId = storeRes.data.data?.id;
+      if (!saleId) {
+        throw new Error('No sale ID returned');
+      }
+      
+      await axios.post(POS_HOLD_ORDER(saleId));
       resetCart();
       fetchHeldOrders();
       toast({ title: t('Order held'), status: 'info', duration: 2000, isClosable: true });
-    } catch {
+    } catch (error) {
+      console.error('Hold error:', error.response?.data || error.message);
       toast({ title: t('Failed to hold order'), status: 'error', duration: 3000, isClosable: true });
     } finally {
       setSubmitting(false);

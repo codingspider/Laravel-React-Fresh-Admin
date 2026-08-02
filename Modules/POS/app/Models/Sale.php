@@ -100,20 +100,35 @@ class Sale extends Model
         return $this->hasMany(Payment::class);
     }
 
-    public static function generateInvoiceNumber(): string
+    public static function generateInvoiceNumber(?int $restaurantId = null): string
     {
+        $restaurantId = $restaurantId ?? getRestaurantId();
+        
+        $prefix = 'INV-';
+        $startNumber = 1;
+        
+        if ($restaurantId) {
+            $restaurant = \Modules\Restaurant\Models\Restaurant::find($restaurantId);
+            if ($restaurant) {
+                $settings = $restaurant->invoiceSettings();
+                $prefix = $settings['invoice_prefix'] ?? 'INV-';
+                $startNumber = (int) ($settings['invoice_start_number'] ?? 1);
+            }
+        }
+        
         $date = now()->format('Ymd');
-        $lastSale = self::where('invoice_number', 'like', "INV-{$date}-%")
-            ->orderByDesc('id')
-            ->first();
+        $query = self::where('restaurant_id', $restaurantId)
+            ->where('invoice_number', 'like', "{$prefix}{$date}-%");
+        
+        $lastSale = $query->orderByDesc('id')->first();
 
         if ($lastSale) {
             $lastNumber = (int) substr($lastSale->invoice_number, -5);
-            $nextNumber = str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+            $nextNumber = $lastNumber + 1;
         } else {
-            $nextNumber = '00001';
+            $nextNumber = $startNumber;
         }
 
-        return "INV-{$date}-{$nextNumber}";
+        return "{$prefix}{$date}-" . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
     }
 }
