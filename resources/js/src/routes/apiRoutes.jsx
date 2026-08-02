@@ -195,8 +195,7 @@ export const SEAT_RESERVATION = (id) => `/v1/reservations/${id}/seat`;
 export const COMPLETE_RESERVATION = (id) => `/v1/reservations/${id}/complete`;
 
 // POS
-export const POS_START_SESSION = '/v1/pos/sessions/start';
-export const POS_CLOSE_SESSION = (id) => `/v1/pos/sessions/${id}/close`;
+export const POS_START_SESSION = '/v1/pos/sessions/start';export const POS_CLOSE_SESSION = (id) => `/v1/pos/sessions/${id}/close`;
 export const POS_OPEN_SESSION = '/v1/pos/sessions/open';
 export const LIST_POS_SALES = '/v1/pos';
 export const STORE_POS_SALE = '/v1/pos';
@@ -216,6 +215,17 @@ export const POS_COUPONS = '/v1/pos/coupons';
 export const POS_COUPON = (id) => `/v1/pos/coupons/${id}`;
 export const POS_VALIDATE_COUPON = '/v1/pos/coupons/validate';
 export const POS_REFUND = (saleId) => `/v1/pos/${saleId}/refund`;
+
+// Kitchen Display System (KDS)
+export const KDS_BOARD = '/v1/kitchen/display';
+export const KDS_CHEFS = '/v1/kitchen/chefs';
+export const KDS_UPDATE_STATUS = (saleId) => `/v1/kitchen/orders/${saleId}/status`;
+export const KDS_SET_PRIORITY = (saleId) => `/v1/kitchen/orders/${saleId}/priority`;
+export const KDS_ASSIGN_CHEF = (saleId) => `/v1/kitchen/orders/${saleId}/chef`;
+
+// Customer Display System (CDS)
+export const CUSTOMER_DISPLAY_BOARD = '/v1/customer-display';
+export const CUSTOMER_DISPLAY_SETTINGS = '/v1/customer-display/settings';
 
 // Customers
 export const LIST_CUSTOMER = '/v1/customers';

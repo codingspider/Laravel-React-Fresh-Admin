@@ -1,0 +1,11 @@
+{
+    "name": "CustomerDisplay",
+    "alias": "customersdisplay",
+    "description": "Customer Display System (CDS) - public order tracking monitor",
+    "keywords": [],
+    "priority": 0,
+    "providers": [
+        "Modules\\CustomerDisplay\\Providers\\CustomerDisplayServiceProvider"
+    ],
+    "files": []
+}

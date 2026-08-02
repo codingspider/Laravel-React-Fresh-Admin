@@ -8,6 +8,7 @@
     "Orders": true,
     "KOT": true,
     "KitchenDisplay": true,
+    "CustomerDisplay": true,
     "Customer": true,
     "CRM": true,
     "Loyalty": true,

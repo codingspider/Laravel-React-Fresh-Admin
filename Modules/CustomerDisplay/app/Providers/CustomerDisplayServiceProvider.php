@@ -1,21 +1,21 @@
 <?php
 
-namespace Modules\KitchenDisplay\Providers;
+namespace Modules\CustomerDisplay\Providers;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Nwidart\Modules\Support\ModuleServiceProvider;
 
-class KitchenDisplayServiceProvider extends ModuleServiceProvider
+class CustomerDisplayServiceProvider extends ModuleServiceProvider
 {
     /**
      * The name of the module.
      */
-    protected string $name = 'KitchenDisplay';
+    protected string $name = 'CustomerDisplay';
 
     /**
      * The lowercase version of the module name.
      */
-    protected string $nameLower = 'kitchendisplay';
+    protected string $nameLower = 'customersdisplay';
 
     /**
      * Command classes to register.

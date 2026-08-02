@@ -93,6 +93,8 @@ import POSSalesList from "../components/pos/POSSalesList";
 import POSSalesView from "../components/pos/POSSalesView";
 import PosSettings from "../components/admin/pos/PosSettings";
 import CouponManagement from "../components/admin/pos/CouponManagement";
+import KitchenDisplay from "../components/kitchen/KitchenDisplay";
+import CustomerDisplaySettings from "../components/customer/CustomerDisplaySettings";
 import General from "../components/admin/general/General";
 
 
@@ -274,4 +276,10 @@ export const superAdminRoutes = [
     { path: "/pos/sales/view/:id", element: <POSSalesView /> },
     { path: "/pos/settings", element: <PosSettings /> },
     { path: "/pos/coupons", element: <CouponManagement /> },
+
+    // Phase 2 — Kitchen Display System (KDS)
+    { path: "/kitchen/display", element: <KitchenDisplay /> },
+
+    // Phase 2 — Customer Display System (CDS)
+    { path: "/customer-display/settings", element: <CustomerDisplaySettings /> },
 ];

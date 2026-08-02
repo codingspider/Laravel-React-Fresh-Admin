@@ -36,6 +36,7 @@
             "Modules\\Branch\\": "Modules/Branch/app/",
             "Modules\\CRM\\": "Modules/CRM/app/",
             "Modules\\Customer\\": "Modules/Customer/app/",
+            "Modules\\CustomerDisplay\\": "Modules/CustomerDisplay/app/",
             "Modules\\Currency\\": "Modules/Currency/app/",
             "Modules\\Currency\\Database\\Seeders\\": "Modules/Currency/database/seeders/",
             "Modules\\Delivery\\": "Modules/Delivery/app/",

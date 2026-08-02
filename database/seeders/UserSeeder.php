@@ -147,6 +147,12 @@ class UserSeeder extends Seeder
             // Kitchen
             'view_kitchen_display',
             'manage_kitchen_orders',
+            'accept_kitchen_orders',
+            'assign_chef',
+
+            // Customer Display
+            'view_customer_display',
+            'manage_customer_display',
 
             // Delivery
             'view_deliveries',
@@ -252,6 +258,8 @@ class UserSeeder extends Seeder
                 'view_reports',
                 'access_business_settings',
                 'view_currencies',
+                'view_customer_display',
+                'manage_customer_display',
             ])
             ->pluck('id');
         $managerRole->syncPermissions($managerPermissions);
@@ -317,6 +325,8 @@ class UserSeeder extends Seeder
                 'view_customers',
                 'create_customers',
                 'view_reports',
+                'view_customer_display',
+                'manage_customer_display',
             ])
             ->pluck('id');
         $branchManagerRole->syncPermissions($branchManagerPermissions);
@@ -351,6 +361,8 @@ class UserSeeder extends Seeder
                 'view_orders',
                 'view_kitchen_display',
                 'manage_kitchen_orders',
+                'accept_kitchen_orders',
+                'assign_chef',
             ])
             ->pluck('id');
         $kitchenRole->syncPermissions($kitchenPermissions);
@@ -375,6 +387,8 @@ class UserSeeder extends Seeder
                 'view_orders',
                 'view_kitchen_display',
                 'manage_kitchen_orders',
+                'accept_kitchen_orders',
+                'assign_chef',
                 'view_inventory',
             ])
             ->pluck('id');

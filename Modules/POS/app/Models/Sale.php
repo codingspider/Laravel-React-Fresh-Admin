@@ -38,6 +38,10 @@ class Sale extends Model
         'notes',
         'kitchen_notes',
         'coupon_code',
+        'priority',
+        'chef_user_id',
+        'started_at',
+        'ready_at',
     ];
 
     protected $casts = [
@@ -52,6 +56,8 @@ class Sale extends Model
         'total' => 'decimal:2',
         'amount_paid' => 'decimal:2',
         'change_amount' => 'decimal:2',
+        'started_at' => 'datetime',
+        'ready_at' => 'datetime',
     ];
 
     public function restaurant(): BelongsTo

@@ -68,20 +68,22 @@ export default function FormCard({
                     </Box>
                 )}
 
-                <Box as="form" onSubmit={onSubmit} p={{ base: 4, md: 6 }}>
-                    {children}
-                </Box>
+                <Box as="form" onSubmit={onSubmit}>
+                    <Box p={{ base: 4, md: 6 }}>
+                        {children}
+                    </Box>
 
-                {footer && (
-                    <>
-                        <Divider borderColor={borderColor} />
-                        <Box px={{ base: 4, md: 6 }} py={4} bg={colors.bgSubtle}>
-                            <Flex justify="flex-end" gap={3}>
-                                {footer}
-                            </Flex>
-                        </Box>
-                    </>
-                )}
+                    {footer && (
+                        <>
+                            <Divider borderColor={borderColor} />
+                            <Box px={{ base: 4, md: 6 }} py={4} bg={colors.bgSubtle}>
+                                <Flex justify="flex-end" gap={3}>
+                                    {footer}
+                                </Flex>
+                            </Box>
+                        </>
+                    )}
+                </Box>
             </Box>
         </Box>
     );

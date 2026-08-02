@@ -26,7 +26,7 @@ import PageHeader from "../../ui/PageHeader";
 import FormCard from "../../ui/FormCard";
 import useThemeColors from "../../../hooks/useThemeColors";
 
-const PERMISSIONS_ENDPOINT = "/api/permissions";
+const PERMISSIONS_ENDPOINT = "/permissions";
 const LIST_PATH = "/role/list";
 
 const Edit = () => {

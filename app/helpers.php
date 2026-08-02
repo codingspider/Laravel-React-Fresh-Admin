@@ -718,3 +718,36 @@ if (!function_exists('isModuleAccessible')) {
         return in_array($module, $allowed);
     }
 }
+
+if (!function_exists('activityLog')) {
+    /**
+     * Record an activity log entry.
+     *
+     * Falls back to the framework log when an `activity_logs` table is not
+     * available, and never throws so it cannot break the main request flow.
+     */
+    function activityLog(string $type, string $action, ?string $description = null): void
+    {
+        try {
+            if (\Illuminate\Support\Facades\Schema::hasTable('activity_logs')) {
+                \Illuminate\Support\Facades\DB::table('activity_logs')->insert([
+                    'user_id' => auth()->id(),
+                    'log_type' => $type,
+                    'action' => $action,
+                    'description' => $description,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                return;
+            }
+        } catch (\Throwable $e) {
+            // fall through to the framework log below
+        }
+
+        try {
+            \Illuminate\Support\Facades\Log::info(sprintf('[activity] %s:%s %s', $type, $action, $description ?? ''));
+        } catch (\Throwable $e) {
+            // never break the main flow
+        }
+    }
+}

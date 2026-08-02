@@ -34,6 +34,8 @@ import {
     CreditCard,
     CalendarCheck,
     Boxes,
+    ChefHat,
+    MonitorPlay,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -111,6 +113,24 @@ const navItems = [
             { path: '/pos/sales', label: 'Sales History', permission: 'view_pos' },
             { path: '/pos/coupons', label: 'Coupons', permission: 'view_pos' },
             { path: '/pos/settings', label: 'POS Settings', permission: 'view_pos' },
+        ],
+    },
+    {
+        icon: ChefHat,
+        label: 'Kitchen',
+        permission: 'view_kitchen_display',
+        excludeRole: 'super_admin',
+        children: [
+            { path: '/kitchen/display', label: 'Kitchen Display', permission: 'view_kitchen_display' },
+        ],
+    },
+    {
+        icon: MonitorPlay,
+        label: 'Customer Display',
+        permission: 'view_customer_display',
+        excludeRole: 'super_admin',
+        children: [
+            { path: '/customer-display/settings', label: 'Settings', permission: 'manage_customer_display' },
         ],
     },
     {
