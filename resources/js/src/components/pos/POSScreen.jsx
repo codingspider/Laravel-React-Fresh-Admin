@@ -15,6 +15,7 @@ import {
   LIST_BRANCH,
 } from '../../routes/apiRoutes';
 import useThemeColors from '../../hooks/useThemeColors';
+import { useCurrencyFormatter } from '../../useCurrencyFormatter';
 import { usePermission } from '../../context/PermissionContext';
 import TopBar from './partials/TopBar';
 import CategoryChips from './partials/CategoryChips';
@@ -23,13 +24,15 @@ import CartPanel from './partials/CartPanel';
 import PaymentModal from './partials/PaymentModal';
 import RecallModal from './partials/RecallModal';
 import ModifierModal from './partials/ModifierModal';
+import { buildThermalHtml, printHtml } from './partials/ReceiptPrint';
 
 export default function POSScreen() {
   const { t } = useTranslation();
   const toast = useToast();
   const cancelRef = useRef();
   const colors = useThemeColors();
-  const { user, hasRole } = usePermission();
+  const { user, hasRole, restaurant } = usePermission();
+  const { formatAmount } = useCurrencyFormatter();
 
   const [categories, setCategories] = useState([]);
   const [menuItems, setMenuItems] = useState([]);
@@ -64,6 +67,7 @@ export default function POSScreen() {
   const { isOpen: isRecallOpen, onOpen: onRecallOpen, onClose: onRecallClose } = useDisclosure();
   const { isOpen: isCancelOpen, onOpen: onCancelOpen, onClose: onCancelClose } = useDisclosure();
   const { isOpen: isModifierOpen, onOpen: onModifierOpen, onClose: onModifierClose } = useDisclosure();
+
   const [modifierItem, setModifierItem] = useState(null);
   const [isSplitPayment, setIsSplitPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState('cash');
@@ -76,17 +80,14 @@ export default function POSScreen() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [catRes, itemRes, tableRes, custRes, settingsRes, branchRes] = await Promise.all([
+      const [catRes, tableRes, custRes, settingsRes, branchRes] = await Promise.all([
         axios.get(`${LIST_MENU_CATEGORY}?per_page=100`),
-        axios.get(`${LIST_MENU_ITEM}?per_page=200`),
         axios.get(`${LIST_TABLE}?per_page=100`).catch(() => ({ data: { data: [] } })),
         axios.get(`${LIST_CUSTOMER}?per_page=500`).catch(() => ({ data: { data: [] } })),
         axios.get(POS_SETTINGS).catch(() => ({ data: { data: null } })),
         axios.get(`${LIST_BRANCH}?per_page=100`).catch(() => ({ data: { data: [] } })),
       ]);
       setCategories(catRes.data?.data?.data || catRes.data?.data || []);
-      setMenuItems(itemRes.data?.data?.data || itemRes.data?.data || []);
-      setFilteredItems(itemRes.data?.data?.data || itemRes.data?.data || []);
       setTables(tableRes.data?.data?.data || tableRes.data?.data || []);
       setCustomers(custRes.data?.data?.data || custRes.data?.data || []);
       const branchList = branchRes.data?.data?.data || branchRes.data?.data || [];
@@ -115,22 +116,66 @@ export default function POSScreen() {
 
   useEffect(() => { fetchData(); fetchHeldOrders(); }, [fetchData, fetchHeldOrders]);
 
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalItems, setTotalItems] = useState(0);
+  const [menuLoading, setMenuLoading] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   useEffect(() => {
-    let items = menuItems;
-    if (selectedCategory) {
-      items = items.filter(i => i.menu_category_id === selectedCategory);
+    const timer = setTimeout(() => setDebouncedSearch(searchQuery), 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  const fetchMenuItems = useCallback(async (search = '', categoryId = null, pageToLoad = 1, append = false) => {
+    if (pageToLoad > 1) {
+      setIsLoadingMore(true);
+    } else {
+      setMenuLoading(true);
     }
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      items = items.filter(i =>
-        i.name?.toLowerCase().includes(q) ||
-        i.sku?.toLowerCase().includes(q) ||
-        i.barcode?.toLowerCase().includes(q) ||
-        i.description?.toLowerCase().includes(q)
-      );
+    try {
+      const params = new URLSearchParams();
+      params.set('per_page', 20);
+      if (pageToLoad > 1) params.set('page', pageToLoad);
+      if (search) params.set('search', search);
+      if (categoryId) params.set('category_id', categoryId);
+      const res = await axios.get(`${LIST_MENU_ITEM}?${params.toString()}`);
+      const items = res.data?.data?.data || res.data?.data || [];
+      const total = res.data?.meta?.total || res.data?.data?.total || items.length;
+      const lastPage = res.data?.meta?.last_page || res.data?.data?.last_page || 1;
+      setMenuItems(prev => {
+        if (!append) return items;
+        const seen = new Set(prev.map(i => i.id));
+        return [...prev, ...items.filter(i => !seen.has(i.id))];
+      });
+      setFilteredItems(prev => {
+        if (!append) return items;
+        const seen = new Set(prev.map(i => i.id));
+        return [...prev, ...items.filter(i => !seen.has(i.id))];
+      });
+      setPage(pageToLoad);
+      setHasMore(pageToLoad < lastPage);
+      setTotalItems(total);
+    } catch {
+      if (!append) {
+        setMenuItems([]);
+        setFilteredItems([]);
+      }
+    } finally {
+      setMenuLoading(false);
+      setIsLoadingMore(false);
     }
-    setFilteredItems(items);
-  }, [selectedCategory, searchQuery, menuItems]);
+  }, []);
+
+  useEffect(() => {
+    fetchMenuItems(debouncedSearch, selectedCategory, 1, false);
+  }, [fetchMenuItems, debouncedSearch, selectedCategory]);
+
+  const loadMore = useCallback(() => {
+    if (isLoadingMore || !hasMore) return;
+    fetchMenuItems(debouncedSearch, selectedCategory, page + 1, true);
+  }, [fetchMenuItems, debouncedSearch, selectedCategory, page, hasMore, isLoadingMore]);
 
   const addToCartWithModifiers = useCallback((item, selectedModifiers) => {
     const modifierPrice = selectedModifiers.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0);
@@ -176,6 +221,33 @@ export default function POSScreen() {
     addToCartWithModifiers(modifierItem, selectedModifiers);
     setModifierItem(null);
   }, [modifierItem, addToCartWithModifiers]);
+
+  const handleBarcodeScan = useCallback(async (code) => {
+    const needle = String(code || '').trim().toLowerCase();
+    if (!needle) return;
+    const findIn = (items) => items.find(i =>
+      (i.sku && String(i.sku).trim().toLowerCase() === needle) ||
+      (i.barcode && String(i.barcode).trim().toLowerCase() === needle) ||
+      (i.name && String(i.name).trim().toLowerCase() === needle)
+    );
+    let item = findIn(menuItems);
+    if (!item) {
+      try {
+        const res = await axios.get(`${LIST_MENU_ITEM}?search=${encodeURIComponent(code.trim())}&per_page=50`);
+        const results = res.data?.data?.data || res.data?.data || [];
+        item = findIn(results);
+        if (item) {
+          setMenuItems(prev => prev.some(i => i.id === item.id) ? prev : [...prev, item]);
+          setFilteredItems(prev => prev.some(i => i.id === item.id) ? prev : [...prev, item]);
+        }
+      } catch { }
+    }
+    if (item) {
+      addToCart(item);
+    } else {
+      toast({ title: t('Item not found'), status: 'error', duration: 2000, isClosable: true });
+    }
+  }, [menuItems, addToCart, toast, t]);
 
   const updateCartQty = useCallback((key, delta) => {
     setCart(prev => prev.map(c => {
@@ -342,6 +414,7 @@ export default function POSScreen() {
     if (!currentSale) return;
     setSubmitting(true);
     try {
+      let paidSale = null;
       if (isSplitPayment) {
         const validPayments = splitPayments.filter(p => parseFloat(p.amount) > 0);
         if (validPayments.length === 0) {
@@ -349,29 +422,41 @@ export default function POSScreen() {
           setSubmitting(false);
           return;
         }
-        await axios.post(POS_PROCESS_MULTIPLE_PAYMENTS(currentSale.id), {
+        const res = await axios.post(POS_PROCESS_MULTIPLE_PAYMENTS(currentSale.id), {
           payments: validPayments.map(p => ({
             payment_method: p.method,
             amount: parseFloat(p.amount),
             reference_number: p.reference || null,
           })),
         });
+        paidSale = res.data?.data;
       } else {
-        await axios.post(POS_PROCESS_PAYMENT(currentSale.id), {
+        const res = await axios.post(POS_PROCESS_PAYMENT(currentSale.id), {
           payment_method: paymentMethod,
           amount: parseFloat(paymentAmount) || currentSale.total,
         });
+        paidSale = res.data?.data;
       }
       toast({ title: t('Payment processed successfully'), status: 'success', duration: 2000, isClosable: true });
       resetCart();
       onPaymentClose();
       fetchHeldOrders();
+      setTimeout(() => {
+        if (paidSale) {
+          const settings = restaurant?.receipt_settings || {};
+          const directPrint = settings.invoice_direct_print !== false;
+          if (directPrint) {
+            const html = buildThermalHtml(paidSale, restaurant, formatAmount, t);
+            printHtml(html);
+          }
+        }
+      }, 500);
     } catch {
       toast({ title: t('Payment failed'), status: 'error', duration: 3000, isClosable: true });
     } finally {
       setSubmitting(false);
     }
-  }, [currentSale, paymentMethod, paymentAmount, isSplitPayment, splitPayments, toast, t, resetCart, onPaymentClose, fetchHeldOrders]);
+  }, [currentSale, paymentMethod, paymentAmount, isSplitPayment, splitPayments, restaurant, formatAmount, toast, t, resetCart, onPaymentClose, fetchHeldOrders]);
 
   const holdOrder = useCallback(async () => {
     if (cart.length === 0) {
@@ -519,6 +604,11 @@ export default function POSScreen() {
           setSelectedBranchId={setSelectedBranchId}
           canSelectBranch={canSelectBranch}
           selectedBranch={selectedBranch}
+          currentSale={currentSale}
+          restaurant={restaurant}
+          couponCode={couponCode}
+          setCouponCode={setCouponCode}
+          onBarcodeScan={handleBarcodeScan}
         />
 
         <CategoryChips
@@ -530,6 +620,12 @@ export default function POSScreen() {
         <ProductGrid
           filteredItems={filteredItems}
           addToCart={addToCart}
+          isLoading={menuLoading}
+          hasMore={hasMore}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={loadMore}
+          totalItems={totalItems}
+          loadedCount={filteredItems.length}
         />
       </Box>
 

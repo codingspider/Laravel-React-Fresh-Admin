@@ -2,8 +2,33 @@ import React, { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
 import { usePermission } from '../../../context/PermissionContext';
+import { toAbsUrl, writeAndPrint, createPrintFrame } from '../../../utils/printUtil';
+
+const isOn = (settings, key) => {
+  const v = settings?.[key];
+  return v === true || v === 'true' || v === 1 || v === '1';
+};
+
+function buildAddressParts(restaurant, settings) {
+  const parts = [];
+  if (isOn(settings, 'show_address') && restaurant?.address) parts.push(restaurant.address);
+  if (isOn(settings, 'show_city') && restaurant?.city) parts.push(restaurant.city);
+  if (isOn(settings, 'show_state') && restaurant?.state) parts.push(restaurant.state);
+  if (isOn(settings, 'show_zip') && restaurant?.zip_code) parts.push(restaurant.zip_code);
+  return parts;
+}
+
+function logoMarkup(restaurant, settings, className) {
+  const logo = settings?.logo || restaurant?.logo;
+  const showLogo = isOn(settings, 'show_logo') && logo;
+  if (showLogo) {
+    return `<img src="${toAbsUrl(logo)}" alt="${(restaurant?.name || 'Logo').replace(/"/g, '')}" class="${className}" />`;
+  }
+  return `<div class="${className.replace('-img', '')}">${(restaurant?.name || 'R').charAt(0).toUpperCase()}</div>`;
+}
 
 function buildA4Html(sale, restaurant, formatAmount, t) {
+  const settings = restaurant?.receipt_settings || {};
   const date = sale.created_at ? new Date(sale.created_at).toLocaleString() : '-';
   const due = Math.max(0, (parseFloat(sale.total) || 0) - (parseFloat(sale.amount_paid) || 0));
 
@@ -32,9 +57,17 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
     )
     .join('');
 
-  const payments = (sale.payments && sale.payments.length > 0) ? `
+  const addrParts = buildAddressParts(restaurant, settings);
+  const addressHtml = addrParts.length > 0 ? `<div>${addrParts.join(', ')}</div>` : '';
+  const taxNumberHtml = isOn(settings, 'show_tax_number') && settings.tax_number
+    ? `<div>${t('tax_number')}: ${settings.tax_number}</div>` : '';
+  const headerTextHtml = settings.header_text
+    ? `<div class="header-text">${settings.header_text}</div>` : '';
+  const footerText = settings.footer_text || 'Thank you for your visit!';
+
+  const payments = (sale.payments && sale.payments.length > 0 && isOn(settings, 'show_payment_info')) ? `
     <div class="block">
-      <div class="block-title">Payment Summary</div>
+      <div class="block-title">${t('payment_summary')}</div>
       <table class="data-table">
         <thead><tr>
           <th>#</th><th>Method</th><th>Reference</th><th class="r">Amount</th><th>Date</th>
@@ -61,8 +94,9 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
   body { font-family: 'Segoe UI', -apple-system, Arial, sans-serif; color: #1e293b; background: #fff; font-size: 13px; }
   .page { padding: 8px; }
   /* ===== Top band ===== */
-  .top { background: #0f172a; color: #fff; border-radius: 10px; padding: 22px 26px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+  .top { background: #0f172a; color: #fff; border-radius: 10px; padding: 22px 26px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
   .top-brand { display: flex; align-items: center; gap: 14px; }
+  .top-logo-img { width: 46px; height: 46px; border-radius: 9px; object-fit: cover; }
   .top-logo { width: 46px; height: 46px; border-radius: 9px; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 800; color: #fff; }
   .top-name { font-size: 20px; font-weight: 800; letter-spacing: -0.01em; }
   .top-sub { font-size: 11.5px; color: #94a3b8; line-height: 1.5; margin-top: 2px; }
@@ -70,6 +104,7 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
   .top-inv .t1 { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: #94a3b8; font-weight: 600; }
   .top-inv .t2 { font-size: 17px; font-weight: 700; font-family: 'Consolas', monospace; color: #fff; margin-top: 3px; }
   .top-inv .t3 { font-size: 11px; color: #94a3b8; margin-top: 3px; }
+  .header-text { text-align: center; font-size: 12px; color: #64748b; margin-bottom: 18px; }
   /* ===== Info table ===== */
   .info-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 24px; }
   .info-table td { border: 1px solid #e2e8f0; padding: 0; width: 50%; }
@@ -116,13 +151,14 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
   <div class="page">
     <div class="top">
       <div class="top-brand">
-        <div class="top-logo">${(restaurant?.name || 'R').charAt(0).toUpperCase()}</div>
+        ${logoMarkup(restaurant, settings, 'top-logo-img')}
         <div>
           <div class="top-name">${restaurant?.name || 'Restaurant'}</div>
           <div class="top-sub">
-            ${restaurant?.full_address ? `<div>${restaurant.full_address}</div>` : ''}
-            ${restaurant?.phone ? `<div>Phone: ${restaurant.phone}</div>` : ''}
+            ${addressHtml}
+            ${restaurant?.phone ? `<div>${t('phone_number')}: ${restaurant.phone}</div>` : ''}
             ${restaurant?.email ? `<div>${restaurant.email}</div>` : ''}
+            ${taxNumberHtml}
           </div>
         </div>
       </div>
@@ -133,35 +169,37 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
       </div>
     </div>
 
+    ${headerTextHtml}
+
     <table class="info-table">
       <tr>
         <td>
           <div class="info-box">
-            <div class="info-label">Order Details</div>
-            <div class="info-row"><span class="k">Order Type</span><span class="v">${(sale.order_type || '-').replace('_', ' ')}</span></div>
-            <div class="info-row"><span class="k">Status</span><span class="v">${(sale.status || '-').replace('_', ' ')}</span></div>
-            ${sale.table ? `<div class="info-row"><span class="k">Table</span><span class="v">${sale.table.name}</span></div>` : ''}
-            ${sale.branch ? `<div class="info-row"><span class="k">Branch</span><span class="v">${sale.branch.name}</span></div>` : ''}
-            <div class="info-row"><span class="k">Cashier</span><span class="v">${sale.user?.name || '-'}</span></div>
+            <div class="info-label">${t('order_details')}</div>
+            <div class="info-row"><span class="k">${t('order_type')}</span><span class="v">${(sale.order_type || '-').replace('_', ' ')}</span></div>
+            <div class="info-row"><span class="k">${t('status')}</span><span class="v">${(sale.status || '-').replace('_', ' ')}</span></div>
+            ${isOn(settings, 'show_table_number') && sale.table ? `<div class="info-row"><span class="k">${t('table')}</span><span class="v">${sale.table.name}</span></div>` : ''}
+            ${sale.branch ? `<div class="info-row"><span class="k">${t('branch')}</span><span class="v">${sale.branch.name}</span></div>` : ''}
+            ${isOn(settings, 'show_waiter_name') ? `<div class="info-row"><span class="k">${t('waiter')}</span><span class="v">${sale.user?.name || '-'}</span></div>` : ''}
           </div>
         </td>
         <td>
           <div class="info-box">
-            <div class="info-label">Customer</div>
-            <div class="info-row"><span class="k">Name</span><span class="v">${sale.customer?.name || 'Walk-in Customer'}</span></div>
-            ${sale.customer?.phone ? `<div class="info-row"><span class="k">Phone</span><span class="v">${sale.customer.phone}</span></div>` : ''}
-            ${sale.customer?.address ? `<div class="info-row"><span class="k">Address</span><span class="v">${sale.customer.address}</span></div>` : ''}
-            <div class="info-row"><span class="k">Payment</span><span class="v"><span class="status">${(sale.payment_status || 'unpaid').replace('_', ' ')}</span></span></div>
+            <div class="info-label">${t('customer')}</div>
+            <div class="info-row"><span class="k">${t('name')}</span><span class="v">${sale.customer?.name || 'Walk-in Customer'}</span></div>
+            ${sale.customer?.phone ? `<div class="info-row"><span class="k">${t('phone_number')}</span><span class="v">${sale.customer.phone}</span></div>` : ''}
+            ${sale.customer?.address ? `<div class="info-row"><span class="k">${t('address')}</span><span class="v">${sale.customer.address}</span></div>` : ''}
+            <div class="info-row"><span class="k">${t('payment')}</span><span class="v"><span class="status">${(sale.payment_status || 'unpaid').replace('_', ' ')}</span></span></div>
           </div>
         </td>
       </tr>
     </table>
 
     <div class="block">
-      <div class="block-title">Order Items</div>
+      <div class="block-title">${t('order_items')}</div>
       <table class="data-table">
         <thead><tr>
-          <th style="width:40px">#</th><th>Item</th><th style="text-align:center">Qty</th><th class="r">Price</th><th class="r">Total</th>
+          <th style="width:40px">#</th><th>${t('item')}</th><th style="text-align:center">${t('quantity')}</th><th class="r">${t('price')}</th><th class="r">${t('total')}</th>
         </tr></thead>
         <tbody>${items}</tbody>
       </table>
@@ -169,94 +207,123 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
 
     <div class="bottom">
       <div class="notes">
-        <div class="nt">Notes</div>
-        ${sale.notes ? `<p><strong>Order:</strong> ${sale.notes}</p>` : '<p style="color:#94a3b8;">No order notes.</p>'}
-        ${sale.kitchen_notes ? `<p style="margin-top:6px;"><strong>Kitchen:</strong> ${sale.kitchen_notes}</p>` : ''}
+        <div class="nt">${t('notes')}</div>
+        ${sale.notes ? `<p><strong>${t('order')}:</strong> ${sale.notes}</p>` : '<p style="color:#94a3b8;">No order notes.</p>'}
+        ${isOn(settings, 'show_kitchen_notes') && sale.kitchen_notes ? `<p style="margin-top:6px;"><strong>${t('kitchen_notes')}:</strong> ${sale.kitchen_notes}</p>` : ''}
       </div>
       <div class="totals">
-        <div class="totals-row"><span class="label">Subtotal</span><span class="value">${formatAmount(sale.subtotal)}</span></div>
-        ${parseFloat(sale.discount_amount) > 0 ? `<div class="totals-row"><span class="label">Discount</span><span class="value" style="color:#b91c1c">-${formatAmount(sale.discount_amount)}</span></div>` : ''}
-        ${parseFloat(sale.tax_amount) > 0 ? `<div class="totals-row"><span class="label">VAT / Tax</span><span class="value">+${formatAmount(sale.tax_amount)}</span></div>` : ''}
-        ${parseFloat(sale.delivery_charge) > 0 ? `<div class="totals-row"><span class="label">Delivery</span><span class="value">+${formatAmount(sale.delivery_charge)}</span></div>` : ''}
-        ${sale.coupon_code ? `<div class="totals-row"><span class="label">Coupon</span><span class="value" style="color:#15803d">${sale.coupon_code}</span></div>` : ''}
-        ${parseFloat(sale.tip_amount) > 0 ? `<div class="totals-row"><span class="label">Tip</span><span class="value">+${formatAmount(sale.tip_amount)}</span></div>` : ''}
-        <div class="totals-row total"><span class="label">Total</span><span class="value">${formatAmount(sale.total)}</span></div>
-        ${due > 0 ? `<div class="totals-row"><span class="label">Amount Paid</span><span class="value paid">${formatAmount(sale.amount_paid)}</span></div>
-        <div class="totals-row"><span class="label">Due</span><span class="value due">${formatAmount(due)}</span></div>` : `<div class="totals-row"><span class="label">Paid</span><span class="value paid">${formatAmount(sale.amount_paid)}</span></div>`}
+        <div class="totals-row"><span class="label">${t('subtotal')}</span><span class="value">${formatAmount(sale.subtotal)}</span></div>
+        ${isOn(settings, 'show_discount_info') && parseFloat(sale.discount_amount) > 0 ? `<div class="totals-row"><span class="label">${t('discount')}</span><span class="value" style="color:#b91c1c">-${formatAmount(sale.discount_amount)}</span></div>` : ''}
+        ${isOn(settings, 'show_tax_info') && parseFloat(sale.tax_amount) > 0 ? `<div class="totals-row"><span class="label">${t('vat_tax')}</span><span class="value">+${formatAmount(sale.tax_amount)}</span></div>` : ''}
+        ${parseFloat(sale.delivery_charge) > 0 ? `<div class="totals-row"><span class="label">${t('delivery')}</span><span class="value">+${formatAmount(sale.delivery_charge)}</span></div>` : ''}
+        ${sale.coupon_code ? `<div class="totals-row"><span class="label">${t('coupon')}</span><span class="value" style="color:#15803d">${sale.coupon_code}</span></div>` : ''}
+        ${parseFloat(sale.tip_amount) > 0 ? `<div class="totals-row"><span class="label">${t('tip')}</span><span class="value">+${formatAmount(sale.tip_amount)}</span></div>` : ''}
+        <div class="totals-row total"><span class="label">${t('total')}</span><span class="value">${formatAmount(sale.total)}</span></div>
+        ${due > 0 ? `<div class="totals-row"><span class="label">${t('amount_paid')}</span><span class="value paid">${formatAmount(sale.amount_paid)}</span></div>
+        <div class="totals-row"><span class="label">${t('due')}</span><span class="value due">${formatAmount(due)}</span></div>` : `<div class="totals-row"><span class="label">${t('paid')}</span><span class="value paid">${formatAmount(sale.amount_paid)}</span></div>`}
       </div>
     </div>
 
     ${payments}
 
     <div class="footer">
-      <div class="thanks">Thank you for your visit!</div>
-      <div class="sub">We hope to serve you again soon.</div>
+      <div class="thanks">${footerText}</div>
+      <div class="sub">${t('footer_sub_text')}</div>
     </div>
   </div>
 </body></html>`;
 }
 
 function buildThermalHtml(sale, restaurant, formatAmount, t) {
+  const settings = restaurant?.receipt_settings || {};
   const date = sale.created_at ? new Date(sale.created_at).toLocaleString() : '-';
   const items = (sale.items || [])
-    .map(
-      (item) => {
-        const modifierPrices = item.modifiers && item.modifiers.length > 0
-          ? item.modifiers.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0)
-          : 0;
-        const basePrice = parseFloat(item.unit_price) - modifierPrices;
-        const modifierRows = item.modifiers && item.modifiers.length > 0
-          ? item.modifiers.map((m) => `<div class="item-row">${m.name}${m.price ? ` <span style="float:right;">+${formatAmount(m.price)}</span>` : ''}</div>`).join('')
-          : '';
-        return `<div style="margin-bottom:6px;">
-        <div class="row"><span>${item.item_name} x${item.quantity}</span><span class="bold">${formatAmount(basePrice)}</span></div>
+    .map((item) => {
+      const modifierRows = item.modifiers && item.modifiers.length > 0
+        ? item.modifiers.map((m) => `<div class="item-row"><span class="mod-name">+ ${m.name}</span><span>${m.price ? `+${formatAmount(m.price)}` : ''}</span></div>`).join('')
+        : '';
+      return `<div class="item-block">
+        <div class="row"><span>${item.item_name} x${item.quantity}</span><span class="bold">${formatAmount(item.total)}</span></div>
         ${modifierRows}
-        <div class="row"><span class="bold">Total:</span><span class="bold">${formatAmount(item.total)}</span></div>
       </div>`;
-      }
-    )
+    })
     .join('');
 
   const due = Math.max(0, (parseFloat(sale.total) || 0) - (parseFloat(sale.amount_paid) || 0));
+
+  const addrParts = buildAddressParts(restaurant, settings);
+  const addressHtml = addrParts.length > 0
+    ? `<div class="center" style="font-size:10px;color:#555;">${addrParts.join(', ')}</div>` : '';
+  const phoneHtml = restaurant?.phone ? `<div class="center" style="font-size:10px;color:#555;">${t('phone_number')}: ${restaurant.phone}</div>` : '';
+  const headerTextHtml = settings.header_text ? `<div class="center" style="font-size:11px;margin-top:4px;">${settings.header_text}</div>` : '';
+  const taxNumberHtml = isOn(settings, 'show_tax_number') && settings.tax_number
+    ? `<div class="row"><span>${t('tax_number')}:</span><span>${settings.tax_number}</span></div>` : '';
+  const footerText = settings.footer_text || 'Thank you!';
+  const logo = settings?.logo || restaurant?.logo;
+  const showLogo = isOn(settings, 'show_logo') && logo;
+  const logoHtml = showLogo
+    ? `<img src="${toAbsUrl(logo)}" alt="${(restaurant?.name || 'Logo').replace(/"/g, '')}" style="width:64px;max-height:64px;object-fit:contain;display:block;margin:0 auto 4px;" />`
+    : '';
 
   return `
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"/>
 <title>Receipt ${sale.invoice_number || sale.id}</title>
 <style>
-  @media print { @page { size: 80mm auto; margin: 2mm; } body { margin: 0; } }
+  @page { size: 80mm auto; margin: 0; }
+  @media print {
+    html, body { height: auto; overflow: visible; }
+    body { margin: 0; }
+    .row, .item-block, .center { page-break-inside: avoid; }
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Courier New', monospace; color: #000; background: #fff; padding: 8px; width: 72mm; font-size: 12px; line-height: 1.4; }
+  body { font-family: 'Courier New', monospace; color: #000; background: #fff; padding: 8px; width: 72mm; min-width: 72mm; max-width: 72mm; font-size: 12px; line-height: 1.4; word-wrap: break-word; }
   .center { text-align: center; }
   .bold { font-weight: 700; }
   .divider { border-top: 1px dashed #000; margin: 6px 0; }
   .row { display: flex; justify-content: space-between; }
+  .row span:first-child, .item-row span:first-child { margin-right: 8px; word-break: break-word; }
+  .item-block { margin-bottom: 7px; }
   .item-row { display: flex; justify-content: space-between; margin-bottom: 2px; }
+  .mod-name { padding-left: 8px; font-size: 11px; color: #555; }
+  img { max-width: 64px; }
 </style></head><body>
+  ${logoHtml}
   <div class="center bold" style="font-size:15px;margin-bottom:2px;">${restaurant?.name || 'Restaurant'}</div>
-  ${restaurant?.full_address ? `<div class="center" style="font-size:10px;color:#555;">${restaurant.full_address}</div>` : ''}
-  ${restaurant?.phone ? `<div class="center" style="font-size:10px;color:#555;">${restaurant.phone}</div>` : ''}
+  ${addressHtml}
+  ${phoneHtml}
+  ${headerTextHtml}
   <div class="divider"></div>
-  <div class="row"><span>Invoice:</span><span class="bold">${sale.invoice_number || '-'}</span></div>
-  <div class="row"><span>Date:</span><span>${date}</span></div>
-  <div class="row"><span>Type:</span><span>${(sale.order_type || '-').replace('_', ' ')}</span></div>
-  ${sale.table ? `<div class="row"><span>Table:</span><span>${sale.table.name}</span></div>` : ''}
-  ${sale.customer ? `<div class="row"><span>Customer:</span><span>${sale.customer.name}</span></div>` : ''}
+  <div class="row"><span>${t('invoice')}:</span><span class="bold">${sale.invoice_number || '-'}</span></div>
+  <div class="row"><span>${t('date')}:</span><span>${date}</span></div>
+  <div class="row"><span>${t('order_type')}:</span><span>${(sale.order_type || '-').replace('_', ' ')}</span></div>
+  ${isOn(settings, 'show_table_number') && sale.table ? `<div class="row"><span>${t('table')}:</span><span>${sale.table.name}</span></div>` : ''}
+  ${sale.customer ? `<div class="row"><span>${t('customer')}:</span><span>${sale.customer.name}</span></div>` : ''}
+  ${taxNumberHtml}
   <div class="divider"></div>
-  <div class="bold" style="margin-bottom:4px;">ITEMS</div>
+  <div class="bold" style="margin-bottom:4px;">${t('items')}</div>
   ${items}
   <div class="divider"></div>
-  <div class="row"><span>Subtotal:</span><span>${formatAmount(sale.subtotal)}</span></div>
-  ${parseFloat(sale.discount_amount) > 0 ? `<div class="row"><span>Discount:</span><span>-${formatAmount(sale.discount_amount)}</span></div>` : ''}
-  ${parseFloat(sale.tax_amount) > 0 ? `<div class="row"><span>Tax:</span><span>+${formatAmount(sale.tax_amount)}</span></div>` : ''}
-  ${parseFloat(sale.delivery_charge) > 0 ? `<div class="row"><span>Delivery:</span><span>+${formatAmount(sale.delivery_charge)}</span></div>` : ''}
+  <div class="row"><span>${t('subtotal')}:</span><span>${formatAmount(sale.subtotal)}</span></div>
+  ${isOn(settings, 'show_discount_info') && parseFloat(sale.discount_amount) > 0 ? `<div class="row"><span>${t('discount')}:</span><span>-${formatAmount(sale.discount_amount)}</span></div>` : ''}
+  ${isOn(settings, 'show_tax_info') && parseFloat(sale.tax_amount) > 0 ? `<div class="row"><span>${t('vat_tax')}:</span><span>+${formatAmount(sale.tax_amount)}</span></div>` : ''}
+  ${parseFloat(sale.delivery_charge) > 0 ? `<div class="row"><span>${t('delivery')}:</span><span>+${formatAmount(sale.delivery_charge)}</span></div>` : ''}
   <div class="divider"></div>
-  <div class="row bold" style="font-size:14px;"><span>TOTAL:</span><span>${formatAmount(sale.total)}</span></div>
-  ${due > 0 ? `<div class="row"><span>Paid:</span><span>${formatAmount(sale.amount_paid)}</span></div>
-  <div class="row bold"><span>DUE:</span><span>${formatAmount(due)}</span></div>` : `<div class="row"><span>Status:</span><span class="bold">PAID IN FULL</span></div>`}
+  <div class="row bold" style="font-size:14px;"><span>${t('total')}:</span><span>${formatAmount(sale.total)}</span></div>
+  ${due > 0 ? `<div class="row"><span>${t('paid')}:</span><span>${formatAmount(sale.amount_paid)}</span></div>
+  <div class="row bold"><span>${t('due')}:</span><span>${formatAmount(due)}</span></div>` : `<div class="row"><span>${t('status')}:</span><span class="bold">PAID IN FULL</span></div>`}
   <div class="divider"></div>
-  <div class="center" style="margin-top:8px;font-size:11px;">Thank you!</div>
+  <div class="center" style="margin-top:8px;font-size:11px;">${footerText}</div>
 </body></html>`;
+}
+
+function printHtml(html) {
+  const iframe = createPrintFrame();
+  writeAndPrint(iframe, html).then(() => {
+    setTimeout(() => {
+      if (iframe.parentNode) iframe.parentNode.removeChild(iframe);
+    }, 1000);
+  });
 }
 
 export default function ReceiptPrint({ sale, type = 'a4', triggerRef, children }) {
@@ -273,14 +340,7 @@ export default function ReceiptPrint({ sale, type = 'a4', triggerRef, children }
 
     const iframe = iframeRef.current;
     if (!iframe) return;
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(html);
-    doc.close();
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    }, 300);
+    writeAndPrint(iframe, html);
   };
 
   if (triggerRef) {
@@ -291,7 +351,7 @@ export default function ReceiptPrint({ sale, type = 'a4', triggerRef, children }
     <>
       <iframe
         ref={iframeRef}
-        style={{ display: 'none', position: 'fixed', top: 0, left: 0, width: 0, height: 0 }}
+        style={{ position: 'fixed', top: 0, left: '-2000px', width: '80mm', height: '1200mm', border: 0 }}
         title="print-frame"
       />
       {children ? (
@@ -301,4 +361,4 @@ export default function ReceiptPrint({ sale, type = 'a4', triggerRef, children }
   );
 }
 
-export { buildA4Html, buildThermalHtml };
+export { buildA4Html, buildThermalHtml, printHtml };

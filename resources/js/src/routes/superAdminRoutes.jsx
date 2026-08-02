@@ -93,6 +93,7 @@ import POSSalesList from "../components/pos/POSSalesList";
 import POSSalesView from "../components/pos/POSSalesView";
 import PosSettings from "../components/admin/pos/PosSettings";
 import CouponManagement from "../components/admin/pos/CouponManagement";
+import General from "../components/admin/general/General";
 
 
 export const DASHBOARD_PATH = `/dashboard`;
@@ -166,6 +167,7 @@ export const PROFILE = "/profile";
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
     { path: `/settings`, element: <MasterSetting /> },
+    { path: `/settings/general`, element: <General /> },
     { path: `/save/order`, element: <SaveOrder /> },
 
     { path: USER_LIST_PATH, element: <UserList /> },

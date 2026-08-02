@@ -1,8 +1,13 @@
 import React, { useRef } from 'react';
 import { usePermission } from '../../../context/PermissionContext';
+import { toAbsUrl, writeAndPrint } from '../../../utils/printUtil';
 
 function buildKotHtml(sale, restaurant) {
   const date = sale.created_at ? new Date(sale.created_at).toLocaleString() : '-';
+  const logo = restaurant?.logo;
+  const logoHtml = logo
+    ? `<img src="${toAbsUrl(logo)}" alt="${(restaurant?.name || 'Logo').replace(/"/g, '')}" style="width:56px;max-height:56px;object-fit:contain;display:block;margin:0 auto 4px;" />`
+    : '';
   const items = (sale.items || [])
     .map(
       (item, idx) => `
@@ -23,15 +28,22 @@ function buildKotHtml(sale, restaurant) {
 <html><head><meta charset="utf-8"/>
 <title>KOT ${sale.invoice_number || sale.id}</title>
 <style>
-  @media print { @page { size: 80mm auto; margin: 2mm; } body { margin: 0; } }
+  @page { size: 80mm auto; margin: 0; }
+  @media print {
+    html, body { height: auto; overflow: visible; }
+    body { margin: 0; }
+    tr { page-break-inside: avoid; }
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Courier New', monospace; color: #000; background: #fff; padding: 8px; width: 72mm; font-size: 12px; line-height: 1.4; }
+  body { font-family: 'Courier New', monospace; color: #000; background: #fff; padding: 8px; width: 72mm; min-width: 72mm; max-width: 72mm; font-size: 12px; line-height: 1.4; word-wrap: break-word; }
   .center { text-align: center; }
   .bold { font-weight: 700; }
   .divider { border-top: 2px solid #000; margin: 6px 0; }
   .thin-divider { border-top: 1px dashed #ccc; margin: 4px 0; }
+  img { max-width: 56px; }
 </style></head><body>
   <div class="center bold" style="font-size:16px;margin-bottom:2px;">KITCHEN ORDER TICKET</div>
+  ${logoHtml}
   <div class="center bold" style="font-size:13px;">${restaurant?.name || 'Restaurant'}</div>
   <div class="divider"></div>
   <div style="display:flex;justify-content:space-between;font-size:12px;">
@@ -68,14 +80,7 @@ export default function KOTPrint({ sale, triggerRef, children }) {
 
     const iframe = iframeRef.current;
     if (!iframe) return;
-    const doc = iframe.contentDocument || iframe.contentWindow.document;
-    doc.open();
-    doc.write(html);
-    doc.close();
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    }, 300);
+    writeAndPrint(iframe, html);
   };
 
   if (triggerRef) {
@@ -86,7 +91,7 @@ export default function KOTPrint({ sale, triggerRef, children }) {
     <>
       <iframe
         ref={iframeRef}
-        style={{ display: 'none', position: 'fixed', top: 0, left: 0, width: 0, height: 0 }}
+        style={{ position: 'fixed', top: 0, left: '-2000px', width: '80mm', height: '1200mm', border: 0 }}
         title="kot-frame"
       />
       {children ? (

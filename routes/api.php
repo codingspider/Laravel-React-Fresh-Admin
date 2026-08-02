@@ -59,6 +59,7 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 're
 
     Route::get('owner/business', [AdminBusinessController::class, 'index']);
     Route::put('business/setting/update/{id}', [AdminBusinessController::class, 'update']);
+    Route::post('update/currency', [AdminBusinessController::class, 'updateCurrency']);
     Route::post('notification/update', [AdminBusinessController::class, 'updateNotification']);
     Route::post('update/invoice/setting', [AdminBusinessController::class, 'updateInvoiceSetting']);
     Route::get('get/notification/setting', [AdminBusinessController::class, 'getNotificationSetting']);
@@ -128,8 +129,23 @@ Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Req
             'restaurant' => $restaurant ? [
                 'id' => $restaurant->id,
                 'name' => $restaurant->name,
+                'logo' => $restaurant->logo,
+                'phone' => $restaurant->phone,
+                'email' => $restaurant->email,
+                'address' => $restaurant->address,
+                'city' => $restaurant->city,
+                'state' => $restaurant->state,
+                'country' => $restaurant->country,
+                'zip_code' => $restaurant->zip_code,
+                'full_address' => $restaurant->full_address,
                 'currency' => $restaurant->currency,
                 'currency_symbol' => $restaurant->currency_symbol,
+                'timezone' => $restaurant->timezone,
+                'tax_rate' => $restaurant->tax_rate,
+                'tax_name' => $restaurant->tax_name,
+                'tax_inclusive' => $restaurant->tax_inclusive,
+                'receipt_settings' => $restaurant->invoiceSettings(),
+                'notification_settings' => $restaurant->notification_settings,
                 'status' => $restaurant->status,
                 'trial_ends_at' => $restaurant->trial_ends_at?->toISOString(),
             ] : null,

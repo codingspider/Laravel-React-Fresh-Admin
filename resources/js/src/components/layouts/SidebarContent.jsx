@@ -151,13 +151,19 @@ const navItems = [
         path: '/settings',
         icon: Settings,
         label: 'Settings',
+        role: 'super_admin',
+    },
+    {
+        path: '/settings/general',
+        icon: Settings,
+        label: 'General Settings',
         permission: 'access_business_settings',
         excludeRole: 'super_admin',
     },
 ];
 
 export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
-    const { can, hasRole } = usePermission();
+    const { can, hasRole, restaurant } = usePermission();
     const [openMenus, setOpenMenus] = useState({});
     const location = useLocation();
     const colors = useThemeColors();
@@ -447,7 +453,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                             <Avatar size="sm" name="User" bg="brand.500" color="white" />
                             <Box flex="1" minW={0}>
                                 <Text fontSize="sm" fontWeight="600" noOfLines={1}>
-                                    {localStorage.getItem('app_name') || 'Restaurant'}
+                                    {restaurant?.name || localStorage.getItem('app_name') || 'Restaurant'}
                                 </Text>
                                 <Text fontSize="xs" color={colors.textMuted} noOfLines={1}>
                                     Admin
@@ -520,7 +526,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                         <Avatar size="sm" name="User" bg="brand.500" color="white" />
                         <Box flex="1" minW={0}>
                             <Text fontSize="sm" fontWeight="600" noOfLines={1}>
-                                {localStorage.getItem('app_name') || 'Restaurant'}
+                                {restaurant?.name || localStorage.getItem('app_name') || 'Restaurant'}
                             </Text>
                             <Text fontSize="xs" color="gray.400" noOfLines={1}>
                                 Admin

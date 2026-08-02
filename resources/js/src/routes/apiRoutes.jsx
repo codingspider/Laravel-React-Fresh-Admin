@@ -26,6 +26,7 @@ export const DELETE_VAT = (id) => `/vats/${id}`;
 export const UPDATE_VAT = (id) => `/vats/${id}`;
 
 export const UPDATE_BUSINESS = (id) => `/business/setting/update/${id}`;
+export const UPDATE_RESTAURANT_CURRENCY = '/update/currency';
 export const GET_OWNER_BUSINESS = '/owner/business';
 export const CREATE_NOTIFICATION_SETTING = '/notification/update';
 export const GET_NOTIFICATION_SETTING = '/get/notification/setting';

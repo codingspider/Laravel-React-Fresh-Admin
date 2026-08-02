@@ -2,27 +2,20 @@ import React, { useState, useEffect } from "react";
 import {
     Box,
     Button,
-    Card,
-    CardBody,
     FormControl,
     FormLabel,
     Input,
     Stack,
-    Heading,
+    Image,
+    Text,
     useToast,
-    Breadcrumb,
-    BreadcrumbItem,
-    BreadcrumbLink,
     SimpleGrid
-    
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
 import api from "../../../axios";
-import { GET_CURRENCIES, GET_OWNER_BUSINESS, GET_TIMEZONES, UPDATE_BUSINESS } from "../../../routes/apiRoutes";
-import Select from "react-select";
-import { Controller } from "react-hook-form";
+import { GET_OWNER_BUSINESS, UPDATE_BUSINESS } from "../../../routes/apiRoutes";
+import { usePermission } from "../../../context/PermissionContext";
 
 const Setting = () => {
     const { t } = useTranslation();
@@ -30,16 +23,12 @@ const Setting = () => {
         register,
         handleSubmit,
         reset,
-        setValue,
-        control,
         formState: { errors },
     } = useForm();
+    const { restaurant, refetchPermissions } = usePermission();
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [time_zones, setTimeZone] = useState([]);
-    const [currencies, setCurrency] = useState([]);
     const [business, setBusiness] = useState(null);
     const toast = useToast();
-    const navigate = useNavigate();
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
@@ -48,23 +37,17 @@ const Setting = () => {
 
         formData.append("name", data.name ?? "");
         formData.append("phone", data.phone ?? "");
-        formData.append("landmark", data.landmark ?? "");
+        formData.append("email", data.email ?? "");
+        formData.append("address", data.address ?? "");
         formData.append("city", data.city ?? "");
-        formData.append("zip", data.zip ?? "");
-        formData.append("map_api_key", data.map_api_key ?? "");
-        formData.append("center_lat_lon", data.center_lat_lon ?? "");
-
-        // React-Select values must be STRING
-        formData.append("timezone_id", String(data.timezone_id ?? ""));
-        formData.append("currency_id", String(data.currency_id ?? ""));
+        formData.append("state", data.state ?? "");
+        formData.append("country", data.country ?? "");
+        formData.append("zip_code", data.zip_code ?? "");
+        formData.append("timezone", data.timezone ?? "");
 
         // Files
-        if (data.app_logo?.length) {
-            formData.append("logo", data.app_logo[0]);
-        }
-
-        if (data.fav_icon?.length) {
-            formData.append("favicon", data.fav_icon[0]);
+        if (data.logo?.length) {
+            formData.append("logo", data.logo[0]);
         }
 
         // For Laravel PUT request
@@ -85,6 +68,8 @@ const Setting = () => {
                 isClosable: true,
             });
 
+            // Refresh user data so the whole app uses the new restaurant name/logo
+            await refetchPermissions();
         } catch (err) {
             const errorResponse = err?.response?.data;
             const errorMessage = errorResponse?.errors
@@ -105,56 +90,30 @@ const Setting = () => {
         }
     };
 
-    const getTimeZone = async () => {
-        const res = await api.get(GET_TIMEZONES);
-        const timezones = res.data.data;
-
-        const formatted = timezones.map(timezone => ({
-          value: timezone.id,
-          label: timezone.key,
-        }));
-
-        setTimeZone(formatted);
-    };
-    
-    const getCurrency = async () => {
-        const res = await api.get(GET_CURRENCIES);
-        const currency = res.data.data;
-        const formatted = currency.map(currency => ({
-          value: currency.id,
-          label: currency.key,
-        }));
-        setCurrency(formatted);
-    };
-
-    const getBusiness =  async () => {
+    const getBusiness = async () => {
         const res = await api.get(GET_OWNER_BUSINESS);
         const business = res.data.data;
         setBusiness(business);
         reset({
             name: business.name,
-            phone: business.contact_number,
-            landmark: business.landmark,
+            phone: business.phone,
+            email: business.email,
+            address: business.address,
             city: business.city,
-            zip: business.zip,
-            map_api_key: business.map_api_key,
-            center_lat_lon: business.center_lat_lon,
+            state: business.state,
+            country: business.country,
+            zip_code: business.zip_code,
+            timezone: business.timezone,
         });
-        setValue("currency_id",  business.currency_id);
-        setValue("timezone_id",  business.timezone_id,);
+        document.title = `${business.name} | ${t("system_settings")}`;
     };
 
-
     useEffect(() => {
-        const app_name = localStorage.getItem("app_name") || "App";
-        document.title = `${app_name} | Setting`;
-
-        getTimeZone();
-        getCurrency();
         getBusiness();
     }, []);
 
-    
+    const currentLogo = business?.logo || restaurant?.logo;
+
     return (
         <>
             <Box mt={5} mx="auto" p={6} borderWidth={1} borderRadius="lg">
@@ -164,7 +123,7 @@ const Setting = () => {
                 >
                     <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
                         <FormControl isRequired>
-                            <FormLabel>{t("application_name")}</FormLabel>
+                            <FormLabel>{t("restaurant_name")}</FormLabel>
                             <Input
                                 type="text"
                                 {...register("name", { required: true })}
@@ -179,94 +138,77 @@ const Setting = () => {
                             />
                         </FormControl>
 
+                        <FormControl>
+                            <FormLabel>{t("email")}</FormLabel>
+                            <Input
+                                type="email"
+                                {...register("email")}
+                            />
+                        </FormControl>
 
-                        <FormControl isRequired>
+                        <FormControl>
                             <FormLabel>{t("address")}</FormLabel>
                             <Input
                                 type="text"
-                                {...register("landmark", { required: true })}
+                                {...register("address")}
                             />
                         </FormControl>
 
-                        <FormControl isRequired>
+                        <FormControl>
                             <FormLabel>{t("city")}</FormLabel>
                             <Input
                                 type="text"
-                                {...register("city", { required: true })}
+                                {...register("city")}
                             />
                         </FormControl>
 
-                        <FormControl isRequired>
+                        <FormControl>
+                            <FormLabel>{t("state")}</FormLabel>
+                            <Input
+                                type="text"
+                                {...register("state")}
+                            />
+                        </FormControl>
+
+                        <FormControl>
+                            <FormLabel>{t("country")}</FormLabel>
+                            <Input
+                                type="text"
+                                {...register("country")}
+                            />
+                        </FormControl>
+
+                        <FormControl>
                             <FormLabel>{t("zip")}</FormLabel>
                             <Input
                                 type="text"
-                                {...register("zip", { required: true })}
+                                {...register("zip_code")}
                             />
                         </FormControl>
-                        <FormControl isRequired>
-                            <FormLabel>{t("map_api_key")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("map_api_key", { required: true })}
-                            />
-                        </FormControl>
-                        <FormControl isRequired>
-                            <FormLabel>{t("center_lat_long")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("center_lat_lon", { required: true })}
-                            />
-                        </FormControl>
-                        <FormControl isRequired>
-                            <FormLabel>{t("timezone")}</FormLabel>
 
-                            <Controller
-                                name="timezone_id"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select
-                                        {...field}
-                                        options={time_zones}
-                                        value={time_zones.find(option => option.value === field.value) || null}
-                                        onChange={(val) => field.onChange(val?.value)}
-                                        placeholder="Select"
-                                        isSearchable
-                                        isClearable
-                                    />
-                                )}
+                        <FormControl>
+                            <FormLabel>{t("timezone")}</FormLabel>
+                            <Input
+                                type="text"
+                                placeholder="e.g. Asia/Dhaka"
+                                {...register("timezone")}
                             />
                         </FormControl>
                     </SimpleGrid>
 
                     <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mt={8}>
                         <FormControl>
-                            <FormLabel>{t("app_logo")}</FormLabel>
-                            <Input type="file" {...register("app_logo")} />
-                        </FormControl>
-
-                        <FormControl>
-                            <FormLabel>{t("fav_icon")}</FormLabel>
-                            <Input type="file" {...register("fav_icon")} />
-                        </FormControl>
-
-                        <FormControl isRequired>
-                            <FormLabel>{t("currency")}</FormLabel>
-
-                            <Controller
-                                name="currency_id"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select
-                                        {...field}
-                                        options={currencies}
-                                        value={currencies.find(option => option.value === field.value) || null}
-                                        onChange={(val) => field.onChange(val?.value)}
-                                        placeholder="Select"
-                                        isSearchable
-                                        isClearable
-                                    />
-                                )}
-                            />
+                            <FormLabel>{t("restaurant_logo")}</FormLabel>
+                            <Input type="file" accept="image/*" {...register("logo")} />
+                            {currentLogo && (
+                                <Image
+                                    src={'/' + currentLogo}
+                                    alt={t("restaurant_logo")}
+                                    mt={2}
+                                    maxH="70px"
+                                    objectFit="contain"
+                                />
+                            )}
                         </FormControl>
                     </SimpleGrid>
 

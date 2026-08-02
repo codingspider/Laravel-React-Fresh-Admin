@@ -52,7 +52,9 @@ class MenuItemRepository
             ->when($filters['category_id'] ?? null, fn($q, $c) => $q->where('menu_category_id', $c))
             ->when($filters['search'] ?? null, fn($q, $s) => $q->where(function ($query) use ($s) {
                 $query->where('name', 'like', "%{$s}%")
-                    ->orWhere('description', 'like', "%{$s}%");
+                    ->orWhere('description', 'like', "%{$s}%")
+                    ->orWhere('sku', 'like', "%{$s}%")
+                    ->orWhere('barcode', 'like', "%{$s}%");
             }))
             ->when($filters['status'] ?? null, fn($q, $s) => $q->where('status', $s))
             ->when($filters['is_featured'] ?? null, fn($q, $f) => $q->where('is_featured', $f))

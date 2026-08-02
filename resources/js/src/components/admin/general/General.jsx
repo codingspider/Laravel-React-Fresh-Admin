@@ -1,29 +1,17 @@
 import React, {useEffect, useState} from "react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator,
     Box,
-    Button,
     Card,
     CardHeader,
     CardBody,
     Heading,
-    SimpleGrid,
-    FormControl,
-    FormLabel,
-    Input,
-    Select,
-    InputGroup,
+    Flex,
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
-    HStack,
-    useToast,
-    Flex,
-    InputRightElement,
-    useDisclosure
  } from '@chakra-ui/react';
 
  import {
-    MdPercent,
     MdReceiptLong,
     MdSettings,
     MdAttachMoney,
@@ -31,39 +19,20 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator,
 } from "react-icons/md";
 
 import { Link as ReactRouterLink } from "react-router-dom";
-import { ADMIN_DASHBOARD_PATH, BRANCH_LIST_PATH } from "../../../routes/adminRoutes";
+import { ADMIN_DASHBOARD_PATH } from "../../../routes/adminRoutes";
 import { useTranslation } from "react-i18next";
-import VatList from "../vat/VatList";
-import VatCreate from "../modal/VatCreate";
-import VatEdit from "../modal/VatEdit";
 import api from "../../../axios";
-import { GET_INVOICE_SETTING, GET_NOTIFICATION_SETTING, LIST_VAT } from "../../../routes/apiRoutes";
+import { GET_INVOICE_SETTING, GET_NOTIFICATION_SETTING } from "../../../routes/apiRoutes";
 import Setting from "./Setting";
 import NotificationSettings from "./NotificationSettings";
 import InvoiceSetting from "./InvoiceSetting";
-import { useForm, Controller } from "react-hook-form";
+import CurrencySetting from "./CurrencySetting";
 
 const General = () => {
     const { t } = useTranslation();
-    const [selectedVat, setSelectedVat] = useState(null);
-    const { isOpen: isCreateOpen, onOpen: onCreateOpen, onClose: onCreateClose } = useDisclosure();
-    const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
-    const [vats, setVats] = useState([]);
     const [invoiceSetting, setInvoiceSetting] = useState(null);
     const [existingSetting, setExistingSetting] = useState([]);
-    const [isSubmitting, seIsSubmitting] = useState(false); 
-    const { register, handleSubmit, control, watch, reset, setValue } = useForm();
 
-    const getVats = async () => {
-        try {
-            const res = await api.get(LIST_VAT);
-            setVats(res.data.data);
-        } catch (error) {
-            console.error("Failed to fetch VATs:", error);
-        }
-    };
-    
-    
     const getSettings = async () => {
         try {
             const res = await api.get(GET_NOTIFICATION_SETTING);
@@ -82,13 +51,7 @@ const General = () => {
         }
     };
 
-    const openEditModal = (vat) => {
-        setSelectedVat(vat);
-        onEditOpen();
-    };
-
     useEffect(() => {
-        getVats();
         getSettings();
         getInvoiceSettings();
     }, []);
@@ -107,11 +70,8 @@ const General = () => {
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbItem isCurrentPage>
-                            <BreadcrumbLink
-                                as={ReactRouterLink}
-                                to={BRANCH_LIST_PATH}
-                            >
-                                {t("list")}
+                            <BreadcrumbLink as={ReactRouterLink} to={ADMIN_DASHBOARD_PATH}>
+                                {t("system_settings")}
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                     </Breadcrumb>
@@ -138,18 +98,13 @@ const General = () => {
                                 }}
                             >
                                 <Tab whiteSpace="nowrap">
-                                <Box as={MdPercent} mr={2} />
-                                {t("vat")}
+                                <Box as={MdSettings} mr={2} />
+                                {t("general")}
                                 </Tab>
 
                                 <Tab whiteSpace="nowrap">
                                 <Box as={MdReceiptLong} mr={2} />
                                 {t("invoice_setting")}
-                                </Tab>
-
-                                <Tab whiteSpace="nowrap">
-                                <Box as={MdSettings} mr={2} />
-                                {t("general")}
                                 </Tab>
 
                                 <Tab whiteSpace="nowrap">
@@ -170,16 +125,13 @@ const General = () => {
                             />
                             <TabPanels>
                                 <TabPanel>
-                                    <VatList vats={vats} onOpenCreate={onCreateOpen} onOpenEdit={openEditModal} onSuccess={getVats}></VatList>
+                                    <Setting></Setting>
                                 </TabPanel>
                                 <TabPanel>
                                     <InvoiceSetting invoiceSetting={invoiceSetting}></InvoiceSetting>
                                 </TabPanel>
                                 <TabPanel>
-                                    <Setting></Setting>
-                                </TabPanel>
-                                <TabPanel>
-                                    <p>Four!</p>
+                                    <CurrencySetting></CurrencySetting>
                                 </TabPanel>
                                 <TabPanel>
                                     <NotificationSettings existingSetting={existingSetting}></NotificationSettings>
@@ -187,20 +139,6 @@ const General = () => {
                             </TabPanels>
                         </Tabs>
                     </CardBody>
-                    {/* Modal Component */}
-                    <VatCreate 
-                        isOpen={isCreateOpen} 
-                        onClose={onCreateClose} 
-                        onSuccess={getVats} 
-                    />
-                    {/* Edit Modal */}
-                    <VatEdit 
-                        isOpen={isEditOpen} 
-                        onClose={onEditClose} 
-                        vat={selectedVat} 
-                        onSuccess={getVats} 
-                    />
-
                 </Card>
             </Box>
             

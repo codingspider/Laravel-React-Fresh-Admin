@@ -2,190 +2,197 @@
 
 namespace App\Http\Controllers\API\Admin;
 
-use App\Models\Business;
+use Modules\Restaurant\Models\Restaurant;
 use Illuminate\Http\Request;
-use App\Models\InvoiceSetting;
-use App\Models\NotificationSetting;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\API\BaseController;
 use App\Http\Requests\InvoiceSettingRequest;
 use App\Http\Requests\UpdateBusinessRequest;
+use App\Http\Requests\UpdateCurrencyRequest;
 use App\Http\Requests\NotificationSettingRequest;
 
 class BusinessController extends BaseController
 {
+    /**
+     * Return the authenticated user's restaurant (business) record.
+     */
     public function index(Request $request)
     {
         try {
-            $user = auth()->user();
-            $business = Business::find($user->business_id);
-            return $this->sendResponse($business, 'Business retrived successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
-        }
-    }
-    
-    public function getNotificationSetting(Request $request)
-    {
-        try {
-            $user = auth()->user();
-            $settings = NotificationSetting::where('business_id', $user->business_id)
-            ->where('is_active', 1)
-            ->get()
-            ->mapWithKeys(function ($item) {
-                return [$item->type => $item->settings];
-            })
-            ->toArray();
+            $restaurant = $this->currentRestaurant();
 
+            if (!$restaurant) {
+                return $this->sendError('Restaurant not found.');
+            }
 
-            return $this->sendResponse($settings, 'Business retrived successfully.');
+            return $this->sendResponse($restaurant, 'Restaurant retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
-        }
-    }
-    
-    public function getInvoiceSetting(Request $request)
-    {
-        try {
-            $user = auth()->user();
-            $settings = InvoiceSetting::where('business_id', $user->business_id)->first();
-            return $this->sendResponse($settings, 'Setting retrived successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            return $this->sendError('Server Error.' . $e->getMessage());
         }
     }
 
+    /**
+     * Update the restaurant general information (name, contact, address, logo).
+     */
     public function update(UpdateBusinessRequest $request, $id)
     {
-        $business = Business::find($id);
-        
-        $data = $request->validated();
-
-        // Upload App Logo
-        if ($request->hasFile('logo')) {
-            $data['logo'] = uploadImage(
-                $request->file('logo'),
-                'uploads/business/logo',
-                $business->logo
-            );
-        }
-
-        // Upload Favicon
-        if ($request->hasFile('favicon')) {
-            $data['favicon'] = uploadImage(
-                $request->file('favicon'),
-                'uploads/business/favicon',
-                $business->favicon
-            );
-        }
-
-        $business->update($data);
-
-        return $this->sendResponse($business, 'Business retrived successfully.');
-    }
-
-    public function updateNotification(NotificationSettingRequest $request)
-    {
         try {
-            $user = auth()->user();
-            $business = Business::find($user->business_id);
-            $setting = $request->settings;
+            $restaurant = Restaurant::findOrFail($id);
 
-            // Determine provider-specific data
-            $data = [];
-            if ($request->type === 'email') {
-                $data = [
-                    'provider' => 'smtp',
-                    'settings' => [
-                        'host' => $setting['host'],
-                        'port' => $setting['port'],
-                        'username' => $setting['username'],
-                        'password' => $setting['password'],
-                        'encryption' => $setting['encryption'],
-                        'from_email' => $setting['from_email'],
-                        'from_name' => $setting['from_name'],
-                    ],
-                    'is_active' => true,
-                ];
-            }
+            $data = $request->validated();
 
-            if ($request->type === 'sms') {
-                $data = [
-                    'provider' => 'twilio',
-                    'settings' => [
-                        'sid' => $setting['sid'],
-                        'token' => $setting['token'],
-                        'from' => $setting['from'],
-                    ],
-                    'is_active' => true,
-                ];
-            }
-
-            // Create or update based on type and business_id
-            $notificationSetting = NotificationSetting::updateOrCreate(
-                [
-                    'business_id' => $business->id,
-                    'type' => $request->type,
-                ],
-                $data
-            );
-
-            return $this->sendResponse($notificationSetting, 'Notification setting saved successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
-        }
-    }
-
-    public function updateInvoiceSetting(InvoiceSettingRequest $request)
-    {
-        try {
-            $user = auth()->user();
-            $businessId = $user->business_id;
-
-            $setting = InvoiceSetting::firstOrNew([
-                'business_id' => $businessId
-            ]);
-
-            $setting->invoice_prefix = $request->invoice_prefix;
-            $setting->invoice_start_number = $request->invoice_start_number;
-
-            $setting->show_logo = $request->show_logo ?? false;
-            $setting->show_address = $request->show_address ?? false;
-            $setting->show_city = $request->show_city ?? false;
-            $setting->show_state = $request->show_state ?? false;
-            $setting->show_zip = $request->show_zip ?? false;
-
-            $setting->header_text = $request->header_text;
-            $setting->footer_text = $request->footer_text;
-
-            $setting->tax_number = $request->tax_number;
-            $setting->show_tax_info = $request->show_tax_info ?? false;
-            $setting->show_tax_number = $request->show_tax_number ?? false;
-            $setting->show_discount_info = $request->show_discount_info ?? false;
-            $setting->show_payment_info = $request->show_payment_info ?? false;
-
-            $setting->show_table_number = $request->show_table_number ?? false;
-            $setting->show_waiter_name = $request->show_waiter_name ?? false;
-            $setting->show_kitchen_notes = $request->show_kitchen_notes ?? false;
-            $setting->invoice_direct_print = $request->invoice_direct_print ?? false;
-
-            // Handle Logo Upload
+            // Upload restaurant logo
             if ($request->hasFile('logo')) {
-                $setting->logo = uploadImage(
+                $data['logo'] = uploadImage(
                     $request->file('logo'),
-                    'uploads/invoice/logo',
-                    $setting->logo
+                    'uploads/restaurant/logo',
+                    $restaurant->logo
                 );
             }
 
-            $setting->save();
+            $restaurant->update($data);
 
-            return $this->sendResponse($setting, 'Setting saved successfully.');
-
+            return $this->sendResponse($restaurant, 'Restaurant updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            return $this->sendError('Server Error.' . $e->getMessage());
         }
     }
 
+    /**
+     * Update the restaurant currency and its symbol based on the selected code.
+     */
+    public function updateCurrency(UpdateCurrencyRequest $request)
+    {
+        try {
+            $restaurant = $this->currentRestaurant();
 
+            if (!$restaurant) {
+                return $this->sendError('Restaurant not found.');
+            }
+
+            $currency = \Modules\Currency\Models\Currency::where('code', $request->currency_code)->first();
+
+            $restaurant->update([
+                'currency' => $currency?->code ?? $request->currency_code,
+                'currency_symbol' => $currency?->symbol ?? $restaurant->currency_symbol,
+            ]);
+
+            return $this->sendResponse($restaurant, 'Currency updated successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Return the invoice / receipt settings for the current restaurant.
+     */
+    public function getInvoiceSetting(Request $request)
+    {
+        try {
+            $restaurant = $this->currentRestaurant();
+
+            if (!$restaurant) {
+                return $this->sendError('Restaurant not found.');
+            }
+
+            return $this->sendResponse($restaurant->invoiceSettings(), 'Invoice setting retrieved successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Save the invoice / receipt settings for the current restaurant.
+     */
+    public function updateInvoiceSetting(InvoiceSettingRequest $request)
+    {
+        try {
+            $restaurant = $this->currentRestaurant();
+
+            if (!$restaurant) {
+                return $this->sendError('Restaurant not found.');
+            }
+
+            $settings = $restaurant->receipt_settings ?: [];
+
+            foreach ($request->validated() as $key => $value) {
+                $settings[$key] = $value;
+            }
+
+            // Handle invoice logo upload
+            if ($request->hasFile('logo')) {
+                $settings['logo'] = uploadImage(
+                    $request->file('logo'),
+                    'uploads/restaurant/invoice',
+                    $settings['logo'] ?? null
+                );
+            }
+
+            $restaurant->receipt_settings = $settings;
+            $restaurant->save();
+
+            return $this->sendResponse($restaurant->receipt_settings, 'Invoice setting saved successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Return the notification settings for the current restaurant.
+     */
+    public function getNotificationSetting(Request $request)
+    {
+        try {
+            $restaurant = $this->currentRestaurant();
+
+            if (!$restaurant) {
+                return $this->sendError('Restaurant not found.');
+            }
+
+            return $this->sendResponse($restaurant->notification_settings ?: [], 'Notification setting retrieved successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Save the notification settings for the current restaurant.
+     */
+    public function updateNotification(NotificationSettingRequest $request)
+    {
+        try {
+            $restaurant = $this->currentRestaurant();
+
+            if (!$restaurant) {
+                return $this->sendError('Restaurant not found.');
+            }
+
+            $settings = $restaurant->notification_settings ?: [];
+            $settings[$request->type] = $request->settings;
+            $settings[$request->type . '_is_active'] = $request->boolean('is_active');
+
+            $restaurant->notification_settings = $settings;
+            $restaurant->save();
+
+            return $this->sendResponse($settings, 'Notification setting saved successfully.');
+        } catch (\Exception $e) {
+            return $this->sendError('Server Error.' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Resolve the restaurant record for the authenticated user.
+     */
+    private function currentRestaurant(): ?Restaurant
+    {
+        $user = auth()->user();
+
+        if (!$user) {
+            return null;
+        }
+
+        $restaurantId = getRestaurantId($user);
+
+        return $restaurantId ? Restaurant::find($restaurantId) : null;
+    }
 }

@@ -22,12 +22,14 @@ import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { UPDATE_INVOICE_SETTING } from "../../../routes/apiRoutes";
 import api from "../../../axios";
+import { usePermission } from "../../../context/PermissionContext";
 
 
 export default function InvoiceSetting({invoiceSetting}) {
     const [isSubmitting, seIsSubmitting] = useState(false); 
     const { register, handleSubmit, control, watch, reset, setValue } = useForm();
     const toast = useToast();
+    const { refetchPermissions } = usePermission();
 
 
     const onSubmit = async (data) => {
@@ -35,6 +37,7 @@ export default function InvoiceSetting({invoiceSetting}) {
 
         try {
             const res = await api.post(UPDATE_INVOICE_SETTING, data);
+            await refetchPermissions();
             toast({
                 position: "bottom-right",
                 title: res.data.message,

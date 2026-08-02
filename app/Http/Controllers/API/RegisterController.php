@@ -201,11 +201,15 @@ class RegisterController extends BaseController
                 'lax'
             );
 
+            $restaurant = $user->restaurant_id
+                ? \Modules\Restaurant\Models\Restaurant::find($user->restaurant_id)
+                : \Modules\Restaurant\Models\Restaurant::where('owner_id', $user->id)->first();
+
             return response()->json([
-                'name' => $user->first_name . ' ' . $user->last_name,
-                'role' => $user->role,
+                'name' => $user->name,
+                'role' => $user->role ?? 'admin',
                 'permissions' => $user->getAllPermissions()->pluck('name'),
-                'app_name' => env("APP_NAME")
+                'app_name' => $restaurant?->name ?: env("APP_NAME")
             ])->cookie($cookie);
         }
 

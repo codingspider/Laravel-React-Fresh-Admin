@@ -12,6 +12,32 @@ class Restaurant extends Model
 {
     use HasFactory, SoftDeletes;
 
+    /**
+     * Default invoice / receipt settings used as a fallback so every consumer
+     * (invoice printer, settings form, API payload) sees the full set of keys.
+     */
+    public const DEFAULT_INVOICE_SETTINGS = [
+        'invoice_prefix' => 'INV-',
+        'invoice_start_number' => 1,
+        'show_logo' => true,
+        'show_address' => true,
+        'show_city' => true,
+        'show_state' => false,
+        'show_zip' => true,
+        'header_text' => null,
+        'footer_text' => null,
+        'tax_number' => null,
+        'show_tax_info' => true,
+        'show_tax_number' => false,
+        'show_discount_info' => true,
+        'show_payment_info' => true,
+        'show_table_number' => true,
+        'show_waiter_name' => true,
+        'show_kitchen_notes' => true,
+        'invoice_direct_print' => false,
+        'logo' => null,
+    ];
+
     protected $fillable = [
         'owner_id',
         'name',
@@ -126,6 +152,14 @@ class Restaurant extends Model
     {
         $parts = array_filter([$this->address, $this->city, $this->state, $this->country, $this->zip_code]);
         return $parts ? implode(', ', $parts) : null;
+    }
+
+    /**
+     * Invoice / receipt settings merged with defaults so all keys are always present.
+     */
+    public function invoiceSettings(): array
+    {
+        return array_merge(self::DEFAULT_INVOICE_SETTINGS, $this->receipt_settings ?: []);
     }
 
     public function isActive(): bool

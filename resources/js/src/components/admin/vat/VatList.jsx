@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import {
     Box,
     useToast,
@@ -10,29 +9,24 @@ import {
     MenuButton,
     MenuList,
     MenuItem,
+    Button,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
 import { LIST_VAT, DELETE_VAT } from "../../../routes/apiRoutes";
-import {
-    VAT_ADD_PATH,
-    VAT_EDIT_PATH,
-    DASHBOARD_PATH,
-} from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 
-export default function VatList({ vats, onSuccess }) {
+export default function VatList({ vats, onSuccess, onOpenCreate, onOpenEdit }) {
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
     const [pageSize] = useState(15);
     const { t } = useTranslation();
-    const navigate = useNavigate();
     const toast = useToast();
     const colors = useThemeColors();
 
@@ -140,7 +134,7 @@ export default function VatList({ vats, onSuccess }) {
                             icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
                             fontSize="sm"
-                            onClick={() => navigate(VAT_EDIT_PATH(row.original.id), { state: { vat: row.original } })}
+                            onClick={() => onOpenEdit(row.original)}
                         >
                             {t("edit")}
                         </MenuItem>
@@ -185,9 +179,18 @@ export default function VatList({ vats, onSuccess }) {
                 setPageIndex={setPageIndex}
                 pageCount={pageCount}
                 isLoading={false}
-                addURL={VAT_ADD_PATH}
+                hideAddBtn="true"
                 totalItems={totalItems}
-            />
+            >
+                <Button
+                    variant="primary"
+                    leftIcon={<Icon as={Plus} boxSize={4} />}
+                    size="md"
+                    onClick={onOpenCreate}
+                >
+                    {t("add_new")}
+                </Button>
+            </TanStackTable>
         </Box>
     );
 }
