@@ -112,7 +112,7 @@ export default function InventoryItemEdit() {
   };
 
   return (
-    <Box py={3}>
+    <Box className="form-dark-surface" bg={colors.bgSubtle} minH="100vh" py={3}>
       <Box mx="auto">
         {/* Breadcrumb */}
         <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
@@ -142,7 +142,7 @@ export default function InventoryItemEdit() {
           <CardHeader bg={colors.bgCard} borderBottom="1px solid" borderColor={colors.borderSubtle} pb={6}>
             <Flex justify="space-between" align="center">
               <Box>
-                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">{t("edit")}</Heading>
+                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">{t("edit_inventory_item")}</Heading>
                 <Text fontSize="sm" color={colors.textSecondary} mt={1}>{t("update_inventory_item_details")}</Text>
               </Box>
               <Button colorScheme="teal" as={ReactRouterLink} to={LIST_PATH} variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">

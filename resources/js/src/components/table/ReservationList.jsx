@@ -94,7 +94,6 @@ export default function ReservationList() {
             try {
                 await api.delete(DELETE_RESERVATION(id));
                 toast({
-                    position: "top-right",
                     title: t("data_deleted_successfully"),
                     status: "success",
                     duration: 3000,
@@ -103,7 +102,6 @@ export default function ReservationList() {
                 fetchData();
             } catch (error) {
                 toast({
-                    position: "top-right",
                     title: t("error_deleting_data"),
                     description: error.response?.data?.message || t("something_went_wrong"),
                     status: "error",

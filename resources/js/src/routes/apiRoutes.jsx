@@ -167,6 +167,51 @@ export const DELETE_SUBSCRIPTION = (id) => `/v1/subscriptions/${id}`;
 // Module access
 export const GET_ALLOWED_MODULES = '/v1/subscription/modules';
 
+// HRM — Departments
+export const LIST_DEPARTMENT = '/departments';
+export const STORE_DEPARTMENT = '/departments';
+export const GET_DEPARTMENT = (id) => `/departments/${id}`;
+export const UPDATE_DEPARTMENT = (id) => `/departments/${id}`;
+export const DELETE_DEPARTMENT = (id) => `/departments/${id}`;
+
+// HRM — Designations
+export const LIST_DESIGNATION = '/designations';
+export const STORE_DESIGNATION = '/designations';
+export const GET_DESIGNATION = (id) => `/designations/${id}`;
+export const UPDATE_DESIGNATION = (id) => `/designations/${id}`;
+export const DELETE_DESIGNATION = (id) => `/designations/${id}`;
+export const GET_DESIGNATION_BY_DEPARTMENT = (departmentId) => `/designations/departments/${departmentId}`;
+
+// HRM — Employees
+export const LIST_EMPLOYEE = '/employees';
+export const STORE_EMPLOYEE = '/employees';
+export const GET_EMPLOYEE = (id) => `/employees/${id}`;
+export const UPDATE_EMPLOYEE = (id) => `/employees/${id}`;
+export const DELETE_EMPLOYEE = (id) => `/employees/${id}`;
+export const EMPLOYEE_OPTIONS = '/employee/options';
+
+// HRM — Attendance
+export const LIST_ATTENDANCE = '/attendance';
+export const STORE_ATTENDANCE = '/attendance';
+export const GET_ATTENDANCE = (id) => `/attendance/${id}`;
+export const UPDATE_ATTENDANCE = (id) => `/attendance/${id}`;
+export const DELETE_ATTENDANCE = (id) => `/attendance/${id}`;
+
+// HRM — Leave Requests
+export const LIST_LEAVE = '/leaves';
+export const STORE_LEAVE = '/leaves';
+export const GET_LEAVE = (id) => `/leaves/${id}`;
+export const UPDATE_LEAVE = (id) => `/leaves/${id}`;
+export const DELETE_LEAVE = (id) => `/leaves/${id}`;
+export const APPROVE_LEAVE = (id) => `/leaves/${id}/approve`;
+
+// HRM — Holidays
+export const LIST_HOLIDAY = '/holidays';
+export const STORE_HOLIDAY = '/holidays';
+export const GET_HOLIDAY = (id) => `/holidays/${id}`;
+export const UPDATE_HOLIDAY = (id) => `/holidays/${id}`;
+export const DELETE_HOLIDAY = (id) => `/holidays/${id}`;
+
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 
 // ===== Phase 1 Module API Routes =====

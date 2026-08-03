@@ -47,7 +47,6 @@ const VatCreate = ({ isOpen, onClose, onSuccess }) => {
             onClose();
             onSuccess();
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -60,7 +59,6 @@ const VatCreate = ({ isOpen, onClose, onSuccess }) => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -69,7 +67,6 @@ const VatCreate = ({ isOpen, onClose, onSuccess }) => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

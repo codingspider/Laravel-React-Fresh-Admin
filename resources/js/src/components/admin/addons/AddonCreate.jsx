@@ -47,7 +47,6 @@ const AddonCreate = () => {
             reset();
 
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -61,7 +60,6 @@ const AddonCreate = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorMessage,
                     status: "error",
@@ -70,7 +68,6 @@ const AddonCreate = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorResponse.message,
                     status: "error",

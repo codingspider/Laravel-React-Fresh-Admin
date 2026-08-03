@@ -44,7 +44,6 @@ const MenuCategoryEdit = () => {
         try {
             const res = await api.put(`/v1/menu/categories/${id}`, data);
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -58,7 +57,6 @@ const MenuCategoryEdit = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -67,7 +65,6 @@ const MenuCategoryEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

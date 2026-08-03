@@ -54,7 +54,7 @@ const UserEdit = () => {
                 });
             } catch (err) {
                 console.error("fetchData error:", err);
-                toast({ position: "top-right", title: t("error_loading_data"), status: "error", duration: 3000, isClosable: true });
+                toast({ title: t("error_loading_data"), status: "error", duration: 3000, isClosable: true });
             } finally {
                 setIsLoadingData(false);
             }
@@ -66,15 +66,15 @@ const UserEdit = () => {
         setIsSubmitting(true);
         try {
             const res = await api.put(UPDATE_USER(id), data);
-            toast({ position: "top-right", title: res.data.message || t("success"), status: "success", duration: 3000, isClosable: true });
+            toast({ title: res.data.message || t("success"), status: "success", duration: 3000, isClosable: true });
             navigate(USER_LIST_PATH);
         } catch (err) {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
-                toast({ position: "top-right", title: t("error"), description: errorMessage, status: "error", duration: 3000, isClosable: true });
+                toast({ title: t("error"), description: errorMessage, status: "error", duration: 3000, isClosable: true });
             } else if (errorResponse?.message) {
-                toast({ position: "top-right", title: t("error"), description: errorResponse.message, status: "error", duration: 3000, isClosable: true });
+                toast({ title: t("error"), description: errorResponse.message, status: "error", duration: 3000, isClosable: true });
             }
         } finally {
             setIsSubmitting(false);

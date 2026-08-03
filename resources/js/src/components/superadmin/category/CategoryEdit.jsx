@@ -53,7 +53,6 @@ const CategoryEdit = () => {
 
             const res = await api.post(UPDATE_CATEGORY(id), formData);
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -67,7 +66,6 @@ const CategoryEdit = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -76,7 +74,6 @@ const CategoryEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

@@ -83,7 +83,6 @@ const PackageCreate = () => {
             reset();
             setSelectedModules([]);
             toast({
-                position: "bottom-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -95,7 +94,6 @@ const PackageCreate = () => {
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -104,7 +102,6 @@ const PackageCreate = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

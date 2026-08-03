@@ -1,29 +1,13 @@
 <?php
 
-use App\Http\Controllers\API\Admin\AddonController;
-use App\Http\Controllers\API\Admin\BusinessController as AdminBusinessController;
-use App\Http\Controllers\API\Admin\CategoryController;
 use App\Http\Controllers\API\Admin\LocationController;
-use App\Http\Controllers\API\Admin\InventoryItemController;
-use App\Http\Controllers\API\Admin\InventoryCategoryController;
-use App\Http\Controllers\API\Admin\SupplierController;
-use App\Http\Controllers\API\Admin\UnitController;
 use App\Http\Controllers\API\Admin\RoleController;
-use App\Http\Controllers\API\Admin\UserManagementController;
-use App\Http\Controllers\API\Admin\VariationController;
-use App\Http\Controllers\API\Admin\RecipeController;
-use App\Http\Controllers\API\Admin\RecipeCategoryController;
-use App\Http\Controllers\API\Admin\PurchaseController;
-use App\Http\Controllers\API\Admin\InventoryStockController;
-use App\Http\Controllers\API\Admin\SupplierCrmController;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\BranchController;
 use App\Http\Controllers\API\BusinessController;
 use App\Http\Controllers\API\GeneralController;
 use App\Http\Controllers\API\PLanController;
 use App\Http\Controllers\API\RegisterController;
 use App\Http\Controllers\API\UserController;
-use App\Http\Controllers\API\VatController;
 use App\Http\Controllers\OcrController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -49,73 +33,10 @@ Route::middleware(['auth:sanctum', EnsureFrontendRequestsAreStateful::class])->p
 });
 
 Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
-    Route::apiResource('branches', BranchController::class);
-    Route::apiResource('vats', VatController::class);
-    Route::apiResource('categories', CategoryController::class);
-    Route::apiResource('addons', AddonController::class);
-    Route::apiResource('variations', VariationController::class);
-    Route::apiResource('inventory-items', InventoryItemController::class);
-    Route::apiResource('inventory-categories', InventoryCategoryController::class);
-    Route::apiResource('suppliers', SupplierController::class);
-    Route::apiResource('units', UnitController::class);
-    Route::apiResource('recipes', RecipeController::class);
-    Route::apiResource('recipe-categories', RecipeCategoryController::class);
-    Route::apiResource('purchases', PurchaseController::class);
-
-    // Recipes
-    Route::get('recipe/options', [RecipeController::class, 'options']);
-
-    // Inventory stock movements
-    Route::get('inventory/overview', [InventoryStockController::class, 'overview']);
-    Route::get('inventory/transactions', [InventoryStockController::class, 'transactions']);
-    Route::get('inventory/batches', [InventoryStockController::class, 'batches']);
-    Route::get('inventory/transfers', [InventoryStockController::class, 'transfers']);
-    Route::post('inventory/transfers', [InventoryStockController::class, 'storeTransfer']);
-    Route::post('inventory/transfers/{id}/receive', [InventoryStockController::class, 'receiveTransfer']);
-    Route::get('inventory/wastes', [InventoryStockController::class, 'wastes']);
-    Route::post('inventory/wastes', [InventoryStockController::class, 'storeWaste']);
-    Route::get('inventory/adjustments', [InventoryStockController::class, 'adjustments']);
-    Route::post('inventory/adjustments', [InventoryStockController::class, 'storeAdjustment']);
-    Route::post('inventory/adjustments/{id}/approve', [InventoryStockController::class, 'approveAdjustment']);
-    Route::post('inventory/items/{id}/adjust-stock', [InventoryStockController::class, 'adjustStock']);
-
-    // Purchases - GRN / payments / returns
-    Route::post('purchases/{id}/receive-goods', [PurchaseController::class, 'receiveGoods']);
-    Route::post('purchases/{id}/payments', [PurchaseController::class, 'addPayment']);
-    Route::get('purchases/{id}/payments', [PurchaseController::class, 'payments']);
-    Route::post('purchases/{id}/returns', [PurchaseController::class, 'createReturn']);
-    Route::get('purchases/{id}/returns', [PurchaseController::class, 'returns']);
-
-    // Supplier CRM
-    Route::get('suppliers/{id}/overview', [SupplierCrmController::class, 'overview']);
-    Route::get('suppliers/{id}/contacts', [SupplierCrmController::class, 'contacts']);
-    Route::post('suppliers/{id}/contacts', [SupplierCrmController::class, 'storeContact']);
-    Route::delete('suppliers/{id}/contacts/{contactId}', [SupplierCrmController::class, 'destroyContact']);
-    Route::get('suppliers/{id}/documents', [SupplierCrmController::class, 'documents']);
-    Route::post('suppliers/{id}/documents', [SupplierCrmController::class, 'storeDocument']);
-    Route::delete('suppliers/{id}/documents/{documentId}', [SupplierCrmController::class, 'destroyDocument']);
-    Route::get('suppliers/{id}/transactions', [SupplierCrmController::class, 'transactions']);
-    Route::post('suppliers/{id}/transactions', [SupplierCrmController::class, 'storeTransaction']);
-    Route::post('suppliers/{id}/rate', [SupplierCrmController::class, 'rate']);
-
-    Route::apiResource('roles', RoleController::class);
-    Route::apiResource('user-management', UserManagementController::class);
-
-
-    Route::get('owner/business', [AdminBusinessController::class, 'index']);
-    Route::put('business/setting/update/{id}', [AdminBusinessController::class, 'update']);
-    Route::post('update/currency', [AdminBusinessController::class, 'updateCurrency']);
-    Route::post('notification/update', [AdminBusinessController::class, 'updateNotification']);
-    Route::post('update/invoice/setting', [AdminBusinessController::class, 'updateInvoiceSetting']);
-    Route::get('get/notification/setting', [AdminBusinessController::class, 'getNotificationSetting']);
-    Route::get('get/invoice/setting', [AdminBusinessController::class, 'getInvoiceSetting']);
-    Route::get('get/all/addons', [AddonController::class, 'getAllAddons']);
-    Route::get('get/all/variations', [VariationController::class, 'getAllVariations']);
-    Route::get('get/all/categories', [CategoryController::class, 'getAllCategory']);
+    // Admin module routes have been distributed to their respective modules.
 });
 
 Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', 'cookie.filter'])->group(function () {
-    Route::get('get/branches', [BranchController::class, 'getBranch']);
     Route::get('get/currencies', [GeneralController::class, 'getCurrency']);
     Route::get('get/timezones', [GeneralController::class, 'getTimezone']);
     Route::get('get/locations', [LocationController::class, 'getAllLocations']);

@@ -49,7 +49,6 @@ const BranchView = () => {
             setBranch(res.data.data);
         } catch (error) {
             toast({
-                position: "bottom-right",
                 title: t("error"),
                 description: t("failed_to_load_branch_data"),
                 status: "error",

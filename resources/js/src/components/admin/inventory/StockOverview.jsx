@@ -41,15 +41,14 @@ export default function StockOverview() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await api.get(STOCK_OVERVIEW, {
-        params: {
-          page: pageIndex + 1,
-          per_page: pageSize,
-          search: globalFilter || "",
-          type: typeFilter || "",
-          category_id: categoryFilter || "",
-        },
-      });
+      const params = {
+        page: pageIndex + 1,
+        per_page: pageSize,
+        search: globalFilter || "",
+      };
+      if (typeFilter) params.type = typeFilter;
+      if (categoryFilter) params.category_id = categoryFilter;
+      const res = await api.get(STOCK_OVERVIEW, { params });
       const items = res.data?.data?.data || res.data?.data || [];
       const total = res.data?.meta?.total || res.data?.data?.total || items.length;
       setData(items);

@@ -57,14 +57,14 @@ const MenuItemCreate = () => {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             reset();
-            toast({ position: "bottom-right", title: res.data.message, status: "success", duration: 3000, isClosable: true });
+            toast({ title: res.data.message, status: "success", duration: 3000, isClosable: true });
             window.location.href = "/menu/items";
         } catch (err) {
             const errorResponse = err?.response?.data;
             const msg = errorResponse?.errors
                 ? Object.values(errorResponse.errors).flat().join(" ")
                 : errorResponse?.message || t("error");
-            toast({ position: "bottom-right", title: t("error"), description: msg, status: "error", duration: 3000, isClosable: true });
+            toast({ title: t("error"), description: msg, status: "error", duration: 3000, isClosable: true });
         } finally {
             setIsSubmitting(false);
         }

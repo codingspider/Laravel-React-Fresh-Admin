@@ -85,7 +85,6 @@ const VariationCreate = () => {
             const res = await api.post(STORE_VARIATION, data);
 
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -103,7 +102,6 @@ const VariationCreate = () => {
                     : errorResponse?.message || "Something went wrong";
 
             toast({
-                position: "bottom-right",
                 title: t("error"),
                 description: errorMessage,
                 status: "error",

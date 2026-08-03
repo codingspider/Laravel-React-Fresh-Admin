@@ -21,7 +21,7 @@ const RecipeCreate = () => {
   const [options, setOptions] = useState({ inventory_items: [], units: [], categories: [] });
   const { register, handleSubmit, control } = useForm({
     defaultValues: {
-      name: "", category_id: "", selling_price: "", yield_quantity: "1", yield_unit_id: "",
+      name: "", menu_item_id: "", category_id: "", selling_price: "", yield_quantity: "1", yield_unit_id: "",
       auto_deduct_stock: "yes", preparation_time: "", cooking_time: "",
       status: "active", description: "", ingredients: [],
     },
@@ -53,8 +53,11 @@ const RecipeCreate = () => {
       navigate(RECIPE_LIST_PATH);
     } catch (err) {
       toast({
-        title: t("error"), description: err?.response?.data?.message || t("something_went_wrong"),
-        status: "error", duration: 3000, isClosable: true,
+        title: t("error"),
+        description: err?.response?.data?.message || t("something_went_wrong"),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
       });
     } finally {
       setIsSubmitting(false);

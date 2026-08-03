@@ -9,6 +9,7 @@ use App\Models\RecipeCategory;
 use App\Models\Unit;
 use App\Services\RecipeService;
 use Illuminate\Http\Request;
+use Modules\Menu\Models\MenuItem;
 
 class RecipeController extends Controller
 {
@@ -43,21 +44,21 @@ class RecipeController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:recipe_categories,id',
-            'menu_item_id' => 'nullable|exists:menu_items,id',
+            'category_id' => 'required|exists:recipe_categories,id',
+            'menu_item_id' => 'required|exists:menu_items,id',
             'description' => 'nullable|string',
             'selling_price' => 'nullable|numeric|min:0',
-            'yield_quantity' => 'nullable|numeric|min:0',
-            'yield_unit_id' => 'nullable|exists:units,id',
+            'yield_quantity' => 'required|numeric|min:0',
+            'yield_unit_id' => 'required|exists:units,id',
             'auto_deduct_stock' => 'nullable|in:yes,no',
             'preparation_notes' => 'nullable|string',
             'cooking_instructions' => 'nullable|string',
             'preparation_time' => 'nullable|integer|min:0',
             'cooking_time' => 'nullable|integer|min:0',
-            'status' => 'nullable|in:active,inactive',
-            'ingredients' => 'nullable|array',
-            'ingredients.*.inventory_item_id' => 'nullable|exists:inventory_items,id',
-            'ingredients.*.quantity' => 'nullable|numeric|min:0',
+            'status' => 'required|in:active,inactive',
+            'ingredients' => 'required|array|min:1',
+            'ingredients.*.inventory_item_id' => 'required|exists:inventory_items,id',
+            'ingredients.*.quantity' => 'required|numeric|min:0',
             'ingredients.*.unit_id' => 'nullable|exists:units,id',
             'ingredients.*.unit_cost' => 'nullable|numeric|min:0',
             'ingredients.*.is_optional' => 'nullable|boolean',
@@ -96,21 +97,21 @@ class RecipeController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
-            'category_id' => 'nullable|exists:recipe_categories,id',
-            'menu_item_id' => 'nullable|exists:menu_items,id',
+            'category_id' => 'sometimes|required|exists:recipe_categories,id',
+            'menu_item_id' => 'sometimes|required|exists:menu_items,id',
             'description' => 'nullable|string',
             'selling_price' => 'nullable|numeric|min:0',
-            'yield_quantity' => 'nullable|numeric|min:0',
-            'yield_unit_id' => 'nullable|exists:units,id',
+            'yield_quantity' => 'sometimes|required|numeric|min:0',
+            'yield_unit_id' => 'sometimes|required|exists:units,id',
             'auto_deduct_stock' => 'nullable|in:yes,no',
             'preparation_notes' => 'nullable|string',
             'cooking_instructions' => 'nullable|string',
             'preparation_time' => 'nullable|integer|min:0',
             'cooking_time' => 'nullable|integer|min:0',
-            'status' => 'nullable|in:active,inactive',
-            'ingredients' => 'nullable|array',
-            'ingredients.*.inventory_item_id' => 'nullable|exists:inventory_items,id',
-            'ingredients.*.quantity' => 'nullable|numeric|min:0',
+            'status' => 'sometimes|required|in:active,inactive',
+            'ingredients' => 'sometimes|required|array|min:1',
+            'ingredients.*.inventory_item_id' => 'required|exists:inventory_items,id',
+            'ingredients.*.quantity' => 'required|numeric|min:0',
             'ingredients.*.unit_id' => 'nullable|exists:units,id',
             'ingredients.*.unit_cost' => 'nullable|numeric|min:0',
             'ingredients.*.is_optional' => 'nullable|boolean',
@@ -155,12 +156,18 @@ class RecipeController extends Controller
             ->orderBy('actual_name')
             ->get(['id', 'actual_name', 'short_name']);
 
-        $items = InventoryItem::query()
+         $items = InventoryItem::query()
             ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
             ->whereIn('type', ['raw_material', 'both'])
             ->active()
             ->orderBy('name')
             ->get(['id', 'name', 'unit', 'unit_cost', 'cost_price', 'current_stock']);
+
+        $menuItems = MenuItem::query()
+            ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+            ->where('status', 'active')
+            ->orderBy('name')
+            ->get(['id', 'name', 'price']);
 
         return response()->json([
             'status' => 'success',
@@ -168,6 +175,7 @@ class RecipeController extends Controller
                 'categories' => $categories,
                 'units' => $units,
                 'inventory_items' => $items,
+                'menu_items' => $menuItems,
             ],
         ]);
     }

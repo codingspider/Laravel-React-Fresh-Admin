@@ -4,10 +4,16 @@ namespace Modules\KitchenDisplay\Services;
 
 use App\Models\User;
 use Illuminate\Support\Collection;
+use App\Models\Recipe;
+use App\Services\StockService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Modules\POS\Models\Sale;
 
 class KitchenDisplayService
 {
+    public function __construct(protected StockService $stockService) {}
+
     /**
      * Fetch the live kitchen board.
      *
@@ -103,9 +109,11 @@ class KitchenDisplayService
 
     /**
      * Transition a kitchen order to a new status, maintaining KDS timestamps.
+     * Deducts stock only when the order is accepted (status transitions to "confirmed").
      */
     public function updateStatus(Sale $sale, string $status): Sale
     {
+        $oldStatus = $sale->status;
         $data = ['status' => $status];
 
         if ($status === 'preparing' && !$sale->started_at) {
@@ -120,9 +128,69 @@ class KitchenDisplayService
             $data['ready_at'] = $sale->ready_at ?? now();
         }
 
-        $sale->update($data);
+        DB::transaction(function () use ($sale, $data, $oldStatus, $status) {
+            $sale->update($data);
+
+            if ($status === 'confirmed' && !in_array($oldStatus, ['confirmed', 'preparing', 'ready', 'served', 'completed'], true)) {
+                $this->deductStockForOrder($sale);
+            }
+        });
 
         return $sale->refresh();
+    }
+
+    /**
+     * Deduct ingredient stock when an order is accepted by the kitchen.
+     * Only deducts if the sale item's menu item has an active recipe with auto_deduct_stock enabled.
+     */
+    protected function deductStockForOrder(Sale $sale): void
+    {
+        try {
+            $restaurantId = $sale->restaurant_id;
+            $branchId = $sale->branch_id;
+
+            foreach ($sale->items as $item) {
+                $recipe = Recipe::where('menu_item_id', $item->menu_item_id)
+                    ->where('status', 'active')
+                    ->when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+                    ->first();
+
+                if (!$recipe || $recipe->auto_deduct_stock !== 'yes') {
+                    continue;
+                }
+
+                $multiplier = (float) $item->quantity;
+
+                foreach ($recipe->ingredients as $ingredient) {
+                    $inventoryItem = $ingredient->inventoryItem;
+                    if (!$inventoryItem) {
+                        continue;
+                    }
+
+                    $qty = (float) $ingredient->quantity * $multiplier;
+                    if ($qty <= 0) {
+                        continue;
+                    }
+
+                    $this->stockService->adjustStock(
+                        $inventoryItem->id,
+                        -$qty,
+                        'consumption',
+                        $restaurantId,
+                        $branchId,
+                        $recipe->id,
+                        Recipe::class,
+                        'Order accepted: ' . $sale->invoice_number,
+                        (float) $ingredient->unit_cost
+                    );
+                }
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to deduct stock for order: ' . $e->getMessage(), [
+                'sale_id' => $sale->id,
+                'invoice_number' => $sale->invoice_number ?? null,
+            ]);
+        }
     }
 
     /**

@@ -90,7 +90,6 @@ const PackageEdit = () => {
                 setSelectedModules(pkg.modules || []);
             } catch (error) {
                 toast({
-                    position: "bottom-right",
                     title: t("error_loading_package"),
                     status: "error",
                     duration: 3000,
@@ -109,7 +108,6 @@ const PackageEdit = () => {
             const payload = { ...data, modules: selectedModules };
             const res = await api.put(UPDATE_PACKAGE(id), payload);
             toast({
-                position: "bottom-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -121,7 +119,6 @@ const PackageEdit = () => {
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -130,7 +127,6 @@ const PackageEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

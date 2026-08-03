@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import {
-    Box,
     Button,
     FormControl,
     FormLabel,
     Select,
-    Stack,
     Text,
     useToast,
     SimpleGrid,
@@ -15,8 +13,10 @@ import { useTranslation } from "react-i18next";
 import api from "../../../axios";
 import { UPDATE_RESTAURANT_CURRENCY } from "../../../routes/apiRoutes";
 import { usePermission } from "../../../context/PermissionContext";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 const CurrencySetting = () => {
+    const colors = useThemeColors();
     const { t } = useTranslation();
     const { restaurant, refetchPermissions } = usePermission();
     const [currencies, setCurrencies] = useState([]);
@@ -52,7 +52,6 @@ const CurrencySetting = () => {
         try {
             const res = await api.post(UPDATE_RESTAURANT_CURRENCY, { currency_code: selected });
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -78,7 +77,6 @@ const CurrencySetting = () => {
                 ? Object.values(errorResponse.errors).flat().join(" ")
                 : errorResponse?.message || "Something went wrong";
             toast({
-                position: "bottom-right",
                 title: "Error",
                 description: errorMessage,
                 status: "error",
@@ -90,55 +88,80 @@ const CurrencySetting = () => {
         }
     };
 
+    const selectProps = {
+        bg: colors.bgInput,
+        border: "1px solid",
+        borderColor: colors.borderInput,
+        borderRadius: "md",
+        focusBorderColor: "teal.500",
+        _hover: { borderColor: "gray.300" },
+        size: "md",
+        transition: "all 0.2s",
+    };
+
     return (
-        <Box mt={5} mx="auto" p={6} borderWidth={1} borderRadius="lg">
-            <form onSubmit={onSubmit}>
-                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                    <FormControl isRequired>
-                        <FormLabel>{t("currency")}</FormLabel>
-                        <Select
-                            value={selected}
-                            onChange={(e) => setSelected(e.target.value)}
-                            placeholder={t("select_currency")}
-                        >
-                            {currencies.map((c) => (
-                                <option key={c.code} value={c.code}>
-                                    {c.code} - {c.name} ({c.symbol})
-                                </option>
-                            ))}
-                        </Select>
-                    </FormControl>
-
-                    <Box>
-                        <Text fontSize="sm" fontWeight="500" mb={2}>{t("currency_preview")}</Text>
-                        <Badge colorScheme="teal" fontSize="md" px={3} py={1.5}>
-                            {selectedCurrency
-                                ? `${selectedCurrency.symbol}1,234.56`
-                                : "-"}
-                        </Badge>
-                    </Box>
-
-                    <Box>
-                        <Text fontSize="sm" fontWeight="500" mb={2}>{t("current_currency")}</Text>
-                        <Text fontSize="md" fontWeight="700">
-                            {restaurant?.currency ? `${restaurant.currency} (${restaurant.currency_symbol})` : "-"}
-                        </Text>
-                    </Box>
-                </SimpleGrid>
-
-                <Stack direction="row" justify="flex-end" mt={8}>
-                    <Button
-                        isLoading={isSubmitting}
-                        loadingText="Saving..."
-                        type="submit"
-                        colorScheme="teal"
-                        isDisabled={!selected}
+        <form onSubmit={onSubmit}>
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("currency")}
+                    </FormLabel>
+                    <Select
+                        value={selected}
+                        onChange={(e) => setSelected(e.target.value)}
+                        placeholder={t("select_currency")}
+                        {...selectProps}
                     >
-                        {t("save")}
-                    </Button>
-                </Stack>
-            </form>
-        </Box>
+                        {currencies.map((c) => (
+                            <option key={c.code} value={c.code}>
+                                {c.code} - {c.name} ({c.symbol})
+                            </option>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("currency_preview")}
+                    </FormLabel>
+                    <Badge colorScheme="teal" fontSize="md" px={3} py={1.5}>
+                        {selectedCurrency
+                            ? `${selectedCurrency.symbol}1,234.56`
+                            : "-"}
+                    </Badge>
+                </FormControl>
+
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("current_currency")}
+                    </FormLabel>
+                    <Text fontSize="md" fontWeight="700" color={colors.textPrimary}>
+                        {restaurant?.currency ? `${restaurant.currency} (${restaurant.currency_symbol})` : "-"}
+                    </Text>
+                </FormControl>
+            </SimpleGrid>
+
+            <Button
+                mt={8}
+                float="right"
+                type="submit"
+                isLoading={isSubmitting}
+                loadingText={t("saving_data")}
+                colorScheme="teal"
+                isDisabled={!selected}
+                bg="teal.500"
+                color="white"
+                fontWeight="semibold"
+                px={8}
+                h={12}
+                borderRadius="md"
+                _hover={{ bg: "teal.600" }}
+                _active={{ bg: "teal.700" }}
+                boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)"
+            >
+                {t("save")}
+            </Button>
+        </form>
     );
 };
 

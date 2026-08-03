@@ -109,7 +109,6 @@ const BranchEdit = () => {
             const res = await api.put(UPDATE_BRANCH(id), data);
             reset();
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -123,7 +122,6 @@ const BranchEdit = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorMessage,
                     status: "error",
@@ -132,7 +130,6 @@ const BranchEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorResponse.message,
                     status: "error",

@@ -8,6 +8,7 @@ import { Controller, useFieldArray } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AddIcon, DeleteIcon, ChevronUpIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import useThemeColors from "../../../hooks/useThemeColors";
+import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
 
 export default function RecipeForm({
   register, control, handleSubmit, onSubmit,
@@ -15,11 +16,13 @@ export default function RecipeForm({
 }) {
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const { formatAmount } = useCurrencyFormatter();
   const { fields, append, remove, swap } = useFieldArray({ control, name: "ingredients" });
 
   const inventoryItems = options?.inventory_items || [];
   const units = options?.units || [];
   const categories = options?.categories || [];
+  const menuItems = options?.menu_items || [];
 
   const renderUnit = (u) => u.short_name || u.actual_name || "";
 
@@ -34,15 +37,25 @@ export default function RecipeForm({
             </Box>
           </CardHeader>
           <CardBody>
-            <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
-               <FormControl isRequired>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("name")}</FormLabel>
-                 <Input {...register("name")} placeholder={t("recipe_name")} bg={colors.bgInput}
-                   borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                 />
-               </FormControl>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("category")}</FormLabel>
+               <SimpleGrid columns={{ base: 1, md: 2, lg: 3 }} spacing={4}>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("name")}</FormLabel>
+                  <Input {...register("name")} placeholder={t("recipe_name")} bg={colors.bgInput}
+                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                  />
+                </FormControl>
+                 <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("menu_item")}</FormLabel>
+                  <Select {...register("menu_item_id")} placeholder={t("select_menu_item")} bg={colors.bgInput}
+                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                  >
+                    {(Array.isArray(menuItems) ? menuItems : []).map((m) => (
+                      <option key={m.id} value={m.id}>{m.name}{m.price ? ` (${formatAmount(m.price)})` : ""}</option>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("category")}</FormLabel>
                  <Select {...register("category_id")} placeholder={t("select_category")} bg={colors.bgInput}
                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
                  >
@@ -51,20 +64,20 @@ export default function RecipeForm({
                    ))}
                  </Select>
                </FormControl>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("selling_price")}</FormLabel>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("selling_price")}</FormLabel>
                  <Input {...register("selling_price")} type="number" min="0" step="0.01" placeholder="0.00" bg={colors.bgInput}
                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
                  />
                </FormControl>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("yield_quantity")}</FormLabel>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("yield_quantity")}</FormLabel>
                  <Input {...register("yield_quantity")} type="number" min="0" step="0.01" placeholder="1" bg={colors.bgInput}
                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
                  />
                </FormControl>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("yield_unit")}</FormLabel>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("yield_unit")}</FormLabel>
                  <Select {...register("yield_unit_id")} placeholder={t("select_unit")} bg={colors.bgInput}
                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
                  >
@@ -94,8 +107,8 @@ export default function RecipeForm({
                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
                  />
                </FormControl>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("status")}</FormLabel>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("status")}</FormLabel>
                  <Select {...register("status")} bg={colors.bgInput}
                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
                  >
@@ -197,15 +210,15 @@ export default function RecipeForm({
                       ))}
                     </Select>
                   </FormControl>
-                  <FormControl>
-                    <Controller
-                      name={`ingredients.${index}.unit_cost`}
-                      control={control}
-                      render={({ field: f }) => (
-                        <NumberInput size="md" min={0} step={0.01} value={selectedItem?.unit_cost ?? f.value ?? ""} onChange={f.onChange}>
-                          <NumberInputField placeholder={t("unit_cost")} bg={colors.bgInput}
-                            borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                          />
+                   <FormControl>
+                     <Controller
+                       name={`ingredients.${index}.unit_cost`}
+                       control={control}
+                       render={({ field: f }) => (
+                         <NumberInput size="md" min={0} step={0.01} value={f.value ?? selectedItem?.unit_cost ?? ""} onChange={f.onChange}>
+                           <NumberInputField placeholder={t("unit_cost")} bg={colors.bgInput}
+                             borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                           />
                           <NumberInputStepper>
                             <NumberIncrementStepper />
                             <NumberDecrementStepper />

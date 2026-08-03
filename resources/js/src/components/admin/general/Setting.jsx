@@ -1,23 +1,22 @@
 import React, { useState, useEffect } from "react";
 import {
-    Box,
     Button,
     FormControl,
     FormLabel,
     Input,
-    Stack,
-    Image,
-    Text,
+    SimpleGrid,
     useToast,
-    SimpleGrid
+    Image,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import api from "../../../axios";
 import { GET_OWNER_BUSINESS, UPDATE_BUSINESS } from "../../../routes/apiRoutes";
 import { usePermission } from "../../../context/PermissionContext";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 const Setting = () => {
+    const colors = useThemeColors();
     const { t } = useTranslation();
     const {
         register,
@@ -45,12 +44,10 @@ const Setting = () => {
         formData.append("zip_code", data.zip_code ?? "");
         formData.append("timezone", data.timezone ?? "");
 
-        // Files
         if (data.logo?.length) {
             formData.append("logo", data.logo[0]);
         }
 
-        // For Laravel PUT request
         formData.append("_method", "PUT");
 
         try {
@@ -61,14 +58,12 @@ const Setting = () => {
             );
 
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
                 isClosable: true,
             });
 
-            // Refresh user data so the whole app uses the new restaurant name/logo
             await refetchPermissions();
         } catch (err) {
             const errorResponse = err?.response?.data;
@@ -77,7 +72,6 @@ const Setting = () => {
                 : errorResponse?.message || "Something went wrong";
 
             toast({
-                position: "bottom-right",
                 title: "Error",
                 description: errorMessage,
                 status: "error",
@@ -114,117 +108,176 @@ const Setting = () => {
 
     const currentLogo = business?.logo || restaurant?.logo;
 
+    const inputProps = {
+        bg: colors.bgInput,
+        border: "1px solid",
+        borderColor: colors.borderInput,
+        borderRadius: "md",
+        focusBorderColor: "teal.500",
+        _hover: { borderColor: "gray.300" },
+        size: "md",
+        transition: "all 0.2s",
+    };
+
     return (
-        <>
-            <Box mt={5} mx="auto" p={6} borderWidth={1} borderRadius="lg">
-                <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    encType="multipart/form-data"
-                >
-                    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
-                        <FormControl isRequired>
-                            <FormLabel>{t("restaurant_name")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("name", { required: true })}
-                            />
-                        </FormControl>
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            encType="multipart/form-data"
+        >
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6}>
+                <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("restaurant_name")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder={t("restaurant_name")}
+                        {...inputProps}
+                        {...register("name", { required: true })}
+                    />
+                </FormControl>
 
-                        <FormControl isRequired>
-                            <FormLabel>{t("phone_number")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("phone", { required: true })}
-                            />
-                        </FormControl>
+                <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("phone_number")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder={t("phone_number")}
+                        {...inputProps}
+                        {...register("phone", { required: true })}
+                    />
+                </FormControl>
 
-                        <FormControl>
-                            <FormLabel>{t("email")}</FormLabel>
-                            <Input
-                                type="email"
-                                {...register("email")}
-                            />
-                        </FormControl>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("email")}
+                    </FormLabel>
+                    <Input
+                        type="email"
+                        placeholder={t("email")}
+                        {...inputProps}
+                        {...register("email")}
+                    />
+                </FormControl>
 
-                        <FormControl>
-                            <FormLabel>{t("address")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("address")}
-                            />
-                        </FormControl>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("address")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder={t("address")}
+                        {...inputProps}
+                        {...register("address")}
+                    />
+                </FormControl>
 
-                        <FormControl>
-                            <FormLabel>{t("city")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("city")}
-                            />
-                        </FormControl>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("city")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder={t("city")}
+                        {...inputProps}
+                        {...register("city")}
+                    />
+                </FormControl>
 
-                        <FormControl>
-                            <FormLabel>{t("state")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("state")}
-                            />
-                        </FormControl>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("state")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder={t("state")}
+                        {...inputProps}
+                        {...register("state")}
+                    />
+                </FormControl>
 
-                        <FormControl>
-                            <FormLabel>{t("country")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("country")}
-                            />
-                        </FormControl>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("country")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder={t("country")}
+                        {...inputProps}
+                        {...register("country")}
+                    />
+                </FormControl>
 
-                        <FormControl>
-                            <FormLabel>{t("zip")}</FormLabel>
-                            <Input
-                                type="text"
-                                {...register("zip_code")}
-                            />
-                        </FormControl>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("zip")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder={t("zip_code")}
+                        {...inputProps}
+                        {...register("zip_code")}
+                    />
+                </FormControl>
 
-                        <FormControl>
-                            <FormLabel>{t("timezone")}</FormLabel>
-                            <Input
-                                type="text"
-                                placeholder="e.g. Asia/Dhaka"
-                                {...register("timezone")}
-                            />
-                        </FormControl>
-                    </SimpleGrid>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("timezone")}
+                    </FormLabel>
+                    <Input
+                        type="text"
+                        placeholder="e.g. Asia/Dhaka"
+                        {...inputProps}
+                        {...register("timezone")}
+                    />
+                </FormControl>
+            </SimpleGrid>
 
-                    <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mt={8}>
-                        <FormControl>
-                            <FormLabel>{t("restaurant_logo")}</FormLabel>
-                            <Input type="file" accept="image/*" {...register("logo")} />
-                            {currentLogo && (
-                                <Image
-                                    src={'/' + currentLogo}
-                                    alt={t("restaurant_logo")}
-                                    mt={2}
-                                    maxH="70px"
-                                    objectFit="contain"
-                                />
-                            )}
-                        </FormControl>
-                    </SimpleGrid>
+            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={6} mt={8}>
+                <FormControl>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
+                        {t("restaurant_logo")}
+                    </FormLabel>
+                    <Input
+                        type="file"
+                        accept="image/*"
+                        p={1}
+                        {...inputProps}
+                        {...register("logo")}
+                    />
+                    {currentLogo && (
+                        <Image
+                            src={'/' + currentLogo}
+                            alt={t("restaurant_logo")}
+                            mt={2}
+                            maxH="70px"
+                            objectFit="contain"
+                        />
+                    )}
+                </FormControl>
+            </SimpleGrid>
 
-                    <Stack direction="row" justify="flex-end" mt={8}>
-                        <Button
-                            isLoading={isSubmitting}
-                            loadingText="Saving..."
-                            type="submit"
-                            colorScheme="teal"
-                        >
-                            {t("save")}
-                        </Button>
-                    </Stack>
-                </form>
-            </Box>
-        </>
+            <Button
+                mt={8}
+                float="right"
+                type="submit"
+                isLoading={isSubmitting}
+                loadingText={t("saving_data")}
+                colorScheme="teal"
+                bg="teal.500"
+                color="white"
+                fontWeight="semibold"
+                px={8}
+                h={12}
+                borderRadius="md"
+                _hover={{ bg: "teal.600" }}
+                _active={{ bg: "teal.700" }}
+                boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)"
+            >
+                {t("save")}
+            </Button>
+        </form>
     );
 };
 

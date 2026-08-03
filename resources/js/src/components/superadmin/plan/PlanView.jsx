@@ -65,7 +65,7 @@ export default function PlanView() {
                 const res = await api.get(`/v1/plans/${id}`);
                 setPlan(res.data?.data || res.data);
             } catch {
-                toast({ position: "bottom-right", title: t("error_loading_plan"), status: "error", duration: 3000, isClosable: true });
+                toast({ title: t("error_loading_plan"), status: "error", duration: 3000, isClosable: true });
             } finally {
                 setLoading(false);
             }

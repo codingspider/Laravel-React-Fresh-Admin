@@ -58,7 +58,6 @@ const UserCreate = () => {
             const res = await api.post(STORE_USER, data);
             reset();
             toast({
-                position: "top-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -69,9 +68,9 @@ const UserCreate = () => {
             const errorResponse = err?.response?.data;
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
-                toast({ position: "top-right", title: t("error"), description: errorMessage, status: "error", duration: 3000, isClosable: true });
+                toast({ title: t("error"), description: errorMessage, status: "error", duration: 3000, isClosable: true });
             } else if (errorResponse?.message) {
-                toast({ position: "top-right", title: t("error"), description: errorResponse.message, status: "error", duration: 3000, isClosable: true });
+                toast({ title: t("error"), description: errorResponse.message, status: "error", duration: 3000, isClosable: true });
             }
         } finally {
             setIsSubmitting(false);

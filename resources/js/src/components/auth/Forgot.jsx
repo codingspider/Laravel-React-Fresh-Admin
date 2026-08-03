@@ -38,7 +38,6 @@ export default function Forgot() {
             await forgotPassword(email);
             reset();
             toast({
-                position: "top-right",
                 title: "Email sent!",
                 description: "Check your inbox for the reset link.",
                 status: "success",
@@ -49,7 +48,6 @@ export default function Forgot() {
             const errorMessage = err?.response?.data?.message || err.message || "Something went wrong";
             reset();
             toast({
-                position: "top-right",
                 title: "Failed to send email",
                 description: errorMessage,
                 status: "error",

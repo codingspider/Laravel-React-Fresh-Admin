@@ -48,7 +48,6 @@ const AddonEdit = () => {
             reset();
 
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -62,7 +61,6 @@ const AddonEdit = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorMessage,
                     status: "error",
@@ -71,7 +69,6 @@ const AddonEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorResponse.message,
                     status: "error",

@@ -1,23 +1,23 @@
 import React, { useEffect, useState } from "react";
 import {
-    Box,
     Button,
     FormControl,
     FormLabel,
     Input,
     Select as ChakraSelect,
     SimpleGrid,
-    Stack,
     Switch,
-    Heading,
     useToast,
 } from "@chakra-ui/react";
 import { useForm, Controller } from "react-hook-form";
-import api from "../../../axios"; // your axios instance
+import api from "../../../axios";
 import { CREATE_NOTIFICATION_SETTING } from "../../../routes/apiRoutes";
-import { t } from "i18next";
+import { useTranslation } from "react-i18next";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 const NotificationSettings = ({ existingSetting }) => {
+    const colors = useThemeColors();
+    const { t } = useTranslation();
     const toast = useToast();
     const [loading, setLoading] = useState(false);
 
@@ -37,7 +37,6 @@ const NotificationSettings = ({ existingSetting }) => {
 
     const watchType = watch("type");
 
-    // Prefill form on mount or when existingSetting changes
     useEffect(() => {
         if (existingSetting) {
             reset({
@@ -65,7 +64,6 @@ const NotificationSettings = ({ existingSetting }) => {
         try {
             const res = await api.post(CREATE_NOTIFICATION_SETTING, payload);
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -78,7 +76,6 @@ const NotificationSettings = ({ existingSetting }) => {
                 : errorResponse?.message || "Something went wrong";
 
             toast({
-                position: "bottom-right",
                 title: "Error",
                 description: errorMessage,
                 status: "error",
@@ -90,144 +87,169 @@ const NotificationSettings = ({ existingSetting }) => {
         }
     };
 
+    const inputProps = {
+        bg: colors.bgInput,
+        border: "1px solid",
+        borderColor: colors.borderInput,
+        borderRadius: "md",
+        focusBorderColor: "teal.500",
+        _hover: { borderColor: "gray.300" },
+        size: "md",
+        transition: "all 0.2s",
+    };
+
     return (
-        <Box mx="auto" mt={8} p={6} borderWidth={1} borderRadius="lg">
-            <form onSubmit={handleSubmit(onSubmit)}>
-                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
-                    {/* Type Selector */}
-                    <FormControl isRequired>
-                        <FormLabel>{t("type")}</FormLabel>
-                        <ChakraSelect {...register("type")}>
-                            <option value="email">{t("email")}</option>
-                            <option value="sms">{t("sms")}</option>
-                        </ChakraSelect>
-                    </FormControl>
+        <form onSubmit={handleSubmit(onSubmit)}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                {/* Type Selector */}
+                <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("type")}</FormLabel>
+                    <ChakraSelect {...inputProps} {...register("type")}>
+                        <option value="email">{t("email")}</option>
+                        <option value="sms">{t("sms")}</option>
+                    </ChakraSelect>
+                </FormControl>
 
-                    {/* Provider Selector */}
-                    <FormControl isRequired>
-                        <FormLabel>{t("provider")}</FormLabel>
-                        <ChakraSelect {...register("provider")}>
-                            {watchType === "email" ? (
-                                <option value="smtp">{t("smtp")}</option>
-                            ) : (
-                                <>
-                                    <option value="twilio">
-                                        {t("twilio")}
-                                    </option>
-                                    <option value="nexmo">{t("nexmo")}</option>
-                                </>
-                            )}
-                        </ChakraSelect>
-                    </FormControl>
+                {/* Provider Selector */}
+                <FormControl isRequired>
+                    <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("provider")}</FormLabel>
+                    <ChakraSelect {...inputProps} {...register("provider")}>
+                        {watchType === "email" ? (
+                            <option value="smtp">{t("smtp")}</option>
+                        ) : (
+                            <>
+                                <option value="twilio">
+                                    {t("twilio")}
+                                </option>
+                                <option value="nexmo">{t("nexmo")}</option>
+                            </>
+                        )}
+                    </ChakraSelect>
+                </FormControl>
 
-                    {/* Email Settings */}
-                    {watchType === "email" && (
-                        <>
-                            <FormControl isRequired>
-                                <FormLabel>{t("host")}</FormLabel>
-                                <Input {...register("settings.email.host")} />
-                            </FormControl>
+                {/* Email Settings */}
+                {watchType === "email" && (
+                    <>
+                        <FormControl isRequired>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("host")}</FormLabel>
+                            <Input {...inputProps} {...register("settings.email.host")} />
+                        </FormControl>
 
-                            <FormControl isRequired>
-                                <FormLabel>{t("port")}</FormLabel>
-                                <Input
-                                    type="number"
-                                    {...register("settings.email.port")}
-                                />
-                            </FormControl>
+                        <FormControl isRequired>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("port")}</FormLabel>
+                            <Input
+                                type="number"
+                                {...inputProps}
+                                {...register("settings.email.port")}
+                            />
+                        </FormControl>
 
-                            <FormControl isRequired>
-                                <FormLabel>{t("username")}</FormLabel>
-                                <Input
-                                    {...register("settings.email.username")}
-                                />
-                            </FormControl>
+                        <FormControl isRequired>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("username")}</FormLabel>
+                            <Input
+                                {...inputProps}
+                                {...register("settings.email.username")}
+                            />
+                        </FormControl>
 
-                            <FormControl isRequired>
-                                <FormLabel>{t("password")}</FormLabel>
-                                <Input
-                                    type="password"
-                                    {...register("settings.email.password")}
-                                />
-                            </FormControl>
+                        <FormControl isRequired>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("password")}</FormLabel>
+                            <Input
+                                type="password"
+                                {...inputProps}
+                                {...register("settings.email.password")}
+                            />
+                        </FormControl>
 
-                            <FormControl>
-                                <FormLabel>{t("encryption")}</FormLabel>
-                                <ChakraSelect
-                                    {...register("settings.email.encryption")}
-                                >
-                                    <option value="tls">TLS</option>
-                                    <option value="ssl">SSL</option>
-                                </ChakraSelect>
-                            </FormControl>
+                        <FormControl>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("encryption")}</FormLabel>
+                            <ChakraSelect
+                                {...inputProps}
+                                {...register("settings.email.encryption")}
+                            >
+                                <option value="tls">TLS</option>
+                                <option value="ssl">SSL</option>
+                            </ChakraSelect>
+                        </FormControl>
 
-                            <FormControl>
-                                <FormLabel>{t("from_email")}</FormLabel>
-                                <Input
-                                    {...register("settings.email.from_email")}
-                                />
-                            </FormControl>
+                        <FormControl>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("from_email")}</FormLabel>
+                            <Input
+                                {...inputProps}
+                                {...register("settings.email.from_email")}
+                            />
+                        </FormControl>
 
-                            <FormControl>
-                                <FormLabel>{t("from_name")}</FormLabel>
-                                <Input
-                                    {...register("settings.email.from_name")}
-                                />
-                            </FormControl>
-                        </>
-                    )}
+                        <FormControl>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("from_name")}</FormLabel>
+                            <Input
+                                {...inputProps}
+                                {...register("settings.email.from_name")}
+                            />
+                        </FormControl>
+                    </>
+                )}
 
-                    {/* SMS Settings */}
-                    {watchType === "sms" && (
-                        <>
-                            <FormControl isRequired>
-                                <FormLabel>SID / Key</FormLabel>
-                                <Input {...register("settings.sms.sid")} />
-                            </FormControl>
+                {/* SMS Settings */}
+                {watchType === "sms" && (
+                    <>
+                        <FormControl isRequired>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>SID / Key</FormLabel>
+                            <Input {...inputProps} {...register("settings.sms.sid")} />
+                        </FormControl>
 
-                            <FormControl isRequired>
-                                <FormLabel>Token / Secret</FormLabel>
-                                <Input {...register("settings.sms.token")} />
-                            </FormControl>
+                        <FormControl isRequired>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>Token / Secret</FormLabel>
+                            <Input {...inputProps} {...register("settings.sms.token")} />
+                        </FormControl>
 
-                            <FormControl isRequired>
-                                <FormLabel>From Number</FormLabel>
-                                <Input {...register("settings.sms.from")} />
-                            </FormControl>
-                        </>
-                    )}
+                        <FormControl isRequired>
+                            <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>From Number</FormLabel>
+                            <Input {...inputProps} {...register("settings.sms.from")} />
+                        </FormControl>
+                    </>
+                )}
 
-                    {/* Active Switch */}
-                    <FormControl display="flex" alignItems="center">
-                        <FormLabel htmlFor="is_active" mb="0">
-                            Active
-                        </FormLabel>
-                        <Controller
-                            name="is_active"
-                            control={control}
-                            render={({ field }) => (
-                                <Switch
-                                    id="is_active"
-                                    isChecked={field.value}
-                                    onChange={field.onChange}
-                                />
-                            )}
-                        />
-                    </FormControl>
-                </SimpleGrid>
+                {/* Active Switch */}
+                <FormControl display="flex" alignItems="center">
+                    <FormLabel htmlFor="is_active" mb="0" fontSize="sm" fontWeight="semibold" color={colors.textPrimary}>
+                        Active
+                    </FormLabel>
+                    <Controller
+                        name="is_active"
+                        control={control}
+                        render={({ field }) => (
+                            <Switch
+                                id="is_active"
+                                isChecked={field.value}
+                                onChange={field.onChange}
+                                colorScheme="teal"
+                            />
+                        )}
+                    />
+                </FormControl>
+            </SimpleGrid>
 
-                <Stack direction="row" justify="flex-end" mt={8}>
-                    <Button
-                        isLoading={loading}
-                        type="submit"
-                        loadingText="Saving Data..."
-                        colorScheme="teal"
-                    >
-                        {t("save")}
-                    </Button>
-                </Stack>
-            </form>
-        </Box>
+            <Button
+                mt={8}
+                float="right"
+                type="submit"
+                isLoading={loading}
+                loadingText={t("saving_data")}
+                colorScheme="teal"
+                bg="teal.500"
+                color="white"
+                fontWeight="semibold"
+                px={8}
+                h={12}
+                borderRadius="md"
+                _hover={{ bg: "teal.600" }}
+                _active={{ bg: "teal.700" }}
+                boxShadow="0 4px 6px -1px rgba(20, 184, 166, 0.4)"
+            >
+                {t("save")}
+            </Button>
+        </form>
     );
 };
 

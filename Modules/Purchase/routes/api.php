@@ -1,5 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\Admin\PurchaseController;
 
-// Routes moved to routes/api.php — this file intentionally left minimal.
+Route::prefix('api')->middleware(['api', 'auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
+    Route::apiResource('purchases', PurchaseController::class);
+
+    // Purchases - GRN / payments / returns
+    Route::post('purchases/{id}/receive-goods', [PurchaseController::class, 'receiveGoods']);
+    Route::post('purchases/{id}/payments', [PurchaseController::class, 'addPayment']);
+    Route::get('purchases/{id}/payments', [PurchaseController::class, 'payments']);
+    Route::post('purchases/{id}/returns', [PurchaseController::class, 'createReturn']);
+    Route::get('purchases/{id}/returns', [PurchaseController::class, 'returns']);
+});

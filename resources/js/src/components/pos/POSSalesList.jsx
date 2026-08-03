@@ -135,7 +135,6 @@ export default function POSSalesList() {
         const maxRefund = (parseFloat(refundSale.total) || 0) - (parseFloat(refundSale.refunded_amount) || 0);
         if (isNaN(amount) || amount <= 0 || amount > maxRefund) {
             toast({
-                position: "top-right",
                 title: t("invalid_amount"),
                 status: "error",
                 duration: 3000,
@@ -151,7 +150,6 @@ export default function POSSalesList() {
                 notes: refundNotes,
             });
             toast({
-                position: "top-right",
                 title: t("refund_processed_successfully"),
                 status: "success",
                 duration: 3000,
@@ -161,7 +159,6 @@ export default function POSSalesList() {
             fetchData();
         } catch (error) {
             toast({
-                position: "top-right",
                 title: t("error_processing_refund"),
                 description: error.response?.data?.message || t("something_went_wrong"),
                 status: "error",
@@ -177,7 +174,7 @@ export default function POSSalesList() {
             const res = await api.get(GET_POS_SALE(saleId));
             return res.data.data;
         } catch {
-            toast({ position: "top-right", title: t("Failed to load sale details"), status: "error", duration: 2000, isClosable: true });
+            toast({ title: t("Failed to load sale details"), status: "error", duration: 2000, isClosable: true });
             return null;
         } finally {
             setLoadingSaleId(null);

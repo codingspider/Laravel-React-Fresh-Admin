@@ -86,7 +86,6 @@ const Register = () => {
         try {
             await api.post(STORE_BUSINESS_INFO, data);
             toast({
-                position: "top-right",
                 title: "Account created!",
                 description: "Your account has been created successfully.",
                 status: "success",
@@ -99,7 +98,6 @@ const Register = () => {
                 const validationErrors = error.response.data.errors;
                 Object.keys(validationErrors).forEach((field) => {
                     toast({
-                        position: "top-right",
                         title: `${field} error`,
                         description: validationErrors[field][0],
                         status: "error",
@@ -109,7 +107,6 @@ const Register = () => {
                 });
             } else {
                 toast({
-                    position: "top-right",
                     title: "Error",
                     description: "Something went wrong!",
                     status: "error",

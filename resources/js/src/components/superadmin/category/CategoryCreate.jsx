@@ -54,7 +54,6 @@ const CategoryCreate = () => {
             });
             reset();
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -68,7 +67,6 @@ const CategoryCreate = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -77,7 +75,6 @@ const CategoryCreate = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

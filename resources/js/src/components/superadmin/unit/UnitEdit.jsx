@@ -45,7 +45,6 @@ const UnitEdit = () => {
         try {
             const res = await api.put(UPDATE_UNIT(id), data);
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -59,7 +58,6 @@ const UnitEdit = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -68,7 +66,6 @@ const UnitEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

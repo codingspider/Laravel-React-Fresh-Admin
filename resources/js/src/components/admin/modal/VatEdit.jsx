@@ -46,7 +46,6 @@ const VatEdit = ({ isOpen, onClose, vat, onSuccess }) => {
             onClose();
             onSuccess();
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -59,7 +58,6 @@ const VatEdit = ({ isOpen, onClose, vat, onSuccess }) => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorMessage,
                     status: "error",
@@ -68,7 +66,6 @@ const VatEdit = ({ isOpen, onClose, vat, onSuccess }) => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: "Error",
                     description: errorResponse.message,
                     status: "error",

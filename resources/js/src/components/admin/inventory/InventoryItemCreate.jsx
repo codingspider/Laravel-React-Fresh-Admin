@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
-  Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Card, CardBody,
-  Text, useToast, Flex, Spinner,
+  Box, Breadcrumb, BreadcrumbItem, BreadcrumbLink, Card, CardBody, CardHeader,
+  Text, useToast, Flex, Spinner, Heading, Button
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -12,11 +12,13 @@ import {
 } from "../../../routes/apiRoutes";
 import { DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import InventoryItemForm from "./InventoryItemForm";
+import useThemeColors from "../../../hooks/useThemeColors";
 
 export default function InventoryItemCreate() {
   const { t } = useTranslation();
   const toast = useToast();
   const navigate = useNavigate();
+  const colors = useThemeColors();
   const [branches, setBranches] = useState([]);
   const [categories, setCategories] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
@@ -88,39 +90,56 @@ export default function InventoryItemCreate() {
   };
 
   return (
-    <Box>
-      <Card mb={5}>
-        <CardBody>
-          <Breadcrumb fontSize={{ base: "sm", md: "md" }}>
-            <BreadcrumbItem>
-              <BreadcrumbLink as={ReactRouterLink} to={DASHBOARD_PATH}>{t("dashboard")}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem>
-              <BreadcrumbLink as={ReactRouterLink} to="/inventory/list">{t("all_inventory_items")}</BreadcrumbLink>
-            </BreadcrumbItem>
-            <BreadcrumbItem isCurrentPage>
-              <BreadcrumbLink>{t("add_inventory_item")}</BreadcrumbLink>
-            </BreadcrumbItem>
-          </Breadcrumb>
-        </CardBody>
-      </Card>
+    <Box className="form-dark-surface" bg={colors.bgSubtle} minH="100vh" py={3}>
+      <Box mx="auto">
+        <Card mb={4} bg={colors.bgCard} shadow="sm" borderRadius="lg" border="none">
+          <CardBody py={3}>
+            <Breadcrumb fontSize="sm" color={colors.textSecondary}>
+              <BreadcrumbItem>
+                <BreadcrumbLink as={ReactRouterLink} to={DASHBOARD_PATH} fontWeight="medium" _hover={{ color: "teal.500" }}>{t("dashboard")}</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbItem>
+                <BreadcrumbLink as={ReactRouterLink} to="/inventory/list" fontWeight="medium" _hover={{ color: "teal.500" }}>{t("all_inventory_items")}</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbItem isCurrentPage>
+                <BreadcrumbLink color={colors.textPrimary} fontWeight="bold">{t("add_inventory_item")}</BreadcrumbLink>
+              </BreadcrumbItem>
+            </Breadcrumb>
+          </CardBody>
+        </Card>
 
-      {loadingData ? (
-        <Flex justify="center" py={12}><Spinner size="xl" color="brand.500" /></Flex>
-      ) : (
-        <InventoryItemForm
-          {...form}
-          onSubmit={onSubmit}
-          branches={branches}
-          categories={categories}
-          suppliers={suppliers}
-          units={units}
-          isSubmitting={isSubmitting}
-          submitLabel={t("create")}
-          cancelPath="/inventory/list"
-          LinkComponent={ReactRouterLink}
-        />
-      )}
+        <Card shadow="xl" borderRadius="xl" overflow="hidden" bg={colors.bgCard}>
+          <CardHeader bg={colors.bgCard} borderBottom="1px solid" borderColor={colors.borderSubtle} pb={6}>
+            <Flex justify="space-between" align="center">
+              <Box>
+                <Heading size="sm" color={colors.textPrimary} fontWeight="bold">{t("add_inventory_item")}</Heading>
+                <Text fontSize="sm" color={colors.textSecondary} mt={1}>{t("create_new_inventory_item")}</Text>
+              </Box>
+              <Button colorScheme="teal" as={ReactRouterLink} to="/inventory/list" variant="outline" display={{ base: "none", md: "inline-flex" }} size="sm" fontWeight="600">
+                {t("list")}
+              </Button>
+            </Flex>
+          </CardHeader>
+          <CardBody p={8}>
+            {loadingData ? (
+              <Flex justify="center" py={12}><Spinner size="xl" color="teal.500" /></Flex>
+            ) : (
+              <InventoryItemForm
+                {...form}
+                onSubmit={onSubmit}
+                branches={branches}
+                categories={categories}
+                suppliers={suppliers}
+                units={units}
+                isSubmitting={isSubmitting}
+                submitLabel={t("create")}
+                cancelPath="/inventory/list"
+                LinkComponent={ReactRouterLink}
+              />
+            )}
+          </CardBody>
+        </Card>
+      </Box>
     </Box>
   );
 }

@@ -116,7 +116,6 @@ export default function ItemCreate() {
             });
             reset();
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -128,7 +127,6 @@ export default function ItemCreate() {
                 ? Object.values(errorResponse.errors).flat().join(" ")
                 : errorResponse?.message ?? "Something went wrong";
             toast({
-                position: "bottom-right",
                 title: "Error",
                 description,
                 status: "error",

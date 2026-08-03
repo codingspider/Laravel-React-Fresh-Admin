@@ -36,6 +36,7 @@ import {
     Boxes,
     ChefHat,
     MonitorPlay,
+    UserCheck,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -60,6 +61,12 @@ import {
     STOCK_TRANSFERS_PATH,
     STOCK_ADJUSTMENTS_PATH,
     STOCK_WASTE_PATH,
+    HRM_DEPARTMENT_LIST_PATH,
+    HRM_DESIGNATION_LIST_PATH,
+    HRM_EMPLOYEE_LIST_PATH,
+    HRM_ATTENDANCE_LIST_PATH,
+    HRM_LEAVE_LIST_PATH,
+    HRM_HOLIDAY_LIST_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -126,11 +133,26 @@ const navItems = [
     },
     {
         icon: ChefHat,
-        label: 'Kitchen',
+        label: 'Kitchen Display',
         permission: 'view_kitchen_display',
         excludeRole: 'super_admin',
         children: [
             { path: '/kitchen/display', label: 'Kitchen Display', permission: 'view_kitchen_display' },
+        ],
+    },
+
+    {
+        icon: UserCheck,
+        label: 'HRM',
+        permission: 'view_employees',
+        excludeRole: 'super_admin',
+        children: [
+            { path: HRM_DEPARTMENT_LIST_PATH, label: 'Departments', permission: 'view_departments' },
+            { path: HRM_DESIGNATION_LIST_PATH, label: 'Designations', permission: 'view_designations' },
+            { path: HRM_EMPLOYEE_LIST_PATH, label: 'Employees', permission: 'view_employees' },
+            { path: HRM_ATTENDANCE_LIST_PATH, label: 'Attendance', permission: 'view_attendance' },
+            { path: HRM_LEAVE_LIST_PATH, label: 'Leave Requests', permission: 'view_leave_requests' },
+            { path: HRM_HOLIDAY_LIST_PATH, label: 'Holidays', permission: 'view_holidays' },
         ],
     },
     {

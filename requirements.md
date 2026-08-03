@@ -146,7 +146,7 @@ Each restaurant has isolated data. `restaurant_id` exists in every table.
 - Employees, Departments, Designation
 - Attendance, Leave, Holiday
 - Payroll, Salary, Advance, Loan, Bonus, Increment
-- Performance, Termination, Documents, ID Cards
+- Termination, Documents
 
 ### 18. Payroll
 - Generate Salary, Payslip, PF, Tax

@@ -72,7 +72,6 @@ export default function Login() {
             });
 
             toast({
-                position: 'top-right',
                 title: 'Welcome back!',
                 description: 'You have been logged in successfully.',
                 status: 'success',
@@ -94,7 +93,6 @@ export default function Login() {
         } catch (err) {
             const errorMessage = err?.response?.data?.message || err.message || 'Something went wrong';
             toast({
-                position: 'top-right',
                 title: 'Login failed',
                 description: errorMessage,
                 status: 'error',

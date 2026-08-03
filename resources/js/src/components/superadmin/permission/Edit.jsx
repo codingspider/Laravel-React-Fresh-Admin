@@ -76,7 +76,6 @@ const Edit = () => {
             } catch (error) {
                 console.error(error);
                 toast({
-                    position: "top-right",
                     title: t("error_loading_role"),
                     status: "error",
                     duration: 3000,
@@ -112,7 +111,6 @@ const Edit = () => {
             const payload = { ...data, permissions: selectedPermissions };
             const res = await api.put(UPDATE_ROLE(id), payload);
             toast({
-                position: "top-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -124,7 +122,6 @@ const Edit = () => {
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
-                    position: "top-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -133,7 +130,6 @@ const Edit = () => {
                 });
             } else {
                 toast({
-                    position: "top-right",
                     title: t("error"),
                     description: errorResponse?.message,
                     status: "error",

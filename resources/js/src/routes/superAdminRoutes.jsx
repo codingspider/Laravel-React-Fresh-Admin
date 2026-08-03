@@ -3,6 +3,26 @@ import Dashboard from "../components/superadmin/Dashboard";
 import MasterSetting from "../components/superadmin/MasterSetting";
 import SaveOrder from "../components/order/SaveOrder";
 
+import DepartmentList from "../components/admin/hrm/DepartmentList";
+import DepartmentCreate from "../components/admin/hrm/DepartmentCreate";
+import DepartmentEdit from "../components/admin/hrm/DepartmentEdit";
+import DesignationList from "../components/admin/hrm/DesignationList";
+import DesignationCreate from "../components/admin/hrm/DesignationCreate";
+import DesignationEdit from "../components/admin/hrm/DesignationEdit";
+import EmployeeList from "../components/admin/hrm/EmployeeList";
+import EmployeeCreate from "../components/admin/hrm/EmployeeCreate";
+import EmployeeEdit from "../components/admin/hrm/EmployeeEdit";
+import EmployeeView from "../components/admin/hrm/EmployeeView";
+import AttendanceList from "../components/admin/hrm/AttendanceList";
+import AttendanceCreate from "../components/admin/hrm/AttendanceCreate";
+import AttendanceEdit from "../components/admin/hrm/AttendanceEdit";
+import LeaveList from "../components/admin/hrm/LeaveList";
+import LeaveCreate from "../components/admin/hrm/LeaveCreate";
+import LeaveEdit from "../components/admin/hrm/LeaveEdit";
+import HolidayList from "../components/admin/hrm/HolidayList";
+import HolidayCreate from "../components/admin/hrm/HolidayCreate";
+import HolidayEdit from "../components/admin/hrm/HolidayEdit";
+
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
 import UserEdit from './../components/user/UserEdit';
@@ -115,7 +135,7 @@ import POSScreen from "../components/pos/POSScreen";
 import POSSalesList from "../components/pos/POSSalesList";
 import POSSalesView from "../components/pos/POSSalesView";
 import PosSettings from "../components/admin/pos/PosSettings";
-import CouponManagement from "../components/admin/pos/CouponManagement";
+import CouponList from "../components/admin/pos/CouponList";
 import KitchenDisplay from "../components/kitchen/KitchenDisplay";
 import CustomerDisplaySettings from "../components/customer/CustomerDisplaySettings";
 import General from "../components/admin/general/General";
@@ -214,6 +234,26 @@ export const CURRENCY_EDIT = "/currency/edit/:id";
 export const CURRENCY_EDIT_PATH = (id) => `/currency/edit/${id}`;
 
 export const PROFILE = "/profile";
+
+// HRM
+export const HRM_DEPARTMENT_LIST_PATH = "/hrm/departments";
+export const HRM_DEPARTMENT_CREATE_PATH = "/hrm/department/create";
+export const HRM_DEPARTMENT_EDIT_PATH = (id) => `/hrm/department/edit/${id}`;
+export const HRM_DESIGNATION_LIST_PATH = "/hrm/designations";
+export const HRM_DESIGNATION_CREATE_PATH = "/hrm/designation/create";
+export const HRM_DESIGNATION_EDIT_PATH = (id) => `/hrm/designation/edit/${id}`;
+export const HRM_EMPLOYEE_LIST_PATH = "/hrm/employees";
+export const HRM_EMPLOYEE_CREATE_PATH = "/hrm/employee/create";
+export const HRM_EMPLOYEE_EDIT_PATH = (id) => `/hrm/employee/edit/${id}`;
+export const HRM_EMPLOYEE_VIEW_PATH = (id) => `/hrm/employee/view/${id}`;
+export const HRM_ATTENDANCE_LIST_PATH = "/hrm/attendance";
+export const HRM_ATTENDANCE_CREATE_PATH = "/hrm/attendance/create";
+export const HRM_ATTENDANCE_EDIT_PATH = (id) => `/hrm/attendance/edit/${id}`;
+export const HRM_LEAVE_LIST_PATH = "/hrm/leaves";
+export const HRM_LEAVE_CREATE_PATH = "/hrm/leave/create";
+export const HRM_LEAVE_EDIT_PATH = (id) => `/hrm/leave/edit/${id}`;
+export const HRM_HOLIDAY_LIST_PATH = "/hrm/holidays";
+export const HRM_HOLIDAY_CREATE_PATH = "/hrm/holiday/create";
 
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
@@ -347,11 +387,32 @@ export const superAdminRoutes = [
     { path: "/pos/sales", element: <POSSalesList /> },
     { path: "/pos/sales/view/:id", element: <POSSalesView /> },
     { path: "/pos/settings", element: <PosSettings /> },
-    { path: "/pos/coupons", element: <CouponManagement /> },
+    { path: "/pos/coupons", element: <CouponList /> },
 
     // Phase 2 — Kitchen Display System (KDS)
     { path: "/kitchen/display", element: <KitchenDisplay /> },
 
     // Phase 2 — Customer Display System (CDS)
     { path: "/customer-display/settings", element: <CustomerDisplaySettings /> },
+
+    // HRM
+    { path: HRM_DEPARTMENT_LIST_PATH, element: <DepartmentList /> },
+    { path: HRM_DEPARTMENT_CREATE_PATH, element: <DepartmentCreate /> },
+    { path: "/hrm/department/edit/:id", element: <DepartmentEdit /> },
+    { path: HRM_DESIGNATION_LIST_PATH, element: <DesignationList /> },
+    { path: HRM_DESIGNATION_CREATE_PATH, element: <DesignationCreate /> },
+    { path: "/hrm/designation/edit/:id", element: <DesignationEdit /> },
+    { path: HRM_EMPLOYEE_LIST_PATH, element: <EmployeeList /> },
+    { path: HRM_EMPLOYEE_CREATE_PATH, element: <EmployeeCreate /> },
+    { path: "/hrm/employee/edit/:id", element: <EmployeeEdit /> },
+    { path: "/hrm/employee/view/:id", element: <EmployeeView /> },
+    { path: HRM_ATTENDANCE_LIST_PATH, element: <AttendanceList /> },
+    { path: HRM_ATTENDANCE_CREATE_PATH, element: <AttendanceCreate /> },
+    { path: "/hrm/attendance/edit/:id", element: <AttendanceEdit /> },
+    { path: HRM_LEAVE_LIST_PATH, element: <LeaveList /> },
+    { path: HRM_LEAVE_CREATE_PATH, element: <LeaveCreate /> },
+    { path: "/hrm/leave/edit/:id", element: <LeaveEdit /> },
+    { path: HRM_HOLIDAY_LIST_PATH, element: <HolidayList /> },
+    { path: "/hrm/holiday/create", element: <HolidayCreate /> },
+    { path: "/hrm/holiday/edit/:id", element: <HolidayEdit /> },
 ];

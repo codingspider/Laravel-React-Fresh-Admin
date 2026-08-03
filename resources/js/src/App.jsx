@@ -35,7 +35,16 @@ function AppContent() {
 
 function App() {
   return (
-    <ChakraProvider theme={theme}>
+    <ChakraProvider
+      theme={theme}
+      toastOptions={{
+        defaultOptions: {
+          position: 'bottom-right',
+          duration: 3000,
+          isClosable: true,
+        },
+      }}
+    >
       <PermissionProvider>
         <ColorModeScript initialColorMode={theme.config.initialColorMode} />
         <AppContent />

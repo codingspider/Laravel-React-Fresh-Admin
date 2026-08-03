@@ -47,7 +47,6 @@ const BusinessEdit = () => {
             const res = await api.put(UPDATE_PLAN(id), data);
             reset();
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -61,7 +60,6 @@ const BusinessEdit = () => {
                     .flat()
                     .join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -70,7 +68,6 @@ const BusinessEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

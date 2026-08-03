@@ -70,13 +70,15 @@ export default function RecipeCategoryList() {
     if (result.isConfirmed) {
       try {
         await api.delete(DELETE_RECIPE_CATEGORY(id));
-        toast({ position: "top-right", title: t("data_deleted_successfully"), status: "success", duration: 3000, isClosable: true });
+        toast({ title: t("data_deleted_successfully"), status: "success", duration: 3000, isClosable: true });
         fetchData();
       } catch (error) {
         toast({
-          position: "top-right", title: t("error_deleting_data"),
+          title: t("error_deleting_data"),
           description: error.response?.data?.message || t("something_went_wrong"),
-          status: "error", duration: 3000, isClosable: true,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
         });
       }
     }

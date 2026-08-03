@@ -20,9 +20,9 @@ const RecipeEdit = () => {
   const colors = useThemeColors();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [options, setOptions] = useState({ inventory_items: [], units: [], categories: [] });
+  const [options, setOptions] = useState({ inventory_items: [], units: [], categories: [], menu_items: [] });
   const { register, handleSubmit, control, reset } = useForm({
-    defaultValues: { name: "", category_id: "", selling_price: "", yield_quantity: "1", yield_unit_id: "", auto_deduct_stock: "yes", preparation_time: "", cooking_time: "", status: "active", description: "", ingredients: [] },
+    defaultValues: { name: "", menu_item_id: "", category_id: "", selling_price: "", yield_quantity: "1", yield_unit_id: "", auto_deduct_stock: "yes", preparation_time: "", cooking_time: "", status: "active", description: "", ingredients: [] },
   });
 
   useEffect(() => {
@@ -32,11 +32,12 @@ const RecipeEdit = () => {
       api.get(RECIPE_OPTIONS),
       api.get(GET_EDIT_RECIPE(id)),
     ]).then(([optRes, recipeRes]) => {
-      setOptions(optRes.data?.data || { inventory_items: [], units: [], categories: [] });
+      setOptions(optRes.data?.data || { inventory_items: [], units: [], categories: [], menu_items: [] });
       const recipe = recipeRes.data?.data;
       if (recipe) {
         reset({
           name: recipe.name || "",
+          menu_item_id: recipe.menu_item_id || "",
           category_id: recipe.category_id || "",
           selling_price: recipe.selling_price || "",
           yield_quantity: recipe.yield_quantity ?? "1",
@@ -78,8 +79,11 @@ const RecipeEdit = () => {
       navigate(RECIPE_LIST_PATH);
     } catch (err) {
       toast({
-        title: t("error"), description: err?.response?.data?.message || t("something_went_wrong"),
-        status: "error", duration: 3000, isClosable: true,
+        title: t("error"),
+        description: err?.response?.data?.message || t("something_went_wrong"),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
       });
     } finally {
       setIsSubmitting(false);

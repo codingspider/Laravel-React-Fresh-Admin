@@ -127,7 +127,6 @@ const Create = () => {
             reset();
             setSelectedPermissions([]);
             toast({
-                position: "top-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -139,7 +138,6 @@ const Create = () => {
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
-                    position: "top-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -148,7 +146,6 @@ const Create = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "top-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

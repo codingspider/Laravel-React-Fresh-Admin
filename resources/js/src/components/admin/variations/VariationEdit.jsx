@@ -104,7 +104,6 @@ const VariationEdit = () => {
         try {
             const res = await api.put(UPDATE_VARIATION(variation.id), data);
             toast({
-                position: "bottom-right",
                 title: res.data.message,
                 status: "success",
                 duration: 3000,
@@ -122,7 +121,6 @@ const VariationEdit = () => {
                     : errorResponse?.message || "Something went wrong";
 
             toast({
-                position: "bottom-right",
                 title: "Error",
                 description: errorMessage,
                 status: "error",

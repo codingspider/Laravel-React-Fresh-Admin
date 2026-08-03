@@ -70,8 +70,11 @@ const PurchaseCreate = () => {
       navigate(PURCHASE_LIST_PATH);
     } catch (err) {
       toast({
-        title: t("error"), description: err?.response?.data?.message || t("something_went_wrong"),
-        status: "error", duration: 3000, isClosable: true,
+        title: t("error"),
+        description: err?.response?.data?.message || t("something_went_wrong"),
+        status: "error",
+        duration: 3000,
+        isClosable: true,
       });
     } finally {
       setIsSubmitting(false);

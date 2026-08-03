@@ -67,7 +67,6 @@ export default function PackageView() {
                 setPkg(res.data?.data || res.data);
             } catch {
                 toast({
-                    position: "bottom-right",
                     title: t("error_loading_package"),
                     status: "error",
                     duration: 3000,

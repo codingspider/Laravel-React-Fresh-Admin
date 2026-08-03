@@ -88,7 +88,6 @@ const PlanEdit = () => {
                 setSelectedPackages(pkgIds);
             } catch (error) {
                 toastRef.current({
-                    position: "bottom-right",
                     title: tRef.current("error_loading_plan"),
                     status: "error",
                     duration: 3000,
@@ -113,7 +112,6 @@ const PlanEdit = () => {
             const payload = { ...data, package_ids: selectedPackages };
             const res = await api.put(UPDATE_PLAN(id), payload);
             toast({
-                position: "bottom-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -125,7 +123,6 @@ const PlanEdit = () => {
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -134,7 +131,6 @@ const PlanEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

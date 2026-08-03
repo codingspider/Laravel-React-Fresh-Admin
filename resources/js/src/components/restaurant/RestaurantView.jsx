@@ -36,7 +36,7 @@ export default function RestaurantView() {
       setRestaurant(res.data.data);
       setLoading(false);
     }).catch(() => {
-      toast({ title: t('Error loading restaurant'), status: 'error', position: 'bottom-right' });
+      toast({ title: t('Error loading restaurant'), status: 'error' });
       setLoading(false);
     });
   }, [id]);

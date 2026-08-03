@@ -1,5 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\Admin\RecipeController;
+use App\Http\Controllers\API\Admin\RecipeCategoryController;
 
-// Routes moved to routes/api.php — this file intentionally left minimal.
+Route::prefix('api')->middleware(['api', 'auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
+    Route::apiResource('recipes', RecipeController::class);
+    Route::apiResource('recipe-categories', RecipeCategoryController::class);
+    Route::get('recipe/options', [RecipeController::class, 'options']);
+});

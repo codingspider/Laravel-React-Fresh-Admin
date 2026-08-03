@@ -74,7 +74,7 @@ const MenuItemEdit = () => {
                     modifier_group_ids: itemData?.modifier_groups?.map(g => g.id) ?? [],
                 });
             } catch (error) {
-                toast({ position: "bottom-right", title: t("error"), status: "error", duration: 3000, isClosable: true });
+                toast({ title: t("error"), status: "error", duration: 3000, isClosable: true });
             } finally {
                 setLoading(false);
             }
@@ -104,7 +104,7 @@ const MenuItemEdit = () => {
             const res = await api.post(`/v1/menu/items/${id}`, formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-            toast({ position: "bottom-right", title: res.data.message, status: "success", duration: 3000, isClosable: true });
+            toast({ title: res.data.message, status: "success", duration: 3000, isClosable: true });
             reset();
             navigate("/menu/items");
         } catch (err) {
@@ -112,7 +112,7 @@ const MenuItemEdit = () => {
             const msg = errorResponse?.errors
                 ? Object.values(errorResponse.errors).flat().join(" ")
                 : errorResponse?.message || t("error");
-            toast({ position: "bottom-right", title: t("error"), description: msg, status: "error", duration: 3000, isClosable: true });
+            toast({ title: t("error"), description: msg, status: "error", duration: 3000, isClosable: true });
         } finally {
             setIsSubmitting(false);
         }

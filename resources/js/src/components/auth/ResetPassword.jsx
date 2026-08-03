@@ -44,7 +44,6 @@ export default function ResetPassword() {
             const res = await resettPassword(email, password, token);
             reset();
             toast({
-                position: "top-right",
                 title: "Password Reset Successful",
                 description: res.message || "You can now sign in with your new password.",
                 status: "success",
@@ -56,7 +55,6 @@ export default function ResetPassword() {
             const errorMessage = err?.response?.data?.message || err.message || "Something went wrong";
             reset();
             toast({
-                position: "top-right",
                 title: "Password Reset Failed",
                 description: errorMessage,
                 status: "error",

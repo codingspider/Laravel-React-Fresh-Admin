@@ -118,7 +118,6 @@ const SubscriptionEdit = () => {
                 });
             } catch (error) {
                 toast({
-                    position: "bottom-right",
                     title: t("error_loading_subscription"),
                     status: "error",
                     duration: 3000,
@@ -136,7 +135,6 @@ const SubscriptionEdit = () => {
         try {
             const res = await api.put(UPDATE_SUBSCRIPTION(id), data);
             toast({
-                position: "bottom-right",
                 title: res.data.message || t("success"),
                 status: "success",
                 duration: 3000,
@@ -148,7 +146,6 @@ const SubscriptionEdit = () => {
             if (errorResponse?.errors) {
                 const errorMessage = Object.values(errorResponse.errors).flat().join(" ");
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorMessage,
                     status: "error",
@@ -157,7 +154,6 @@ const SubscriptionEdit = () => {
                 });
             } else if (errorResponse?.message) {
                 toast({
-                    position: "bottom-right",
                     title: t("error"),
                     description: errorResponse.message,
                     status: "error",

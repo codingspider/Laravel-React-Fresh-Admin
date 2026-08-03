@@ -202,6 +202,43 @@ class UserSeeder extends Seeder
             'create_subscriptions',
             'update_subscriptions',
             'delete_subscriptions',
+
+            // HRM - Employees
+            'view_employees',
+            'create_employees',
+            'update_employees',
+            'delete_employees',
+
+            // HRM - Departments
+            'view_departments',
+            'create_departments',
+            'update_departments',
+            'delete_departments',
+
+            // HRM - Designations
+            'view_designations',
+            'create_designations',
+            'update_designations',
+            'delete_designations',
+
+            // HRM - Attendance
+            'view_attendance',
+            'create_attendance',
+            'update_attendance',
+            'delete_attendance',
+
+            // HRM - Leave
+            'view_leave_requests',
+            'create_leave_requests',
+            'update_leave_requests',
+            'delete_leave_requests',
+            'approve_leave_requests',
+
+            // HRM - Holidays
+            'view_holidays',
+            'create_holidays',
+            'update_holidays',
+            'delete_holidays',
         ];
 
         foreach ($permissions as $permission) {
@@ -214,309 +251,21 @@ class UserSeeder extends Seeder
         // Pluck all permissions
         $allPermissions = Permission::where('guard_name', 'web')->pluck('id');
 
-        // Create Admin Role and assign ALL permissions
-        $adminRole = Role::firstOrCreate([
-            'name' => 'admin',
-            'guard_name' => 'web',
-        ]);
-
-        // Sync all permissions to admin role
-        $adminRole->syncPermissions($allPermissions);
-
-        // Create Super Admin Role (same as admin but for future extensibility)
+        // Super Admin Role — full access to the entire application
         $superAdminRole = Role::firstOrCreate([
             'name' => 'super_admin',
             'guard_name' => 'web',
         ]);
         $superAdminRole->syncPermissions($allPermissions);
 
-        // Create Manager Role with limited permissions
-        $managerRole = Role::firstOrCreate([
-            'name' => 'manager',
-            'guard_name' => 'web',
-        ]);
-        $managerPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_user',
-                'view_restaurants',
-                'view_branches',
-                'create_branches',
-                'update_branches',
-                'view_menu_categories',
-                'create_menu_categories',
-                'update_menu_categories',
-                'view_menu_items',
-                'create_menu_items',
-                'update_menu_items',
-                'view_modifier_groups',
-                'view_floors',
-                'create_floors',
-                'update_floors',
-                'view_tables',
-                'create_tables',
-                'update_tables',
-                'view_reservations',
-                'create_reservations',
-                'update_reservations',
-                'view_orders',
-                'create_orders',
-                'update_orders',
-                'view_pos',
-                'process_sale',
-                'manage_pos_settings',
-                'view_products',
-                'create_products',
-                'update_products',
-                'view_categories',
-                'create_categories',
-                'update_categories',
-                'view_inventory',
-                'view_purchases',
-                'view_customers',
-                'create_customers',
-                'view_suppliers',
-                'view_recipes',
-                'view_stock_movements',
-                'view_stock_valuation',
-                'view_reports',
-                'access_business_settings',
-                'view_currencies',
-                'view_customer_display',
-                'manage_customer_display',
-            ])
-            ->pluck('id');
-        $managerRole->syncPermissions($managerPermissions);
-
-        // Create Cashier Role with minimal permissions
-        $cashierRole = Role::firstOrCreate([
-            'name' => 'cashier',
-            'guard_name' => 'web',
-        ]);
-        $cashierPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_pos',
-                'process_sale',
-                'view_menu_items',
-                'view_menu_categories',
-                'view_tables',
-                'view_orders',
-                'create_orders',
-                'view_customers',
-                'create_customers',
-            ])
-            ->pluck('id');
-        $cashierRole->syncPermissions($cashierPermissions);
-
-        // Create Restaurant Owner Role (full access to own restaurant)
+        // Restaurant Owner Role — full access to own restaurant data.
+        // All other roles (manager, cashier, waiter, kitchen_staff, etc.)
+        // are created by the restaurant owner from within the application.
         $ownerRole = Role::firstOrCreate([
             'name' => 'restaurant_owner',
             'guard_name' => 'web',
         ]);
         $ownerRole->syncPermissions($allPermissions);
-
-        // Create Branch Manager Role
-        $branchManagerRole = Role::firstOrCreate([
-            'name' => 'branch_manager',
-            'guard_name' => 'web',
-        ]);
-        $branchManagerPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_branches',
-                'view_menu_categories',
-                'view_menu_items',
-                'create_menu_items',
-                'update_menu_items',
-                'view_modifier_groups',
-                'view_floors',
-                'create_floors',
-                'update_floors',
-                'view_tables',
-                'create_tables',
-                'update_tables',
-                'view_reservations',
-                'create_reservations',
-                'update_reservations',
-                'view_orders',
-                'create_orders',
-                'update_orders',
-                'view_pos',
-                'process_sale',
-                'manage_pos_settings',
-                'view_inventory',
-                'view_customers',
-                'create_customers',
-                'view_reports',
-                'view_customer_display',
-                'manage_customer_display',
-            ])
-            ->pluck('id');
-        $branchManagerRole->syncPermissions($branchManagerPermissions);
-
-        // Create Waiter Role
-        $waiterRole = Role::firstOrCreate([
-            'name' => 'waiter',
-            'guard_name' => 'web',
-        ]);
-        $waiterPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_menu_items',
-                'view_tables',
-                'view_reservations',
-                'view_orders',
-                'create_orders',
-                'view_customers',
-            ])
-            ->pluck('id');
-        $waiterRole->syncPermissions($waiterPermissions);
-
-        // Create Kitchen Staff Role
-        $kitchenRole = Role::firstOrCreate([
-            'name' => 'kitchen_staff',
-            'guard_name' => 'web',
-        ]);
-        $kitchenPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_menu_items',
-                'view_orders',
-                'view_kitchen_display',
-                'manage_kitchen_orders',
-                'accept_kitchen_orders',
-                'assign_chef',
-            ])
-            ->pluck('id');
-        $kitchenRole->syncPermissions($kitchenPermissions);
-
-        // Create Chef Role
-        $chefRole = Role::firstOrCreate([
-            'name' => 'chef',
-            'guard_name' => 'web',
-        ]);
-        $chefPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_menu_items',
-                'create_menu_items',
-                'update_menu_items',
-                'view_menu_categories',
-                'create_menu_categories',
-                'update_menu_categories',
-                'view_modifier_groups',
-                'create_modifier_groups',
-                'update_modifier_groups',
-                'view_orders',
-                'view_kitchen_display',
-                'manage_kitchen_orders',
-                'accept_kitchen_orders',
-                'assign_chef',
-                'view_inventory',
-            ])
-            ->pluck('id');
-        $chefRole->syncPermissions($chefPermissions);
-
-        // Create Delivery Boy Role
-        $deliveryRole = Role::firstOrCreate([
-            'name' => 'delivery_boy',
-            'guard_name' => 'web',
-        ]);
-        $deliveryPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_orders',
-                'view_deliveries',
-                'manage_deliveries',
-            ])
-            ->pluck('id');
-        $deliveryRole->syncPermissions($deliveryPermissions);
-
-        // Create Accountant Role
-        $accountantRole = Role::firstOrCreate([
-            'name' => 'accountant',
-            'guard_name' => 'web',
-        ]);
-        $accountantPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_reports',
-                'view_purchases',
-                'create_purchases',
-                'update_purchases',
-                'view_inventory',
-                'view_customers',
-                'view_suppliers',
-            ])
-            ->pluck('id');
-        $accountantRole->syncPermissions($accountantPermissions);
-
-        // Create HR Manager Role
-        $hrManagerRole = Role::firstOrCreate([
-            'name' => 'hr_manager',
-            'guard_name' => 'web',
-        ]);
-        $hrManagerPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_user',
-                'create_user',
-                'update_user',
-                'view_reports',
-            ])
-            ->pluck('id');
-        $hrManagerRole->syncPermissions($hrManagerPermissions);
-
-        // Create Inventory Manager Role
-        $inventoryManagerRole = Role::firstOrCreate([
-            'name' => 'inventory_manager',
-            'guard_name' => 'web',
-        ]);
-        $inventoryManagerPermissions = Permission::where('guard_name', 'web')
-            ->whereIn('name', [
-                'view_dashboard_data',
-                'view_inventory',
-                'create_inventory',
-                'update_inventory',
-                'delete_inventory',
-                'view_purchases',
-                'create_purchases',
-                'update_purchases',
-                'view_suppliers',
-                'create_suppliers',
-                'update_suppliers',
-                'view_recipes',
-                'create_recipes',
-                'update_recipes',
-                'view_stock_movements',
-                'create_stock_movements',
-                'manage_stock_transfers',
-                'manage_stock_adjustments',
-                'manage_stock_waste',
-                'view_stock_valuation',
-                'manage_supplier_contacts',
-                'manage_supplier_documents',
-                'manage_supplier_transactions',
-                'manage_supplier_ratings',
-                'view_reports',
-            ])
-            ->pluck('id');
-        $inventoryManagerRole->syncPermissions($inventoryManagerPermissions);
-
-        // Create Admin User
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@gmail.com'],
-            [
-                'name' => 'Admin User',
-                'email' => 'admin@gmail.com',
-                'password' => Hash::make('123456789'),
-                'email_verified_at' => now(),
-            ]
-        );
-
-        // Assign admin role to the user
-        $admin->assignRole('admin');
 
         // Create Super Admin User
         $superAdmin = User::firstOrCreate(
@@ -529,32 +278,6 @@ class UserSeeder extends Seeder
             ]
         );
         $superAdmin->assignRole('super_admin');
-
-        // Create Manager User (linked to restaurant_id=1)
-        $manager = User::firstOrCreate(
-            ['email' => 'manager@gmail.com'],
-            [
-                'name' => 'Manager User',
-                'email' => 'manager@gmail.com',
-                'password' => Hash::make('123456789'),
-                'email_verified_at' => now(),
-                'restaurant_id' => 1,
-            ]
-        );
-        $manager->assignRole('manager');
-
-        // Create Cashier User (linked to restaurant_id=1)
-        $cashier = User::firstOrCreate(
-            ['email' => 'cashier@gmail.com'],
-            [
-                'name' => 'Cashier User',
-                'email' => 'cashier@gmail.com',
-                'password' => Hash::make('123456789'),
-                'email_verified_at' => now(),
-                'restaurant_id' => 1,
-            ]
-        );
-        $cashier->assignRole('cashier');
 
         // Create Restaurant Owner User (linked to restaurant_id=1)
         $restaurantOwner = User::firstOrCreate(
@@ -569,39 +292,8 @@ class UserSeeder extends Seeder
         );
         $restaurantOwner->assignRole('restaurant_owner');
 
-        // Create Waiter User (linked to restaurant_id=1)
-        $waiter = User::firstOrCreate(
-            ['email' => 'waiter@gmail.com'],
-            [
-                'name' => 'Waiter User',
-                'email' => 'waiter@gmail.com',
-                'password' => Hash::make('123456789'),
-                'email_verified_at' => now(),
-                'restaurant_id' => 1,
-            ]
-        );
-        $waiter->assignRole('waiter');
-
-        // Create Kitchen Staff User (linked to restaurant_id=1)
-        $kitchenStaff = User::firstOrCreate(
-            ['email' => 'kitchen@gmail.com'],
-            [
-                'name' => 'Kitchen Staff',
-                'email' => 'kitchen@gmail.com',
-                'password' => Hash::make('123456789'),
-                'email_verified_at' => now(),
-                'restaurant_id' => 1,
-            ]
-        );
-        $kitchenStaff->assignRole('kitchen_staff');
-
-        $this->command->info('Users, roles, and permissions seeded successfully!');
-        $this->command->info('Admin: admin@gmail.com / password');
+        $this->command->info('Roles and permissions seeded successfully!');
         $this->command->info('Super Admin: superadmin@gmail.com / password');
-        $this->command->info('Manager: manager@gmail.com / password');
-        $this->command->info('Cashier: cashier@gmail.com / password');
         $this->command->info('Restaurant Owner: owner@gmail.com / password');
-        $this->command->info('Waiter: waiter@gmail.com / password');
-        $this->command->info('Kitchen Staff: kitchen@gmail.com / password');
     }
 }
