@@ -8,16 +8,20 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('restaurant_id')->nullable()->constrained('restaurants')->index();
-        });
+        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'restaurant_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->foreignId('restaurant_id')->nullable()->constrained('restaurants')->index();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['restaurant_id']);
-            $table->dropColumn('restaurant_id');
-        });
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'restaurant_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropForeign(['restaurant_id']);
+                $table->dropColumn('restaurant_id');
+            });
+        }
     }
 };

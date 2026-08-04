@@ -8,22 +8,40 @@ return new class extends Migration
 {
     public function up(): void
     {
+        if (!Schema::hasTable('customers')) {
+            return;
+        }
+
         Schema::table('customers', function (Blueprint $table) {
-            $table->string('company')->nullable()->after('name');
-            $table->string('email')->nullable()->after('company');
-            $table->string('phone')->nullable()->after('email');
-            $table->text('address')->nullable()->after('phone');
-            $table->string('city')->nullable()->after('address');
-            $table->string('country')->nullable()->after('city');
-            $table->text('notes')->nullable()->after('country');
-            $table->boolean('is_active')->default(true)->after('notes');
+            $columnsToAdd = ['company', 'email', 'phone', 'address', 'city', 'country', 'notes', 'is_active'];
+            foreach ($columnsToAdd as $column) {
+                if (!Schema::hasColumn('customers', $column)) {
+                    match ($column) {
+                        'company' => $table->string('company')->nullable()->after('name'),
+                        'email' => $table->string('email')->nullable()->after('company'),
+                        'phone' => $table->string('phone')->nullable()->after('email'),
+                        'address' => $table->text('address')->nullable()->after('phone'),
+                        'city' => $table->string('city')->nullable()->after('address'),
+                        'country' => $table->string('country')->nullable()->after('city'),
+                        'notes' => $table->text('notes')->nullable()->after('country'),
+                        'is_active' => $table->boolean('is_active')->default(true)->after('notes'),
+                    };
+                }
+            }
         });
     }
 
     public function down(): void
     {
+        if (!Schema::hasTable('customers')) {
+            return;
+        }
+
         Schema::table('customers', function (Blueprint $table) {
-            $table->dropColumn(['company', 'email', 'phone', 'address', 'city', 'country', 'notes', 'is_active']);
+            $columnsToDrop = array_filter(['company', 'email', 'phone', 'address', 'city', 'country', 'notes', 'is_active'], fn($col) => Schema::hasColumn('customers', $col));
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };

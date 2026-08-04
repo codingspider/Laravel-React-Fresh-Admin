@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            $table->integer('trial_days')->default(0)->after('invoice_limit');
-        });
+        if (Schema::hasTable('plans') && !Schema::hasColumn('plans', 'trial_days')) {
+            Schema::table('plans', function (Blueprint $table) {
+                $table->integer('trial_days')->default(0)->after('invoice_limit');
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('plans', function (Blueprint $table) {
-            $table->dropColumn('trial_days');
-        });
+        if (Schema::hasTable('plans') && Schema::hasColumn('plans', 'trial_days')) {
+            Schema::table('plans', function (Blueprint $table) {
+                $table->dropColumn('trial_days');
+            });
+        }
     }
 };

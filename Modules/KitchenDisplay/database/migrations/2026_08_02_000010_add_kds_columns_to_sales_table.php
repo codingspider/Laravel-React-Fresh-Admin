@@ -17,21 +17,46 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('sales', function (Blueprint $table) {
-            $table->enum('priority', ['low', 'normal', 'high', 'urgent'])->default('normal')->after('status');
-            $table->foreignId('chef_user_id')->nullable()->after('priority')->constrained('users')->nullOnDelete();
-            $table->timestamp('started_at')->nullable()->after('chef_user_id');
-            $table->timestamp('ready_at')->nullable()->after('started_at');
+        if (!Schema::hasTable('sales')) {
+            return;
+        }
 
-            $table->index(['restaurant_id', 'status', 'priority']);
+        Schema::table('sales', function (Blueprint $table) {
+            if (!Schema::hasColumn('sales', 'priority')) {
+                $table->enum('priority', ['low', 'normal', 'high', 'urgent'])->default('normal')->after('status');
+            }
+            if (!Schema::hasColumn('sales', 'chef_user_id')) {
+                $table->foreignId('chef_user_id')->nullable()->after('priority')->constrained('users')->nullOnDelete();
+            }
+            if (!Schema::hasColumn('sales', 'started_at')) {
+                $table->timestamp('started_at')->nullable()->after('chef_user_id');
+            }
+            if (!Schema::hasColumn('sales', 'ready_at')) {
+                $table->timestamp('ready_at')->nullable()->after('started_at');
+            }
+
+            if (!Schema::hasIndex('sales', 'restaurant_id_status_priority_index')) {
+                $table->index(['restaurant_id', 'status', 'priority']);
+            }
         });
     }
 
     public function down(): void
     {
+        if (!Schema::hasTable('sales')) {
+            return;
+        }
+
         Schema::table('sales', function (Blueprint $table) {
-            $table->dropIndex(['restaurant_id', 'status', 'priority']);
-            $table->dropColumn(['priority', 'chef_user_id', 'started_at', 'ready_at']);
+            if (Schema::hasIndex('sales', 'restaurant_id_status_priority_index')) {
+                $table->dropIndex(['restaurant_id', 'status', 'priority']);
+            }
+            $columnsToDrop = array_filter(['priority', 'chef_user_id', 'started_at', 'ready_at'], function ($col) {
+                return Schema::hasColumn('sales', $col);
+            });
+            if (!empty($columnsToDrop)) {
+                $table->dropColumn($columnsToDrop);
+            }
         });
     }
 };

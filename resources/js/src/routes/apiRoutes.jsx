@@ -212,6 +212,13 @@ export const GET_HOLIDAY = (id) => `/holidays/${id}`;
 export const UPDATE_HOLIDAY = (id) => `/holidays/${id}`;
 export const DELETE_HOLIDAY = (id) => `/holidays/${id}`;
 
+// HRM — Payroll
+export const LIST_PAYROLL = '/payrolls';
+export const STORE_PAYROLL = '/payrolls';
+export const GET_PAYROLL = (id) => `/payrolls/${id}`;
+export const UPDATE_PAYROLL = (id) => `/payrolls/${id}`;
+export const DELETE_PAYROLL = (id) => `/payrolls/${id}`;
+
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 
 // ===== Phase 1 Module API Routes =====
@@ -288,7 +295,7 @@ export const SEAT_RESERVATION = (id) => `/v1/reservations/${id}/seat`;
 export const COMPLETE_RESERVATION = (id) => `/v1/reservations/${id}/complete`;
 
 // POS
-export const POS_START_SESSION = '/v1/pos/sessions/start';export const POS_CLOSE_SESSION = (id) => `/v1/pos/sessions/${id}/close`;
+export const POS_START_SESSION = '/v1/pos/sessions/start'; export const POS_CLOSE_SESSION = (id) => `/v1/pos/sessions/${id}/close`;
 export const POS_OPEN_SESSION = '/v1/pos/sessions/open';
 export const LIST_POS_SALES = '/v1/pos';
 export const STORE_POS_SALE = '/v1/pos';

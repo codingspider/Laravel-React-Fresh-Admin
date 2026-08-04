@@ -12,7 +12,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete();
             $table->foreignId('branch_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('category_id')->nullable()->constrained('menu_categories')->nullOnDelete();
+            if (Schema::hasTable('menu_categories')) {
+                $table->foreignId('category_id')->nullable()->constrained('menu_categories')->nullOnDelete();
+            } else {
+                $table->unsignedBigInteger('category_id')->nullable();
+            }
             $table->string('name');
             $table->string('sku')->nullable();
             $table->string('subtitle')->nullable();

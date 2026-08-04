@@ -14,7 +14,11 @@ return new class extends Migration
             $table->foreignId('branch_id')->constrained()->cascadeOnDelete();
             $table->foreignId('pos_session_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('table_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('customer_id')->nullable()->constrained()->nullOnDelete();
+            if (Schema::hasTable('customers')) {
+                $table->foreignId('customer_id')->nullable()->constrained('customers')->nullOnDelete();
+            } else {
+                $table->unsignedBigInteger('customer_id')->nullable();
+            }
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->string('invoice_number')->unique();
             $table->enum('order_type', ['dine_in', 'takeaway', 'delivery'])->default('dine_in');

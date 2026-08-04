@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Admin\EmployeeController;
 use App\Http\Controllers\API\Admin\AttendanceController;
 use App\Http\Controllers\API\Admin\LeaveController;
 use App\Http\Controllers\API\Admin\HolidayController;
+use App\Http\Controllers\API\Admin\PayrollController;
 
 Route::prefix('api')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
     Route::apiResource('departments', DepartmentController::class);
@@ -18,4 +19,5 @@ Route::prefix('api')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'check
     Route::apiResource('leaves', LeaveController::class);
     Route::post('leaves/{id}/approve', [LeaveController::class, 'approve']);
     Route::apiResource('holidays', HolidayController::class);
+    Route::apiResource('payrolls', PayrollController::class);
 });

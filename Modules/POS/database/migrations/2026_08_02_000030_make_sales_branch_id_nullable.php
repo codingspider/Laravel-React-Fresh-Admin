@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('sales', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable()->change();
-        });
+        if (Schema::hasTable('sales') && Schema::hasColumn('sales', 'branch_id')) {
+            Schema::table('sales', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable()->change();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('sales', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable(false)->change();
-        });
+        if (Schema::hasTable('sales') && Schema::hasColumn('sales', 'branch_id')) {
+            Schema::table('sales', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable(false)->change();
+            });
+        }
     }
 };

@@ -45,6 +45,7 @@ class POSServiceProvider extends ModuleServiceProvider
     // }
     public function boot(): void
     {
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->nameLower);
     }
 }

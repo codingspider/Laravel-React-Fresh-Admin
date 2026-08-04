@@ -8,15 +8,19 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable()->after('restaurant_id')->constrained('branches')->nullOnDelete();
-        });
+        if (Schema::hasTable('users') && !Schema::hasColumn('users', 'branch_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable()->after('restaurant_id')->constrained('branches')->nullOnDelete();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropConstrainedForeignId('branch_id');
-        });
+        if (Schema::hasTable('users') && Schema::hasColumn('users', 'branch_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->dropConstrainedForeignId('branch_id');
+            });
+        }
     }
 };

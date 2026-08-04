@@ -267,7 +267,7 @@ All permissions and roles are seeded in `database/seeders/UserSeeder.php`. When 
 
 1. Add its permissions to the `$permissions` array in `UserSeeder.php`
 2. Assign relevant permissions to each role in their respective `syncPermissions()` calls
-3. Run `php artisan migrate:fresh --seed` to re-seed
+3. Run `php artisan db:seed` to re-seed, Note: data should not be wiped and should not be duplicates
 
 ### Frontend Permission Check
 

@@ -22,6 +22,9 @@ import LeaveEdit from "../components/admin/hrm/LeaveEdit";
 import HolidayList from "../components/admin/hrm/HolidayList";
 import HolidayCreate from "../components/admin/hrm/HolidayCreate";
 import HolidayEdit from "../components/admin/hrm/HolidayEdit";
+import PayrollList from "../components/admin/hrm/PayrollList";
+import PayrollCreate from "../components/admin/hrm/PayrollCreate";
+import PayrollEdit from "../components/admin/hrm/PayrollEdit";
 
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
@@ -255,6 +258,11 @@ export const HRM_LEAVE_EDIT_PATH = (id) => `/hrm/leave/edit/${id}`;
 export const HRM_HOLIDAY_LIST_PATH = "/hrm/holidays";
 export const HRM_HOLIDAY_CREATE_PATH = "/hrm/holiday/create";
 
+// HRM — Payroll
+export const HRM_PAYROLL_LIST_PATH = "/hrm/payroll";
+export const HRM_PAYROLL_CREATE_PATH = "/hrm/payroll/create";
+export const HRM_PAYROLL_EDIT_PATH = (id) => `/hrm/payroll/edit/${id}`;
+
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
     { path: `/settings`, element: <MasterSetting /> },
@@ -415,4 +423,7 @@ export const superAdminRoutes = [
     { path: HRM_HOLIDAY_LIST_PATH, element: <HolidayList /> },
     { path: "/hrm/holiday/create", element: <HolidayCreate /> },
     { path: "/hrm/holiday/edit/:id", element: <HolidayEdit /> },
+    { path: HRM_PAYROLL_LIST_PATH, element: <PayrollList /> },
+    { path: HRM_PAYROLL_CREATE_PATH, element: <PayrollCreate /> },
+    { path: "/hrm/payroll/edit/:id", element: <PayrollEdit /> },
 ];

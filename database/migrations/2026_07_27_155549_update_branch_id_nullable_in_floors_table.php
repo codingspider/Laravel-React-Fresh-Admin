@@ -8,31 +8,43 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('floors', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable()->change();
-        });
+        if (Schema::hasTable('floors')) {
+            Schema::table('floors', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable()->change();
+            });
+        }
 
-        Schema::table('tables', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable()->change();
-        });
+        if (Schema::hasTable('tables')) {
+            Schema::table('tables', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable()->change();
+            });
+        }
 
-        Schema::table('reservations', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable()->change();
-        });
+        if (Schema::hasTable('reservations')) {
+            Schema::table('reservations', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable()->change();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('floors', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable(false)->change();
-        });
+        if (Schema::hasTable('floors')) {
+            Schema::table('floors', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable(false)->change();
+            });
+        }
 
-        Schema::table('tables', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable(false)->change();
-        });
+        if (Schema::hasTable('tables')) {
+            Schema::table('tables', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable(false)->change();
+            });
+        }
 
-        Schema::table('reservations', function (Blueprint $table) {
-            $table->foreignId('branch_id')->nullable(false)->change();
-        });
+        if (Schema::hasTable('reservations')) {
+            Schema::table('reservations', function (Blueprint $table) {
+                $table->foreignId('branch_id')->nullable(false)->change();
+            });
+        }
     }
 };

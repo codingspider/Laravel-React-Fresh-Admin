@@ -49,7 +49,6 @@ export default function Login() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                await api.get('/sanctum/csrf-cookie');
                 const res = await api.get('/user');
                 if (res.data) {
                     navigate(DASHBOARD_PATH, { replace: true });

@@ -14,41 +14,63 @@ return new class extends Migration
     public function up(): void
     {
         $tableNames = config('permission.table_names');
+        $rolesTable = $tableNames['roles'];
 
-        Schema::table($tableNames['roles'], function (Blueprint $table) {
-            $table->unsignedBigInteger('restaurant_id')->nullable()->after('id');
-            $table->index('restaurant_id', 'roles_restaurant_id_index');
-        });
+        if (!Schema::hasTable($rolesTable)) {
+            return;
+        }
 
-        Schema::table($tableNames['roles'], function (Blueprint $table) {
-            $table->dropUnique('roles_name_guard_name_unique');
-            $table->unique(['restaurant_id', 'name', 'guard_name'], 'roles_restaurant_id_name_guard_name_unique');
-        });
+        if (!Schema::hasColumn($rolesTable, 'restaurant_id')) {
+            Schema::table($rolesTable, function (Blueprint $table) {
+                $table->unsignedBigInteger('restaurant_id')->nullable()->after('id');
+                $table->index('restaurant_id', 'roles_restaurant_id_index');
+            });
+        }
 
-        Schema::table($tableNames['roles'], function (Blueprint $table) {
-            $table->foreign('restaurant_id')
-                ->references('id')
-                ->on((new Restaurant)->getTable())
-                ->cascadeOnDelete();
-        });
+        if (Schema::hasIndex($rolesTable, 'roles_name_guard_name_unique')) {
+            Schema::table($rolesTable, function (Blueprint $table) {
+                $table->dropUnique('roles_name_guard_name_unique');
+                $table->unique(['restaurant_id', 'name', 'guard_name'], 'roles_restaurant_id_name_guard_name_unique');
+            });
+        }
+
+        if (Schema::hasTable('restaurants') && !Schema::hasIndex($rolesTable, 'roles_restaurant_id_foreign')) {
+            Schema::table($rolesTable, function (Blueprint $table) {
+                $table->foreign('restaurant_id')
+                    ->references('id')
+                    ->on('restaurants')
+                    ->cascadeOnDelete();
+            });
+        }
     }
 
     public function down(): void
     {
         $tableNames = config('permission.table_names');
+        $rolesTable = $tableNames['roles'];
 
-        Schema::table($tableNames['roles'], function (Blueprint $table) {
-            $table->dropForeign(['restaurant_id']);
-        });
+        if (!Schema::hasTable($rolesTable)) {
+            return;
+        }
 
-        Schema::table($tableNames['roles'], function (Blueprint $table) {
-            $table->dropUnique('roles_restaurant_id_name_guard_name_unique');
-            $table->unique(['name', 'guard_name'], 'roles_name_guard_name_unique');
-        });
+        if (Schema::hasIndex($rolesTable, 'roles_restaurant_id_foreign')) {
+            Schema::table($rolesTable, function (Blueprint $table) {
+                $table->dropForeign(['restaurant_id']);
+            });
+        }
 
-        Schema::table($tableNames['roles'], function (Blueprint $table) {
-            $table->dropIndex('roles_restaurant_id_index');
-            $table->dropColumn('restaurant_id');
-        });
+        if (Schema::hasIndex($rolesTable, 'roles_restaurant_id_name_guard_name_unique')) {
+            Schema::table($rolesTable, function (Blueprint $table) {
+                $table->dropUnique('roles_restaurant_id_name_guard_name_unique');
+                $table->unique(['name', 'guard_name'], 'roles_name_guard_name_unique');
+            });
+        }
+
+        if (Schema::hasColumn($rolesTable, 'restaurant_id')) {
+            Schema::table($rolesTable, function (Blueprint $table) {
+                $table->dropIndex('roles_restaurant_id_index');
+                $table->dropColumn('restaurant_id');
+            });
+        }
     }
 };

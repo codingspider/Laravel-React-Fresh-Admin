@@ -35,7 +35,7 @@ class KitchenDisplayServiceProvider extends ModuleServiceProvider
 
     public function boot(): void
     {
-        parent::boot();
+        $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->nameLower);
     }

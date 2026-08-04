@@ -50,31 +50,35 @@ return new class extends Migration
             }
         });
 
-        Schema::create('recipe_ingredients', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('recipe_id')->constrained('recipes')->cascadeOnDelete();
-            $table->foreignId('inventory_item_id')->constrained('inventory_items')->cascadeOnDelete();
-            $table->decimal('quantity', 12, 3);
-            $table->unsignedBigInteger('unit_id');
-            $table->decimal('unit_cost', 12, 2)->default(0);
-            $table->decimal('total_cost', 12, 2)->default(0);
-            $table->boolean('is_optional')->default(false);
-            $table->text('notes')->nullable();
-            $table->integer('sort_order')->default(0);
-            $table->timestamps();
-            $table->unique(['recipe_id', 'inventory_item_id']);
-        });
+        if (!Schema::hasTable('recipe_ingredients')) {
+            Schema::create('recipe_ingredients', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('recipe_id')->constrained('recipes')->cascadeOnDelete();
+                $table->foreignId('inventory_item_id')->constrained('inventory_items')->cascadeOnDelete();
+                $table->decimal('quantity', 12, 3);
+                $table->unsignedBigInteger('unit_id');
+                $table->decimal('unit_cost', 12, 2)->default(0);
+                $table->decimal('total_cost', 12, 2)->default(0);
+                $table->boolean('is_optional')->default(false);
+                $table->text('notes')->nullable();
+                $table->integer('sort_order')->default(0);
+                $table->timestamps();
+                $table->unique(['recipe_id', 'inventory_item_id']);
+            });
+        }
 
-        Schema::create('recipe_categories', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->string('slug')->nullable();
-            $table->text('description')->nullable();
-            $table->boolean('is_active')->default(true);
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        if (!Schema::hasTable('recipe_categories')) {
+            Schema::create('recipe_categories', function (Blueprint $table) {
+                $table->id();
+                $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete();
+                $table->string('name');
+                $table->string('slug')->nullable();
+                $table->text('description')->nullable();
+                $table->boolean('is_active')->default(true);
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
     }
 
     public function down(): void

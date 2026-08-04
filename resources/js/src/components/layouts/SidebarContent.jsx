@@ -67,6 +67,7 @@ import {
     HRM_ATTENDANCE_LIST_PATH,
     HRM_LEAVE_LIST_PATH,
     HRM_HOLIDAY_LIST_PATH,
+    HRM_PAYROLL_LIST_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -153,6 +154,7 @@ const navItems = [
             { path: HRM_ATTENDANCE_LIST_PATH, label: 'Attendance', permission: 'view_attendance' },
             { path: HRM_LEAVE_LIST_PATH, label: 'Leave Requests', permission: 'view_leave_requests' },
             { path: HRM_HOLIDAY_LIST_PATH, label: 'Holidays', permission: 'view_holidays' },
+            { path: HRM_PAYROLL_LIST_PATH, label: 'Payroll', permission: 'view_payrolls' },
         ],
     },
     {
@@ -340,7 +342,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
 
                     <Box
                         overflow="hidden"
-                        maxH={isOpen ? '200px' : '0'}
+                        maxH={isOpen ? '500px' : '0'}
                         transition="max-height 0.3s ease"
                     >
                         <VStack spacing={0.5} pl={11} pt={1} align="stretch">
