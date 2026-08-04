@@ -61,6 +61,9 @@ class EmployeeController extends Controller
             'emergency_contact_name' => 'nullable|string|max:255',
             'emergency_contact_number' => 'nullable|string|max:255',
             'salary' => 'nullable|numeric|min:0',
+            'overtime_rate' => 'nullable|numeric|min:0',
+            'pf' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
             'photo' => 'nullable|string',
             'status' => 'nullable|in:active,inactive,terminated',
         ]);
@@ -128,6 +131,9 @@ class EmployeeController extends Controller
             'emergency_contact_name' => 'nullable|string|max:255',
             'emergency_contact_number' => 'nullable|string|max:255',
             'salary' => 'nullable|numeric|min:0',
+            'overtime_rate' => 'nullable|numeric|min:0',
+            'pf' => 'nullable|numeric|min:0',
+            'tax' => 'nullable|numeric|min:0',
             'photo' => 'nullable|string',
             'status' => 'nullable|in:active,inactive,terminated',
         ]);

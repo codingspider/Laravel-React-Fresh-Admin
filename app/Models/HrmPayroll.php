@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class HrmPayroll extends Model
 {
@@ -20,6 +21,7 @@ class HrmPayroll extends Model
         'basic_salary',
         'working_days',
         'present_days',
+        'total_working_hours',
         'overtime_hours',
         'overtime_rate',
         'bonus',
@@ -54,6 +56,16 @@ class HrmPayroll extends Model
     public function branch(): BelongsTo
     {
         return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
+
+    public function allowances(): HasMany
+    {
+        return $this->hasMany(HrmPayrollAllowance::class, 'payroll_id');
+    }
+
+    public function deductions(): HasMany
+    {
+        return $this->hasMany(HrmPayrollDeduction::class, 'payroll_id');
     }
 
     public function scopeForRestaurant($query, $restaurantId)

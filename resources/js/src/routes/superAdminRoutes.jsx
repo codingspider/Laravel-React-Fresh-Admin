@@ -25,6 +25,7 @@ import HolidayEdit from "../components/admin/hrm/HolidayEdit";
 import PayrollList from "../components/admin/hrm/PayrollList";
 import PayrollCreate from "../components/admin/hrm/PayrollCreate";
 import PayrollEdit from "../components/admin/hrm/PayrollEdit";
+import PayrollView from "../components/admin/hrm/PayrollView";
 
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
@@ -262,6 +263,7 @@ export const HRM_HOLIDAY_CREATE_PATH = "/hrm/holiday/create";
 export const HRM_PAYROLL_LIST_PATH = "/hrm/payroll";
 export const HRM_PAYROLL_CREATE_PATH = "/hrm/payroll/create";
 export const HRM_PAYROLL_EDIT_PATH = (id) => `/hrm/payroll/edit/${id}`;
+export const HRM_PAYROLL_VIEW_PATH = (id) => `/hrm/payroll/view/${id}`;
 
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
@@ -426,4 +428,5 @@ export const superAdminRoutes = [
     { path: HRM_PAYROLL_LIST_PATH, element: <PayrollList /> },
     { path: HRM_PAYROLL_CREATE_PATH, element: <PayrollCreate /> },
     { path: "/hrm/payroll/edit/:id", element: <PayrollEdit /> },
+    { path: "/hrm/payroll/view/:id", element: <PayrollView /> },
 ];

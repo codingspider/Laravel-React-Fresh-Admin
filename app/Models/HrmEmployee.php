@@ -35,6 +35,9 @@ class HrmEmployee extends Model
         'emergency_contact_name',
         'emergency_contact_number',
         'salary',
+        'overtime_rate',
+        'pf',
+        'tax',
         'photo',
         'status',
         'metadata',
@@ -44,6 +47,9 @@ class HrmEmployee extends Model
         'date_of_birth' => 'date',
         'date_of_joining' => 'date',
         'salary' => 'decimal:2',
+        'overtime_rate' => 'decimal:2',
+        'pf' => 'decimal:2',
+        'tax' => 'decimal:2',
         'metadata' => 'array',
     ];
 

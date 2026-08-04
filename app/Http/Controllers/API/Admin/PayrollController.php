@@ -24,7 +24,7 @@ class PayrollController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => trans('message.payrolls_fetched'),
+            'message' => trans('hrm::module.fetched'),
             'data' => $data,
         ]);
     }
@@ -35,7 +35,7 @@ class PayrollController extends Controller
         if (!$restaurantId) {
             return response()->json([
                 'status' => 'error',
-                'message' => trans('message.restaurant_required'),
+                'message' => trans('hrm::module.error'),
             ], 422);
         }
 
@@ -47,6 +47,7 @@ class PayrollController extends Controller
             'basic_salary' => 'required|numeric|min:0',
             'working_days' => 'required|integer|min:0',
             'present_days' => 'nullable|integer|min:0',
+            'total_working_hours' => 'nullable|numeric|min:0',
             'overtime_hours' => 'nullable|numeric|min:0',
             'overtime_rate' => 'nullable|numeric|min:0',
             'bonus' => 'nullable|numeric|min:0',
@@ -57,6 +58,16 @@ class PayrollController extends Controller
             'status' => 'nullable|in:pending,paid,cancelled',
             'paid_date' => 'nullable|date',
             'notes' => 'nullable|string',
+            'allowances' => 'nullable|array',
+            'allowances.*.type' => 'required_with:allowances|string|max:255',
+            'allowances.*.amount' => 'required_with:allowances|numeric|min:0',
+            'allowances.*.calculation_type' => 'required_with:allowances|in:fixed,percentage',
+            'allowances.*.notes' => 'nullable|string',
+            'deductions' => 'nullable|array',
+            'deductions.*.type' => 'required_with:deductions|string|max:255',
+            'deductions.*.amount' => 'required_with:deductions|numeric|min:0',
+            'deductions.*.calculation_type' => 'required_with:deductions|in:fixed,percentage',
+            'deductions.*.notes' => 'nullable|string',
         ]);
 
         $data['restaurant_id'] = $restaurantId;
@@ -65,7 +76,7 @@ class PayrollController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => trans('message.payroll_created'),
+            'message' => trans('hrm::module.created'),
             'data' => $payroll,
         ], 201);
     }
@@ -77,7 +88,7 @@ class PayrollController extends Controller
         if (!$payroll) {
             return response()->json([
                 'status' => 'error',
-                'message' => trans('message.payroll_not_found'),
+                'message' => trans('hrm::module.not_found'),
             ], 404);
         }
 
@@ -85,7 +96,7 @@ class PayrollController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => trans('message.payroll_fetched'),
+            'message' => trans('hrm::module.fetched'),
             'data' => $payroll,
         ]);
     }
@@ -103,6 +114,7 @@ class PayrollController extends Controller
             'basic_salary' => 'sometimes|required|numeric|min:0',
             'working_days' => 'sometimes|required|integer|min:0',
             'present_days' => 'nullable|integer|min:0',
+            'total_working_hours' => 'nullable|numeric|min:0',
             'overtime_hours' => 'nullable|numeric|min:0',
             'overtime_rate' => 'nullable|numeric|min:0',
             'bonus' => 'nullable|numeric|min:0',
@@ -113,13 +125,23 @@ class PayrollController extends Controller
             'status' => 'nullable|in:pending,paid,cancelled',
             'paid_date' => 'nullable|date',
             'notes' => 'nullable|string',
+            'allowances' => 'nullable|array',
+            'allowances.*.type' => 'required_with:allowances|string|max:255',
+            'allowances.*.amount' => 'required_with:allowances|numeric|min:0',
+            'allowances.*.calculation_type' => 'required_with:allowances|in:fixed,percentage',
+            'allowances.*.notes' => 'nullable|string',
+            'deductions' => 'nullable|array',
+            'deductions.*.type' => 'required_with:deductions|string|max:255',
+            'deductions.*.amount' => 'required_with:deductions|numeric|min:0',
+            'deductions.*.calculation_type' => 'required_with:deductions|in:fixed,percentage',
+            'deductions.*.notes' => 'nullable|string',
         ]);
 
         $payroll = $this->service->update($id, $data);
 
         return response()->json([
             'status' => 'success',
-            'message' => trans('message.payroll_updated'),
+            'message' => trans('hrm::module.updated'),
             'data' => $payroll,
         ]);
     }
@@ -133,7 +155,7 @@ class PayrollController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => trans('message.payroll_deleted'),
+            'message' => trans('hrm::module.deleted'),
         ]);
     }
 

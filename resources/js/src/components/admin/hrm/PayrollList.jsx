@@ -5,13 +5,14 @@ import {
   MenuItem, Badge, SimpleGrid, Heading, Select,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { MoreHorizontal, Edit, Trash2 } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
 import useThemeColors from "../../../hooks/useThemeColors";
+import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
 import {
   LIST_PAYROLL,
   DELETE_PAYROLL,
@@ -20,6 +21,7 @@ import {
   HRM_PAYROLL_LIST_PATH,
   HRM_PAYROLL_CREATE_PATH,
   HRM_PAYROLL_EDIT_PATH,
+  HRM_PAYROLL_VIEW_PATH,
   DASHBOARD_PATH,
 } from "../../../routes/superAdminRoutes";
 
@@ -37,6 +39,7 @@ export default function PayrollList() {
   const navigate = useNavigate();
   const toast = useToast();
   const colors = useThemeColors();
+  const { formatAmount } = useCurrencyFormatter();
 
   const fetchData = () => {
     setIsLoading(true);
@@ -92,10 +95,6 @@ export default function PayrollList() {
     });
   };
 
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(value || 0);
-  };
-
   const columns = [
     {
       header: "#",
@@ -112,21 +111,32 @@ export default function PayrollList() {
     },
     {
       header: t("period"),
-      cell: ({ row }) => (
-        <Text fontSize="sm" color={colors.textSecondary}>
-          {row.original.pay_period_start} - {row.original.pay_period_end}
-        </Text>
-      ),
+      cell: ({ row }) => {
+        const fmtDate = (d) => {
+          if (!d) return "-";
+          const dateStr = String(d).split("T")[0];
+          const [y, m, day] = dateStr.split("-").map(Number);
+          const date = new Date(y, m - 1, day);
+          return date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+        };
+        const start = fmtDate(row.original.pay_period_start);
+        const end = fmtDate(row.original.pay_period_end);
+        return (
+          <Text fontSize="sm" color={colors.textSecondary}>
+            {start} - {end}
+          </Text>
+        );
+      },
     },
     {
       header: t("basic_salary"),
       accessorKey: "basic_salary",
-      cell: ({ getValue }) => <Text fontSize="sm" color={colors.textSecondary}>{formatCurrency(getValue())}</Text>,
+      cell: ({ getValue }) => <Text fontSize="sm" color={colors.textSecondary}>{formatAmount(getValue())}</Text>,
     },
     {
       header: t("net_salary"),
       accessorKey: "net_salary",
-      cell: ({ getValue }) => <Text fontSize="sm" fontWeight="bold" color="green.500">{formatCurrency(getValue())}</Text>,
+      cell: ({ getValue }) => <Text fontSize="sm" fontWeight="bold" color="green.500">{formatAmount(getValue())}</Text>,
     },
     {
       header: t("status"),
@@ -147,6 +157,9 @@ export default function PayrollList() {
         <Menu>
           <MenuButton as={IconButton} icon={<Icon as={MoreHorizontal} boxSize={4} />} variant="ghost" size="sm" borderRadius="lg" aria-label={t("actions")} />
           <MenuList minW="180px" p={1.5}>
+            <MenuItem icon={<Icon as={Eye} boxSize={4} />} borderRadius="md" fontSize="sm" onClick={() => navigate(HRM_PAYROLL_VIEW_PATH(row.original.id))}>
+              {t("view")}
+            </MenuItem>
             <MenuItem icon={<Icon as={Edit} boxSize={4} />} borderRadius="md" fontSize="sm" onClick={() => navigate(HRM_PAYROLL_EDIT_PATH(row.original.id))}>
               {t("edit")}
             </MenuItem>

@@ -52,7 +52,7 @@ const DesignationCreate = () => {
             .then((res) => setDepartments(
                 res.data?.data?.data || res.data?.data || []
             ))
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     const onSubmit = async (data) => {
@@ -111,14 +111,12 @@ const DesignationCreate = () => {
                             department_id: desig?.department_id || "",
                             name: desig?.name || "",
                             slug: desig?.slug || "",
-                            min_salary: desig?.min_salary || "",
-                            max_salary: desig?.max_salary || "",
                             description: desig?.description || "",
                             status: desig?.status || "active",
                         });
                     }
                 })
-                .catch(() => {});
+                .catch(() => { });
         }
     }, [id, isEdit, reset]);
 
@@ -268,58 +266,6 @@ const DesignationCreate = () => {
                                 </FormControl>
 
                                 <FormControl>
-                                    <FormLabel
-                                        fontSize="sm"
-                                        fontWeight="semibold"
-                                        color={colors.textPrimary}
-                                        mb={2}
-                                    >
-                                        {t("min_salary")}
-                                    </FormLabel>
-                                    <Input
-                                        {...register("min_salary")}
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        bg={colors.bgInput}
-                                        border="1px solid"
-                                        borderColor={colors.borderInput}
-                                        borderRadius="md"
-                                        focusBorderColor="teal.500"
-                                        _hover={{ borderColor: "gray.300" }}
-                                        size="md"
-                                        transition="all 0.2s"
-                                    />
-                                </FormControl>
-
-                                <FormControl>
-                                    <FormLabel
-                                        fontSize="sm"
-                                        fontWeight="semibold"
-                                        color={colors.textPrimary}
-                                        mb={2}
-                                    >
-                                        {t("max_salary")}
-                                    </FormLabel>
-                                    <Input
-                                        {...register("max_salary")}
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        placeholder="0.00"
-                                        bg={colors.bgInput}
-                                        border="1px solid"
-                                        borderColor={colors.borderInput}
-                                        borderRadius="md"
-                                        focusBorderColor="teal.500"
-                                        _hover={{ borderColor: "gray.300" }}
-                                        size="md"
-                                        transition="all 0.2s"
-                                    />
-                                </FormControl>
-
-                                <FormControl gridColumn={{ base: "auto", md: "span 2" }}>
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"

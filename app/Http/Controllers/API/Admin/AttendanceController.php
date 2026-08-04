@@ -41,6 +41,7 @@ class AttendanceController extends Controller
 
         $data = $request->validate([
             'employee_id' => 'required|exists:hrm_employees,id',
+            'branch_id' => 'nullable|exists:branches,id',
             'date' => 'required|date',
             'clock_in' => 'nullable|date_format:H:i:s',
             'clock_out' => 'nullable|date_format:H:i:s',
@@ -53,6 +54,10 @@ class AttendanceController extends Controller
         ]);
 
         $data['restaurant_id'] = $restaurantId;
+
+        if (empty($data['branch_id']) && $request->user()->branch_id) {
+            $data['branch_id'] = $request->user()->branch_id;
+        }
 
         $attendance = $this->service->create($data);
 
@@ -88,6 +93,7 @@ class AttendanceController extends Controller
 
         $data = $request->validate([
             'employee_id' => 'sometimes|required|exists:hrm_employees,id',
+            'branch_id' => 'nullable|exists:branches,id',
             'date' => 'sometimes|required|date',
             'clock_in' => 'nullable|date_format:H:i:s',
             'clock_out' => 'nullable|date_format:H:i:s',

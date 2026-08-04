@@ -106,16 +106,6 @@ export default function DesignationList() {
       cell: ({ getValue }) => <Text fontSize="sm" color={colors.textSecondary}>{getValue()?.name || "-"}</Text>,
     },
     {
-      header: t("min_salary"),
-      accessorKey: "min_salary",
-      cell: ({ getValue }) => <Text fontSize="sm">{getValue() || "-"}</Text>,
-    },
-    {
-      header: t("max_salary"),
-      accessorKey: "max_salary",
-      cell: ({ getValue }) => <Text fontSize="sm">{getValue() || "-"}</Text>,
-    },
-    {
       header: t("status"),
       accessorKey: "status",
       cell: ({ getValue }) => {
