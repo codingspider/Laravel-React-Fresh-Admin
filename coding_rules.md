@@ -9,6 +9,7 @@ These are permanent project standards. Apply them automatically to every new fea
 * Follow the existing **API routes pattern**.
 * Follow the project's coding standards and naming conventions.
 * Write clean, maintainable, PSR-compliant code.
+* Show currency symbol in every amount showing in the all pages
 
 ## UI & Layout
 
@@ -35,6 +36,7 @@ This means:
 * Match the same search, filters, pagination, and actions.
 * Follow the same React component pattern.
 * Reuse existing components whenever possible.
+* Please add a SweetAlert (Swal) confirmation dialog to delete actions
 
 **Do not recreate or modify the Branch module. Use it only as the implementation reference for all future CRUD pages.**
 

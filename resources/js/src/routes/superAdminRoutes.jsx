@@ -26,6 +26,25 @@ import PayrollList from "../components/admin/hrm/PayrollList";
 import PayrollCreate from "../components/admin/hrm/PayrollCreate";
 import PayrollEdit from "../components/admin/hrm/PayrollEdit";
 import PayrollView from "../components/admin/hrm/PayrollView";
+import AccountList from "../components/admin/accounting/AccountList";
+import AccountCreate from "../components/admin/accounting/AccountCreate";
+import AccountEdit from "../components/admin/accounting/AccountEdit";
+import IncomeList from "../components/admin/accounting/IncomeList";
+import IncomeCreate from "../components/admin/accounting/IncomeCreate";
+import IncomeEdit from "../components/admin/accounting/IncomeEdit";
+import CashBankList from "../components/admin/accounting/CashBankList";
+import CashBankCreate from "../components/admin/accounting/CashBankCreate";
+import CashBankEdit from "../components/admin/accounting/CashBankEdit";
+import ExpenseCategoryList from "../components/admin/accounting/ExpenseCategoryList";
+import ExpenseCategoryCreate from "../components/admin/accounting/ExpenseCategoryCreate";
+import ExpenseCategoryEdit from "../components/admin/accounting/ExpenseCategoryEdit";
+import ExpenseList from "../components/admin/accounting/ExpenseList";
+import ExpenseCreate from "../components/admin/accounting/ExpenseCreate";
+import ExpenseEdit from "../components/admin/accounting/ExpenseEdit";
+import JournalEntryList from "../components/admin/accounting/JournalEntryList";
+import JournalEntryView from "../components/admin/accounting/JournalEntryView";
+import LedgerList from "../components/admin/accounting/LedgerList";
+import TrialBalance from "../components/admin/accounting/TrialBalance";
 
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
@@ -265,6 +284,39 @@ export const HRM_PAYROLL_CREATE_PATH = "/hrm/payroll/create";
 export const HRM_PAYROLL_EDIT_PATH = (id) => `/hrm/payroll/edit/${id}`;
 export const HRM_PAYROLL_VIEW_PATH = (id) => `/hrm/payroll/view/${id}`;
 
+// Accounting - Chart of Accounts
+export const ACCOUNTING_LIST_PATH = "/accounting/accounts";
+export const ACCOUNTING_CREATE_PATH = "/accounting/accounts/create";
+export const ACCOUNTING_EDIT_PATH = (id) => `/accounting/accounts/edit/${id}`;
+
+// Accounting - Income
+export const INCOME_LIST_PATH = "/accounting/income";
+export const INCOME_CREATE_PATH = "/accounting/income/create";
+export const INCOME_EDIT_PATH = (id) => `/accounting/income/edit/${id}`;
+
+// Accounting - Expense
+export const EXPENSE_CATEGORY_LIST_PATH = "/accounting/expense-categories";
+export const EXPENSE_CATEGORY_CREATE_PATH = "/accounting/expense-categories/create";
+export const EXPENSE_CATEGORY_EDIT_PATH = (id) => `/accounting/expense-categories/edit/${id}`;
+export const EXPENSE_LIST_PATH = "/accounting/expenses";
+export const EXPENSE_CREATE_PATH = "/accounting/expenses/create";
+export const EXPENSE_EDIT_PATH = (id) => `/accounting/expenses/edit/${id}`;
+
+// Accounting - Cash & Bank
+export const CASH_BANK_LIST_PATH = "/accounting/cash-bank";
+export const CASH_BANK_CREATE_PATH = "/accounting/cash-bank/create";
+export const CASH_BANK_EDIT_PATH = (id) => `/accounting/cash-bank/edit/${id}`;
+
+// Accounting - Journal Entries
+export const JOURNAL_LIST_PATH = "/accounting/journal";
+export const JOURNAL_VIEW_PATH = (id) => `/accounting/journal/view/${id}`;
+
+// Accounting - Ledger
+export const LEDGER_LIST_PATH = "/accounting/ledger";
+
+// Accounting - Trial Balance
+export const TRIAL_BALANCE_PATH = "/accounting/trial-balance";
+
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
     { path: `/settings`, element: <MasterSetting /> },
@@ -429,4 +481,29 @@ export const superAdminRoutes = [
     { path: HRM_PAYROLL_CREATE_PATH, element: <PayrollCreate /> },
     { path: "/hrm/payroll/edit/:id", element: <PayrollEdit /> },
     { path: "/hrm/payroll/view/:id", element: <PayrollView /> },
+    { path: ACCOUNTING_LIST_PATH, element: <AccountList /> },
+    { path: ACCOUNTING_CREATE_PATH, element: <AccountCreate /> },
+    { path: "/accounting/accounts/edit/:id", element: <AccountEdit /> },
+    { path: INCOME_LIST_PATH, element: <IncomeList /> },
+    { path: INCOME_CREATE_PATH, element: <IncomeCreate /> },
+    { path: "/accounting/income/edit/:id", element: <IncomeEdit /> },
+    { path: EXPENSE_CATEGORY_LIST_PATH, element: <ExpenseCategoryList /> },
+    { path: EXPENSE_CATEGORY_CREATE_PATH, element: <ExpenseCategoryCreate /> },
+    { path: "/accounting/expense-categories/edit/:id", element: <ExpenseCategoryEdit /> },
+    { path: EXPENSE_LIST_PATH, element: <ExpenseList /> },
+    { path: EXPENSE_CREATE_PATH, element: <ExpenseCreate /> },
+    { path: "/accounting/expenses/edit/:id", element: <ExpenseEdit /> },
+    { path: CASH_BANK_LIST_PATH, element: <CashBankList /> },
+    { path: CASH_BANK_CREATE_PATH, element: <CashBankCreate /> },
+    { path: "/accounting/cash-bank/edit/:id", element: <CashBankEdit /> },
+
+    // Accounting - Journal Entries
+    { path: JOURNAL_LIST_PATH, element: <JournalEntryList /> },
+    { path: JOURNAL_VIEW_PATH(":id"), element: <JournalEntryView /> },
+
+    // Accounting - Ledger
+    { path: LEDGER_LIST_PATH, element: <LedgerList /> },
+
+    // Accounting - Trial Balance
+    { path: TRIAL_BALANCE_PATH, element: <TrialBalance /> },
 ];

@@ -247,6 +247,43 @@ class UserSeeder extends Seeder
             'create_payrolls',
             'update_payrolls',
             'delete_payrolls',
+
+            // Accounting - Chart of Accounts
+            'view_accounts',
+            'create_accounts',
+            'update_accounts',
+            'delete_accounts',
+
+            // Accounting - Income
+            'view_income',
+            'create_income',
+            'update_income',
+            'delete_income',
+
+            // Accounting - Expense
+            'view_expense_categories',
+            'create_expense_categories',
+            'update_expense_categories',
+            'delete_expense_categories',
+            'view_expenses',
+            'create_expenses',
+            'update_expenses',
+            'delete_expenses',
+
+            // Accounting - Cash & Bank
+            'view_cash_bank',
+            'create_cash_bank',
+            'update_cash_bank',
+            'delete_cash_bank',
+
+            // Accounting - Journal Entries
+            'view_journal_entries',
+
+            // Accounting - Ledger
+            'view_ledger',
+
+            // Accounting - Trial Balance
+            'view_trial_balance',
         ];
 
         foreach ($permissions as $permission) {

@@ -72,27 +72,29 @@ export default function PayrollList() {
     fetchData();
   }, [pageIndex, globalFilter, statusFilter, pageSize]);
 
-  const deleteItem = (id) => {
-    Swal.fire({
+  const deleteItem = async (id) => {
+    const result = await Swal.fire({
       title: t("are_you_sure"),
-      text: t("this_action_cannot_be_undone"),
+      text: t("data_will_be_deleted"),
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: t("yes_delete_it"),
+      confirmButtonColor: "#0d9488",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: t("yes_delete"),
       cancelButtonText: t("cancel"),
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          const res = await api.delete(DELETE_PAYROLL(id));
-          toast({ title: res.data.message || t("payroll_deleted"), status: "success", duration: 3000, isClosable: true });
-          fetchData();
-        } catch (err) {
-          toast({ title: t("error"), status: "error", duration: 3000, isClosable: true });
-        }
-      }
+      reverseButtons: true,
+      customClass: { popup: "swal-popup" },
     });
+
+    if (result.isConfirmed) {
+      try {
+        await api.delete(DELETE_PAYROLL(id));
+        toast({ title: t("data_deleted_successfully"), status: "success", duration: 3000, isClosable: true });
+        fetchData();
+      } catch (error) {
+        toast({ title: t("error_deleting_data"), description: error.response?.data?.message || t("something_went_wrong"), status: "error", duration: 3000, isClosable: true });
+      }
+    }
   };
 
   const columns = [
@@ -194,7 +196,7 @@ export default function PayrollList() {
       <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault}>
         <Box mb={4}>
           <Select
-            placeholder={t("all_statuses")}
+            placeholder={t("all_status")}
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPageIndex(0); }}
             maxW="200px"

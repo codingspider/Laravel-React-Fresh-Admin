@@ -8,21 +8,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('accountings', function (Blueprint $table) {
+        Schema::create('accounting_expense_categories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('restaurant_id')->constrained()->cascadeOnDelete();
             $table->string('name');
-            $table->string('slug')->nullable();
+            $table->string('code', 20)->nullable();
             $table->text('description')->nullable();
+            $table->foreignId('account_id')->nullable()->constrained('accounts')->nullOnDelete();
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->json('metadata')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->index(['restaurant_id', 'status']);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('accountings');
+        Schema::dropIfExists('accounting_expense_categories');
     }
 };

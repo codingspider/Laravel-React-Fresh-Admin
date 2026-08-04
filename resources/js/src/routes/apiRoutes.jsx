@@ -219,6 +219,50 @@ export const GET_PAYROLL = (id) => `/payrolls/${id}`;
 export const UPDATE_PAYROLL = (id) => `/payrolls/${id}`;
 export const DELETE_PAYROLL = (id) => `/payrolls/${id}`;
 
+// Accounting - Chart of Accounts
+export const LIST_ACCOUNT = '/accounts';
+export const STORE_ACCOUNT = '/accounts';
+export const GET_ACCOUNT = (id) => `/accounts/${id}`;
+export const UPDATE_ACCOUNT = (id) => `/accounts/${id}`;
+export const DELETE_ACCOUNT = (id) => `/accounts/${id}`;
+export const ACCOUNT_TREE = '/accounts/tree';
+
+// Accounting - Income
+export const LIST_INCOME = '/income';
+export const STORE_INCOME = '/income';
+export const GET_INCOME = (id) => `/income/${id}`;
+export const UPDATE_INCOME = (id) => `/income/${id}`;
+export const DELETE_INCOME = (id) => `/income/${id}`;
+export const INCOME_SUMMARY = '/income/summary';
+
+// Accounting - Expense
+export const LIST_EXPENSE = '/expenses';
+export const STORE_EXPENSE = '/expenses';
+export const GET_EXPENSE = (id) => `/expenses/${id}`;
+export const UPDATE_EXPENSE = (id) => `/expenses/${id}`;
+export const DELETE_EXPENSE = (id) => `/expenses/${id}`;
+export const EXPENSE_SUMMARY = '/expenses/summary';
+export const LIST_EXPENSE_CATEGORY = '/expense-categories';
+export const STORE_EXPENSE_CATEGORY = '/expense-categories';
+export const GET_EXPENSE_CATEGORY = (id) => `/expense-categories/${id}`;
+export const UPDATE_EXPENSE_CATEGORY = (id) => `/expense-categories/${id}`;
+export const DELETE_EXPENSE_CATEGORY = (id) => `/expense-categories/${id}`;
+
+// Accounting - Cash & Bank
+export const LIST_CASH_BANK = '/cash-bank';
+export const STORE_CASH_BANK = '/cash-bank';
+export const GET_CASH_BANK = (id) => `/cash-bank/${id}`;
+export const UPDATE_CASH_BANK = (id) => `/cash-bank/${id}`;
+export const DELETE_CASH_BANK = (id) => `/cash-bank/${id}`;
+export const CASH_BANK_ACCOUNTS = '/cash-bank/accounts';
+
+// Accounting - Journal Entries
+export const LIST_JOURNAL = '/journal';
+export const GET_JOURNAL = (id) => `/journal/${id}`;
+export const LEDGER_ACCOUNTS = '/journal/ledger';
+export const LEDGER_BY_ACCOUNT = (accountId) => `/journal/ledger/account/${accountId}`;
+export const TRIAL_BALANCE = '/journal/trial-balance';
+
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 
 // ===== Phase 1 Module API Routes =====

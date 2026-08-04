@@ -6,6 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { MoreHorizontal, Edit, Trash2, Check, X } from "lucide-react";
+import Swal from "sweetalert2";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
@@ -77,13 +78,27 @@ export default function LeaveList() {
   }, [pageIndex, globalFilter, statusFilter, t]);
 
   const deleteItem = async (id) => {
-    if (!window.confirm(t("are_you_sure"))) return;
-    try {
-      const res = await api.delete(DELETE_LEAVE(id));
-      toast({ title: res.data.message || t("leave_request_deleted"), status: "success", duration: 3000, isClosable: true });
-      fetchData();
-    } catch (err) {
-      toast({ title: t("error"), status: "error", duration: 3000, isClosable: true });
+    const result = await Swal.fire({
+      title: t("are_you_sure"),
+      text: t("data_will_be_deleted"),
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#0d9488",
+      cancelButtonColor: "#6b7280",
+      confirmButtonText: t("yes_delete"),
+      cancelButtonText: t("cancel"),
+      reverseButtons: true,
+      customClass: { popup: "swal-popup" },
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await api.delete(DELETE_LEAVE(id));
+        toast({ title: t("data_deleted_successfully"), status: "success", duration: 3000, isClosable: true });
+        fetchData();
+      } catch (error) {
+        toast({ title: t("error_deleting_data"), description: error.response?.data?.message || t("something_went_wrong"), status: "error", duration: 3000, isClosable: true });
+      }
     }
   };
 

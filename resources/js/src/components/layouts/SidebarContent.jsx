@@ -68,6 +68,14 @@ import {
     HRM_LEAVE_LIST_PATH,
     HRM_HOLIDAY_LIST_PATH,
     HRM_PAYROLL_LIST_PATH,
+    ACCOUNTING_LIST_PATH,
+    INCOME_LIST_PATH,
+    EXPENSE_LIST_PATH,
+    EXPENSE_CATEGORY_LIST_PATH,
+    CASH_BANK_LIST_PATH,
+    JOURNAL_LIST_PATH,
+    LEDGER_LIST_PATH,
+    TRIAL_BALANCE_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -155,6 +163,22 @@ const navItems = [
             // { path: HRM_LEAVE_LIST_PATH, label: 'Leave Requests', permission: 'view_leave_requests' },
             // { path: HRM_HOLIDAY_LIST_PATH, label: 'Holidays', permission: 'view_holidays' },
             { path: HRM_PAYROLL_LIST_PATH, label: 'Payroll', permission: 'view_payrolls' },
+        ],
+    },
+    {
+        icon: CreditCard,
+        label: 'Accounting',
+        permission: 'view_accounts',
+        excludeRole: 'super_admin',
+        children: [
+            { path: ACCOUNTING_LIST_PATH, label: 'Chart of Accounts', permission: 'view_accounts' },
+            { path: INCOME_LIST_PATH, label: 'Income', permission: 'view_income' },
+            { path: EXPENSE_LIST_PATH, label: 'Expenses', permission: 'view_expenses' },
+            { path: EXPENSE_CATEGORY_LIST_PATH, label: 'Expense Categories', permission: 'view_expense_categories' },
+            { path: CASH_BANK_LIST_PATH, label: 'Cash & Bank', permission: 'view_cash_bank' },
+            { path: JOURNAL_LIST_PATH, label: 'Journal Entries', permission: 'view_journal_entries' },
+            { path: LEDGER_LIST_PATH, label: 'Ledger', permission: 'view_ledger' },
+            { path: TRIAL_BALANCE_PATH, label: 'Trial Balance', permission: 'view_trial_balance' },
         ],
     },
     {
