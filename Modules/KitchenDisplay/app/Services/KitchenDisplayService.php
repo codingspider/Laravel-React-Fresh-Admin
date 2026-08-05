@@ -50,9 +50,9 @@ class KitchenDisplayService
         }
 
         $stats = [
-            'new' => $columns['new']->count(),
-            'preparing' => $columns['preparing']->count(),
-            'ready' => $columns['ready']->count(),
+            'new' => ($columns['new'] ?? collect())->count(),
+            'preparing' => ($columns['preparing'] ?? collect())->count(),
+            'ready' => ($columns['ready'] ?? collect())->count(),
             'delayed' => $orders->where('is_delayed', true)->count(),
         ];
 

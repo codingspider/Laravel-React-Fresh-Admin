@@ -387,3 +387,6 @@ export const STORE_CUSTOMER = '/v1/customers';
 export const GET_CUSTOMER = (id) => `/v1/customers/${id}`;
 export const UPDATE_CUSTOMER = (id) => `/v1/customers/${id}`;
 export const DELETE_CUSTOMER = (id) => `/v1/customers/${id}`;
+
+// Dashboard
+export const DASHBOARD_STATS = '/v1/dashboard/stats';

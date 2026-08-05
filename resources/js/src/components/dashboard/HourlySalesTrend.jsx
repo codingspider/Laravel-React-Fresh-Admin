@@ -1,0 +1,94 @@
+import React from 'react';
+import { Box, Heading, Text, useColorModeValue } from '@chakra-ui/react';
+import {
+    AreaChart,
+    Area,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip as RechartsTooltip,
+    ResponsiveContainer,
+} from 'recharts';
+import { useTranslation } from 'react-i18next';
+import useThemeColors from '../../hooks/useThemeColors';
+import { useCurrencyFormatter } from '../../useCurrencyFormatter';
+
+const CustomTooltip = ({ active, payload, label }) => {
+    const colors = useThemeColors();
+    const { formatAmount } = useCurrencyFormatter();
+    if (!active || !payload?.length) return null;
+    return (
+        <Box
+            bg={colors.bgCard}
+            p={3}
+            borderRadius="lg"
+            boxShadow="lg"
+            border="1px solid"
+            borderColor={colors.borderDefault}
+        >
+            <Text fontSize="sm" fontWeight="600" mb={1}>{label}</Text>
+            <Text fontSize="xs" color="brand.500">
+                {formatAmount(payload[0]?.value || 0)}
+            </Text>
+        </Box>
+    );
+};
+
+export default function HourlySalesTrend({ data = [] }) {
+    const { t } = useTranslation();
+    const colors = useThemeColors();
+    const gridColor = useColorModeValue('#f0f0f0', '#2D3748');
+
+    return (
+        <Box
+            bg={colors.bgCard}
+            p={{ base: 4, md: 6 }}
+            borderRadius="xl"
+            border="1px solid"
+            borderColor={colors.borderDefault}
+        >
+            <Box mb={6}>
+                <Heading size="md" fontWeight="bold" color={colors.textHeading}>
+                    {t('Hourly Sales Trend')}
+                </Heading>
+            </Box>
+            <Box h={{ base: '250px', md: '300px' }}>
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={data}>
+                        <defs>
+                            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#0d9488" stopOpacity={0.15} />
+                                <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                            </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                        <XAxis
+                            dataKey="hour"
+                            axisLine={false}
+                            tickLine={false}
+                            fontSize={11}
+                            tick={{ fill: '#9ca3af' }}
+                            interval={2}
+                        />
+                        <YAxis
+                            axisLine={false}
+                            tickLine={false}
+                            fontSize={11}
+                            tick={{ fill: '#9ca3af' }}
+                        />
+                        <RechartsTooltip content={<CustomTooltip />} />
+                        <Area
+                            type="monotone"
+                            dataKey="total"
+                            stroke="#0d9488"
+                            strokeWidth={2.5}
+                            fill="url(#colorSales)"
+                            dot={false}
+                            activeDot={{ r: 6, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
+                        />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </Box>
+        </Box>
+    );
+}

@@ -35,6 +35,8 @@ class KitchenDisplayServiceProvider extends ModuleServiceProvider
 
     public function boot(): void
     {
+        $this->mergeConfigFrom(__DIR__ . '/../../config/config.php', 'kitchendisplay');
+
         $this->loadMigrationsFrom(__DIR__ . '/../../database/migrations');
 
         $this->loadTranslationsFrom(__DIR__ . '/../../lang', $this->nameLower);
