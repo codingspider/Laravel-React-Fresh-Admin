@@ -11,6 +11,7 @@ use Modules\Accounting\Models\Account;
 class JournalController extends Controller
 {
     protected $journalService;
+    protected string $langKey = 'accounting::module';
 
     public function __construct(JournalService $journalService)
     {
@@ -44,6 +45,119 @@ class JournalController extends Controller
             'status' => 'success',
             'message' => trans('accounting::module.journal_entry_fetched'),
             'data' => new JournalEntryResource($entry),
+        ]);
+    }
+
+    public function store(Request $request)
+    {
+        $restaurantId = getRestaurantId($request->user());
+
+        $data = $request->validate([
+            'account_id' => 'nullable|exists:accounts,id',
+            'entry_type' => 'nullable|in:debit,credit',
+            'amount' => 'nullable|numeric|min:0',
+            'entry_date' => 'nullable|date',
+            'reference_number' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'source_module' => 'nullable|string|max:50',
+            'reference_id' => 'nullable|string|max:255',
+            'entries' => 'nullable|array',
+            'entries.*.account_id' => 'required|exists:accounts,id',
+            'entries.*.entry_type' => 'required|in:debit,credit',
+            'entries.*.amount' => 'required|numeric|min:0',
+            'entries.*.description' => 'nullable|string',
+        ]);
+
+        $data['restaurant_id'] = $restaurantId;
+
+        if (!empty($data['entries'])) {
+            $entries = $this->journalService->createMultiple($restaurantId, $data);
+            return response()->json([
+                'status' => 'success',
+                'message' => trans('accounting::module.created', ['item' => 'Journal Entry']),
+                'data' => JournalEntryResource::collection($entries),
+            ], 201);
+        }
+
+        $entry = $this->journalService->create($data);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans('accounting::module.created', ['item' => 'Journal Entry']),
+            'data' => new JournalEntryResource($entry),
+        ], 201);
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $data = $request->validate([
+            'account_id' => 'sometimes|required|exists:accounts,id',
+            'entry_type' => 'sometimes|required|in:debit,credit',
+            'amount' => 'sometimes|required|numeric|min:0',
+            'entry_date' => 'nullable|date',
+            'reference_number' => 'nullable|string|max:255',
+            'description' => 'nullable|string',
+            'source_module' => 'nullable|string|max:50',
+            'reference_id' => 'nullable|string|max:255',
+            'entries' => 'nullable|array',
+            'entries.*.account_id' => 'required|exists:accounts,id',
+            'entries.*.entry_type' => 'required|in:debit,credit',
+            'entries.*.amount' => 'required|numeric|min:0',
+            'entries.*.description' => 'nullable|string',
+        ]);
+
+        try {
+            if (!empty($data['entries'])) {
+                $updated = $this->journalService->updateMultiple($id, $data);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => trans('accounting::module.updated', ['item' => 'Journal Entry']),
+                    'data' => JournalEntryResource::collection($updated),
+                ]);
+            }
+
+            $entry = $this->journalService->update($id, $data);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('accounting::module.journal_entry_not_found'),
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans('accounting::module.updated', ['item' => 'Journal Entry']),
+            'data' => new JournalEntryResource($entry),
+        ]);
+    }
+
+    public function destroy(Request $request, int $id)
+    {
+        try {
+            $this->journalService->delete($id);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('accounting::module.journal_entry_not_found'),
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans('accounting::module.deleted', ['item' => 'Journal Entry']),
+        ]);
+    }
+
+    public function createData(Request $request)
+    {
+        $restaurantId = getRestaurantId($request->user());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans('accounting::module.fetched'),
+            'data' => [
+                'accounts' => $this->journalService->accountsForForm($restaurantId),
+            ],
         ]);
     }
 

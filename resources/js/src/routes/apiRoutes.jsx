@@ -258,8 +258,12 @@ export const CASH_BANK_ACCOUNTS = '/cash-bank/accounts';
 
 // Accounting - Journal Entries
 export const LIST_JOURNAL = '/journal';
+export const STORE_JOURNAL = '/journal';
 export const GET_JOURNAL = (id) => `/journal/${id}`;
-export const LEDGER_ACCOUNTS = '/journal/ledger';
+export const UPDATE_JOURNAL = (id) => `/journal/${id}`;
+export const DELETE_JOURNAL = (id) => `/journal/${id}`;
+export const JOURNAL_CREATE_DATA = '/journal/create-data';
+export const JOURNAL_LEDGER = '/journal/ledger';export const LEDGER_ACCOUNTS = '/journal/ledger';
 export const LEDGER_BY_ACCOUNT = (accountId) => `/journal/ledger/account/${accountId}`;
 export const TRIAL_BALANCE = '/journal/trial-balance';
 
@@ -267,6 +271,7 @@ export const TRIAL_BALANCE = '/journal/trial-balance';
 export const PROFIT_LOSS_REPORT = '/reports/profit-and-loss';
 export const BALANCE_SHEET_REPORT = '/reports/balance-sheet';
 export const CASH_FLOW_REPORT = '/reports/cash-flow';
+export const ACCOUNTING_DASHBOARD = '/reports/dashboard';
 
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 

@@ -50,6 +50,116 @@ class JournalService
         return JournalEntry::with(['account', 'related'])->find($id);
     }
 
+    public function create(array $data): JournalEntry
+    {
+        if (empty($data['voucher_number'])) {
+            $data['voucher_number'] = $this->generateVoucher($data['restaurant_id'], 'manual');
+        }
+
+        return JournalEntry::create($data);
+    }
+
+    public function createMultiple(int $restaurantId, array $data): array
+    {
+        $voucher = $data['reference_id'] ?: $this->generateVoucher($restaurantId, 'MANUAL');
+
+        return DB::transaction(function () use ($restaurantId, $data, $voucher) {
+            $created = [];
+            foreach ($data['entries'] as $entry) {
+                $created[] = JournalEntry::create([
+                    'restaurant_id' => $restaurantId,
+                    'account_id' => $entry['account_id'],
+                    'entry_type' => $entry['entry_type'],
+                    'amount' => $entry['amount'],
+                    'entry_date' => $data['entry_date'],
+                    'voucher_number' => $voucher,
+                    'reference_number' => $data['reference_id'] ?? null,
+                    'description' => $entry['description'] ?? $data['description'] ?? null,
+                    'source_module' => 'manual',
+                    'related_id' => null,
+                    'related_type' => null,
+                ]);
+            }
+            return $created;
+        });
+    }
+
+    public function update(int $id, array $data): JournalEntry
+    {
+        $entry = JournalEntry::findOrFail($id);
+        $entry->update($data);
+        return $entry;
+    }
+
+    public function delete(int $id): void
+    {
+        $entry = JournalEntry::findOrFail($id);
+        $entry->delete();
+    }
+
+    public function bulkCreate(int $restaurantId, array $entries): array
+    {
+        $created = [];
+        $voucher = $this->generateVoucher($restaurantId, 'manual');
+
+        DB::transaction(function () use ($restaurantId, $entries, $voucher, &$created) {
+            foreach ($entries as $entry) {
+                $entry['restaurant_id'] = $restaurantId;
+                $entry['voucher_number'] = $voucher;
+                $created[] = JournalEntry::create($entry);
+            }
+        });
+
+        return $created;
+    }
+
+    public function updateMultiple(int $id, array $data): array
+    {
+        $existing = JournalEntry::findOrFail($id);
+        $voucher = $existing->voucher_number;
+
+        return DB::transaction(function () use ($existing, $data, $voucher) {
+            JournalEntry::where('voucher_number', $voucher)
+                ->where('restaurant_id', $existing->restaurant_id)
+                ->delete();
+
+            $created = [];
+            foreach ($data['entries'] as $entry) {
+                $created[] = JournalEntry::create([
+                    'restaurant_id' => $existing->restaurant_id,
+                    'account_id' => $entry['account_id'],
+                    'entry_type' => $entry['entry_type'],
+                    'amount' => $entry['amount'],
+                    'entry_date' => $data['entry_date'] ?? $existing->entry_date,
+                    'voucher_number' => $voucher,
+                    'reference_number' => $data['reference_id'] ?? $existing->reference_number,
+                    'description' => $entry['description'] ?? $data['description'] ?? null,
+                    'source_module' => 'manual',
+                    'related_id' => null,
+                    'related_type' => null,
+                ]);
+            }
+            return $created;
+        });
+    }
+
+    public function accountsForForm(int $restaurantId): array
+    {
+        return Account::forRestaurant($restaurantId)
+            ->where('status', 'active')
+            ->orderBy('type')
+            ->orderBy('code')
+            ->get()
+            ->map(fn($a) => [
+                'id' => $a->id,
+                'code' => $a->code,
+                'name' => $a->name,
+                'type' => $a->type,
+                'account_group' => $a->account_group,
+            ])
+            ->toArray();
+    }
+
     public function allForAccount(int $restaurantId, int $accountId): array
     {
         return JournalEntry::forRestaurant($restaurantId)
@@ -164,10 +274,12 @@ class JournalService
         $voucher = $this->generateVoucher($income->restaurant_id, 'income');
 
         DB::transaction(function () use ($income, $voucher) {
-            if ($income->account_id) {
+            $incomeAccountId = $income->account_id ?: $this->getIncomeAccount($income);
+
+            if ($incomeAccountId) {
                 JournalEntry::create([
                     'restaurant_id' => $income->restaurant_id,
-                    'account_id' => $income->account_id,
+                    'account_id' => $incomeAccountId,
                     'related_id' => $income->id,
                     'related_type' => Income::class,
                     'reference_number' => $income->reference_number,
@@ -386,6 +498,28 @@ class JournalService
             ->first();
 
         return $account?->id;
+    }
+
+    protected function getIncomeAccount(Income $income): ?int
+    {
+        $groupMap = [
+            'pos_sale' => 'food_sales',
+            'manual_income' => 'other_income',
+            'other_income' => 'other_income',
+        ];
+
+        $group = $groupMap[$income->source] ?? 'food_sales';
+
+        $account = Account::forRestaurant($income->restaurant_id)
+            ->where('account_group', $group)
+            ->where('type', 'income')
+            ->where('status', 'active')
+            ->first();
+
+        return $account?->id ?? Account::forRestaurant($income->restaurant_id)
+            ->byType('income')
+            ->where('status', 'active')
+            ->first()?->id;
     }
 
     public function validateTrialBalance(int $restaurantId): bool

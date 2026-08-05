@@ -80,6 +80,7 @@ import {
     PROFIT_LOSS_PATH,
     BALANCE_SHEET_PATH,
     CASH_FLOW_PATH,
+    ACCOUNTING_DASHBOARD_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -175,6 +176,7 @@ const navItems = [
         permission: 'view_accounts',
         excludeRole: 'super_admin',
         children: [
+            { path: ACCOUNTING_DASHBOARD_PATH, label: 'Dashboard', permission: 'view_accounting_dashboard' },
             { path: ACCOUNTING_LIST_PATH, label: 'Chart of Accounts', permission: 'view_accounts' },
             { path: INCOME_LIST_PATH, label: 'Income', permission: 'view_income' },
             { path: EXPENSE_LIST_PATH, label: 'Expenses', permission: 'view_expenses' },
@@ -183,8 +185,6 @@ const navItems = [
             { path: JOURNAL_LIST_PATH, label: 'Journal Entries', permission: 'view_journal_entries' },
             { path: LEDGER_LIST_PATH, label: 'Ledger', permission: 'view_ledger' },
             { path: TRIAL_BALANCE_PATH, label: 'Trial Balance', permission: 'view_trial_balance' },
-            { path: BALANCE_SHEET_PATH, label: 'Balance Sheet', permission: 'view_balance_sheet' },
-            { path: CASH_FLOW_PATH, label: 'Cash Flow', permission: 'view_cash_flow' },
         ],
     },
     {

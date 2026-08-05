@@ -11,12 +11,13 @@ import {
     Select,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { Eye } from "lucide-react";
+import { Eye, Edit, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
-import { LIST_JOURNAL } from "../../../routes/apiRoutes";
+import { LIST_JOURNAL, DELETE_JOURNAL, JOURNAL_LEDGER } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
 
@@ -36,6 +37,7 @@ export default function JournalEntryList() {
     const { t } = useTranslation();
     const colors = useThemeColors();
     const { formatAmount } = useCurrencyFormatter();
+    const navigate = useNavigate();
 
     const fetchData = useCallback(async () => {
         try {
@@ -65,7 +67,7 @@ export default function JournalEntryList() {
 
     const fetchAccounts = useCallback(async () => {
         try {
-            const res = await api.get("/journal/ledger");
+             const res = await api.get(JOURNAL_LEDGER);
             const accs = res.data?.data?.accounts || [];
             setAccounts(accs);
         } catch (err) {
@@ -222,6 +224,32 @@ export default function JournalEntryList() {
                         >
                             {t("view")}
                         </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={Edit} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(`/accounting/journal/edit/${row.original.id}`)}
+                        >
+                            {t("edit")}
+                        </MenuItem>
+                        <MenuItem
+                            icon={<Icon as={Trash2} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            color="red.500"
+                                    onClick={async () => {
+                                    if (window.confirm(t("confirm_delete"))) {
+                                        try {
+                                            await api.delete(DELETE_JOURNAL(row.original.id));
+                                            fetchData();
+                                        } catch (err) {
+                                            console.error("Delete failed:", err);
+                                        }
+                                    }
+                                }}
+                        >
+                            {t("delete")}
+                        </MenuItem>
                     </MenuList>
                 </Menu>
             ),
@@ -237,7 +265,8 @@ export default function JournalEntryList() {
                     { label: t("dashboard"), path: "/dashboard" },
                     { label: t("journal_entries"), isCurrent: true },
                 ]}
-            >
+                action="/accounting/journal/create"
+                actionLabel={t("add_journal_entry")}>
                 <TableExportButtons data={data} columns={columns} filename="journal-entries" />
             </PageHeader>
 

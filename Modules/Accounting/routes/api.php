@@ -27,9 +27,11 @@ Route::prefix('api')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'check
     Route::get('journal/ledger', [JournalController::class, 'ledger']);
     Route::get('journal/ledger/account/{account}', [JournalController::class, 'ledgerByAccount']);
     Route::get('journal/trial-balance', [JournalController::class, 'trialBalance']);
-    Route::apiResource('journal', JournalController::class)->only(['index', 'show']);
+    Route::get('journal/create-data', [JournalController::class, 'createData']);
+    Route::apiResource('journal', JournalController::class);
 
     Route::get('reports/profit-and-loss', [ReportController::class, 'profitAndLoss']);
     Route::get('reports/balance-sheet', [ReportController::class, 'balanceSheet']);
     Route::get('reports/cash-flow', [ReportController::class, 'cashFlow']);
+    Route::get('reports/dashboard', [ReportController::class, 'dashboard']);
 });

@@ -61,4 +61,17 @@ class ReportController extends Controller
             'data' => $data,
         ]);
     }
+
+    public function dashboard(Request $request)
+    {
+        $restaurantId = getRestaurantId($request->user());
+
+        $data = $this->reportService->dashboard($restaurantId);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans('accounting::module.dashboard_fetched'),
+            'data' => $data,
+        ]);
+    }
 }

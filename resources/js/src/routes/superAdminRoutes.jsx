@@ -42,12 +42,15 @@ import ExpenseList from "../components/admin/accounting/ExpenseList";
 import ExpenseCreate from "../components/admin/accounting/ExpenseCreate";
 import ExpenseEdit from "../components/admin/accounting/ExpenseEdit";
 import JournalEntryList from "../components/admin/accounting/JournalEntryList";
+import JournalEntryCreate from "../components/admin/accounting/JournalEntryCreate";
+import JournalEntryEdit from "../components/admin/accounting/JournalEntryEdit";
 import JournalEntryView from "../components/admin/accounting/JournalEntryView";
 import LedgerList from "../components/admin/accounting/LedgerList";
 import TrialBalance from "../components/admin/accounting/TrialBalance";
 import ProfitLossReport from "../components/admin/accounting/ProfitLossReport";
 import BalanceSheetReport from "../components/admin/accounting/BalanceSheetReport";
 import CashFlowReport from "../components/admin/accounting/CashFlowReport";
+import AccountingDashboard from "../components/admin/accounting/AccountingDashboard";
 
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
@@ -312,6 +315,8 @@ export const CASH_BANK_EDIT_PATH = (id) => `/accounting/cash-bank/edit/${id}`;
 
 // Accounting - Journal Entries
 export const JOURNAL_LIST_PATH = "/accounting/journal";
+export const JOURNAL_CREATE_PATH = "/accounting/journal/create";
+export const JOURNAL_EDIT_PATH = (id) => `/accounting/journal/edit/${id}`;
 export const JOURNAL_VIEW_PATH = (id) => `/accounting/journal/view/${id}`;
 
 // Accounting - Ledger
@@ -324,6 +329,7 @@ export const TRIAL_BALANCE_PATH = "/accounting/trial-balance";
 export const PROFIT_LOSS_PATH = "/accounting/reports/profit-loss";
 export const BALANCE_SHEET_PATH = "/accounting/reports/balance-sheet";
 export const CASH_FLOW_PATH = "/accounting/reports/cash-flow";
+export const ACCOUNTING_DASHBOARD_PATH = "/accounting/dashboard";
 
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
@@ -508,6 +514,8 @@ export const superAdminRoutes = [
     // Accounting - Journal Entries
     { path: JOURNAL_LIST_PATH, element: <JournalEntryList /> },
     { path: JOURNAL_VIEW_PATH(":id"), element: <JournalEntryView /> },
+    { path: JOURNAL_CREATE_PATH, element: <JournalEntryCreate /> },
+    { path: JOURNAL_EDIT_PATH(":id"), element: <JournalEntryEdit /> },
 
     // Accounting - Ledger
     { path: LEDGER_LIST_PATH, element: <LedgerList /> },
@@ -519,4 +527,7 @@ export const superAdminRoutes = [
     { path: PROFIT_LOSS_PATH, element: <ProfitLossReport /> },
     { path: BALANCE_SHEET_PATH, element: <BalanceSheetReport /> },
     { path: CASH_FLOW_PATH, element: <CashFlowReport /> },
+
+    // Accounting - Dashboard
+    { path: ACCOUNTING_DASHBOARD_PATH, element: <AccountingDashboard /> },
 ];

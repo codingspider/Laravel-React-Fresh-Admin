@@ -278,6 +278,9 @@ class UserSeeder extends Seeder
 
             // Accounting - Journal Entries
             'view_journal_entries',
+            'create_journal_entries',
+            'update_journal_entries',
+            'delete_journal_entries',
 
             // Accounting - Ledger
             'view_ledger',
@@ -289,6 +292,7 @@ class UserSeeder extends Seeder
             'view_profit_loss_report',
             'view_balance_sheet',
             'view_cash_flow',
+            'view_accounting_dashboard',
         ];
 
         foreach ($permissions as $permission) {
