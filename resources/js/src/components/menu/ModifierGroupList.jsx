@@ -106,7 +106,7 @@ export default function ModifierGroupList() {
             header: "#",
             cell: ({ row }) => (
                 <Text fontSize="sm" fontWeight="500" color="gray.500">
-                    {row.index + 1}
+                    {row.index + 1 + pageIndex * pageSize}
                 </Text>
             ),
         },

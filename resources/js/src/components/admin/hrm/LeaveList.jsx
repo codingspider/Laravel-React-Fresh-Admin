@@ -115,7 +115,7 @@ export default function LeaveList() {
   const columns = [
     {
       header: "#",
-      cell: ({ row }) => <Text fontSize="sm" fontWeight="500" color={colors.textMuted}>{row.index + 1}</Text>,
+      cell: ({ row }) => <Text fontSize="sm" fontWeight="500" color={colors.textMuted}>{row.index + 1 + pageIndex * pageSize}</Text>,
     },
     {
       header: t("employee"),

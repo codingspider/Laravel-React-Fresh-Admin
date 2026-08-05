@@ -37,6 +37,7 @@ import {
     ChefHat,
     MonitorPlay,
     UserCheck,
+    FileText,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -76,6 +77,9 @@ import {
     JOURNAL_LIST_PATH,
     LEDGER_LIST_PATH,
     TRIAL_BALANCE_PATH,
+    PROFIT_LOSS_PATH,
+    BALANCE_SHEET_PATH,
+    CASH_FLOW_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -179,6 +183,18 @@ const navItems = [
             { path: JOURNAL_LIST_PATH, label: 'Journal Entries', permission: 'view_journal_entries' },
             { path: LEDGER_LIST_PATH, label: 'Ledger', permission: 'view_ledger' },
             { path: TRIAL_BALANCE_PATH, label: 'Trial Balance', permission: 'view_trial_balance' },
+            { path: BALANCE_SHEET_PATH, label: 'Balance Sheet', permission: 'view_balance_sheet' },
+            { path: CASH_FLOW_PATH, label: 'Cash Flow', permission: 'view_cash_flow' },
+        ],
+    },
+    {
+        icon: FileText,
+        label: 'Reports',
+        permission: 'view_profit_loss_report',
+        excludeRole: 'super_admin',
+        children: [
+            { path: PROFIT_LOSS_PATH, label: 'Profit & Loss', permission: 'view_profit_loss_report' },
+
         ],
     },
     {

@@ -120,7 +120,7 @@ export default function CouponList() {
     {
       header: "#",
       cell: ({ row }) => (
-        <Text fontSize="sm" fontWeight="500" color={colors.textMuted}>{row.index + 1}</Text>
+        <Text fontSize="sm" fontWeight="500" color={colors.textMuted}>{row.index + 1 + pageIndex * pageSize}</Text>
       ),
     },
     {

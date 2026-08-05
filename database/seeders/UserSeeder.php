@@ -284,6 +284,11 @@ class UserSeeder extends Seeder
 
             // Accounting - Trial Balance
             'view_trial_balance',
+
+            // Accounting - Financial Reports
+            'view_profit_loss_report',
+            'view_balance_sheet',
+            'view_cash_flow',
         ];
 
         foreach ($permissions as $permission) {

@@ -263,6 +263,11 @@ export const LEDGER_ACCOUNTS = '/journal/ledger';
 export const LEDGER_BY_ACCOUNT = (accountId) => `/journal/ledger/account/${accountId}`;
 export const TRIAL_BALANCE = '/journal/trial-balance';
 
+// Accounting - Reports
+export const PROFIT_LOSS_REPORT = '/reports/profit-and-loss';
+export const BALANCE_SHEET_REPORT = '/reports/balance-sheet';
+export const CASH_FLOW_REPORT = '/reports/cash-flow';
+
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 
 // ===== Phase 1 Module API Routes =====

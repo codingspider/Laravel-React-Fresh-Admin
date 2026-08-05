@@ -96,7 +96,7 @@ export default function PurchaseList() {
   const columns = [
     {
       header: "#",
-      cell: ({ row }) => <Text fontSize="sm" fontWeight="500" color={colors.textMuted}>{row.index + 1}</Text>,
+      cell: ({ row }) => <Text fontSize="sm" fontWeight="500" color={colors.textMuted}>{row.index + 1 + pageIndex * pageSize}</Text>,
     },
     {
       header: t("reference_number"),

@@ -45,6 +45,9 @@ import JournalEntryList from "../components/admin/accounting/JournalEntryList";
 import JournalEntryView from "../components/admin/accounting/JournalEntryView";
 import LedgerList from "../components/admin/accounting/LedgerList";
 import TrialBalance from "../components/admin/accounting/TrialBalance";
+import ProfitLossReport from "../components/admin/accounting/ProfitLossReport";
+import BalanceSheetReport from "../components/admin/accounting/BalanceSheetReport";
+import CashFlowReport from "../components/admin/accounting/CashFlowReport";
 
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
@@ -317,6 +320,11 @@ export const LEDGER_LIST_PATH = "/accounting/ledger";
 // Accounting - Trial Balance
 export const TRIAL_BALANCE_PATH = "/accounting/trial-balance";
 
+// Accounting - Financial Reports
+export const PROFIT_LOSS_PATH = "/accounting/reports/profit-loss";
+export const BALANCE_SHEET_PATH = "/accounting/reports/balance-sheet";
+export const CASH_FLOW_PATH = "/accounting/reports/cash-flow";
+
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
     { path: `/settings`, element: <MasterSetting /> },
@@ -506,4 +514,9 @@ export const superAdminRoutes = [
 
     // Accounting - Trial Balance
     { path: TRIAL_BALANCE_PATH, element: <TrialBalance /> },
+
+    // Accounting - Financial Reports
+    { path: PROFIT_LOSS_PATH, element: <ProfitLossReport /> },
+    { path: BALANCE_SHEET_PATH, element: <BalanceSheetReport /> },
+    { path: CASH_FLOW_PATH, element: <CashFlowReport /> },
 ];
