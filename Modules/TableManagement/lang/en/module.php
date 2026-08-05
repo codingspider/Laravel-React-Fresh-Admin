@@ -22,6 +22,7 @@ return [
     'restored' => 'Table restored successfully.',
     'restaurant_required' => 'Restaurant selection is required.',
     'status_changed' => 'Table status changed successfully.',
+    'qr_regenerated' => 'QR code regenerated successfully.',
     'success' => 'Operation completed successfully.',
     'table_available' => 'Table marked as available.',
     'table_created' => 'Table created successfully.',

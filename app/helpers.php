@@ -751,3 +751,60 @@ if (!function_exists('activityLog')) {
         }
     }
 }
+
+if (!function_exists('generateQrToken')) {
+    function generateQrToken(): string
+    {
+        return 'tbl_' . \Illuminate\Support\Str::random(32);
+    }
+}
+
+if (!function_exists('generateQrUrl')) {
+    function generateQrUrl($table): string
+    {
+        $token = $table->qr_token ?? $table->id;
+        return url("/order?table={$token}");
+    }
+}
+
+if (!function_exists('generateQrCode')) {
+    function generateQrCode($table): ?string
+    {
+        try {
+            $url = generateQrUrl($table);
+            $renderer = new \BaconQrCode\Renderer\ImageRenderer(
+                new \BaconQrCode\Renderer\RendererStyle\RendererStyle(400),
+                new \BaconQrCode\Renderer\Image\SvgImageBackEnd()
+            );
+            $writer = new \BaconQrCode\Writer($renderer);
+            return $writer->writeString($url);
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+}
+
+if (!function_exists('saveQrCodeFile')) {
+    function saveQrCodeFile($table): ?string
+    {
+        try {
+            $svg = generateQrCode($table);
+            if (!$svg) {
+                return null;
+            }
+
+            $folder = public_path('qr-codes');
+            if (!file_exists($folder)) {
+                mkdir($folder, 0777, true);
+            }
+
+            $filename = 'table-' . $table->id . '-' . ($table->qr_token ?? time()) . '.svg';
+            $path = $folder . '/' . $filename;
+            file_put_contents($path, $svg);
+
+            return 'qr-codes/' . $filename;
+        } catch (\Throwable $e) {
+            return null;
+        }
+    }
+}

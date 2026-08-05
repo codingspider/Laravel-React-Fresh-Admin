@@ -54,7 +54,7 @@ export default function HourlySalesTrend({ data = [] }) {
             </Box>
             <Box h={{ base: '250px', md: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data}>
+                    <AreaChart data={data.map(d => ({ ...d, total: Number(d.total) || 0 }))}>
                         <defs>
                             <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="5%" stopColor="#0d9488" stopOpacity={0.15} />

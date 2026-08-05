@@ -9,7 +9,7 @@ import { useNavigate, Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
 import { STORE_PURCHASE } from "../../../routes/apiRoutes";
 import { DASHBOARD_PATH, PURCHASE_LIST_PATH } from "../../../routes/superAdminRoutes";
-import { LIST_SUPPLIER, LIST_BRANCH, LIST_INVENTORY_ITEM } from "../../../routes/apiRoutes";
+import { LIST_SUPPLIER, LIST_BRANCH, LIST_INVENTORY_ITEM, POS_SETTINGS } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import PurchaseForm from "./PurchaseForm";
 
@@ -22,12 +22,13 @@ const PurchaseCreate = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const { register, handleSubmit, control } = useForm({
     defaultValues: {
       supplier_id: "", branch_id: "", reference_number: "", invoice_number: "",
       purchase_date: new Date().toISOString().split("T")[0], expected_delivery_date: "",
       order_type: "purchase_order", status: "active", notes: "",
-      tax_amount: "0", discount_amount: "0", shipping_cost: "0", paid_amount: "0",
+      payment_method: "cash", tax_amount: "0", discount_amount: "0", shipping_cost: "0", paid_amount: "0",
       items: [],
     },
   });
@@ -39,11 +40,14 @@ const PurchaseCreate = () => {
       api.get(`${LIST_SUPPLIER}?per_page=200`),
       api.get(`${LIST_BRANCH}?per_page=200`),
       api.get(`${LIST_INVENTORY_ITEM}?per_page=200`),
-    ]).then(([s, b, i]) => {
+      api.get(POS_SETTINGS),
+    ]).then(([s, b, i, posRes]) => {
       const unwrap = (r) => r.data?.data?.data || r.data?.data || [];
       setSuppliers(unwrap(s));
       setBranches(unwrap(b));
       setItems(unwrap(i));
+      const methods = posRes.data?.data?.payment_methods || posRes.data?.data?.active_payment_methods || [];
+      setPaymentMethods(methods.filter(m => m.enabled !== false));
     }).catch(() => {});
   }, [t]);
 
@@ -120,6 +124,7 @@ const PurchaseCreate = () => {
               suppliers={suppliers}
               branches={branches}
               items={items}
+              paymentMethods={paymentMethods}
               isSubmitting={isSubmitting}
               submitLabel={t("save")}
               cancelPath={PURCHASE_LIST_PATH}

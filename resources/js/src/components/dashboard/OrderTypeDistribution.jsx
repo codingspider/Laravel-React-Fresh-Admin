@@ -45,7 +45,7 @@ export default function OrderTypeDistribution({ data = [] }) {
 
     const chartData = data.map(item => ({
         name: item.type || t('Unknown'),
-        value: item.count,
+        value: Number(item.count) || 0,
     }));
 
     return (

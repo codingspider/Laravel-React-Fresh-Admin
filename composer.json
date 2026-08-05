@@ -10,6 +10,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "bacon/bacon-qr-code": "^3.1",
         "erag/laravel-pwa": "^2.1",
         "knuckleswtf/scribe": "^5.3",
         "laravel/framework": "^12.0",
@@ -68,6 +69,7 @@
             "Modules\\SuperAdmin\\": "Modules/SuperAdmin/app/",
             "Modules\\Supplier\\": "Modules/Supplier/app/",
             "Modules\\TableManagement\\": "Modules/TableManagement/app/",
+            "Modules\\GuestOrder\\": "Modules/GuestOrder/app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },

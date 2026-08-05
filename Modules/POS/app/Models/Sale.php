@@ -117,18 +117,22 @@ class Sale extends Model
         }
         
         $date = now()->format('Ymd');
-        $query = self::where('restaurant_id', $restaurantId)
-            ->where('invoice_number', 'like', "{$prefix}{$date}-%");
-        
-        $lastSale = $query->orderByDesc('id')->first();
 
-        if ($lastSale) {
-            $lastNumber = (int) substr($lastSale->invoice_number, -5);
-            $nextNumber = $lastNumber + 1;
-        } else {
-            $nextNumber = $startNumber;
-        }
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($restaurantId, $prefix, $date, $startNumber) {
+            $lastSale = self::where('restaurant_id', $restaurantId)
+                ->where('invoice_number', 'like', "{$prefix}{$date}-%")
+                ->orderByDesc('id')
+                ->lockForUpdate()
+                ->first();
 
-        return "{$prefix}{$date}-" . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+            if ($lastSale) {
+                $lastNumber = (int) substr($lastSale->invoice_number, -5);
+                $nextNumber = $lastNumber + 1;
+            } else {
+                $nextNumber = $startNumber;
+            }
+
+            return "{$prefix}{$date}-" . str_pad($nextNumber, 5, '0', STR_PAD_LEFT);
+        });
     }
 }

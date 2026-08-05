@@ -46,9 +46,9 @@ export default function CashMovementsOverview({ data = {} }) {
     const [period, setPeriod] = useState('all');
 
     const chartData = [
-        { name: t('In'), value: data.in || 0 },
-        { name: t('Out'), value: data.out || 0 },
-        { name: t('Adjust'), value: data.adjust || 0 },
+        { name: t('In'), value: Number(data.in) || 0 },
+        { name: t('Out'), value: Number(data.out) || 0 },
+        { name: t('Adjust'), value: Number(data.adjust) || 0 },
     ].filter(item => item.value > 0);
 
     return (

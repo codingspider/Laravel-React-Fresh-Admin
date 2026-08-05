@@ -1,0 +1,26 @@
+{
+    "name": "restaurant/guest-order",
+    "description": "Guest QR Code Ordering Module",
+    "type": "module",
+    "license": "proprietary",
+    "autoload": {
+        "psr-4": {
+            "Modules\\GuestOrder\\": "app/",
+            "Modules\\GuestOrder\\Database\\Seeders\\": "database/seeders/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\GuestOrder\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\GuestOrder\\Providers\\GuestOrderServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

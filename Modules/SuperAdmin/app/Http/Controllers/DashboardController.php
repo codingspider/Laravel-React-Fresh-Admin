@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\POS\Models\Sale;
 use Modules\POS\Models\SaleItem;
+use Modules\POS\Models\Payment;
 use Modules\Menu\Models\MenuItem;
 use Modules\Menu\Models\MenuCategory;
 use Modules\Accounting\Models\Expense;
@@ -101,22 +102,22 @@ class DashboardController extends Controller
             });
 
         // ── Branch Wise Sales ──
-        $branchSales = Sale::where('restaurant_id', $restaurantId)
-            ->where('status', '!=', 'cancelled')
-            ->select('branch_id', DB::raw('SUM(total) as total_sales'), DB::raw('COUNT(*) as total_orders'))
-            ->groupBy('branch_id')
-            ->with('branch:id,name')
+        $branchSales = Sale::where('sales.restaurant_id', $restaurantId)
+            ->where('sales.status', '!=', 'cancelled')
+            ->whereNotNull('sales.branch_id')
+            ->join('branches', 'sales.branch_id', '=', 'branches.id')
+            ->select('sales.branch_id', 'branches.name as branch_name', DB::raw('SUM(sales.total) as total_sales'), DB::raw('COUNT(*) as total_orders'))
+            ->groupBy('sales.branch_id', 'branches.name')
+            ->orderByDesc('total_sales')
             ->get()
             ->map(function ($item) {
                 return [
                     'branch_id' => $item->branch_id,
-                    'branch_name' => $item->branch->name ?? 'N/A',
+                    'branch_name' => $item->branch_name,
                     'total_sales' => round($item->total_sales, 2),
                     'total_orders' => $item->total_orders,
                 ];
-            })
-            ->sortByDesc('total_sales')
-            ->values();
+            });
 
         // ── Best Performing Branches ──
         $bestBranches = $branchSales->take(5);
@@ -172,13 +173,14 @@ class DashboardController extends Controller
             ->whereBetween('created_at', [$startOfDay, $endOfDay])
             ->sum('amount');
 
-        // ── Payments Overview ──
-        $paymentMethods = Sale::where('restaurant_id', $restaurantId)
-            ->where('status', '!=', 'cancelled')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->select('order_type', DB::raw('SUM(total) as total'))
-            ->groupBy('order_type')
-            ->pluck('total', 'order_type')
+        // ── Payments Overview (all time) ──
+        $paymentMethods = Payment::whereHas('sale', function ($q) use ($restaurantId) {
+                $q->where('restaurant_id', $restaurantId)
+                  ->where('status', '!=', 'cancelled');
+            })
+            ->select('payment_method', DB::raw('SUM(amount) as total'))
+            ->groupBy('payment_method')
+            ->pluck('total', 'payment_method')
             ->toArray();
 
         return response()->json([

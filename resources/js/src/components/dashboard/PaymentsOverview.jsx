@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Heading, Text, Flex, Select, HStack } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Heading, Text, Flex, HStack } from '@chakra-ui/react';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
@@ -43,7 +43,6 @@ const CustomLegend = ({ payload }) => {
 export default function PaymentsOverview({ data = {} }) {
     const { t } = useTranslation();
     const colors = useThemeColors();
-    const [period, setPeriod] = useState('all');
 
     const methodLabels = {
         cash: t('Cash'),
@@ -70,7 +69,7 @@ export default function PaymentsOverview({ data = {} }) {
     const aggregated = {};
     Object.entries(data).forEach(([method, total]) => {
         const label = methodLabels[method] || method;
-        aggregated[label] = (aggregated[label] || 0) + total;
+        aggregated[label] = (aggregated[label] || 0) + Number(total);
     });
 
     const chartData = Object.entries(aggregated).map(([name, value]) => ({
@@ -92,41 +91,34 @@ export default function PaymentsOverview({ data = {} }) {
                 <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                     {t('Payments Overview')}
                 </Heading>
-                <Select
-                    size="sm"
-                    maxW="140px"
-                    borderRadius="lg"
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    focusBorderColor="brand.500"
-                >
-                    <option value="all">{t('All The Time')}</option>
-                    <option value="today">{t('Today')}</option>
-                    <option value="week">{t('This Week')}</option>
-                    <option value="month">{t('This Month')}</option>
-                </Select>
             </Flex>
-            <Box h={{ base: '250px', md: '280px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={{ base: 50, md: 65 }}
-                            outerRadius={{ base: 80, md: 100 }}
-                            paddingAngle={3}
-                            dataKey="value"
-                        >
-                            {chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={chartColors[index]} />
-                            ))}
-                        </Pie>
-                        <RechartsTooltip content={<CustomTooltip />} />
-                        <Legend content={<CustomLegend />} />
-                    </PieChart>
-                </ResponsiveContainer>
-            </Box>
+            {chartData.length === 0 ? (
+                <Flex justify="center" align="center" h={{ base: '250px', md: '280px' }}>
+                    <Text color={colors.textSecondary}>{t('No payment data available')}</Text>
+                </Flex>
+            ) : (
+                <Box h={{ base: '250px', md: '280px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie
+                                data={chartData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={{ base: 50, md: 65 }}
+                                outerRadius={{ base: 80, md: 100 }}
+                                paddingAngle={3}
+                                dataKey="value"
+                            >
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={chartColors[index]} />
+                                ))}
+                            </Pie>
+                            <RechartsTooltip content={<CustomTooltip />} />
+                            <Legend content={<CustomLegend />} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                </Box>
+            )}
         </Box>
     );
 }

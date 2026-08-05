@@ -10,8 +10,10 @@ export default function LowStockAlerts({ data = [] }) {
 
     const getInitial = (name) => name?.charAt(0)?.toUpperCase() || '?';
     const getStockColor = (current, reorder) => {
-        if (current <= 0) return 'red';
-        if (current <= reorder) return 'orange';
+        const c = Number(current) || 0;
+        const r = Number(reorder) || 0;
+        if (c <= 0) return 'red';
+        if (c <= r) return 'orange';
         return 'green';
     };
 

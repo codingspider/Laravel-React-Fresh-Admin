@@ -35,7 +35,7 @@ class InventoryController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-        $data = $request->validated();
+        $data = $request->all();
         $restaurantId = getRestaurantId();
         if ($restaurantId) {
             $data['restaurant_id'] = $restaurantId;
@@ -63,7 +63,7 @@ class InventoryController extends Controller
 
     public function update(Request $request, $id): JsonResponse
     {
-        $item = $this->service->update($id, $request->validated());
+        $item = $this->service->update($id, $request->all());
 
         return response()->json([
             'status' => 'success',

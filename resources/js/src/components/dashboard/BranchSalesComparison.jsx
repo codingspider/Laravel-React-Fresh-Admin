@@ -42,7 +42,7 @@ export default function BranchSalesComparison({ data = [] }) {
 
     const chartData = data.map(item => ({
         name: item.branch_name,
-        sales: item.total_sales,
+        sales: Number(item.total_sales) || 0,
     }));
 
     return (
@@ -73,7 +73,7 @@ export default function BranchSalesComparison({ data = [] }) {
             </Flex>
             <Box h={{ base: '250px', md: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData} barSize={{ base: 24, md: 40 }}>
+                    <BarChart data={chartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
                         <XAxis
                             dataKey="name"

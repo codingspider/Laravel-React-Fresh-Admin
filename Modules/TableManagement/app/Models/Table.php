@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 class Table extends Model
 {
@@ -17,6 +18,9 @@ class Table extends Model
         'branch_id',
         'floor_id',
         'name',
+        'qr_token',
+        'qr_code_url',
+        'qr_image',
         'capacity',
         'sort_order',
         'status',
@@ -29,6 +33,23 @@ class Table extends Model
         'position' => 'array',
         'metadata' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (Table $table) {
+            if (empty($table->qr_token)) {
+                $table->qr_token = 'tbl_' . Str::random(32);
+            }
+            $table->qr_code_url = url("/order?table={$table->qr_token}");
+        });
+
+        static::created(function (Table $table) {
+            $qrImage = saveQrCodeFile($table);
+            if ($qrImage) {
+                $table->update(['qr_image' => $qrImage]);
+            }
+        });
+    }
 
     public function restaurant(): BelongsTo
     {
@@ -68,5 +89,10 @@ class Table extends Model
     public function isReserved(): bool
     {
         return $this->status === 'reserved';
+    }
+
+    public function getQrUrlAttribute(): string
+    {
+        return url("/order?table={$this->qr_token}");
     }
 }

@@ -17,6 +17,7 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator,
     MdSettings,
     MdAttachMoney,
     MdNotificationsActive,
+    MdQrCodeScanner,
 } from "react-icons/md";
 
 import { Link as ReactRouterLink } from "react-router-dom";
@@ -29,6 +30,7 @@ import Setting from "./Setting";
 import NotificationSettings from "./NotificationSettings";
 import InvoiceSetting from "./InvoiceSetting";
 import CurrencySetting from "./CurrencySetting";
+import QrOrderingSettings from "./QrOrderingSettings";
 
 const General = () => {
     const colors = useThemeColors();
@@ -135,6 +137,11 @@ const General = () => {
                                 <Box as={MdNotificationsActive} mr={2} />
                                 {t("notification")}
                                 </Tab>
+
+                                <Tab whiteSpace="nowrap">
+                                <Box as={MdQrCodeScanner} mr={2} />
+                                {t("qr_ordering")}
+                                </Tab>
                             </TabList>
                             <TabIndicator
                                 mt="-1.5px"
@@ -154,6 +161,9 @@ const General = () => {
                                 </TabPanel>
                                 <TabPanel>
                                     <NotificationSettings existingSetting={existingSetting}></NotificationSettings>
+                                </TabPanel>
+                                <TabPanel>
+                                    <QrOrderingSettings />
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>

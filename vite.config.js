@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig({
     plugins: [
         laravel({
-            input: ['resources/js/src/App.jsx'],
+            input: ['resources/js/src/App.jsx', 'resources/js/src/guest.jsx'],
             refresh: true,
         }),
         react(),

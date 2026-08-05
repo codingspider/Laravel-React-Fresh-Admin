@@ -67,7 +67,7 @@ export default function SalesAnalytics({ data = [] }) {
             </Flex>
             <Box h={{ base: '250px', md: '300px' }}>
                 <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data}>
+                    <LineChart data={data.map(d => ({ ...d, total: Number(d.total) || 0 }))}>
                         <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
                         <XAxis
                             dataKey="day"

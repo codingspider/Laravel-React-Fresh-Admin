@@ -78,6 +78,24 @@ export default function InventoryItemForm({
                 />
               </FormControl>
               <FormControl>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("minimum_stock")}</FormLabel>
+                <Input {...register("minimum_stock")} type="number" min="0" step="0.01" placeholder="0" bg={inputBg}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("opening_stock")}</FormLabel>
+                <Input {...register("opening_stock")} type="number" min="0" step="0.01" placeholder="0" bg={inputBg}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md"
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("maximum_stock")}</FormLabel>
+                <Input {...register("maximum_stock")} type="number" min="0" step="0.01" placeholder="0" bg={inputBg}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }} size="md"
+                />
+              </FormControl>
+              <FormControl>
                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("category")}</FormLabel>
                 <Select {...register("inventory_category_id")} placeholder={t("select_category")} bg={inputBg}
                   borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}

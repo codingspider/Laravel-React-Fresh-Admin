@@ -45,7 +45,7 @@ export default function OrderStatusDistribution({ data = [] }) {
 
     const chartData = data.map(item => ({
         name: t(item.status?.charAt(0).toUpperCase() + item.status?.slice(1) || 'Unknown'),
-        value: item.count,
+        value: Number(item.count) || 0,
     }));
 
     return (

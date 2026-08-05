@@ -335,6 +335,8 @@ export const GET_TABLE = (id) => `/v1/tables/${id}`;
 export const UPDATE_TABLE = (id) => `/v1/tables/${id}`;
 export const DELETE_TABLE = (id) => `/v1/tables/${id}`;
 export const UPDATE_TABLE_STATUS = (id) => `/v1/tables/${id}/status`;
+export const REGENERATE_TABLE_QR = (id) => `/v1/tables/${id}/regenerate-qr`;
+export const TABLE_QR_CODE = (id) => `/v1/tables/${id}/qr-code`;
 export const GET_AVAILABLE_TABLES = '/v1/tables/available';
 
 // Reservations

@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
 import { useNavigate, useParams, Link as ReactRouterLink } from "react-router-dom";
 import api from "../../../axios";
-import { GET_EDIT_PURCHASE, UPDATE_PURCHASE, LIST_SUPPLIER, LIST_BRANCH, LIST_INVENTORY_ITEM } from "../../../routes/apiRoutes";
+import { GET_EDIT_PURCHASE, UPDATE_PURCHASE, LIST_SUPPLIER, LIST_BRANCH, LIST_INVENTORY_ITEM, POS_SETTINGS } from "../../../routes/apiRoutes";
 import { DASHBOARD_PATH, PURCHASE_LIST_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import PurchaseForm from "./PurchaseForm";
@@ -23,11 +23,13 @@ const PurchaseEdit = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [branches, setBranches] = useState([]);
   const [items, setItems] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const { register, handleSubmit, control, reset } = useForm({
     defaultValues: {
       supplier_id: "", branch_id: "", reference_number: "", invoice_number: "",
       purchase_date: "", expected_delivery_date: "", order_type: "purchase_order",
-      status: "active", notes: "", tax_amount: "0", discount_amount: "0", shipping_cost: "0", paid_amount: "0",
+      status: "active", notes: "", payment_method: "cash",
+      tax_amount: "0", discount_amount: "0", shipping_cost: "0", paid_amount: "0",
       items: [],
     },
   });
@@ -39,12 +41,15 @@ const PurchaseEdit = () => {
       api.get(`${LIST_SUPPLIER}?per_page=200`),
       api.get(`${LIST_BRANCH}?per_page=200`),
       api.get(`${LIST_INVENTORY_ITEM}?per_page=200`),
+      api.get(POS_SETTINGS),
       api.get(GET_EDIT_PURCHASE(id)),
-    ]).then(([s, b, i, pRes]) => {
+    ]).then(([s, b, i, posRes, pRes]) => {
       const unwrap = (r) => r.data?.data?.data || r.data?.data || [];
       setSuppliers(unwrap(s));
       setBranches(unwrap(b));
       setItems(unwrap(i));
+      const methods = posRes.data?.data?.payment_methods || posRes.data?.data?.active_payment_methods || [];
+      setPaymentMethods(methods.filter(m => m.enabled !== false));
       const p = pRes.data?.data;
       if (p) {
         reset({
@@ -57,6 +62,7 @@ const PurchaseEdit = () => {
           order_type: p.order_type || "purchase_order",
           status: p.status || "active",
           notes: p.notes || "",
+          payment_method: p.payment_method || "cash",
           tax_amount: p.tax_amount ?? "0",
           discount_amount: p.discount_amount ?? "0",
           shipping_cost: p.shipping_cost ?? "0",
@@ -144,6 +150,7 @@ const PurchaseEdit = () => {
               suppliers={suppliers}
               branches={branches}
               items={items}
+              paymentMethods={paymentMethods}
               isSubmitting={isSubmitting}
               submitLabel={t("update")}
               cancelPath={PURCHASE_LIST_PATH}

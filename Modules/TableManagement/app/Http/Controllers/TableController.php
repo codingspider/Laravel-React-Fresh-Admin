@@ -152,4 +152,59 @@ class TableController extends Controller
             'data' => TableResource::collection($tables),
         ]);
     }
+
+    public function regenerateQr($id): JsonResponse
+    {
+        $table = $this->service->find($id);
+        if (getRestaurantId() && $table->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $table->qr_token = generateQrToken();
+        $table->qr_code_url = url("/order?table={$table->qr_token}");
+        $table->save();
+
+        $qrImage = saveQrCodeFile($table);
+        if ($qrImage) {
+            $table->update(['qr_image' => $qrImage]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.qr_regenerated'),
+            'data' => [
+                'qr_token' => $table->qr_token,
+                'qr_url' => $table->qr_url,
+                'qr_code_url' => $table->qr_code_url,
+                'qr_image' => $table->qr_image,
+                'qr_svg' => generateQrCode($table),
+            ],
+        ]);
+    }
+
+    public function qrCode($id): JsonResponse
+    {
+        $table = $this->service->find($id);
+        if (getRestaurantId() && $table->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
+        if (!$table->qr_image) {
+            $qrImage = saveQrCodeFile($table);
+            if ($qrImage) {
+                $table->update(['qr_image' => $qrImage]);
+            }
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'qr_token' => $table->qr_token,
+                'qr_url' => $table->qr_url,
+                'qr_code_url' => $table->qr_code_url,
+                'qr_image' => $table->qr_image,
+                'qr_svg' => generateQrCode($table),
+            ],
+        ]);
+    }
 }

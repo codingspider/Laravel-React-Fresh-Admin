@@ -9,6 +9,8 @@ Route::prefix('v1')->middleware(['auth:sanctum', 'restaurant.scope', 'module.acc
     Route::get('tables/available', [TableController::class, 'available']);
     Route::apiResource('tables', TableController::class);
     Route::put('tables/{table}/status', [TableController::class, 'updateStatus']);
+    Route::put('tables/{table}/regenerate-qr', [TableController::class, 'regenerateQr']);
+    Route::get('tables/{table}/qr-code', [TableController::class, 'qrCode']);
 
     Route::apiResource('floors', FloorController::class);
 

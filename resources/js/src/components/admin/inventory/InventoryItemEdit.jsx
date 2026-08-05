@@ -34,7 +34,7 @@ export default function InventoryItemEdit() {
     defaultValues: {
       name: "", branch_id: "", inventory_category_id: "", supplier_id: "",
       sku: "", description: "", unit: "piece",
-      quantity: 0, reorder_level: 0, cost_price: "",
+      quantity: 0, reorder_level: 0, minimum_stock: 0, opening_stock: 0, maximum_stock: 0, cost_price: "",
       image: null, is_active: true,
     },
   });
@@ -65,6 +65,9 @@ export default function InventoryItemEdit() {
           unit: item.unit || "",
           quantity: item.quantity || 0,
           reorder_level: item.reorder_level || 0,
+          minimum_stock: item.minimum_stock || 0,
+          opening_stock: item.opening_stock || 0,
+          maximum_stock: item.maximum_stock || 0,
           cost_price: item.cost_price || "",
           image: null,
           is_active: item.is_active,
@@ -91,6 +94,9 @@ export default function InventoryItemEdit() {
       formData.append("unit", data.unit || "");
       formData.append("quantity", data.quantity || 0);
       formData.append("reorder_level", data.reorder_level || 0);
+      formData.append("minimum_stock", data.minimum_stock || 0);
+      formData.append("opening_stock", data.opening_stock || 0);
+      formData.append("maximum_stock", data.maximum_stock || 0);
       formData.append("cost_price", data.cost_price || 0);
       formData.append("is_active", data.is_active ? 1 : 0);
       formData.append("_method", "PUT");

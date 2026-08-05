@@ -15,7 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, QrCode } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "../../axios";
 import TanStackTable from "../../TanStackTable";
@@ -23,6 +23,7 @@ import PageHeader from "../ui/PageHeader";
 import TableExportButtons from "../ui/TableExportButtons";
 import { LIST_TABLE, DELETE_TABLE } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
+import QRCodeModal from "./QRCodeModal";
 
 const statusColors = {
     available: "green",
@@ -41,6 +42,8 @@ export default function TableList() {
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [statusFilter, setStatusFilter] = useState("");
+    const [qrModalOpen, setQrModalOpen] = useState(false);
+    const [selectedTable, setSelectedTable] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -193,6 +196,14 @@ export default function TableList() {
                     />
                     <MenuList minW="140px" p={1.5}>
                         <MenuItem
+                            icon={<Icon as={QrCode} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => { setSelectedTable(row.original); setQrModalOpen(true); }}
+                        >
+                            {t("qr_code")}
+                        </MenuItem>
+                        <MenuItem
                             icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"
                             fontSize="sm"
@@ -266,6 +277,12 @@ export default function TableList() {
                     </Select>
                 </TanStackTable>
             </Box>
+
+            <QRCodeModal
+                isOpen={qrModalOpen}
+                onClose={() => { setQrModalOpen(false); setSelectedTable(null); }}
+                table={selectedTable}
+            />
         </Box>
     );
 }

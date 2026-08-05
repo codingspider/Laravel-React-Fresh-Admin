@@ -36,6 +36,7 @@
     32 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     33 => 'Spatie\\Permission\\PermissionServiceProvider',
     34 => 'App\\Providers\\AppServiceProvider',
+    35 => 'Modules\\GuestOrder\\Providers\\GuestOrderServiceProvider',
   ),
   'eager' => 
   array (
@@ -59,6 +60,7 @@
     17 => 'Nwidart\\Modules\\LaravelModulesServiceProvider',
     18 => 'Spatie\\Permission\\PermissionServiceProvider',
     19 => 'App\\Providers\\AppServiceProvider',
+    20 => 'Modules\\GuestOrder\\Providers\\GuestOrderServiceProvider',
   ),
   'deferred' => 
   array (
