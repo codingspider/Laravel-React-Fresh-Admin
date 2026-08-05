@@ -17,6 +17,8 @@ class GuestOrderController extends Controller
             'restaurant_id' => 'required|integer|exists:restaurants,id',
             'branch_id' => 'nullable|integer|exists:branches,id',
             'table_id' => 'nullable|integer|exists:tables,id',
+            'guest_name' => 'nullable|string|max:255',
+            'guest_phone' => 'nullable|string|max:50',
             'items' => 'required|array|min:1',
             'items.*.menu_item_id' => 'required|integer|exists:menu_items,id',
             'items.*.item_name' => 'required|string|max:255',
@@ -32,6 +34,7 @@ class GuestOrderController extends Controller
 
         $sale = $this->service->placeOrder($request->only([
             'restaurant_id', 'branch_id', 'table_id', 'items', 'notes',
+            'guest_name', 'guest_phone',
         ]));
 
         return response()->json([
@@ -41,6 +44,8 @@ class GuestOrderController extends Controller
                 'invoice_number' => $sale->invoice_number,
                 'total' => (float) $sale->total,
                 'status' => $sale->status,
+                'guest_name' => $sale->guest_name,
+                'guest_phone' => $sale->guest_phone,
                 'items' => $sale->items->map(fn ($item) => [
                     'name' => $item->item_name,
                     'quantity' => $item->quantity,
@@ -73,6 +78,8 @@ class GuestOrderController extends Controller
                 'total' => (float) $sale->total,
                 'payment_status' => $sale->payment_status,
                 'order_type' => $sale->order_type,
+                'guest_name' => $sale->guest_name,
+                'guest_phone' => $sale->guest_phone,
                 'notes' => $sale->notes,
                 'table' => $sale->table ? $sale->table->name : null,
                 'items' => $sale->items->map(fn ($item) => [

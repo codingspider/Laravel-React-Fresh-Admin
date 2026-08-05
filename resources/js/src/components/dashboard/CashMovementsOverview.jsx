@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
 
-const COLORS = ['#22c55e', '#ef4444', '#f59e0b'];
+const COLORS = ['#14B8A6', '#0F766E', '#2DD4BF'];
 
 const CustomTooltip = ({ active, payload }) => {
     const colors = useThemeColors();

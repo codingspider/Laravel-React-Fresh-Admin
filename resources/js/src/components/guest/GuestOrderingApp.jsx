@@ -303,8 +303,11 @@ function MenuItemCard({ item, currencySymbol, onAddToCart, onOpenModifier }) {
   );
 }
 
-function CartDrawer({ isOpen, onClose, cart, currencySymbol, onUpdateQty, onRemove, onPlaceOrder, table }) {
+function CartDrawer({ isOpen, onClose, cart, currencySymbol, onUpdateQty, onRemove, onPlaceOrder, table, settings, guestName, setGuestName, guestPhone, setGuestPhone }) {
   const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
+  const collectName = settings?.allow_guest_name === true;
+  const collectPhone = settings?.allow_guest_phone === true;
+  const collectInfo = collectName || collectPhone;
 
   return (
     <Drawer isOpen={isOpen} placement="bottom" onClose={onClose} size="full">
@@ -326,6 +329,34 @@ function CartDrawer({ isOpen, onClose, cart, currencySymbol, onUpdateQty, onRemo
             </Flex>
           ) : (
             <VStack spacing={3} align="stretch" maxW="480px" mx="auto">
+              {collectInfo && (
+                <Box p={3} bg="teal.50" _dark={{ bg: 'gray.700' }} borderRadius="lg">
+                  <Text fontWeight="semibold" fontSize="sm" color="gray.800" _dark={{ color: 'white' }} mb={2}>
+                    Your Details
+                  </Text>
+                  <VStack spacing={2}>
+                    {collectName && (
+                      <Input
+                        placeholder="Your name"
+                        value={guestName}
+                        onChange={(e) => setGuestName(e.target.value)}
+                        borderRadius="lg"
+                        size="sm"
+                      />
+                    )}
+                    {collectPhone && (
+                      <Input
+                        placeholder="Your phone number"
+                        value={guestPhone}
+                        onChange={(e) => setGuestPhone(e.target.value)}
+                        borderRadius="lg"
+                        size="sm"
+                        type="tel"
+                      />
+                    )}
+                  </VStack>
+                </Box>
+              )}
               {cart.map((item, idx) => (
                 <Box key={idx} p={3} bg="gray.50" _dark={{ bg: 'gray.700' }} borderRadius="lg">
                   <Flex justify="space-between" align="start">
@@ -586,6 +617,8 @@ export default function GuestOrderingApp() {
   const [restaurant, setRestaurant] = useState(null);
   const [menu, setMenu] = useState([]);
   const [cart, setCart] = useState([]);
+  const [guestName, setGuestName] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
   const [activeCategory, setActiveCategory] = useState(null);
   const [view, setView] = useState('menu');
   const [orderInvoice, setOrderInvoice] = useState(null);
@@ -691,6 +724,18 @@ export default function GuestOrderingApp() {
   const placeOrder = async () => {
     if (cart.length === 0 || !tableData) return;
 
+    const settings = tableData?.qr_ordering || {};
+    if (settings.allow_guest_name === true && !guestName.trim()) {
+      toast({ title: 'Please enter your name', status: 'warning', position: 'top' });
+      onCartOpen();
+      return;
+    }
+    if (settings.allow_guest_phone === true && !guestPhone.trim()) {
+      toast({ title: 'Please enter your phone number', status: 'warning', position: 'top' });
+      onCartOpen();
+      return;
+    }
+
     try {
       const res = await fetch(`${API_BASE}/order`, {
         method: 'POST',
@@ -699,6 +744,8 @@ export default function GuestOrderingApp() {
           restaurant_id: tableData.restaurant_id,
           branch_id: tableData.branch_id,
           table_id: tableData.table_id,
+          guest_name: settings.allow_guest_name === true ? guestName.trim() : null,
+          guest_phone: settings.allow_guest_phone === true ? guestPhone.trim() : null,
           items: cart.map((item) => ({
             menu_item_id: item.id,
             item_name: item.name,
@@ -802,6 +849,11 @@ export default function GuestOrderingApp() {
               onRemove={removeFromCart}
               onPlaceOrder={placeOrder}
               table={tableData?.table_name}
+              settings={tableData?.qr_ordering}
+              guestName={guestName}
+              setGuestName={setGuestName}
+              guestPhone={guestPhone}
+              setGuestPhone={setGuestPhone}
             />
             <ModifierModal
               isOpen={isModOpen}

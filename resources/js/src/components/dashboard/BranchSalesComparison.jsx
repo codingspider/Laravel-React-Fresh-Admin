@@ -92,7 +92,7 @@ export default function BranchSalesComparison({ data = [] }) {
                             content={<CustomTooltip />}
                             cursor={{ fill: useColorModeValue('#f5f5f5', '#2a2a2a') }}
                         />
-                        <Bar dataKey="sales" fill="#3b82f6" radius={[6, 6, 0, 0]} />
+                        <Bar dataKey="sales" fill="#0d9488" radius={[6, 6, 0, 0]} />
                     </BarChart>
                 </ResponsiveContainer>
             </Box>

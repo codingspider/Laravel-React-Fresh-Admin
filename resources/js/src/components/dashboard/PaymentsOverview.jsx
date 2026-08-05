@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
 
-const COLORS = ['#6b7280', '#22c55e', '#06b6d4', '#3b82f6'];
+const COLORS = ['#0d9488', '#14B8A6', '#2DD4BF', '#5EEAD4'];
 
 const CustomTooltip = ({ active, payload }) => {
     const colors = useThemeColors();
@@ -56,14 +56,14 @@ export default function PaymentsOverview({ data = {} }) {
     };
 
     const methodColors = {
-        cash: '#6b7280',
-        card: '#22c55e',
-        mobile_wallet: '#06b6d4',
-        bkash: '#06b6d4',
-        nagad: '#06b6d4',
-        rocket: '#06b6d4',
-        bank_transfer: '#3b82f6',
-        online: '#8b5cf6',
+        cash: '#0d9488',
+        card: '#14B8A6',
+        mobile_wallet: '#2DD4BF',
+        bkash: '#2DD4BF',
+        nagad: '#2DD4BF',
+        rocket: '#2DD4BF',
+        bank_transfer: '#5EEAD4',
+        online: '#0F766E',
     };
 
     const aggregated = {};

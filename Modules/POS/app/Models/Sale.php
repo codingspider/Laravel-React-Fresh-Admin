@@ -18,6 +18,8 @@ class Sale extends Model
         'pos_session_id',
         'table_id',
         'customer_id',
+        'guest_name',
+        'guest_phone',
         'user_id',
         'invoice_number',
         'order_type',

@@ -86,10 +86,10 @@ export default function SalesAnalytics({ data = [] }) {
                         <Line
                             type="monotone"
                             dataKey="total"
-                            stroke="#f97316"
+                            stroke="#0d9488"
                             strokeWidth={2.5}
-                            dot={{ r: 4, fill: '#f97316', stroke: 'white', strokeWidth: 2 }}
-                            activeDot={{ r: 6, fill: '#f97316', stroke: 'white', strokeWidth: 2 }}
+                            dot={{ r: 4, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
+                            activeDot={{ r: 6, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
                         />
                     </LineChart>
                 </ResponsiveContainer>

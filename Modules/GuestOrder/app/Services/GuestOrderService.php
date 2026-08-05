@@ -38,6 +38,13 @@ class GuestOrderService
                 'tax_name' => $table->restaurant->tax_name,
                 'tax_inclusive' => $table->restaurant->tax_inclusive,
             ],
+            'qr_ordering' => [
+                'enabled' => (bool) ($table->restaurant->metadata['qr_ordering']['enabled'] ?? true),
+                'allow_guest_name' => (bool) ($table->restaurant->metadata['qr_ordering']['allow_guest_name'] ?? false),
+                'allow_guest_phone' => (bool) ($table->restaurant->metadata['qr_ordering']['allow_guest_phone'] ?? false),
+                'show_preparation_time' => (bool) ($table->restaurant->metadata['qr_ordering']['show_preparation_time'] ?? true),
+                'default_order_type' => $table->restaurant->metadata['qr_ordering']['default_order_type'] ?? 'dine_in',
+            ],
             'branch_id' => $table->branch_id,
             'branch' => $table->branch ? [
                 'id' => $table->branch->id,
@@ -147,6 +154,8 @@ class GuestOrderService
                 'branch_id' => $data['branch_id'] ?? null,
                 'table_id' => $data['table_id'] ?? null,
                 'customer_id' => null,
+                'guest_name' => $data['guest_name'] ?? null,
+                'guest_phone' => $data['guest_phone'] ?? null,
                 'user_id' => 1,
                 'invoice_number' => Sale::generateInvoiceNumber($data['restaurant_id']),
                 'order_type' => 'dine_in',

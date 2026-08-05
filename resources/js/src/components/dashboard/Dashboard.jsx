@@ -92,7 +92,7 @@ const pieChartData = [
     { name: 'Takeaway', value: 300 },
     { name: 'Delivery', value: 200 },
 ];
-const COLORS = ['#0D9488', '#F59E0B', '#8B5CF6'];
+const COLORS = ['#0D9488', '#14B8A6', '#5EEAD4'];
 
 const tableData = [
     { id: '#3210', customer: 'Olivia Martin', email: 'olivia@email.com', status: 'Completed', date: '2023-10-01', amount: '$1,999.00' },
@@ -224,8 +224,8 @@ export default function Dashboard() {
                                         <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8B5CF6" stopOpacity={0.15} />
-                                        <stop offset="95%" stopColor="#8B5CF6" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="#14B8A6" stopOpacity={0.15} />
+                                        <stop offset="95%" stopColor="#14B8A6" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke={useColorModeValue('#f0f0f0', '#2D3748')} vertical={false} />
@@ -233,7 +233,7 @@ export default function Dashboard() {
                                 <YAxis axisLine={false} tickLine={false} fontSize={12} tick={{ fill: '#9ca3af' }} />
                                 <RechartsTooltip content={<CustomTooltip />} />
                                 <Area type="monotone" dataKey="revenue" stroke="#0d9488" strokeWidth={2.5} fill="url(#colorRevenue)" dot={false} activeDot={{ r: 6, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }} />
-                                <Area type="monotone" dataKey="profit" stroke="#8B5CF6" strokeWidth={2.5} fill="url(#colorProfit)" dot={false} activeDot={{ r: 6, fill: '#8B5CF6', stroke: 'white', strokeWidth: 2 }} />
+                                <Area type="monotone" dataKey="profit" stroke="#14B8A6" strokeWidth={2.5} fill="url(#colorProfit)" dot={false} activeDot={{ r: 6, fill: '#14B8A6', stroke: 'white', strokeWidth: 2 }} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </Box>

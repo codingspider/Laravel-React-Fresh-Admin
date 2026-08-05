@@ -4,7 +4,7 @@ import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, L
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
 
-const COLORS = ['#0d9488', '#3b82f6', '#f97316', '#8b5cf6', '#ec4899', '#06b6d4', '#f59e0b'];
+const COLORS = ['#0d9488', '#14B8A6', '#2DD4BF', '#5EEAD4', '#0F766E', '#115E59', '#134E4A'];
 
 const CustomTooltip = ({ active, payload }) => {
     const colors = useThemeColors();
