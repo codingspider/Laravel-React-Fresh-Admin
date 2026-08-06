@@ -15,14 +15,13 @@ import {
 import useThemeColors from '../../../hooks/useThemeColors';
 import api from '../../../axios';
 import { POS_COUPONS } from '../../../routes/apiRoutes';
-import { buildThermalHtml, printHtml } from './ReceiptPrint';
+import InvoiceSearchModal from './InvoiceSearchModal';
 
 export default function TopBar({
   customers, selectedCustomer, setSelectedCustomer, searchQuery, setSearchQuery,
   orderType, setOrderType, cart, cartItemCount, isFullscreen, toggleFullscreen,
   setMobileCartOpen, orderTypes, enableCustomer,
   branches, selectedBranchId, setSelectedBranchId, canSelectBranch, selectedBranch,
-  currentSale, restaurant,
   couponCode, setCouponCode,
   onBarcodeScan,
 }) {
@@ -74,20 +73,8 @@ export default function TopBar({
   const [calcPrevValue, setCalcPrevValue] = useState(null);
   const [calcWaitingForOperand, setCalcWaitingForOperand] = useState(false);
 
-  // Print last invoice
-  const handlePrintLastInvoice = () => {
-    if (!currentSale || !restaurant) {
-      return;
-    }
-    const html = buildThermalHtml(currentSale, restaurant, (amount) => {
-      const formatted = new Intl.NumberFormat('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      }).format(amount);
-      return formatted;
-    }, t);
-    printHtml(html);
-  };
+  // Invoice search & print
+  const [invoiceSearchOpen, setInvoiceSearchOpen] = useState(false);
 
   // Fetch coupons when modal opens
   const fetchCoupons = async () => {
@@ -366,10 +353,10 @@ export default function TopBar({
               borderRadius="lg" bg={colors.topbarFullscreen} color="white"
               _hover={{ bg: colors.topbarFullscreenHover }} onClick={toggleFullscreen} />
           </Tooltip>
-          <Tooltip label={t('Print Last Invoice')} placement="top">
+          <Tooltip label={t('Print Invoice / KOT')} placement="top">
             <IconButton size="sm" icon={<Printer size={16} />} borderRadius="lg"
               bg={colors.topbarPrint} color="white"
-              _hover={{ bg: colors.topbarPrintHover }} onClick={handlePrintLastInvoice} isDisabled={!currentSale} />
+              _hover={{ bg: colors.topbarPrintHover }} onClick={() => setInvoiceSearchOpen(true)} />
           </Tooltip>
         </HStack>
 
@@ -546,6 +533,11 @@ export default function TopBar({
           </ModalBody>
         </ModalContent>
       </Modal>
+
+      <InvoiceSearchModal
+        isOpen={invoiceSearchOpen}
+        onClose={() => setInvoiceSearchOpen(false)}
+      />
     </Box>
   );
 }

@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { usePermission } from '../../../context/PermissionContext';
 import { toAbsUrl, writeAndPrint } from '../../../utils/printUtil';
 
-function buildKotHtml(sale, restaurant) {
+export function buildKotHtml(sale, restaurant) {
   const date = sale.created_at ? new Date(sale.created_at).toLocaleString() : '-';
   const logo = restaurant?.logo;
   const logoHtml = logo

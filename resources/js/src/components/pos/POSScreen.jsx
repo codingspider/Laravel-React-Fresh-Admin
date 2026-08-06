@@ -611,8 +611,6 @@ export default function POSScreen() {
           setSelectedBranchId={setSelectedBranchId}
           canSelectBranch={canSelectBranch}
           selectedBranch={selectedBranch}
-          currentSale={currentSale}
-          restaurant={restaurant}
           couponCode={couponCode}
           setCouponCode={setCouponCode}
           onBarcodeScan={handleBarcodeScan}
