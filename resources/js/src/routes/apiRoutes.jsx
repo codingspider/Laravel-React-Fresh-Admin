@@ -273,6 +273,13 @@ export const BALANCE_SHEET_REPORT = '/reports/balance-sheet';
 export const CASH_FLOW_REPORT = '/reports/cash-flow';
 export const ACCOUNTING_DASHBOARD = '/reports/dashboard';
 
+// Reports - Business Reports
+export const REPORT_META = '/reports/meta';
+export const REPORT_SALES = '/reports/sales';
+export const REPORT_PURCHASES = '/reports/purchases';
+export const REPORT_TAXES = '/reports/taxes';
+export const REPORT_EXPENSES = '/reports/expenses';
+
 export const EXPORT_TEXT_FROM_IMAGE = "/extract-text-from-image";
 
 // ===== Phase 1 Module API Routes =====

@@ -4,37 +4,194 @@ namespace Modules\Accounting\Services;
 
 use Modules\Accounting\Models\JournalEntry;
 use Modules\Accounting\Models\Account;
+use Modules\Accounting\Models\Income;
+use Modules\Accounting\Models\Expense;
 use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
-    public function profitAndLoss(int $restaurantId, string $dateFrom = null, string $dateTo = null): array
+    public function profitAndLoss(int $restaurantId, ?string $dateFrom = null, ?string $dateTo = null, ?int $branchId = null): array
     {
-        $entries = JournalEntry::forRestaurant($restaurantId)
-            ->with('account');
-        if ($dateFrom && $dateTo) {
-            $entries->byDateRange($dateFrom, $dateTo);
+        $incomeQuery = Income::forRestaurant($restaurantId)->with('account');
+        $expenseQuery = Expense::forRestaurant($restaurantId)->with(['account', 'category']);
+
+        if ($branchId) {
+            $incomeQuery->where('branch_id', $branchId);
+            $expenseQuery->where('branch_id', $branchId);
         }
 
-        $entries = $entries->get();
+        if ($dateFrom && $dateTo) {
+            $incomeQuery->whereBetween('income_date', [$dateFrom, $dateTo]);
+            $expenseQuery->whereBetween('expense_date', [$dateFrom, $dateTo]);
+        }
 
-        $incomeEntries = $entries->where('entry_type', 'debit')
-            ->where('source_module', 'income');
-        $expenseEntries = $entries->where('entry_type', 'debit')
-            ->where('source_module', 'expense');
+        $incomes = $incomeQuery->orderByDesc('income_date')->get();
+        $expenses = $expenseQuery->where('status', '!=', 'rejected')->orderByDesc('expense_date')->get();
 
-        $totalIncome = $incomeEntries->sum('amount');
-        $totalExpenses = $expenseEntries->sum('amount');
-        $netProfit = $totalIncome - $totalExpenses;
+        // Revenue grouped by income account
+        $revenueItems = [];
+        foreach ($incomes as $income) {
+            $account = $this->resolveIncomeAccount($income, $restaurantId);
+            $key = $account ? 'acc-' . $account->id : 'acc-unmapped';
+
+            if (!isset($revenueItems[$key])) {
+                $revenueItems[$key] = [
+                    'account_id' => $account?->id,
+                    'code' => $account?->code,
+                    'name' => $account?->name ?? 'Uncategorized',
+                    'account_group' => $account?->account_group,
+                    'amount' => 0,
+                    'transactions_count' => 0,
+                ];
+            }
+            $revenueItems[$key]['amount'] += (float) $income->amount;
+            $revenueItems[$key]['transactions_count']++;
+        }
+
+        // Expenses split into COGS and operating expenses, plus a category breakdown
+        $cogsItems = [];
+        $operatingItems = [];
+        $categoryItems = [];
+        foreach ($expenses as $expense) {
+            $account = $this->resolveExpenseAccount($expense, $restaurantId);
+            $isCogs = $account !== null && $account->account_group === 'purchase';
+            if ($isCogs) {
+                $bucket = &$cogsItems;
+            } else {
+                $bucket = &$operatingItems;
+            }
+            $key = $account ? 'acc-' . $account->id : 'acc-unmapped';
+
+            if (!isset($bucket[$key])) {
+                $bucket[$key] = [
+                    'account_id' => $account?->id,
+                    'code' => $account?->code,
+                    'name' => $account?->name ?? ($expense->category->name ?? 'Uncategorized'),
+                    'account_group' => $account?->account_group,
+                    'amount' => 0,
+                    'transactions_count' => 0,
+                ];
+            }
+            $bucket[$key]['amount'] += (float) $expense->amount;
+            $bucket[$key]['transactions_count']++;
+
+            $categoryKey = $expense->category ? 'cat-' . $expense->category->id : 'cat-unmapped';
+            if (!isset($categoryItems[$categoryKey])) {
+                $categoryItems[$categoryKey] = [
+                    'category_id' => $expense->category?->id,
+                    'category' => $expense->category?->name ?? 'Uncategorized',
+                    'amount' => 0,
+                    'transactions_count' => 0,
+                ];
+            }
+            $categoryItems[$categoryKey]['amount'] += (float) $expense->amount;
+            $categoryItems[$categoryKey]['transactions_count']++;
+        }
+        unset($bucket);
+
+        $revenueItems = $this->sortByName($revenueItems);
+        $cogsItems = $this->sortByName($cogsItems);
+        $operatingItems = $this->sortByName($operatingItems);
+        $categoryItems = $this->sortByName($categoryItems);
+
+        $totalRevenue = round(array_sum(array_column($revenueItems, 'amount')), 2);
+        $totalCogs = round(array_sum(array_column($cogsItems, 'amount')), 2);
+        $totalOperating = round(array_sum(array_column($operatingItems, 'amount')), 2);
+        $grossProfit = round($totalRevenue - $totalCogs, 2);
+        $netProfit = round($grossProfit - $totalOperating, 2);
+        $netMargin = $totalRevenue > 0 ? round(($netProfit / $totalRevenue) * 100, 2) : 0;
 
         return [
             'period' => ['from' => $dateFrom, 'to' => $dateTo],
-            'total_income' => $totalIncome,
-            'total_expenses' => $totalExpenses,
+            'branch_id' => $branchId,
+            // Summary
+            'total_income' => $totalRevenue,
+            'total_revenue' => $totalRevenue,
+            'total_cogs' => $totalCogs,
+            'gross_profit' => $grossProfit,
+            'total_expenses' => round($totalCogs + $totalOperating, 2),
+            'total_operating_expenses' => $totalOperating,
             'net_profit' => $netProfit,
-            'income_breakdown' => $this->groupByType($incomeEntries, 'account_id'),
-            'expense_breakdown' => $this->groupByType($expenseEntries, 'account_id'),
+            'net_margin' => $netMargin,
+            // Statement sections
+            'revenue' => [
+                'items' => array_values($revenueItems),
+                'total' => $totalRevenue,
+            ],
+            'cogs' => [
+                'items' => array_values($cogsItems),
+                'total' => $totalCogs,
+            ],
+            'operating_expenses' => [
+                'items' => array_values($operatingItems),
+                'total' => $totalOperating,
+            ],
+            'expense_by_category' => [
+                'items' => array_values($categoryItems),
+                'total' => round($totalCogs + $totalOperating, 2),
+            ],
+            // Transaction details
+            'income_transactions' => $incomes->map(fn(Income $income) => [
+                'id' => $income->id,
+                'date' => optional($income->income_date)->format('Y-m-d'),
+                'source' => $income->source,
+                'account' => $this->resolveIncomeAccount($income, $restaurantId)?->name ?? 'Uncategorized',
+                'category' => $income->category,
+                'reference_number' => $income->reference_number,
+                'payment_method' => $income->payment_method,
+                'amount' => (float) $income->amount,
+                'notes' => $income->notes,
+            ])->values()->all(),
+            'expense_transactions' => $expenses->map(fn(Expense $expense) => [
+                'id' => $expense->id,
+                'date' => optional($expense->expense_date)->format('Y-m-d'),
+                'status' => $expense->status,
+                'account' => $this->resolveExpenseAccount($expense, $restaurantId)?->name ?? ($expense->category->name ?? 'Uncategorized'),
+                'category' => $expense->category?->name,
+                'reference_number' => $expense->reference_number,
+                'payment_method' => $expense->payment_method,
+                'amount' => (float) $expense->amount,
+                'notes' => $expense->notes,
+            ])->values()->all(),
         ];
+    }
+
+    /**
+     * Resolve the income account used for statement grouping.
+     * Falls back to the system account mapped from the income source.
+     */
+    protected function resolveIncomeAccount(Income $income, int $restaurantId): ?Account
+    {
+        if ($income->account && $income->account->type === 'income') {
+            return $income->account;
+        }
+
+        $group = $income->source === 'pos_sale' ? 'food_sales' : 'other_income';
+
+        return Account::forRestaurant($restaurantId)
+            ->byType('income')
+            ->where('account_group', $group)
+            ->first();
+    }
+
+    /**
+     * Resolve the expense account used for statement grouping.
+     * Returns null when the expense is not linked to a real expense account.
+     */
+    protected function resolveExpenseAccount(Expense $expense, int $restaurantId): ?Account
+    {
+        if ($expense->account && $expense->account->type === 'expense') {
+            return $expense->account;
+        }
+
+        return null;
+    }
+
+    protected function sortByName(array $items): array
+    {
+        usort($items, fn($a, $b) => strcmp((string) $a['name'], (string) $b['name']));
+
+        return $items;
     }
 
     public function balanceSheet(int $restaurantId, string $dateTo = null): array

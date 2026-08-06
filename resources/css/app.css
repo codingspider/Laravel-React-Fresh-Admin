@@ -83,3 +83,22 @@ body.chakra-ui-dark .form-dark-surface a,
     border-color: var(--chakra-colors-gray-600) !important;
     color: var(--chakra-colors-gray-100);
 }
+
+/* POS terminal — remove page padding on top, left, and right */
+.pos-terminal {
+    margin: -16px -16px 0 -16px !important;
+    border-radius: 0 !important;
+}
+
+@media (min-width: 48em) {
+    .pos-terminal {
+        margin: -20px -20px 0 -20px !important;
+    }
+}
+
+@media (min-width: 62em) {
+    .pos-terminal {
+        margin: -24px -24px 0 -24px !important;
+    }
+}
+

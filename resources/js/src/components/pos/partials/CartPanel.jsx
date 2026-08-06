@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Text, HStack, VStack, Button, Center, Flex, Select, Tooltip, IconButton,
+  Box, Text, HStack, VStack, Button, Flex, Select, Tooltip, IconButton,
   Table, Thead, Tbody, Tr, Th, Td, Input,
   Drawer, DrawerOverlay, DrawerContent, DrawerCloseButton, DrawerHeader, DrawerBody,
   Menu, MenuButton, MenuList, MenuItem,
@@ -145,13 +145,13 @@ function CartItems({ cart, cartItemCount, cartSubtotal, discountAmount, taxRate,
       )}
 
       <Box flex="1" overflowY="auto" px={2}>        {cart.length === 0 ? (
-        <Center h="100%" flexDirection="column" px={2}>
-          <Box p={4} borderRadius="2xl" bg={colors.bgSubtle} mb={2}>
-            <ShoppingBag size={32} color={colors.textMuted} strokeWidth={1} />
+        <Flex direction="column" align="center" justify="center" py={6} px={2}>
+          <Box p={1.5} borderRadius="lg" bg={colors.bgSubtle} mb={1.5}>
+            <ShoppingBag size={20} color={colors.textMuted} strokeWidth={1} />
           </Box>
           <Text color={colors.textSecondary} fontSize="sm" fontWeight="600">{t('No items in cart')}</Text>
-          <Text color={colors.textMuted} fontSize="xs" mt={1}>{t('Click products to add them')}</Text>
-        </Center>
+          <Text color={colors.textMuted} fontSize="xs" mt={0.5}>{t('Click products to add them')}</Text>
+        </Flex>
       ) : (
         <Box>
           <Table size="sm" variant="unstyled">
@@ -183,14 +183,14 @@ function CartItems({ cart, cartItemCount, cartSubtotal, discountAmount, taxRate,
                     <Text fontSize="xs" color={colors.textMuted}>{t('each')} {formatAmount(item.unit_price)}</Text>
                   </Td>
                   <Td px={1} py={1.5}>
-                    <HStack spacing={0} justify="center">
-                      <IconButton size="xs" variant="ghost" icon={<MinusIcon boxSize={3} />}
-                        onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, -1)} borderRadius="md" />
+                    <HStack spacing={1} justify="center">
+                      <IconButton size="xs" variant="solid" colorScheme="red" icon={<MinusIcon boxSize={3} />}
+                        onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, -1)} borderRadius="full" />
                       <Text fontSize="sm" fontWeight="700" minW="24px" textAlign="center" color={colors.textPrimary}>
                         {item.quantity}
                       </Text>
-                      <IconButton size="xs" variant="ghost" icon={<AddIcon boxSize={3} />}
-                        onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, 1)} borderRadius="md" />
+                      <IconButton size="xs" variant="solid" colorScheme="green" icon={<AddIcon boxSize={3} />}
+                        onClick={() => updateCartQty(item.modifier_key || item.menu_item_id, 1)} borderRadius="full" />
                     </HStack>
                   </Td>
                   <Td px={1} py={1.5} textAlign="right">

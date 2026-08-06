@@ -81,6 +81,10 @@ import {
     BALANCE_SHEET_PATH,
     CASH_FLOW_PATH,
     ACCOUNTING_DASHBOARD_PATH,
+    SALE_REPORT_PATH,
+    PURCHASE_REPORT_PATH,
+    TAX_REPORT_PATH,
+    EXPENSE_REPORT_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -190,11 +194,14 @@ const navItems = [
     {
         icon: FileText,
         label: 'Reports',
-        permission: 'view_profit_loss_report',
+        permission: 'view_reports',
         excludeRole: 'super_admin',
         children: [
             { path: PROFIT_LOSS_PATH, label: 'Profit & Loss', permission: 'view_profit_loss_report' },
-
+            { path: SALE_REPORT_PATH, label: 'Sales Report', permission: 'view_sale_report' },
+            { path: PURCHASE_REPORT_PATH, label: 'Purchase Report', permission: 'view_purchase_report' },
+            { path: TAX_REPORT_PATH, label: 'Tax Report', permission: 'view_tax_report' },
+            { path: EXPENSE_REPORT_PATH, label: 'Expense Report', permission: 'view_expense_report' },
         ],
     },
     {

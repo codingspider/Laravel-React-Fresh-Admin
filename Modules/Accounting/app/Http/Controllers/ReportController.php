@@ -15,12 +15,13 @@ class ReportController extends Controller
     public function profitAndLoss(Request $request)
     {
         $restaurantId = getRestaurantId($request->user());
-        $filters = $request->only(['date_from', 'date_to']);
+        $filters = $request->only(['date_from', 'date_to', 'branch_id']);
 
         $data = $this->reportService->profitAndLoss(
             $restaurantId,
             $filters['date_from'] ?? null,
-            $filters['date_to'] ?? null
+            $filters['date_to'] ?? null,
+            $filters['branch_id'] ?? null
         );
 
         return response()->json([

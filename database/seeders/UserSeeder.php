@@ -166,6 +166,10 @@ class UserSeeder extends Seeder
 
             // Reports
             'view_reports',
+            'view_sale_report',
+            'view_purchase_report',
+            'view_tax_report',
+            'view_expense_report',
 
             // Kitchen
             'view_kitchen_display',

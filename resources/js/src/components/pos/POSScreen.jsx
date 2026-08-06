@@ -589,7 +589,7 @@ export default function POSScreen() {
   const saleTotal = currentSale?.total || cartTotal;
 
   return (
-    <Flex h="calc(100vh - 60px)" overflow="hidden" bg={colors.bgPage}>
+    <Flex className="pos-terminal" h="calc(100vh - 60px)" overflow="hidden" bg={colors.bgPage}>
       <Box flex="1" minW={0} display="flex" flexDirection="column">
         <TopBar
           customers={customers}

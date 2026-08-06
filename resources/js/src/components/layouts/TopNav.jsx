@@ -169,14 +169,6 @@ function ProfileMenu() {
                 >
                     Profile
                 </MenuItem>
-                <MenuItem
-                    icon={<Icon as={Settings} boxSize={4} />}
-                    borderRadius="md"
-                    fontSize="sm"
-                    onClick={() => navigate('/settings')}
-                >
-                    Settings
-                </MenuItem>
 
                 <MenuDivider />
 

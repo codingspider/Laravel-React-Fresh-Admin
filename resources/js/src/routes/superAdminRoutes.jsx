@@ -52,6 +52,11 @@ import BalanceSheetReport from "../components/admin/accounting/BalanceSheetRepor
 import CashFlowReport from "../components/admin/accounting/CashFlowReport";
 import AccountingDashboard from "../components/admin/accounting/AccountingDashboard";
 
+import SaleReport from "../components/admin/reports/SaleReport";
+import PurchaseReport from "../components/admin/reports/PurchaseReport";
+import TaxReport from "../components/admin/reports/TaxReport";
+import ExpenseReport from "../components/admin/reports/ExpenseReport";
+
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
 import UserEdit from './../components/user/UserEdit';
@@ -331,6 +336,12 @@ export const BALANCE_SHEET_PATH = "/accounting/reports/balance-sheet";
 export const CASH_FLOW_PATH = "/accounting/reports/cash-flow";
 export const ACCOUNTING_DASHBOARD_PATH = "/accounting/dashboard";
 
+// Business Reports
+export const SALE_REPORT_PATH = "/reports/sales";
+export const PURCHASE_REPORT_PATH = "/reports/purchases";
+export const TAX_REPORT_PATH = "/reports/taxes";
+export const EXPENSE_REPORT_PATH = "/reports/expenses";
+
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
     { path: `/settings`, element: <MasterSetting /> },
@@ -530,4 +541,10 @@ export const superAdminRoutes = [
 
     // Accounting - Dashboard
     { path: ACCOUNTING_DASHBOARD_PATH, element: <AccountingDashboard /> },
+
+    // Business Reports
+    { path: SALE_REPORT_PATH, element: <SaleReport /> },
+    { path: PURCHASE_REPORT_PATH, element: <PurchaseReport /> },
+    { path: TAX_REPORT_PATH, element: <TaxReport /> },
+    { path: EXPENSE_REPORT_PATH, element: <ExpenseReport /> },
 ];
