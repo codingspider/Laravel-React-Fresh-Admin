@@ -147,27 +147,28 @@ export default function POSSalesView() {
               <Text fontSize="sm" color={colors.textSecondary}>{t('Updated At')}</Text>
               <Text fontSize="sm">{sale.updated_at ? new Date(sale.updated_at).toLocaleString() : '-'}</Text>
             </HStack>
-            {sale.customer && (
-              <Box bg={colors.bgCard} borderRadius="xl" border="1px solid" borderColor={colors.borderDefault} p={4}>
-                <HStack mb={2}>
-                  <Text fontWeight="600" fontSize="sm">{t('Customer Info')}</Text>
+            <Box bg={colors.bgCard} borderRadius="xl" border="1px solid" borderColor={colors.borderDefault} p={4}>
+              <HStack mb={2}>
+                <Text fontWeight="600" fontSize="sm">{t('Customer Info')}</Text>
+                {sale.guest_name && !sale.customer && (
+                  <Badge colorScheme="teal" variant="subtle" borderRadius="full" px={2} py={0.5} fontSize="xs" textTransform="capitalize">{t('Guest')}</Badge>
+                )}
+              </HStack>
+              <VStack spacing={1} align="stretch">
+                <HStack justify="space-between">
+                  <Text fontSize="xs" color={colors.textSecondary}>{t('Name')}</Text>
+                  <Text fontSize="xs" fontWeight="600">{sale.customer?.name || sale.guest_name || '-'}</Text>
                 </HStack>
-                <VStack spacing={1} align="stretch">
-                  <HStack justify="space-between">
-                    <Text fontSize="xs" color={colors.textSecondary}>{t('Name')}</Text>
-                    <Text fontSize="xs" fontWeight="600">{sale.customer.name || '-'}</Text>
-                  </HStack>
-                  <HStack justify="space-between">
-                    <Text fontSize="xs" color={colors.textSecondary}>{t('Phone')}</Text>
-                    <Text fontSize="xs" fontWeight="600">{sale.customer.phone || '-'}</Text>
-                  </HStack>
-                  <HStack justify="space-between">
-                    <Text fontSize="xs" color={colors.textSecondary}>{t('Address')}</Text>
-                    <Text fontSize="xs" fontWeight="600">{sale.customer.address || '-'}</Text>
-                  </HStack>
-                </VStack>
-              </Box>
-            )}
+                <HStack justify="space-between">
+                  <Text fontSize="xs" color={colors.textSecondary}>{t('Phone')}</Text>
+                  <Text fontSize="xs" fontWeight="600">{sale.customer?.phone || sale.guest_phone || '-'}</Text>
+                </HStack>
+                <HStack justify="space-between">
+                  <Text fontSize="xs" color={colors.textSecondary}>{t('Address')}</Text>
+                  <Text fontSize="xs" fontWeight="600">{sale.customer?.address || '-'}</Text>
+                </HStack>
+              </VStack>
+            </Box>
           </VStack>
         </Box>
 

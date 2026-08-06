@@ -15,6 +15,8 @@ class SaleResource extends JsonResource
             'pos_session_id' => $this->pos_session_id,
             'table_id' => $this->table_id,
             'customer_id' => $this->customer_id,
+            'guest_name' => $this->guest_name,
+            'guest_phone' => $this->guest_phone,
             'user_id' => $this->user_id,
             'invoice_number' => $this->invoice_number,
             'order_type' => $this->order_type,

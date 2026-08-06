@@ -303,11 +303,8 @@ function MenuItemCard({ item, currencySymbol, onAddToCart, onOpenModifier }) {
   );
 }
 
-function CartDrawer({ isOpen, onClose, cart, currencySymbol, onUpdateQty, onRemove, onPlaceOrder, table, settings, guestName, setGuestName, guestPhone, setGuestPhone }) {
+function CartDrawer({ isOpen, onClose, cart, currencySymbol, onUpdateQty, onRemove, onPlaceOrder, table }) {
   const subtotal = cart.reduce((sum, item) => sum + item.total, 0);
-  const collectName = settings?.allow_guest_name === true;
-  const collectPhone = settings?.allow_guest_phone === true;
-  const collectInfo = collectName || collectPhone;
 
   return (
     <Drawer isOpen={isOpen} placement="bottom" onClose={onClose} size="full">
@@ -329,34 +326,6 @@ function CartDrawer({ isOpen, onClose, cart, currencySymbol, onUpdateQty, onRemo
             </Flex>
           ) : (
             <VStack spacing={3} align="stretch" maxW="480px" mx="auto">
-              {collectInfo && (
-                <Box p={3} bg="teal.50" _dark={{ bg: 'gray.700' }} borderRadius="lg">
-                  <Text fontWeight="semibold" fontSize="sm" color="gray.800" _dark={{ color: 'white' }} mb={2}>
-                    Your Details
-                  </Text>
-                  <VStack spacing={2}>
-                    {collectName && (
-                      <Input
-                        placeholder="Your name"
-                        value={guestName}
-                        onChange={(e) => setGuestName(e.target.value)}
-                        borderRadius="lg"
-                        size="sm"
-                      />
-                    )}
-                    {collectPhone && (
-                      <Input
-                        placeholder="Your phone number"
-                        value={guestPhone}
-                        onChange={(e) => setGuestPhone(e.target.value)}
-                        borderRadius="lg"
-                        size="sm"
-                        type="tel"
-                      />
-                    )}
-                  </VStack>
-                </Box>
-              )}
               {cart.map((item, idx) => (
                 <Box key={idx} p={3} bg="gray.50" _dark={{ bg: 'gray.700' }} borderRadius="lg">
                   <Flex justify="space-between" align="start">
@@ -410,6 +379,81 @@ function CartDrawer({ isOpen, onClose, cart, currencySymbol, onUpdateQty, onRemo
         </DrawerFooter>
       </DrawerContent>
     </Drawer>
+  );
+}
+
+function GuestInfoModal({ isOpen, onClose, restaurant, settings, guestName, setGuestName, guestPhone, setGuestPhone }) {
+  const collectName = settings?.allow_guest_name === true;
+  const collectPhone = settings?.allow_guest_phone === true;
+  const valid = (!collectName || guestName.trim()) && (!collectPhone || guestPhone.trim());
+
+  return (
+    <Modal isOpen={isOpen} onClose={onClose} closeOnOverlayClick={false} closeOnEsc={false} isCentered>
+      <ModalOverlay />
+      <ModalContent borderRadius="2xl" mx={4}>
+        <ModalBody p={8}>
+          <VStack spacing={4} textAlign="center">
+            {restaurant?.logo ? (
+              <Image src={restaurant.logo} boxSize="72px" borderRadius="full" objectFit="cover" />
+            ) : (
+              <Box boxSize="72px" borderRadius="full" bg="teal.500" display="flex" alignItems="center" justifyContent="center" fontSize="3xl">🍽️</Box>
+            )}
+            <Box>
+              <Heading size="md" color="gray.800" _dark={{ color: 'white' }}>{restaurant?.name || 'Welcome'}</Heading>
+              <Text fontSize="sm" color="gray.500" _dark={{ color: 'gray.400' }} mt={1}>
+                Tell us about you to get started
+              </Text>
+            </Box>
+
+            {(collectName || collectPhone) && (
+              <VStack spacing={3} w="100%" mt={2} textAlign="left">
+                {collectName && (
+                  <Box w="100%">
+                    <Text fontSize="xs" fontWeight="bold" color="gray.600" _dark={{ color: 'gray.300' }} mb={1}>Your Name</Text>
+                    <Input
+                      placeholder="Enter your name"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                      borderRadius="lg"
+                      size="lg"
+                      variant="filled"
+                    />
+                  </Box>
+                )}
+                {collectPhone && (
+                  <Box w="100%">
+                    <Text fontSize="xs" fontWeight="bold" color="gray.600" _dark={{ color: 'gray.300' }} mb={1}>Phone Number</Text>
+                    <Input
+                      placeholder="Enter your phone number"
+                      value={guestPhone}
+                      onChange={(e) => setGuestPhone(e.target.value)}
+                      borderRadius="lg"
+                      size="lg"
+                      type="tel"
+                      variant="filled"
+                    />
+                  </Box>
+                )}
+              </VStack>
+            )}
+
+            <Button
+              w="100%"
+              colorScheme="teal"
+              size="lg"
+              borderRadius="xl"
+              fontWeight="bold"
+              mt={2}
+              isDisabled={!valid}
+              onClick={onClose}
+              _hover={{ bg: 'teal.700' }}
+            >
+              Start Ordering
+            </Button>
+          </VStack>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
   );
 }
 
@@ -625,6 +669,7 @@ export default function GuestOrderingApp() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modifierItem, setModifierItem] = useState(null);
+  const [isGuestInfoOpen, setIsGuestInfoOpen] = useState(false);
   const { isOpen: isCartOpen, onOpen: onCartOpen, onClose: onCartClose } = useDisclosure();
   const { isOpen: isModOpen, onOpen: onModOpen, onClose: onModClose } = useDisclosure();
   const toast = useToast();
@@ -667,6 +712,14 @@ export default function GuestOrderingApp() {
 
     init();
   }, [tableToken]);
+
+  const collectGuestInfo = tableData?.qr_ordering?.allow_guest_name === true || tableData?.qr_ordering?.allow_guest_phone === true;
+
+  useEffect(() => {
+    if (!loading && !error && tableData && collectGuestInfo) {
+      setIsGuestInfoOpen(true);
+    }
+  }, [loading, error, tableData, collectGuestInfo]);
 
   const filteredMenu = activeCategory
     ? menu.filter((cat) => cat.id === activeCategory)
@@ -727,12 +780,12 @@ export default function GuestOrderingApp() {
     const settings = tableData?.qr_ordering || {};
     if (settings.allow_guest_name === true && !guestName.trim()) {
       toast({ title: 'Please enter your name', status: 'warning', position: 'top' });
-      onCartOpen();
+      setIsGuestInfoOpen(true);
       return;
     }
     if (settings.allow_guest_phone === true && !guestPhone.trim()) {
       toast({ title: 'Please enter your phone number', status: 'warning', position: 'top' });
-      onCartOpen();
+      setIsGuestInfoOpen(true);
       return;
     }
 
@@ -849,11 +902,6 @@ export default function GuestOrderingApp() {
               onRemove={removeFromCart}
               onPlaceOrder={placeOrder}
               table={tableData?.table_name}
-              settings={tableData?.qr_ordering}
-              guestName={guestName}
-              setGuestName={setGuestName}
-              guestPhone={guestPhone}
-              setGuestPhone={setGuestPhone}
             />
             <ModifierModal
               isOpen={isModOpen}
@@ -861,6 +909,16 @@ export default function GuestOrderingApp() {
               item={modifierItem}
               currencySymbol={currencySymbol}
               onAddToCart={addToCart}
+            />
+            <GuestInfoModal
+              isOpen={isGuestInfoOpen}
+              onClose={() => setIsGuestInfoOpen(false)}
+              restaurant={restaurant}
+              settings={tableData?.qr_ordering}
+              guestName={guestName}
+              setGuestName={setGuestName}
+              guestPhone={guestPhone}
+              setGuestPhone={setGuestPhone}
             />
           </>
         )}

@@ -33,28 +33,23 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
   const due = Math.max(0, (parseFloat(sale.total) || 0) - (parseFloat(sale.amount_paid) || 0));
 
   const items = (sale.items || [])
-    .map(
-      (item, idx) => {
-        const modifierPrices = item.modifiers && item.modifiers.length > 0
-          ? item.modifiers.reduce((sum, m) => sum + (parseFloat(m.price) || 0), 0)
-          : 0;
-        const basePrice = parseFloat(item.unit_price) - modifierPrices;
-        const modifiers = item.modifiers && item.modifiers.length > 0
-          ? item.modifiers.map((m) => `<div class="mod-row"><span>${m.name}</span><span>${m.price ? `+${formatAmount(m.price)}` : ''}</span></div>`).join('')
-          : '';
-        return `
-        <tr>
-          <td class="c-num">${idx + 1}</td>
-          <td class="c-item">
-            <div class="item-name">${item.item_name}</div>
-            ${modifiers}
-          </td>
-          <td class="c-qty">${item.quantity}</td>
-          <td class="c-price">${formatAmount(basePrice)}</td>
-          <td class="c-total">${formatAmount(item.total)}</td>
+    .map((item) => {
+      const qty = item.quantity;
+      const itemTotal = (parseFloat(item.unit_price) || 0) * qty;
+      const modifiers = (item.modifiers || []).map((m) => {
+        const modTotal = (parseFloat(m.price) || 0) * qty;
+        return `<tr class="mod-tr">
+          <td class="c-item mod-cell">- ${m.name} <span class="qty">x${qty}</span></td>
+          <td class="c-total">${modTotal > 0 ? formatAmount(modTotal) : ''}</td>
         </tr>`;
-      }
-    )
+      }).join('');
+      return `
+        <tr>
+          <td class="c-item"><div class="item-name">${item.item_name} <span class="qty">x${qty}</span></div></td>
+          <td class="c-total">${formatAmount(itemTotal)}</td>
+        </tr>
+        ${modifiers}`;
+    })
     .join('');
 
   const addrParts = buildAddressParts(restaurant, settings);
@@ -125,7 +120,9 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
   .c-num { width: 40px; color: #94a3b8; text-align: center; }
   .c-item { color: #1e293b; }
   .item-name { font-weight: 600; color: #0f172a; }
-  .mod-row { display: flex; justify-content: space-between; font-size: 12px; color: #64748b; padding-left: 10px; margin-top: 2px; max-width: 300px; }
+  .qty { color: #94a3b8; font-weight: 500; font-size: 11px; margin-left: 2px; }
+  .mod-tr td { border-top: none !important; padding-top: 2px; padding-bottom: 2px; }
+  .mod-cell { padding-left: 26px; color: #64748b; font-size: 12px; }
   .c-qty { text-align: center; color: #475569; }
   .c-price { text-align: right; color: #475569; }
   .c-total { text-align: right; font-weight: 700; color: #0f172a; }
@@ -186,8 +183,8 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
         <td>
           <div class="info-box">
             <div class="info-label">${t('customer')}</div>
-            <div class="info-row"><span class="k">${t('name')}</span><span class="v">${sale.customer?.name || 'Walk-in Customer'}</span></div>
-            ${sale.customer?.phone ? `<div class="info-row"><span class="k">${t('phone_number')}</span><span class="v">${sale.customer.phone}</span></div>` : ''}
+            <div class="info-row"><span class="k">${t('name')}</span><span class="v">${sale.customer?.name || sale.guest_name || 'Walk-in Customer'}</span></div>
+            ${(sale.customer?.phone || sale.guest_phone) ? `<div class="info-row"><span class="k">${t('phone_number')}</span><span class="v">${sale.customer?.phone || sale.guest_phone}</span></div>` : ''}
             ${sale.customer?.address ? `<div class="info-row"><span class="k">${t('address')}</span><span class="v">${sale.customer.address}</span></div>` : ''}
             <div class="info-row"><span class="k">${t('payment')}</span><span class="v"><span class="status">${(sale.payment_status || 'unpaid').replace('_', ' ')}</span></span></div>
           </div>
@@ -199,7 +196,7 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
       <div class="block-title">${t('order_items')}</div>
       <table class="data-table">
         <thead><tr>
-          <th style="width:40px">#</th><th>${t('item')}</th><th style="text-align:center">${t('quantity')}</th><th class="r">${t('price')}</th><th class="r">${t('total')}</th>
+          <th>${t('item')}</th><th class="r">${t('amount')}</th>
         </tr></thead>
         <tbody>${items}</tbody>
       </table>
@@ -239,11 +236,14 @@ function buildThermalHtml(sale, restaurant, formatAmount, t) {
   const date = sale.created_at ? new Date(sale.created_at).toLocaleString() : '-';
   const items = (sale.items || [])
     .map((item) => {
-      const modifierRows = item.modifiers && item.modifiers.length > 0
-        ? item.modifiers.map((m) => `<div class="item-row"><span class="mod-name">+ ${m.name}</span><span>${m.price ? `+${formatAmount(m.price)}` : ''}</span></div>`).join('')
-        : '';
+      const qty = item.quantity;
+      const itemTotal = (parseFloat(item.unit_price) || 0) * qty;
+      const modifierRows = (item.modifiers || []).map((m) => {
+        const modTotal = (parseFloat(m.price) || 0) * qty;
+        return `<div class="item-row"><span class="mod-name">- ${m.name} x${qty}</span><span>${modTotal > 0 ? formatAmount(modTotal) : ''}</span></div>`;
+      }).join('');
       return `<div class="item-block">
-        <div class="row"><span>${item.item_name} x${item.quantity}</span><span class="bold">${formatAmount(item.total)}</span></div>
+        <div class="row"><span>${item.item_name} x${qty}</span><span class="bold">${formatAmount(itemTotal)}</span></div>
         ${modifierRows}
       </div>`;
     })
@@ -298,7 +298,7 @@ function buildThermalHtml(sale, restaurant, formatAmount, t) {
   <div class="row"><span>${t('date')}:</span><span>${date}</span></div>
   <div class="row"><span>${t('order_type')}:</span><span>${(sale.order_type || '-').replace('_', ' ')}</span></div>
   ${isOn(settings, 'show_table_number') && sale.table ? `<div class="row"><span>${t('table')}:</span><span>${sale.table.name}</span></div>` : ''}
-  ${sale.customer ? `<div class="row"><span>${t('customer')}:</span><span>${sale.customer.name}</span></div>` : ''}
+  ${(sale.customer || sale.guest_name) ? `<div class="row"><span>${t('customer')}:</span><span>${sale.customer?.name || sale.guest_name}</span></div>` : ''}
   ${taxNumberHtml}
   <div class="divider"></div>
   <div class="bold" style="margin-bottom:4px;">${t('items')}</div>

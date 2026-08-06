@@ -1929,4 +1929,7 @@ return [
     'print' => 'Print',
     'generated' => 'Generated',
     'none' => 'None',
+    'pos_sales' => 'POS Sales',
+    'manage_pos_sales' => 'Manage POS Sales',
+    'all_payment' => 'All Payment',
 ];

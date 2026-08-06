@@ -17,7 +17,7 @@ class GuestOrderService
     public function resolveTable(string $token): ?array
     {
         $table = Table::where('qr_token', $token)
-            ->with(['restaurant:id,name,logo,currency,currency_symbol,tax_rate,tax_name,tax_inclusive', 'branch:id,name'])
+            ->with(['restaurant:id,name,logo,currency,currency_symbol,tax_rate,tax_name,tax_inclusive,metadata', 'branch:id,name'])
             ->first();
 
         if (!$table) {
