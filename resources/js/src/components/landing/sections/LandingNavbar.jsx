@@ -21,7 +21,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { Moon, Sun, Menu, UtensilsCrossed } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 const navLinks = [
     { label: 'Features', href: '#features' },

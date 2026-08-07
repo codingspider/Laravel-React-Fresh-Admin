@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Container, Text, Heading, Badge, Stack } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 export default function LandingSection({
     id,

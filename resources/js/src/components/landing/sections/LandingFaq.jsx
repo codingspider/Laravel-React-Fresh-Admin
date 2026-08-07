@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import LandingSection from './LandingSection';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 export default function LandingFaq({ faqs = [] }) {
     const { t } = useTranslation();

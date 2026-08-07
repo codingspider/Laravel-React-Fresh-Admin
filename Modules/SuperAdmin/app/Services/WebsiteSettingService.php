@@ -40,6 +40,20 @@ class WebsiteSettingService
             'stat_4_value' => '99.9%',
             'stat_4_label' => 'Uptime guarantee',
 
+            // Comparison
+            'comparison_platform_label' => 'Our platform',
+            'comparison_others_label' => 'Others',
+            'comparison_rows' => json_encode([
+                ['feature' => 'Cloud-based', 'us' => 'Yes', 'competitors' => 'Varies'],
+                ['feature' => 'Transaction fees', 'us' => '0%', 'competitors' => 'Up to 2.9% + fee'],
+                ['feature' => 'Multi-location support', 'us' => 'Included', 'competitors' => 'Add-on'],
+                ['feature' => 'Hardware required', 'us' => 'None', 'competitors' => 'Proprietary terminal'],
+                ['feature' => 'Real-time kitchen sync', 'us' => 'Included', 'competitors' => 'Add-on'],
+                ['feature' => 'All order types', 'us' => 'Included', 'competitors' => 'Varies'],
+                ['feature' => 'Receipt printing', 'us' => 'Included', 'competitors' => 'Included'],
+                ['feature' => 'Free trial', 'us' => 'Yes', 'competitors' => 'Varies'],
+            ]),
+
             // Contact
             'contact_email' => 'support@example.com',
             'contact_phone' => '+1 234 567 890',
@@ -58,6 +72,10 @@ class WebsiteSettingService
         ];
     }
 
+    protected array $jsonKeys = [
+        'comparison_rows',
+    ];
+
     public function __construct(protected WebsiteSettingRepository $repository) {}
 
     /**
@@ -67,7 +85,18 @@ class WebsiteSettingService
      */
     public function all(): array
     {
-        return array_merge($this->defaults(), $this->repository->allAsMap());
+        $data = array_merge($this->defaults(), $this->repository->allAsMap());
+
+        foreach ($this->jsonKeys as $key) {
+            if (isset($data[$key]) && is_string($data[$key])) {
+                $decoded = json_decode($data[$key], true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data[$key] = $decoded;
+                }
+            }
+        }
+
+        return $data;
     }
 
     /**
@@ -79,6 +108,12 @@ class WebsiteSettingService
     {
         $allowed = array_keys($this->defaults());
         $payload = array_intersect_key($data, array_flip($allowed));
+
+        foreach ($this->jsonKeys as $key) {
+            if (isset($payload[$key]) && is_array($payload[$key])) {
+                $payload[$key] = json_encode($payload[$key]);
+            }
+        }
 
         $this->repository->setMany($payload);
     }

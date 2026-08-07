@@ -17,8 +17,8 @@ import { ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import HeroMockup from './LandingHeroMockup';
 
-const MotionBox = motion(Box);
-const MotionText = motion(Text);
+const MotionBox = motion.create(Box);
+const MotionText = motion.create(Text);
 
 const fadeUp = {
     initial: { opacity: 0, y: 28 },

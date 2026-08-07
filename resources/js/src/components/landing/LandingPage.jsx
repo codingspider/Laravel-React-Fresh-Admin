@@ -100,7 +100,11 @@ export default function LandingPage() {
                 <LandingFeatures />
                 <LandingHowItWorks />
                 <LandingBusinessTypes />
-                <LandingComparison />
+                <LandingComparison
+                    rows={settings?.comparison_rows || []}
+                    platformLabel={settings?.comparison_platform_label}
+                    othersLabel={settings?.comparison_others_label}
+                />
                 <LandingPricing plans={plans} />
                 <LandingFaq faqs={faqs} />
                 <LandingCta settings={settings} />

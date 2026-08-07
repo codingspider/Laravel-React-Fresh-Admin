@@ -20,10 +20,11 @@ import {
     useToast,
     Icon,
     HStack,
+    IconButton,
 } from '@chakra-ui/react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { Globe, Type, BarChart3, Mail, Share2, ListTree } from 'lucide-react';
+import { Globe, Type, BarChart3, Mail, Share2, ListTree, Plus, Trash2, GitCompare } from 'lucide-react';
 import api from '../../axios';
 import { WEBSITE_SETTINGS } from '../../routes/apiRoutes';
 import { DASHBOARD_PATH } from '../../routes/superAdminRoutes';
@@ -78,8 +79,13 @@ const WebsiteSettings = () => {
     const { t } = useTranslation();
     const colors = useThemeColors();
     const toast = useToast();
-    const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm();
+    const { register, handleSubmit, reset, control, formState: { errors, isSubmitting } } = useForm();
     const [loading, setLoading] = useState(true);
+
+    const { fields: comparisonFields, append: comparisonAppend, remove: comparisonRemove } = useFieldArray({
+        control,
+        name: 'comparison_rows',
+    });
 
     useEffect(() => {
         let active = true;
@@ -249,6 +255,105 @@ const WebsiteSettings = () => {
                                 />
                             </SimpleGrid>
                         ))}
+                    </Stack>
+                </SectionCard>
+
+                <SectionCard
+                    icon={GitCompare}
+                    title={t('Comparison Table')}
+                    subtitle={t('The feature comparison table shown on the public landing page.')}
+                    colors={colors}
+                >
+                    <Stack spacing={4}>
+                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6}>
+                            <Field
+                                label={t('Platform Label')}
+                                register={register('comparison_platform_label')}
+                                helper={t('Column header for your platform.')}
+                                type="text"
+                            />
+                            <Field
+                                label={t('Competitor Label')}
+                                register={register('comparison_others_label')}
+                                helper={t('Column header for competitors.')}
+                                type="text"
+                            />
+                        </SimpleGrid>
+
+                        <Text fontSize="xs" color={colors.textMuted} mt={4}>
+                            {t('Comparison rows')}
+                        </Text>
+
+                        {comparisonFields.map((row, index) => (
+                            <HStack key={row.id} spacing={4} align="flex-start">
+                                <FormControl isInvalid={!!errors.comparison_rows?.[index]?.feature} flex={3}>
+                                    <FormLabel fontSize="xs" fontWeight="600">
+                                        {t('Feature')}
+                                    </FormLabel>
+                                    <Input
+                                        {...register(`comparison_rows.${index}.feature`, { required: true })}
+                                        placeholder={t('Feature name')}
+                                        bg={colors.bgInput}
+                                        border="1px solid"
+                                        borderColor={colors.borderInput}
+                                        size="sm"
+                                    />
+                                </FormControl>
+                                <FormControl isInvalid={!!errors.comparison_rows?.[index]?.us} flex={2}>
+                                    <FormLabel fontSize="xs" fontWeight="600">
+                                        {t('Our platform')}
+                                    </FormLabel>
+                                    <Input
+                                        {...register(`comparison_rows.${index}.us`)}
+                                        placeholder={t('e.g. Yes, 0%, Included')}
+                                        bg={colors.bgInput}
+                                        border="1px solid"
+                                        borderColor={colors.borderInput}
+                                        size="sm"
+                                    />
+                                </FormControl>
+                                <FormControl isInvalid={!!errors.comparison_rows?.[index]?.competitors} flex={2}>
+                                    <FormLabel fontSize="xs" fontWeight="600">
+                                        {t('Others')}
+                                    </FormLabel>
+                                    <Input
+                                        {...register(`comparison_rows.${index}.competitors`)}
+                                        placeholder={t('e.g. Varies, 2.9%')}
+                                        bg={colors.bgInput}
+                                        border="1px solid"
+                                        borderColor={colors.borderInput}
+                                        size="sm"
+                                    />
+                                </FormControl>
+                                <FormControl mt={6} flex={0} align="flex-start">
+                                    <FormLabel fontSize="xs" fontWeight="600" visibility="hidden">
+                                        x
+                                    </FormLabel>
+                                    <IconButton
+                                        aria-label={t('Remove row')}
+                                        icon={<Trash2 size={14} />}
+                                        colorScheme="red"
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() => comparisonRemove(index)}
+                                        isDisabled={comparisonFields.length <= 1}
+                                        mt={0}
+                                    />
+                                </FormControl>
+                            </HStack>
+                        ))}
+
+                        <Button
+                            leftIcon={<Icon as={Plus} boxSize={4} />}
+                            size="sm"
+                            variant="outline"
+                            colorScheme="teal"
+                            onClick={() =>
+                                comparisonAppend({ feature: '', us: '', competitors: '' })
+                            }
+                        >
+                            {t('Add Row')}
+                        </Button>
                     </Stack>
                 </SectionCard>
 

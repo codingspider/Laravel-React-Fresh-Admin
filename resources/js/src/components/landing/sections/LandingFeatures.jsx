@@ -17,7 +17,7 @@ import {
     Settings,
 } from 'lucide-react';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 const features = [
     {

@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import LandingSection from './LandingSection';
 import { UtensilsCrossed, ListOrdered, Wallet, Printer } from 'lucide-react';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 const steps = [
     {

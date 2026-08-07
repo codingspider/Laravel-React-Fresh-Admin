@@ -4,7 +4,7 @@ import { Link as RouterLink } from 'react-router-dom';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 export default function LandingCta({ settings }) {
     return (

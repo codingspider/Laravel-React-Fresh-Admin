@@ -12,7 +12,7 @@ import {
     ArrowRight,
 } from 'lucide-react';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 const types = [
     {

@@ -18,7 +18,7 @@ import { Check, Sparkles } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LandingSection from './LandingSection';
 
-const MotionBox = motion(Box);
+const MotionBox = motion.create(Box);
 
 export default function LandingPricing({ plans = [] }) {
     const { t } = useTranslation();
