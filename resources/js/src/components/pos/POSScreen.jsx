@@ -658,6 +658,7 @@ export default function POSScreen() {
         submitting={submitting}
         onCancelOpen={onCancelOpen}
         paymentMethods={posSettings?.active_payment_methods || []}
+        selectedCustomer={selectedCustomer}
       />
 
       <RecallModal

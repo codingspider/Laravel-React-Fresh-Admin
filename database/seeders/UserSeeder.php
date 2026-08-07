@@ -297,6 +297,13 @@ class UserSeeder extends Seeder
             'view_balance_sheet',
             'view_cash_flow',
             'view_accounting_dashboard',
+
+            // Loyalty
+            'view_loyalty_settings',
+            'update_loyalty_settings',
+            'view_loyalty_customers',
+            'view_loyalty_transactions',
+            'manage_loyalty_points',
         ];
 
         foreach ($permissions as $permission) {

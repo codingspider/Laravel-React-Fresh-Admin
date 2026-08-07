@@ -151,6 +151,12 @@ class PosService
                 'status' => $newStatus,
             ]);
 
+            \Modules\POS\Events\PaymentProcessed::dispatch($sale, $paymentData);
+
+            if ($newStatus === 'completed') {
+                \Modules\POS\Events\SaleCompleted::dispatch($sale);
+            }
+
             if ($newStatus === 'completed' && $sale->table_id) {
                 try {
                     $table = \Modules\TableManagement\Models\Table::find($sale->table_id);
@@ -247,6 +253,8 @@ class PosService
                 'payment_status' => $paymentStatus,
                 'status' => $paymentStatus === 'refunded' ? 'refunded' : $sale->status,
             ]);
+
+            \Modules\POS\Events\SaleRefunded::dispatch($sale, $refundData);
 
             return $sale->fresh(['items.menuItem', 'payments', 'table', 'customer', 'user']);
         });

@@ -5,6 +5,9 @@ namespace Modules\Loyalty\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Loyalty\Http\Requests\AdjustLoyaltyPointsRequest;
+use Modules\Loyalty\Http\Requests\RedeemPreviewRequest;
+use Modules\Loyalty\Http\Requests\UpdateLoyaltySettingsRequest;
 use Modules\Loyalty\Services\LoyaltyService;
 
 class LoyaltyController extends Controller
@@ -13,14 +16,34 @@ class LoyaltyController extends Controller
 
     public function __construct(protected LoyaltyService $service) {}
 
-    public function index(Request $request): JsonResponse
+    public function settings(Request $request): JsonResponse
     {
-        $filters = $request->only(['search', 'status']);
-        $filters['restaurant_id'] = getRestaurantId();
+        $data = $this->service->settings((int) getRestaurantId());
 
-        $data = $this->service->paginate(
-            $request->input('per_page', 15),
-            $filters
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.fetched'),
+            'data' => $data,
+        ]);
+    }
+
+    public function updateSettings(UpdateLoyaltySettingsRequest $request): JsonResponse
+    {
+        $programme = $this->service->updateSettings((int) getRestaurantId(), $request->validated());
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.updated'),
+            'data' => $programme,
+        ]);
+    }
+
+    public function customers(Request $request): JsonResponse
+    {
+        $data = $this->service->customers(
+            (int) getRestaurantId(),
+            $request->only(['search']),
+            (int) $request->input('per_page', 15)
         );
 
         return response()->json([
@@ -30,62 +53,62 @@ class LoyaltyController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function points(Request $request): JsonResponse
     {
-        $data = $request->validated();
-        $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
+        $request->validate(['customer_id' => 'required|integer|exists:customers,id']);
 
-        $item = $this->service->create($data);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => trans($this->langKey . '.created'),
-            'data' => $item,
-        ], 201);
-    }
-
-    public function show($id): JsonResponse
-    {
-        $item = $this->service->find($id);
-        if (getRestaurantId() && $item->restaurant_id != getRestaurantId()) {
-            abort(403, 'Unauthorized');
-        }
+        $data = $this->service->points((int) getRestaurantId(), (int) $request->input('customer_id'));
 
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.fetched'),
-            'data' => $item,
+            'data' => $data,
         ]);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function transactions(Request $request): JsonResponse
     {
-        $item = $this->service->find($id);
-        if (getRestaurantId() && $item->restaurant_id != getRestaurantId()) {
-            abort(403, 'Unauthorized');
-        }
-
-        $item = $this->service->update($id, $request->validated());
+        $data = $this->service->transactions(
+            (int) getRestaurantId(),
+            $request->only(['customer_id', 'type', 'date_from', 'date_to']),
+            (int) $request->input('per_page', 15)
+        );
 
         return response()->json([
             'status' => 'success',
-            'message' => trans($this->langKey . '.updated'),
-            'data' => $item,
+            'message' => trans($this->langKey . '.fetched_list'),
+            'data' => $data,
         ]);
     }
 
-    public function destroy($id): JsonResponse
+    public function adjust(AdjustLoyaltyPointsRequest $request): JsonResponse
     {
-        $item = $this->service->find($id);
-        if (getRestaurantId() && $item->restaurant_id != getRestaurantId()) {
-            abort(403, 'Unauthorized');
-        }
-
-        $this->service->delete($id);
+        $balance = $this->service->adjustPoints(
+            (int) getRestaurantId(),
+            (int) $request->input('customer_id'),
+            (int) $request->input('points'),
+            (string) $request->input('reason')
+        );
 
         return response()->json([
             'status' => 'success',
-            'message' => trans($this->langKey . '.deleted'),
+            'message' => trans($this->langKey . '.points_added'),
+            'data' => $balance,
+        ]);
+    }
+
+    public function redeemPreview(RedeemPreviewRequest $request): JsonResponse
+    {
+        $data = $this->service->previewRedeem(
+            (int) getRestaurantId(),
+            (int) $request->input('customer_id'),
+            (float) $request->input('order_total')
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.fetched'),
+            'data' => $data,
         ]);
     }
 }

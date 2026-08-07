@@ -38,6 +38,7 @@ import {
     MonitorPlay,
     UserCheck,
     FileText,
+    Star,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -85,6 +86,9 @@ import {
     PURCHASE_REPORT_PATH,
     TAX_REPORT_PATH,
     EXPENSE_REPORT_PATH,
+    LOYALTY_SETTINGS_PATH,
+    LOYALTY_CUSTOMERS_PATH,
+    LOYALTY_TRANSACTIONS_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -202,6 +206,17 @@ const navItems = [
             { path: PURCHASE_REPORT_PATH, label: 'Purchase Report', permission: 'view_purchase_report' },
             { path: TAX_REPORT_PATH, label: 'Tax Report', permission: 'view_tax_report' },
             { path: EXPENSE_REPORT_PATH, label: 'Expense Report', permission: 'view_expense_report' },
+        ],
+    },
+    {
+        icon: Star,
+        label: 'Loyalty',
+        permission: 'view_loyalty_settings',
+        excludeRole: 'super_admin',
+        children: [
+            { path: LOYALTY_SETTINGS_PATH, label: 'Programme', permission: 'view_loyalty_settings' },
+            { path: LOYALTY_CUSTOMERS_PATH, label: 'Customers', permission: 'view_loyalty_customers' },
+            { path: LOYALTY_TRANSACTIONS_PATH, label: 'Transactions', permission: 'view_loyalty_transactions' },
         ],
     },
     {

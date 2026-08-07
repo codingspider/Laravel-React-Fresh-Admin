@@ -379,6 +379,14 @@ export const POS_COUPON = (id) => `/v1/pos/coupons/${id}`;
 export const POS_VALIDATE_COUPON = '/v1/pos/coupons/validate';
 export const POS_REFUND = (saleId) => `/v1/pos/${saleId}/refund`;
 
+// Loyalty
+export const LOYALTY_SETTINGS = '/v1/loyalty/settings';
+export const LOYALTY_CUSTOMERS = '/v1/loyalty/customers';
+export const LOYALTY_POINTS = (customerId) => `/v1/loyalty/points?customer_id=${customerId}`;
+export const LOYALTY_TRANSACTIONS = '/v1/loyalty/transactions';
+export const LOYALTY_ADJUST_POINTS = '/v1/loyalty/points/adjust';
+export const LOYALTY_REDEEM_PREVIEW = '/v1/loyalty/redeem/preview';
+
 // Kitchen Display System (KDS)
 export const KDS_BOARD = '/v1/kitchen/display';
 export const KDS_CHEFS = '/v1/kitchen/chefs';

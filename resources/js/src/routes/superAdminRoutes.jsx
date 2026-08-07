@@ -57,6 +57,11 @@ import PurchaseReport from "../components/admin/reports/PurchaseReport";
 import TaxReport from "../components/admin/reports/TaxReport";
 import ExpenseReport from "../components/admin/reports/ExpenseReport";
 
+// Loyalty
+import LoyaltySettings from "../components/admin/loyalty/LoyaltySettings";
+import LoyaltyCustomers from "../components/admin/loyalty/LoyaltyCustomers";
+import LoyaltyTransactions from "../components/admin/loyalty/LoyaltyTransactions";
+
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
 import UserEdit from './../components/user/UserEdit';
@@ -342,6 +347,11 @@ export const PURCHASE_REPORT_PATH = "/reports/purchases";
 export const TAX_REPORT_PATH = "/reports/taxes";
 export const EXPENSE_REPORT_PATH = "/reports/expenses";
 
+// Loyalty
+export const LOYALTY_SETTINGS_PATH = "/loyalty/settings";
+export const LOYALTY_CUSTOMERS_PATH = "/loyalty/customers";
+export const LOYALTY_TRANSACTIONS_PATH = "/loyalty/transactions";
+
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
     { path: `/settings`, element: <MasterSetting /> },
@@ -547,4 +557,9 @@ export const superAdminRoutes = [
     { path: PURCHASE_REPORT_PATH, element: <PurchaseReport /> },
     { path: TAX_REPORT_PATH, element: <TaxReport /> },
     { path: EXPENSE_REPORT_PATH, element: <ExpenseReport /> },
+
+    // Loyalty
+    { path: LOYALTY_SETTINGS_PATH, element: <LoyaltySettings /> },
+    { path: LOYALTY_CUSTOMERS_PATH, element: <LoyaltyCustomers /> },
+    { path: LOYALTY_TRANSACTIONS_PATH, element: <LoyaltyTransactions /> },
 ];

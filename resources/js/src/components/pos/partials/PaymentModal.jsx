@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box, Text, HStack, VStack, Grid, Input, Select, Button, IconButton, Card,
   Modal, ModalOverlay, ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton,
+  Alert, AlertIcon, AlertTitle, AlertDescription, Badge, Spinner,
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
-import { CheckIcon, DeleteIcon } from '@chakra-ui/icons';
-import { CreditCard, GitMerge, Banknote, Smartphone, HandCoins } from 'lucide-react';
+import { CheckIcon, DeleteIcon, WarningIcon } from '@chakra-ui/icons';
+import { CreditCard, GitMerge, Banknote, Smartphone, HandCoins, Star } from 'lucide-react';
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
 import useThemeColors from '../../../hooks/useThemeColors';
+import api from '../../../axios';
+import { LOYALTY_REDEEM_PREVIEW } from '../../../routes/apiRoutes';
 
 const paymentMethodIcons = {
   cash: Banknote,
@@ -26,10 +29,39 @@ export default function PaymentModal({
   splitPayments, setSplitPayments, saleTotal, currentSale,
   processPayment, submitting, onCancelOpen,
   paymentMethods,
+  selectedCustomer,
 }) {
   const { t } = useTranslation();
   const { formatAmount } = useCurrencyFormatter();
   const colors = useThemeColors();
+  const [loyaltyPreview, setLoyaltyPreview] = useState(null);
+  const [loyaltyLoading, setLoyaltyLoading] = useState(false);
+
+  const loyaltyCustomer = selectedCustomer || currentSale?.customer || null;
+  const isLoyalty = !isSplitPayment && paymentMethod === 'loyalty';
+
+  useEffect(() => {
+    if (!isOpen || !isLoyalty || !loyaltyCustomer) return;
+    let cancelled = false;
+    setLoyaltyLoading(true);
+    api.post(LOYALTY_REDEEM_PREVIEW, {
+      customer_id: loyaltyCustomer.id,
+      order_total: saleTotal,
+    })
+      .then((res) => {
+        if (!cancelled) setLoyaltyPreview(res.data?.data || {});
+      })
+      .catch(() => {
+        if (!cancelled) setLoyaltyPreview({ enabled: false, points_balance: 0 });
+      })
+      .finally(() => {
+        if (!cancelled) setLoyaltyLoading(false);
+      });
+    return () => { cancelled = true; };
+  }, [isOpen, isLoyalty, loyaltyCustomer, saleTotal]);
+
+  const redeemAmount = parseFloat(paymentAmount) || 0;
+  const redeemOverLimit = loyaltyPreview?.enabled && redeemAmount > (parseFloat(loyaltyPreview.max_redeem_amount) || 0);
 
   const getPaymentIcon = (pm) => {
     if (pm.icon && typeof pm.icon !== 'string') return pm.icon;
@@ -160,6 +192,72 @@ export default function PaymentModal({
                   >
                     {t('Pay Due Amount')} ({formatAmount(Math.max(0, saleTotal - currentSale.amount_paid))})
                   </Button>
+                )}
+
+                {isLoyalty && (
+                  <Box p={4} bg={colors.bgSubtle} borderRadius="xl" border="1px solid" borderColor={colors.borderInput}>
+                    {!loyaltyCustomer ? (
+                      <Alert status="warning" variant="subtle" borderRadius="lg">
+                        <AlertIcon />
+                        <Box>
+                          <AlertTitle fontSize="sm">{t('Customer required')}</AlertTitle>
+                          <AlertDescription fontSize="sm">
+                            {t('Select a customer before redeeming loyalty points.')}
+                          </AlertDescription>
+                        </Box>
+                      </Alert>
+                    ) : loyaltyLoading ? (
+                      <HStack spacing={3} justify="center" py={3}>
+                        <Spinner size="sm" color="brand.500" />
+                        <Text fontSize="sm" color={colors.textSecondary}>{t('Loading loyalty points...')}</Text>
+                      </HStack>
+                    ) : loyaltyPreview?.enabled ? (
+                      <VStack spacing={3} align="stretch">
+                        <HStack justify="space-between" wrap="wrap" gap={2}>
+                          <HStack spacing={2}>
+                            <Star size={16} color="brand.500" />
+                            <Text fontSize="sm" fontWeight="600" color={colors.textPrimary}>
+                              {t('Available Points')}
+                            </Text>
+                          </HStack>
+                          <Badge colorScheme="brand" variant="subtle" borderRadius="full" px={2.5} py={0.5} fontSize="sm" fontWeight="700">
+                            {loyaltyPreview.points_balance}
+                          </Badge>
+                        </HStack>
+                        <HStack justify="space-between" wrap="wrap" gap={2} fontSize="sm">
+                          <Text color={colors.textSecondary}>{t('Max Redeemable')}</Text>
+                          <Text fontWeight="700" color="brand.600">
+                            {formatAmount(loyaltyPreview.max_redeem_amount)}
+                            <Text as="span" fontSize="xs" color="gray.500" ml={1}>({loyaltyPreview.max_redeem_points} {t('pts')})</Text>
+                          </Text>
+                        </HStack>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          colorScheme="brand"
+                          borderRadius="lg"
+                          onClick={() => setPaymentAmount((parseFloat(loyaltyPreview.max_redeem_amount) || 0).toFixed(2))}
+                        >
+                          {t('Use Maximum Points')}
+                        </Button>
+                        {redeemOverLimit && (
+                          <Alert status="warning" variant="subtle" borderRadius="lg" py={2}>
+                            <WarningIcon color="orange.500" mr={2} boxSize={4} />
+                            <Text fontSize="xs" color="orange.600" _dark={{ color: 'orange.300' }}>
+                              {t('Amount exceeds maximum redeemable value for this order.')}
+                            </Text>
+                          </Alert>
+                        )}
+                      </VStack>
+                    ) : (
+                      <Alert status="info" variant="subtle" borderRadius="lg">
+                        <AlertIcon />
+                        <Text fontSize="sm">
+                          {t('This customer has no redeemable points for this order.')}
+                        </Text>
+                      </Alert>
+                    )}
+                  </Box>
                 )}
               </>
             ) : (
