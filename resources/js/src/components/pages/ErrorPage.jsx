@@ -11,9 +11,11 @@ import { Link as ReactRouterLink } from "react-router-dom";
 import { AlertTriangle, ArrowLeft } from "lucide-react";
 import { DASHBOARD_PATH } from "../../routes/superAdminRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
+import { useTranslation } from "react-i18next";
 
 const ErrorPage = () => {
     const colors = useThemeColors();
+    const { t } = useTranslation();
     return (
         <Flex
             minH="100vh"
@@ -42,10 +44,10 @@ const ErrorPage = () => {
                         fontWeight="bold"
                         color={colors.textHeading}
                     >
-                        Something went wrong
+                        {t('error_page_title')}
                     </Heading>
                     <Text color="gray.500">
-                        An unexpected error occurred. Please try again or contact support if the problem persists.
+                        {t('error_page_message')}
                     </Text>
                 </VStack>
 
@@ -57,7 +59,7 @@ const ErrorPage = () => {
                     size="lg"
                     borderRadius="lg"
                 >
-                    Go to Dashboard
+                    {t('go_to_dashboard')}
                 </Button>
             </VStack>
         </Flex>

@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Modules\GuestOrder\Http\Controllers\GuestMenuController;
 use Modules\GuestOrder\Http\Controllers\GuestOrderController;
 
-Route::prefix('api/guest')->group(function () {
+Route::prefix('api/guest')->middleware(['throttle:60,1'])->group(function () {
     Route::get('/table/{token}', [GuestMenuController::class, 'table']);
     Route::get('/menu', [GuestMenuController::class, 'menu']);
     Route::post('/order', [GuestOrderController::class, 'store']);

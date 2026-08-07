@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'cookie.filter' => \App\Http\Middleware\CookieFilter::class,
             'restaurant.scope' => \App\Http\Middleware\RestaurantScope::class,
             'module.access' => \App\Http\Middleware\CheckModuleAccess::class,
+            'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         ]);
 
         $middleware->priority([

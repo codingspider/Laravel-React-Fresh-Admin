@@ -9,7 +9,7 @@ use App\Http\Controllers\API\Admin\LeaveController;
 use App\Http\Controllers\API\Admin\HolidayController;
 use App\Http\Controllers\API\Admin\PayrollController;
 
-Route::prefix('api')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
+Route::prefix('api')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'throttle:60,1', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
     Route::apiResource('departments', DepartmentController::class);
     Route::apiResource('designations', DesignationController::class);
     Route::get('designations/departments/{departmentId}', [DesignationController::class, 'byDepartment']);

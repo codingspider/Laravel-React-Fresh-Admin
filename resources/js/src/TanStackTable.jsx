@@ -25,6 +25,7 @@ import {
     MenuItem,
     Tooltip,
     Select,
+    Image,
 } from "@chakra-ui/react";
 import useThemeColors from "./hooks/useThemeColors";
 import {
@@ -46,6 +47,7 @@ import {
     Trash2,
     ChevronsLeft,
     ChevronsRight,
+    Inbox,
 } from "lucide-react";
 
 function fuzzyGlobalFilter(row, columnId, filterValue) {
@@ -183,7 +185,7 @@ export default function TanStackTable({
                                     <VStack spacing={3}>
                                         <Spinner size="lg" color="brand.500" />
                                         <Text fontSize="sm" color="gray.500">
-                                            Loading...
+                                            {t("loading_data")}
                                         </Text>
                                     </VStack>
                                 </Td>
@@ -196,10 +198,38 @@ export default function TanStackTable({
                                     py={12}
                                     borderColor={colors.borderDefault}
                                 >
-                                    <VStack spacing={2}>
-                                        <Text fontSize="sm" color="gray.500">
-                                            No data found
-                                        </Text>
+                                    <VStack spacing={3} px={4}>
+                                        <Box
+                                            w={12}
+                                            h={12}
+                                            bg="gray.100"
+                                            borderRadius="full"
+                                            display="flex"
+                                            alignItems="center"
+                                            justifyContent="center"
+                                            _dark={{ bg: "gray.800" }}
+                                        >
+                                            <Icon as={Inbox} boxSize={6} color="gray.400" />
+                                        </Box>
+                                        <VStack spacing={1}>
+                                            <Text fontSize="sm" fontWeight="medium" color="gray.600" _dark={{ color: "gray.400" }}>
+                                                {t("no_data_found")}
+                                            </Text>
+                                            <Text fontSize="xs" color="gray.400" maxW="200px">
+                                                {t("no_items_in_list")}
+                                            </Text>
+                                        </VStack>
+                                        {addURL && hideAddBtn !== "true" && (
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                leftIcon={<Icon as={Plus} boxSize={3} />}
+                                                as={ReactRouterLink}
+                                                to={addURL}
+                                            >
+                                                {t("add_new")}
+                                            </Button>
+                                        )}
                                     </VStack>
                                 </Td>
                             </Tr>

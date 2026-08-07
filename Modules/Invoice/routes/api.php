@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Invoice\Http\Controllers\InvoiceController;
 
-Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum','throttle:60,1'])->group(function () {
     Route::apiResource('invoices', InvoiceController::class);
 });
+

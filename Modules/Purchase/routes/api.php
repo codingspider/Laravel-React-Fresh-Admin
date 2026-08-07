@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\Admin\PurchaseController;
 
-Route::prefix('api')->middleware(['api', 'auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
+Route::prefix('api')->middleware(['api', 'auth:sanctum', 'throttle:60,1', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
     Route::apiResource('purchases', PurchaseController::class);
 
     // Purchases - GRN / payments / returns

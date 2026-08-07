@@ -5,7 +5,7 @@ use Modules\POS\Http\Controllers\POSController;
 use Modules\POS\Http\Controllers\PosSettingController;
 use Modules\POS\Http\Controllers\CouponController;
 
-Route::middleware(['auth:sanctum', 'restaurant.scope', 'module.access'])->prefix('v1')->group(function () {
+Route::middleware(['auth:sanctum','throttle:60,1', 'restaurant.scope', 'module.access'])->prefix('v1')->group(function () {
     Route::get('pos/settings', [PosSettingController::class, 'index'])->name('pos.settings.index');
     Route::put('pos/settings', [PosSettingController::class, 'update'])->name('pos.settings.update');
 
@@ -34,3 +34,4 @@ Route::middleware(['auth:sanctum', 'restaurant.scope', 'module.access'])->prefix
     Route::post('pos/{saleId}/items', [POSController::class, 'addItem'])->name('pos.items.add');
     Route::delete('pos/{saleId}/items/{itemId}', [POSController::class, 'removeItem'])->name('pos.items.remove');
 });
+

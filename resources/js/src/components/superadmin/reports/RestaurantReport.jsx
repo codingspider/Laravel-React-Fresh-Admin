@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../../axios';
 import PageHeader from '../../ui/PageHeader';
 import ReportSummaryCard from '../../admin/reports/ReportSummaryCard';
+import ReportExport from '../../ui/ReportExport';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { REPORT_RESTAURANTS } from '../../../routes/apiRoutes';
 
@@ -91,11 +92,33 @@ export default function RestaurantReport() {
     const rows = (data?.rows || []).map((r) => ({
         ...r,
         owner_name: r.owner_name || r.owner_email || '-',
-        currency_display: `${r.currency_symbol || '$'}${r.currency || ''}`,
+        currency_display: r.currency_symbol ? `${r.currency_symbol}${r.currency}` : r.currency || '-',
         is_trial_active: r.is_trial_active ? <Badge colorScheme="blue" variant="subtle">{t('Yes')}</Badge> : <Badge variant="subtle">{t('No')}</Badge>,
         subscription_status: r.has_active_subscription
             ? <Badge colorScheme="green" variant="subtle">{t('Active')}</Badge>
             : <Badge colorScheme="red" variant="subtle">{t('None')}</Badge>,
+    }));
+
+    const exportColumns = [
+        { header: t('Name'), accessorKey: 'name' },
+        { header: t('Owner'), accessorKey: 'owner_name' },
+        { header: t('Plan'), accessorKey: 'plan_name' },
+        { header: t('Status'), accessorKey: 'status' },
+        { header: t('Currency'), accessorKey: 'currency_display' },
+        { header: t('Trial Active'), accessorKey: 'is_trial_active' },
+        { header: t('Subscription'), accessorKey: 'subscription_status' },
+        { header: t('Created'), accessorKey: 'created_at_human' },
+    ];
+
+    const exportRows = (data?.rows || []).map((r) => ({
+        name: r.name || '-',
+        owner_name: r.owner_name || r.owner_email || '-',
+        plan_name: r.plan_name || '-',
+        status: r.status || '',
+        currency_display: r.currency_symbol ? `${r.currency_symbol}${r.currency}` : r.currency || '-',
+        is_trial_active: r.is_trial_active ? t('Yes') : t('No'),
+        subscription_status: r.has_active_subscription ? t('Active') : t('None'),
+        created_at_human: r.created_at_human || '-',
     }));
 
     return (
@@ -107,7 +130,21 @@ export default function RestaurantReport() {
                     { label: t('Dashboard'), path: '/dashboard' },
                     { label: t('Platform Reports'), isCurrent: true },
                 ]}
-            />
+            >
+                {data && (
+                    <ReportExport
+                        title={t('Restaurant Report')}
+                        columns={exportColumns}
+                        rows={exportRows}
+                        summary={[
+                            { label: t('Total Restaurants'), value: summary.total_restaurants ?? 0 },
+                            { label: t('Active'), value: summary.active_restaurants ?? 0 },
+                            { label: t('Suspended'), value: summary.suspended_restaurants ?? 0 },
+                        ]}
+                        filename="restaurant-report"
+                    />
+                )}
+            </PageHeader>
 
             <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault} mb={6}>
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(6, 1fr)' }} gap={4} alignItems="flex-end">

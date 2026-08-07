@@ -15,7 +15,7 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::put('restaurants/{restaurant}/tax-settings', [RestaurantController::class, 'updateTaxSettings']);
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
+Route::middleware(['auth:sanctum','throttle:60,1', 'check_active_business', 'module.access', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
     Route::get('owner/business', [AdminBusinessController::class, 'index']);
     Route::put('business/setting/update/{id}', [AdminBusinessController::class, 'update']);
     Route::post('update/currency', [AdminBusinessController::class, 'updateCurrency']);
@@ -24,3 +24,4 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 're
     Route::get('get/notification/setting', [AdminBusinessController::class, 'getNotificationSetting']);
     Route::get('get/invoice/setting', [AdminBusinessController::class, 'getInvoiceSetting']);
 });
+

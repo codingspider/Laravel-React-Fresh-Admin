@@ -9,7 +9,7 @@ use Modules\Accounting\Http\Controllers\CashBankController;
 use Modules\Accounting\Http\Controllers\JournalController;
 use Modules\Accounting\Http\Controllers\ReportController;
 
-Route::prefix('api')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
+Route::prefix('api')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'throttle:60,1', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
     Route::get('accounts/tree', [AccountController::class, 'tree']);
     Route::apiResource('accounts', AccountController::class);
 

@@ -6,7 +6,7 @@ use App\Http\Controllers\API\Admin\InventoryCategoryController;
 use App\Http\Controllers\API\Admin\InventoryStockController;
 use App\Http\Controllers\API\Admin\UnitController;
 
-Route::prefix('api')->middleware(['api', 'auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
+Route::prefix('api')->middleware(['api', 'auth:sanctum', 'throttle:60,1', 'check_active_business', 'module.access', 'restaurant.scope'])->group(function () {
     Route::apiResource('units', UnitController::class);
     Route::apiResource('inventory-items', InventoryItemController::class);
     Route::apiResource('inventory-categories', InventoryCategoryController::class);

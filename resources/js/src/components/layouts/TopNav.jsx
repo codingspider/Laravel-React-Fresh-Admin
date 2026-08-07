@@ -450,27 +450,7 @@ export default function TopNav({ onMobileMenuOpen }) {
                     borderRadius="lg"
                     size="sm"
                 />
-                <Box display={{ base: 'none', sm: 'flex' }}>
-                    <InputGroup maxW="320px" size="md">
-                        <InputLeftElement pointerEvents="none">
-                            <Icon as={Search} color="gray.400" boxSize={4} />
-                        </InputLeftElement>
-                        <Input
-                            placeholder="Search..."
-                            borderRadius="lg"
-                            bg={colors.navSearchBg}
-                            border="1px solid"
-                            borderColor={colors.borderDefault}
-                            _focus={{
-                                bg: 'white',
-                                borderColor: 'brand.500',
-                                boxShadow: 'outline',
-                                _dark: { bg: 'gray.700' },
-                            }}
-                            _placeholder={{ color: 'gray.400' }}
-                        />
-                    </InputGroup>
-                </Box>
+
             </HStack>
 
             <HStack spacing={1}>

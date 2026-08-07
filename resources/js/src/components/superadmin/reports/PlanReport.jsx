@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../../axios';
 import PageHeader from '../../ui/PageHeader';
 import ReportSummaryCard from '../../admin/reports/ReportSummaryCard';
+import ReportExport from '../../ui/ReportExport';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
 import { REPORT_PLANS } from '../../../routes/apiRoutes';
@@ -108,7 +109,22 @@ export default function PlanReport() {
                     { label: t('Dashboard'), path: '/dashboard' },
                     { label: t('Platform Reports'), isCurrent: true },
                 ]}
-            />
+            >
+                {data && (
+                    <ReportExport
+                        title={t('Plan Report')}
+                        columns={columns}
+                        rows={rows}
+                        summary={[
+                            { label: t('Total Plans'), value: summary.total_plans ?? 0 },
+                            { label: t('Active Plans'), value: summary.active_plans ?? 0 },
+                            { label: t('Total Subscriptions'), value: summary.total_subscriptions ?? 0 },
+                            { label: t('Estimated Revenue'), value: formatAmount(summary.estimated_revenue ?? 0) },
+                        ]}
+                        filename="plan-report"
+                    />
+                )}
+            </PageHeader>
 
             <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault} mb={6}>
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(6, 1fr)' }} gap={4} alignItems="flex-end">

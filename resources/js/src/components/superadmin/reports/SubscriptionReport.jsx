@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../../axios';
 import PageHeader from '../../ui/PageHeader';
 import ReportSummaryCard from '../../admin/reports/ReportSummaryCard';
+import ReportExport from '../../ui/ReportExport';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
 import { REPORT_SUBSCRIPTIONS } from '../../../routes/apiRoutes';
@@ -111,7 +112,21 @@ export default function SubscriptionReport() {
                     { label: t('Dashboard'), path: '/dashboard' },
                     { label: t('Platform Reports'), isCurrent: true },
                 ]}
-            />
+            >
+                {data && (
+                    <ReportExport
+                        title={t('Subscription Report')}
+                        columns={columns}
+                        rows={rows}
+                        summary={[
+                            { label: t('Total Subscriptions'), value: summary.total_subscriptions ?? 0 },
+                            { label: t('Active'), value: summary.active_subscriptions ?? 0 },
+                            { label: t('Total Revenue'), value: formatAmount(summary.total_revenue ?? 0) },
+                        ]}
+                        filename="subscription-report"
+                    />
+                )}
+            </PageHeader>
 
             <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault} mb={6}>
                 <Grid templateColumns={{ base: '1fr', md: 'repeat(6, 1fr)' }} gap={4} alignItems="flex-end">

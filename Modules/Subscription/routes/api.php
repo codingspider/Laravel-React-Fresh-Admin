@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Subscription\Http\Controllers\API\SubscriptionController;
 
-Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum','throttle:60,1'])->group(function () {
     Route::get('subscription/modules', function (\Illuminate\Http\Request $request) {
         $user = $request->user();
 
@@ -58,3 +58,4 @@ Route::prefix('v1')->middleware(['auth:sanctum'])->group(function () {
     Route::get('subscriptions/{id}/modules', [SubscriptionController::class, 'getModules']);
     Route::apiResource('subscriptions', SubscriptionController::class);
 });
+

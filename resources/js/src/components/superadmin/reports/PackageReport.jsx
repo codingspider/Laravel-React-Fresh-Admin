@@ -24,6 +24,7 @@ import { useTranslation } from 'react-i18next';
 import api from '../../../axios';
 import PageHeader from '../../ui/PageHeader';
 import ReportSummaryCard from '../../admin/reports/ReportSummaryCard';
+import ReportExport from '../../ui/ReportExport';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
 import { REPORT_OVERVIEW, REPORT_PACKAGES } from '../../../routes/apiRoutes';
@@ -91,6 +92,14 @@ export default function PackageReport() {
         { label: t('Total Plans Associated'), value: packageData?.summary?.total_plans_associated ?? 0 },
     ];
 
+    const packageColumns = [
+        { header: t('Name'), accessorKey: 'name' },
+        { header: t('Slug'), accessorKey: 'slug' },
+        { header: t('Status'), accessorKey: 'status' },
+        { header: t('Plans Count'), accessorKey: 'plans_count' },
+        { header: t('Created'), accessorKey: 'created_at' },
+    ];
+
     return (
         <Box minH="calc(100vh - 64px)" bg={colors.bgMain} p={6}>
             <PageHeader
@@ -100,7 +109,16 @@ export default function PackageReport() {
                     { label: t('Dashboard'), path: '/dashboard' },
                     { label: t('Platform Reports'), isCurrent: true },
                 ]}
-            />
+            >
+                {activeTab === 'packages' && packageData && (
+                    <ReportExport
+                        title={t('Package Report')}
+                        columns={packageColumns}
+                        rows={(packageData.rows || []).map((pkg) => ({ ...pkg, created_at: pkg.created_at ? new Date(pkg.created_at).toLocaleDateString() : '-' }))}
+                        filename="package-report"
+                    />
+                )}
+            </PageHeader>
 
             <HStack spacing={4} mb={6} border="1px solid" borderColor={colors.borderDefault} borderRadius="lg" p={1.5} bg={colors.bgCard}>
                 <Button

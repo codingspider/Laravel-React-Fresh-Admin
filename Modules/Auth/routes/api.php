@@ -10,7 +10,8 @@ Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
     Route::apiResource('auths', AuthController::class)->names('auth');
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
+Route::middleware(['auth:sanctum','throttle:60,1', 'check_active_business', 'module.access', 'restaurant.scope', EnsureFrontendRequestsAreStateful::class])->group(function () {
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('user-management', UserManagementController::class);
 });
+
