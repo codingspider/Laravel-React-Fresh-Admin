@@ -5,6 +5,7 @@ use Modules\SuperAdmin\Http\Controllers\FaqController;
 use Modules\SuperAdmin\Http\Controllers\SuperAdminController;
 use Modules\SuperAdmin\Http\Controllers\DashboardController;
 use Modules\SuperAdmin\Http\Controllers\WebsiteSettingController;
+use Modules\SuperAdmin\Http\Controllers\ReportsController;
 
 // Public front website routes — no authentication required
 Route::prefix('api/v1')->middleware(['api', 'cookie.filter'])->group(function () {
@@ -25,4 +26,11 @@ Route::prefix('api/v1')->middleware(['api', 'auth:sanctum', 'cookie.filter'])->g
     Route::post('faqs', [FaqController::class, 'store']);
     Route::put('faqs/{faq}', [FaqController::class, 'update'])->where('faq', '[0-9]+');
     Route::delete('faqs/{faq}', [FaqController::class, 'destroy'])->where('faq', '[0-9]+');
+
+    // Reports — super admin only
+    Route::get('reports/overview', [ReportsController::class, 'overview']);
+    Route::get('reports/packages', [ReportsController::class, 'packageReport']);
+    Route::get('reports/plans', [ReportsController::class, 'planReport']);
+    Route::get('reports/subscriptions', [ReportsController::class, 'subscriptionReport']);
+    Route::get('reports/restaurants', [ReportsController::class, 'restaurantReport']);
 });

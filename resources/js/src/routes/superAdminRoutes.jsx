@@ -183,6 +183,10 @@ import CouponList from "../components/admin/pos/CouponList";
 import KitchenDisplay from "../components/kitchen/KitchenDisplay";
 import CustomerDisplaySettings from "../components/customer/CustomerDisplaySettings";
 import General from "../components/admin/general/General";
+import PackageReport from "../components/superadmin/reports/PackageReport";
+import PlanReport from "../components/superadmin/reports/PlanReport";
+import SubscriptionReport from "../components/superadmin/reports/SubscriptionReport";
+import RestaurantReport from "../components/superadmin/reports/RestaurantReport";
 
 
 export const DASHBOARD_PATH = `/dashboard`;
@@ -190,6 +194,13 @@ export const DASHBOARD_PATH = `/dashboard`;
 export const FAQ_LIST_PATH = "/faq/list";
 export const FAQ_CREATE_PATH = "/faq/create";
 export const FAQ_EDIT_PATH = "/faq/edit/:id";
+
+// Platform Reports
+export const PLATFORM_REPORTS_PATH = "/reports/platform";
+export const PACKAGE_REPORT_PATH = "/reports/packages";
+export const PLAN_REPORT_PATH = "/reports/plans";
+export const SUBSCRIPTION_REPORT_PATH = "/reports/subscriptions";
+export const RESTAURANT_REPORT_PATH = "/reports/restaurants";
 
 export const RESTAURANT_LIST_PATH = "/restaurant/list";
 export const RESTAURANT_ADD_PATH = "/restaurant/create";
@@ -372,6 +383,13 @@ export const superAdminRoutes = [
     { path: FAQ_LIST_PATH, element: <FaqList /> },
     { path: FAQ_CREATE_PATH, element: <FaqForm /> },
     { path: FAQ_EDIT_PATH, element: <FaqForm /> },
+
+    // Platform Reports
+    { path: PLATFORM_REPORTS_PATH, element: <PackageReport /> },
+    { path: PACKAGE_REPORT_PATH, element: <PackageReport /> },
+    { path: PLAN_REPORT_PATH, element: <PlanReport /> },
+    { path: SUBSCRIPTION_REPORT_PATH, element: <SubscriptionReport /> },
+    { path: RESTAURANT_REPORT_PATH, element: <RestaurantReport /> },
 
     { path: USER_LIST_PATH, element: <UserList /> },
     { path: USER_ADD_PATH, element: <UserCreate /> },

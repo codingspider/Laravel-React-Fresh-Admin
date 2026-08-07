@@ -416,6 +416,13 @@ export const FAQS_ADMIN = '/v1/faqs/all';
 export const FAQ_API = (id) => `/v1/faqs/${id}`;
 export const PLANS_PUBLIC = '/v1/plans/pub';
 
+// SuperAdmin - Platform Reports
+export const REPORT_OVERVIEW = '/v1/reports/overview';
+export const REPORT_PACKAGES = '/v1/reports/packages';
+export const REPORT_PLANS = '/v1/reports/plans';
+export const REPORT_SUBSCRIPTIONS = '/v1/reports/subscriptions';
+export const REPORT_RESTAURANTS = '/v1/reports/restaurants';
+
 // Profile
 export const UPDATE_PROFILE = '/update-profile';
 export const CHANGE_PASSWORD = '/change-password';

@@ -40,10 +40,16 @@ import {
     FileText,
     Star,
     Bell,
+    BarChart3,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
     FAQ_LIST_PATH,
+    PLATFORM_REPORTS_PATH,
+    PACKAGE_REPORT_PATH,
+    PLAN_REPORT_PATH,
+    SUBSCRIPTION_REPORT_PATH,
+    RESTAURANT_REPORT_PATH,
     ROLE_LIST_PATH,
     USER_LIST_PATH,
     INVENTORY_ITEM_LIST_PATH,
@@ -112,6 +118,17 @@ const navItems = [
             { path: PLAN_LIST_PATH, label: 'Plans', permission: 'view_plans' },
             { path: SUBSCRIPTION_LIST_PATH, label: 'Subscriptions', permission: 'view_subscriptions' },
             { path: FAQ_LIST_PATH, label: 'FAQs' },
+        ],
+    },
+    {
+        icon: BarChart3,
+        label: 'Platform Reports',
+        role: 'super_admin',
+        children: [
+            { path: PLATFORM_REPORTS_PATH, label: 'Platform Overview' },
+            { path: PLAN_REPORT_PATH, label: 'Plan Report' },
+            { path: SUBSCRIPTION_REPORT_PATH, label: 'Subscription Report' },
+            { path: RESTAURANT_REPORT_PATH, label: 'Restaurant Report' },
         ],
     },
     {
