@@ -59,28 +59,6 @@ export default function LandingFooter({ settings }) {
 
                     <VStack align="flex-start" spacing={4}>
                         <Heading as="h4" size="sm" fontWeight="600" color="teal.300">
-                            {t('Contact')}
-                        </Heading>
-                        <VStack align="flex-start" spacing={2.5} fontSize="sm" color="whiteAlpha.600">
-                            {contactItems.map((item, i) => (
-                                <HStack key={i} spacing={2} align={item.icon === MapPin ? 'flex-start' : 'center'}>
-                                    <Box mt={item.icon === MapPin ? 0.5 : 0}>
-                                        <item.icon size={14} color="teal.300" />
-                                    </Box>
-                                    {item.href ? (
-                                        <Text as="a" href={item.href} _hover={{ color: 'teal.300' }}>
-                                            {item.value}
-                                        </Text>
-                                    ) : (
-                                        <Text>{item.value}</Text>
-                                    )}
-                                </HStack>
-                            ))}
-                        </VStack>
-                    </VStack>
-
-                    <VStack align="flex-start" spacing={4}>
-                        <Heading as="h4" size="sm" fontWeight="600" color="teal.300">
                             {t('Quick Links')}
                         </Heading>
                         <VStack align="flex-start" spacing={2} fontSize="sm" color="whiteAlpha.600">
@@ -99,6 +77,30 @@ export default function LandingFooter({ settings }) {
                             ))}
                         </VStack>
                     </VStack>
+
+                    <VStack align="flex-start" spacing={4}>
+                        <Heading as="h4" size="sm" fontWeight="600" color="teal.300">
+                            {t('Contact')}
+                        </Heading>
+                        <VStack align="flex-start" spacing={2.5} fontSize="sm" color="whiteAlpha.600">
+                            {contactItems.map((item, i) => (
+                                <HStack key={i} spacing={2} align={item.icon === MapPin ? 'flex-start' : 'left'}>
+                                    <Box mt={item.icon === MapPin ? 0.5 : 0}>
+                                        <item.icon size={14} color="teal.300" />
+                                    </Box>
+                                    {item.href ? (
+                                        <Text as="a" href={item.href} _hover={{ color: 'teal.300' }}>
+                                            {item.value}
+                                        </Text>
+                                    ) : (
+                                        <Text>{item.value}</Text>
+                                    )}
+                                </HStack>
+                            ))}
+                        </VStack>
+                    </VStack>
+
+
                 </SimpleGrid>
 
                 <Box borderTop="1px solid" borderColor="whiteAlpha.200" mt={10} pt={6}>

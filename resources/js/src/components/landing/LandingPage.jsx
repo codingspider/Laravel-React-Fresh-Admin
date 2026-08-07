@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import api from '../../axios';
-import { WEBSITE_SETTINGS, FAQS_API } from '../../routes/apiRoutes';
+import { WEBSITE_SETTINGS, FAQS_API, PLANS_PUBLIC } from '../../routes/apiRoutes';
 import LandingNavbar from './sections/LandingNavbar';
 import LandingHero from './sections/LandingHero';
 import LandingFeatures from './sections/LandingFeatures';
@@ -46,6 +46,7 @@ const defaultSettings = {
 export default function LandingPage() {
     const [settings, setSettings] = useState(defaultSettings);
     const [faqs, setFaqs] = useState([]);
+    const [plans, setPlans] = useState([]);
 
     useEffect(() => {
         let active = true;
@@ -77,6 +78,20 @@ export default function LandingPage() {
         };
     }, []);
 
+    useEffect(() => {
+        let active = true;
+        api.get(PLANS_PUBLIC)
+            .then((res) => {
+                if (active) setPlans(res.data?.data || []);
+            })
+            .catch(() => {
+                if (active) setPlans([]);
+            });
+        return () => {
+            active = false;
+        };
+    }, []);
+
     return (
         <Box bg="gray.50" minH="100vh" _dark={{ bg: 'gray.900' }}>
             <LandingNavbar settings={settings} />
@@ -86,7 +101,7 @@ export default function LandingPage() {
                 <LandingHowItWorks />
                 <LandingBusinessTypes />
                 <LandingComparison />
-                <LandingPricing />
+                <LandingPricing plans={plans} />
                 <LandingFaq faqs={faqs} />
                 <LandingCta settings={settings} />
             </main>

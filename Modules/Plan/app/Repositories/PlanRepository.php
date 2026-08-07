@@ -48,4 +48,16 @@ class PlanRepository
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }
+
+    /**
+     * Return active plans for the public landing page.
+     */
+    public function active()
+    {
+        return $this->model
+            ->where('is_active', true)
+            ->where('status', 'active')
+            ->orderBy('price')
+            ->get();
+    }
 }

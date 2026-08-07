@@ -32,4 +32,12 @@ class PlanService
     {
         return $this->repository->delete($id);
     }
+
+    /**
+     * Return active plans for the public landing page.
+     */
+    public function active()
+    {
+        return $this->repository->active();
+    }
 }

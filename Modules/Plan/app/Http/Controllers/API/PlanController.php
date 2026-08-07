@@ -36,6 +36,20 @@ class PlanController extends Controller
         ]);
     }
 
+    /**
+     * Public endpoint returning active plans for the landing page.
+     */
+    public function publicIndex(): JsonResponse
+    {
+        $data = $this->service->active();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans($this->langKey . '.fetched_list'),
+            'data' => PlanResource::collection($data),
+        ]);
+    }
+
     public function store(StorePlanRequest $request): JsonResponse
     {
         $validated = $request->validated();
