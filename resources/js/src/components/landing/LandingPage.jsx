@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box } from '@chakra-ui/react';
 import api from '../../axios';
-import { WEBSITE_SETTINGS } from '../../routes/apiRoutes';
+import { WEBSITE_SETTINGS, FAQS_API } from '../../routes/apiRoutes';
 import LandingNavbar from './sections/LandingNavbar';
 import LandingHero from './sections/LandingHero';
 import LandingFeatures from './sections/LandingFeatures';
@@ -45,6 +45,7 @@ const defaultSettings = {
 
 export default function LandingPage() {
     const [settings, setSettings] = useState(defaultSettings);
+    const [faqs, setFaqs] = useState([]);
 
     useEffect(() => {
         let active = true;
@@ -62,6 +63,20 @@ export default function LandingPage() {
         };
     }, []);
 
+    useEffect(() => {
+        let active = true;
+        api.get(FAQS_API)
+            .then((res) => {
+                if (active) setFaqs(res.data?.data || []);
+            })
+            .catch(() => {
+                if (active) setFaqs([]);
+            });
+        return () => {
+            active = false;
+        };
+    }, []);
+
     return (
         <Box bg="gray.50" minH="100vh" _dark={{ bg: 'gray.900' }}>
             <LandingNavbar settings={settings} />
@@ -72,7 +87,7 @@ export default function LandingPage() {
                 <LandingBusinessTypes />
                 <LandingComparison />
                 <LandingPricing />
-                <LandingFaq />
+                <LandingFaq faqs={faqs} />
                 <LandingCta settings={settings} />
             </main>
             <LandingFooter settings={settings} />

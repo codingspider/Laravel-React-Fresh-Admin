@@ -411,6 +411,9 @@ export const PLATFORM_STATS = '/v1/dashboard/platform-stats';
 
 // Front Website
 export const WEBSITE_SETTINGS = '/v1/website/settings';
+export const FAQS_API = '/v1/faqs';
+export const FAQS_ADMIN = '/v1/faqs/all';
+export const FAQ_API = (id) => `/v1/faqs/${id}`;
 
 // Profile
 export const UPDATE_PROFILE = '/update-profile';

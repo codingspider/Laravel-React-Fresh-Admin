@@ -1,13 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\SuperAdmin\Http\Controllers\FaqController;
 use Modules\SuperAdmin\Http\Controllers\SuperAdminController;
 use Modules\SuperAdmin\Http\Controllers\DashboardController;
 use Modules\SuperAdmin\Http\Controllers\WebsiteSettingController;
 
-// Public front website settings — no authentication required
+// Public front website routes — no authentication required
 Route::prefix('api/v1')->middleware(['api', 'cookie.filter'])->group(function () {
     Route::get('website/settings', [WebsiteSettingController::class, 'index']);
+    Route::get('faqs', [FaqController::class, 'index']);
 });
 
 // Authenticated super admin routes
@@ -16,4 +18,11 @@ Route::prefix('api/v1')->middleware(['api', 'auth:sanctum', 'cookie.filter'])->g
     Route::get('dashboard/stats', [DashboardController::class, 'stats']);
     Route::get('dashboard/platform-stats', [DashboardController::class, 'platformStats']);
     Route::put('website/settings', [WebsiteSettingController::class, 'update']);
+
+    // FAQ management — super admin only (checked inside the controller)
+    Route::get('faqs/all', [FaqController::class, 'adminIndex']);
+    Route::get('faqs/{faq}', [FaqController::class, 'show'])->where('faq', '[0-9]+');
+    Route::post('faqs', [FaqController::class, 'store']);
+    Route::put('faqs/{faq}', [FaqController::class, 'update'])->where('faq', '[0-9]+');
+    Route::delete('faqs/{faq}', [FaqController::class, 'destroy'])->where('faq', '[0-9]+');
 });

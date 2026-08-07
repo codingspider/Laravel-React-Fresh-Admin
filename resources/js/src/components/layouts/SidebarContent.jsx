@@ -43,6 +43,7 @@ import {
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
+    FAQ_LIST_PATH,
     ROLE_LIST_PATH,
     USER_LIST_PATH,
     INVENTORY_ITEM_LIST_PATH,
@@ -110,6 +111,7 @@ const navItems = [
             { path: PACKAGE_LIST_PATH, label: 'Packages', permission: 'view_packages' },
             { path: PLAN_LIST_PATH, label: 'Plans', permission: 'view_plans' },
             { path: SUBSCRIPTION_LIST_PATH, label: 'Subscriptions', permission: 'view_subscriptions' },
+            { path: FAQ_LIST_PATH, label: 'FAQs' },
         ],
     },
     {

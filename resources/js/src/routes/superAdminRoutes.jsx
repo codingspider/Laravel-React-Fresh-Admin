@@ -2,6 +2,8 @@ import ProtectedRoute from "../ProtectedRoute";
 import Dashboard from "../components/superadmin/Dashboard";
 import SuperAdminDashboard from "../components/superadmin/SuperAdminDashboard";
 import WebsiteSettings from "../components/superadmin/WebsiteSettings";
+import FaqList from "../components/superadmin/FaqList";
+import FaqForm from "../components/superadmin/FaqForm";
 import SaveOrder from "../components/order/SaveOrder";
 
 import DepartmentList from "../components/admin/hrm/DepartmentList";
@@ -185,6 +187,10 @@ import General from "../components/admin/general/General";
 
 export const DASHBOARD_PATH = `/dashboard`;
 
+export const FAQ_LIST_PATH = "/faq/list";
+export const FAQ_CREATE_PATH = "/faq/create";
+export const FAQ_EDIT_PATH = "/faq/edit/:id";
+
 export const RESTAURANT_LIST_PATH = "/restaurant/list";
 export const RESTAURANT_ADD_PATH = "/restaurant/create";
 export const RESTAURANT_VIEW_PATH = "/restaurant/view/:id";
@@ -362,6 +368,10 @@ export const superAdminRoutes = [
     { path: `/settings`, element: <WebsiteSettings /> },
     { path: `/settings/general`, element: <General /> },
     { path: `/save/order`, element: <SaveOrder /> },
+
+    { path: FAQ_LIST_PATH, element: <FaqList /> },
+    { path: FAQ_CREATE_PATH, element: <FaqForm /> },
+    { path: FAQ_EDIT_PATH, element: <FaqForm /> },
 
     { path: USER_LIST_PATH, element: <UserList /> },
     { path: USER_ADD_PATH, element: <UserCreate /> },

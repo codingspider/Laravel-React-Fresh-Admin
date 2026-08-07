@@ -1,143 +1,118 @@
 import React from 'react';
-import { Box, Container, SimpleGrid, VStack, Text, Heading, HStack, IconButton, Stack, Input, Button, Divider } from '@chakra-ui/react';
+import { Box, Container, HStack, VStack, Text, Heading, IconButton, Stack, SimpleGrid } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Mail, Phone, MapPin, Send, Heart } from 'lucide-react';
+import { Mail, Phone, MapPin, Heart } from 'lucide-react';
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin, FaYoutube } from 'react-icons/fa';
+import { useTranslation } from 'react-i18next';
 
-const socials = [
-    { key: 'facebook', icon: FaFacebook },
-    { key: 'twitter', icon: FaTwitter },
-    { key: 'instagram', icon: FaInstagram },
-    { key: 'linkedin', icon: FaLinkedin },
-    { key: 'youtube', icon: FaYoutube },
-];
+const socialIcons = {
+    facebook: FaFacebook,
+    twitter: FaTwitter,
+    instagram: FaInstagram,
+    linkedin: FaLinkedin,
+    youtube: FaYoutube,
+};
+
+const socialKeys = ['facebook', 'twitter', 'instagram', 'linkedin', 'youtube'];
 
 export default function LandingFooter({ settings }) {
-    const socialLinks = socials
-        .map((s) => ({ ...s, url: settings?.[`social_${s.key}`] }))
-        .filter((s) => s.url);
+    const { t } = useTranslation();
+
+    const contactItems = [
+        { icon: Mail, value: settings?.contact_email, href: settings?.contact_email ? `mailto:${settings.contact_email}` : null },
+        { icon: Phone, value: settings?.contact_phone, href: settings?.contact_phone ? `tel:${settings.contact_phone}` : null },
+        { icon: MapPin, value: settings?.contact_address },
+    ].filter((item) => item.value);
 
     return (
-        <Box bg="gray.900" _dark={{ bg: 'gray.900' }} color="white" pt={{ base: 12, md: 16 }} pb={8}>
-            <Container maxW="1200px" px={{ base: 4, md: 8 }}>
-                <SimpleGrid columns={{ base: 1, md: 2, lg: 4 }} spacing={{ base: 8, md: 10 }}>
+        <Box bg="gray.900" _dark={{ bg: 'gray.950' }} color="white">
+            <Container maxW="1200px" px={{ base: 4, md: 8 }} pt={{ base: 12, md: 16 }} pb={8}>
+                <SimpleGrid columns={{ base: 1, md: 3 }} spacing={{ base: 8, md: 10 }}>
                     <VStack align="flex-start" spacing={4}>
-                        <Heading as="h3" size="md" fontWeight="800">
-                            {settings?.site_name || 'Restaurant POS'}
+                        <Heading as="h3" size="md" fontWeight="700">
+                            {settings?.site_name || t('Restaurant POS')}
                         </Heading>
-                        <Text fontSize="sm" color="whiteAlpha.700" lineHeight="1.7">
-                            {settings?.footer_about || 'The all-in-one POS platform that helps restaurants run faster, smarter and better — from order to checkout.'}
+                        <Text fontSize="sm" color="whiteAlpha.600" lineHeight="1.7" maxW="280px">
+                            {settings?.footer_about || t('The all-in-one platform for modern restaurants.')}
                         </Text>
                         <HStack spacing={2} pt={1}>
-                            {socialLinks.map((s) => (
-                                <IconButton
-                                    key={s.key}
-                                    as="a"
-                                    href={s.url}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    aria-label={s.key}
-                                    icon={<s.icon size={16} />}
-                                    size="sm"
-                                    bg="whiteAlpha.100"
-                                    color="whiteAlpha.800"
-                                    _hover={{ bg: 'teal.500', color: 'white' }}
-                                    borderRadius="full"
-                                />
-                            ))}
+                            {socialKeys
+                                .filter((key) => settings?.[`social_${key}`])
+                                .map((key) => (
+                                    <IconButton
+                                        key={key}
+                                        as="a"
+                                        href={settings[`social_${key}`]}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        aria-label={key}
+                                        icon={React.createElement(socialIcons[key], { size: 14 })}
+                                        size="sm"
+                                        bg="whiteAlpha.100"
+                                        color="whiteAlpha.700"
+                                        _hover={{ bg: 'teal.500', color: 'white' }}
+                                        borderRadius="full"
+                                    />
+                                ))}
                         </HStack>
-                    </VStack>
-
-                    <VStack align="flex-start" spacing={3}>
-                        <Heading as="h4" size="sm" fontWeight="700" color="teal.300">
-                            Product
-                        </Heading>
-                        {[
-                            ['POS', '/'],
-                            ['Features', '/#features'],
-                            ['Solutions', '/#solutions'],
-                            ['Pricing', '/#pricing'],
-                            ['FAQ', '/#faq'],
-                        ].map(([label, href]) => (
-                            <Text
-                                key={label}
-                                as={RouterLink}
-                                to={href}
-                                fontSize="sm"
-                                color="whiteAlpha.700"
-                                _hover={{ color: 'teal.300' }}
-                            >
-                                {label}
-                            </Text>
-                        ))}
-                    </VStack>
-
-                    <VStack align="flex-start" spacing={3}>
-                        <Heading as="h4" size="sm" fontWeight="700" color="teal.300">
-                            Company
-                        </Heading>
-                        {['About', 'Contact', 'Careers', 'Blog', 'Support'].map((label) => (
-                            <Text key={label} fontSize="sm" color="whiteAlpha.700" _hover={{ color: 'teal.300' }} cursor="pointer">
-                                {label}
-                            </Text>
-                        ))}
                     </VStack>
 
                     <VStack align="flex-start" spacing={4}>
-                        <Heading as="h4" size="sm" fontWeight="700" color="teal.300">
-                            Contact
+                        <Heading as="h4" size="sm" fontWeight="600" color="teal.300">
+                            {t('Contact')}
                         </Heading>
-                        <VStack align="flex-start" spacing={2.5} fontSize="sm" color="whiteAlpha.700">
-                            <HStack spacing={2}>
-                                <Mail size={14} color="teal.300" />
-                                <Text>{settings?.contact_email || 'support@example.com'}</Text>
-                            </HStack>
-                            <HStack spacing={2}>
-                                <Phone size={14} color="teal.300" />
-                                <Text>{settings?.contact_phone || '+1 (555) 123-4567'}</Text>
-                            </HStack>
-                            <HStack spacing={2} align="flex-start">
-                                <Box mt={0.5}><MapPin size={14} color="teal.300" /></Box>
-                                <Text>{settings?.contact_address || '123 Market Street, San Francisco, CA'}</Text>
-                            </HStack>
+                        <VStack align="flex-start" spacing={2.5} fontSize="sm" color="whiteAlpha.600">
+                            {contactItems.map((item, i) => (
+                                <HStack key={i} spacing={2} align={item.icon === MapPin ? 'flex-start' : 'center'}>
+                                    <Box mt={item.icon === MapPin ? 0.5 : 0}>
+                                        <item.icon size={14} color="teal.300" />
+                                    </Box>
+                                    {item.href ? (
+                                        <Text as="a" href={item.href} _hover={{ color: 'teal.300' }}>
+                                            {item.value}
+                                        </Text>
+                                    ) : (
+                                        <Text>{item.value}</Text>
+                                    )}
+                                </HStack>
+                            ))}
                         </VStack>
-                        <HStack spacing={2} mt={2} w="100%">
-                            <Input
-                                placeholder="Enter your email"
-                                bg="whiteAlpha.100"
-                                border="1px solid"
-                                borderColor="whiteAlpha.300"
-                                size="md"
-                                _placeholder={{ color: 'whiteAlpha.500' }}
-                                _hover={{ borderColor: 'teal.300' }}
-                                _focus={{ borderColor: 'teal.400', boxShadow: '0 0 0 1px teal.400' }}
-                            />
-                            <IconButton
-                                aria-label="Subscribe"
-                                icon={<Send size={16} />}
-                                colorScheme="teal"
-                                _hover={{ transform: 'translateY(-2px)' }}
-                            />
-                        </HStack>
+                    </VStack>
+
+                    <VStack align="flex-start" spacing={4}>
+                        <Heading as="h4" size="sm" fontWeight="600" color="teal.300">
+                            {t('Quick Links')}
+                        </Heading>
+                        <VStack align="flex-start" spacing={2} fontSize="sm" color="whiteAlpha.600">
+                            {[
+                                { label: t('Login'), to: '/login' },
+                                { label: t('Register'), to: '/register' },
+                            ].map((link) => (
+                                <Text
+                                    key={link.to}
+                                    as={RouterLink}
+                                    to={link.to}
+                                    _hover={{ color: 'teal.300' }}
+                                >
+                                    {link.label}
+                                </Text>
+                            ))}
+                        </VStack>
                     </VStack>
                 </SimpleGrid>
 
-                <Divider my={8} borderColor="whiteAlpha.200" />
-
-                <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" spacing={3}>
-                    <Text fontSize="xs" color="whiteAlpha.500">
-                        © {new Date().getFullYear()} {settings?.copyright_text || settings?.site_name || 'Restaurant POS'}. All rights reserved.
-                    </Text>
-                    <HStack spacing={1}>
+                <Box borderTop="1px solid" borderColor="whiteAlpha.200" mt={10} pt={6}>
+                    <Stack direction={{ base: 'column', md: 'row' }} justify="space-between" align="center" spacing={3}>
                         <Text fontSize="xs" color="whiteAlpha.500">
-                            Made with
+                            © {new Date().getFullYear()} {settings?.copyright_text || settings?.site_name || t('Restaurant POS')}. {t('All rights reserved.')}
                         </Text>
-                        <Heart size={12} color="red.400" fill="red.400" />
-                        <Text fontSize="xs" color="whiteAlpha.500">
-                            for restaurants
-                        </Text>
-                    </HStack>
-                </Stack>
+                        <HStack spacing={1}>
+                            <Text fontSize="xs" color="whiteAlpha.500">{t('Made with')}</Text>
+                            <Heart size={12} color="red.400" fill="red.400" />
+                            <Text fontSize="xs" color="whiteAlpha.500">{t('for restaurants')}</Text>
+                        </HStack>
+                    </Stack>
+                </Box>
             </Container>
         </Box>
     );

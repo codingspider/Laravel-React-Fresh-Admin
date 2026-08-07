@@ -52,7 +52,7 @@ function GuestHeader({ table, restaurant }) {
 function CategoryTabs({ categories, active, onSelect }) {
   const scrollRef = useRef(null);
   return (
-    <Box ref={scrollRef} overflowX="auto" whiteSpace="nowrap" px={4} py={3} bg="white" _dark={{ bg: 'gray.800' }} borderBottom="1px solid" borderColor="gray.100" _dark={{ borderColor: 'gray.700' }} position="sticky" top="60px" zIndex={9}>
+    <Box ref={scrollRef} overflowX="auto" whiteSpace="nowrap" px={4} py={3} bg="white" borderBottom="1px solid" borderColor="gray.100" _dark={{ borderColor: 'gray.700', bg: 'gray.800' }} position="sticky" top="60px" zIndex={9}>
       <HStack spacing={2} maxW="600px" mx="auto">
         <Button
           size="xs"
@@ -499,7 +499,7 @@ function OrderTracker({ invoice, currencySymbol }) {
         if (data.status === 'success') {
           setOrder(data.data);
         }
-      } catch (e) {}
+      } catch (e) { }
       setLoading(false);
     };
     poll();
