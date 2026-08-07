@@ -226,6 +226,7 @@ const navItems = [
         icon: Bell,
         label: 'Notifications',
         permission: 'view_notifications',
+        excludeRole: 'super_admin',
     },
     {
         icon: MonitorPlay,

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController as BaseController;
-use App\Http\Controllers\Controller;
 use App\Mail\ForgotPasswordMail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,13 +13,11 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
-use App\Traits\BusinessTrait;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
 class RegisterController extends BaseController
 {
-    use BusinessTrait;
 
     public function register(Request $request)
     {
@@ -57,105 +54,105 @@ class RegisterController extends BaseController
     public function storeBusinessInfo(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
-            'currency' => 'required|numeric',
-            'country' => 'required|max:255',
-            'state' => 'required|max:255',
-            'city' => 'required|max:255',
-            'zip_code' => 'required|max:255',
-            'address' => 'required|max:255',
-            'time_zone' => 'nullable|max:255',
-            'email' => 'sometimes|nullable|email|unique:users|max:255',
-            'first_name' => 'required|max:255',
-            'username' => 'required|min:4|max:255|unique:users',
-            'password' => 'required|min:4|max:255',
-            'fy_start_month' => 'required',
-            'accounting_method' => 'required',
+            // Restaurant info
+            'restaurant_name' => 'required|string|max:255',
+            'phone'           => 'nullable|string|max:255',
+            'email'           => 'nullable|email|max:255',
+            'address'         => 'nullable|string|max:500',
+            'city'            => 'nullable|string|max:255',
+            'state'           => 'nullable|string|max:255',
+            'country'         => 'nullable|string|max:255',
+            'zip_code'        => 'nullable|string|max:255',
+            'currency'        => 'nullable|string|max:10',
+            'timezone'        => 'nullable|string|max:255',
+            // Owner account
+            'first_name' => 'required|string|max:255',
+            'last_name'  => 'nullable|string|max:255',
+            'username'   => 'required|string|min:4|max:255|unique:users',
+            'email_owner' => 'required|email|max:255|unique:users,email',
+            'password'   => 'required|string|min:6|max:255',
         ]);
-   
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors());       
+
+        if ($validator->fails()) {
+            return $this->sendError('Validation Error.', $validator->errors());
         }
 
         try {
             DB::beginTransaction();
 
-            // Owner details
-            $owner_details = $request->only([
-                'first_name',
-                'last_name',
-                'username',
-                'email',
-                'password',
-                'language'
+            $fullName = trim($request->input('first_name', '') . ' ' . $request->input('last_name', ''));
+
+            // 1. Create owner user
+            $user = User::create([
+                'name'       => $fullName,
+                'username'   => $request->username,
+                'first_name' => $request->first_name,
+                'last_name'  => $request->last_name,
+                'email'      => $request->email_owner,
+                'password'   => Hash::make($request->password),
             ]);
 
-            $owner_details['language'] = empty($owner_details['language'])
-                ? config('app.locale')
-                : $owner_details['language'];
-
-            $owner_details['role'] = 'superadmin';
-
-            $user = User::create($owner_details);
-
-            $role = Role::where('name', 'superadmin')->first();
+            // Assign restaurant owner role
+            $role = Role::where('name', 'restaurant_owner')->first()
+                ?? Role::where('name', 'super_admin')->first();
             if ($role) {
                 $user->assignRole($role);
             }
 
-            $permissions = Permission::all();
-            $user->syncPermissions($permissions);
+            // 2. Create restaurant
+            $slug = \Illuminate\Support\Str::slug($request->restaurant_name);
+            $existingCount = \Modules\Restaurant\Models\Restaurant::where('slug', $slug)->count();
+            if ($existingCount > 0) {
+                $slug = $slug . '-' . ($existingCount + 1);
+            }
 
-            // Business details
-            $business_details = $request->only([
-                'name',
-                'start_date',
-                'time_zone',
-                'fy_start_month',
-                'accounting_method'
+            $currencyMap = [
+                'USD' => '$', 'EUR' => '€', 'GBP' => '£', 'INR' => '₹',
+                'BRL' => 'R$', 'CAD' => 'C$', 'AUD' => 'A$',
+            ];
+            $currencyCode = $request->currency ?? 'USD';
+
+            $restaurant = \Modules\Restaurant\Models\Restaurant::create([
+                'owner_id'        => $user->id,
+                'name'            => $request->restaurant_name,
+                'slug'            => $slug,
+                'phone'           => $request->phone,
+                'email'           => $request->email,
+                'address'         => $request->address,
+                'city'            => $request->city,
+                'state'           => $request->state,
+                'country'         => $request->country,
+                'zip_code'        => $request->zip_code,
+                'timezone'        => $request->timezone ?? 'UTC',
+                'currency'        => $currencyCode,
+                'currency_symbol' => $currencyMap[$currencyCode] ?? '$',
+                'status'          => 'active',
+                'trial_ends_at'   => now()->addDays(14),
             ]);
 
-            $business_details['currency_id'] = $request->currency;
-            $business_details['owner_id'] = $user->id;
-            $business_details['stop_selling_before'] = 0;
-            $business_details['weighing_scale_setting'] = '';
-
-            $business = $this->createNewBusiness($business_details);
-
-            // Update user with business ID
-            $user->business_id = $business->id;
-            $user->save();
-
-            // Location
-            $business_location = $request->only([
-                'name',
-                'country',
-                'state',
-                'city',
-                'zip_code',
-            ]);
-
-            $business_location['landmark'] = $request->address;
-
-            $new_location = $this->addLocation($business->id, $business_location);
+            // 3. Link user to restaurant
+            $user->update(['restaurant_id' => $restaurant->id]);
 
             DB::commit();
 
-            return $this->sendResponse($business, 'Business registered successfully.');
+            return $this->sendResponse([
+                'user'       => ['id' => $user->id, 'name' => $user->name, 'email' => $user->email],
+                'restaurant' => ['id' => $restaurant->id, 'name' => $restaurant->name, 'slug' => $restaurant->slug],
+            ], 'Account created successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
 
-            // Log error (VERY IMPORTANT)
-            \Log::error('Business Registration Failed: ' . $e->getMessage(), [
-                'file' => $e->getFile(),
-                'line' => $e->getLine()
+            \Log::error('Registration Failed: ' . $e->getMessage(), [
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong. Please try again.',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }

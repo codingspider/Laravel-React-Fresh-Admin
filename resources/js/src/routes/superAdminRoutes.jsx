@@ -1,6 +1,7 @@
 import ProtectedRoute from "../ProtectedRoute";
 import Dashboard from "../components/superadmin/Dashboard";
-import MasterSetting from "../components/superadmin/MasterSetting";
+import SuperAdminDashboard from "../components/superadmin/SuperAdminDashboard";
+import WebsiteSettings from "../components/superadmin/WebsiteSettings";
 import SaveOrder from "../components/order/SaveOrder";
 
 import DepartmentList from "../components/admin/hrm/DepartmentList";
@@ -357,8 +358,8 @@ export const LOYALTY_TRANSACTIONS_PATH = "/loyalty/transactions";
 export const NOTIFICATIONS_PATH = "/notifications";
 
 export const superAdminRoutes = [
-    { path: DASHBOARD_PATH, element: <Dashboard /> },
-    { path: `/settings`, element: <MasterSetting /> },
+    { path: DASHBOARD_PATH, element: <SuperAdminDashboard /> },
+    { path: `/settings`, element: <WebsiteSettings /> },
     { path: `/settings/general`, element: <General /> },
     { path: `/save/order`, element: <SaveOrder /> },
 

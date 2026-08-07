@@ -25,10 +25,8 @@ import {
     InputRightElement,
     HStack,
     FormErrorMessage,
-    FormHelperText,
     SimpleGrid,
     Icon,
-    Spinner,
 } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -57,9 +55,8 @@ const Register = () => {
     const colors = useThemeColors();
 
     const steps = [
-        { title: "Business", description: "Basic Info" },
-        { title: "Settings", description: "Preferences" },
-        { title: "Admin", description: "Create Account" },
+        { title: "Restaurant", description: "Basic Info" },
+        { title: "Account", description: "Create Login" },
     ];
 
     const { activeStep, setActiveStep } = useSteps({
@@ -87,9 +84,9 @@ const Register = () => {
             await api.post(STORE_BUSINESS_INFO, data);
             toast({
                 title: "Account created!",
-                description: "Your account has been created successfully.",
+                description: "Your account has been created successfully. You can now log in.",
                 status: "success",
-                duration: 3000,
+                duration: 4000,
                 isClosable: true,
             });
             navigate(LOGIN);
@@ -101,16 +98,16 @@ const Register = () => {
                         title: `${field} error`,
                         description: validationErrors[field][0],
                         status: "error",
-                        duration: 3000,
+                        duration: 4000,
                         isClosable: true,
                     });
                 });
             } else {
                 toast({
                     title: "Error",
-                    description: "Something went wrong!",
+                    description: error.response?.data?.message || "Something went wrong!",
                     status: "error",
-                    duration: 3000,
+                    duration: 4000,
                     isClosable: true,
                 });
             }
@@ -122,75 +119,81 @@ const Register = () => {
     const getFieldsForStep = (stepIndex) => {
         switch (stepIndex) {
             case 0:
-                return ["name", "start_date", "currency", "country", "state", "city", "zip_code", "address"];
+                return ["restaurant_name"];
             case 1:
-                return ["fy_start_month", "accounting_method"];
-            case 2:
-                return ["first_name", "last_name", "username", "email", "password"];
+                return ["first_name", "username", "email_owner", "password"];
             default:
                 return [];
         }
     };
 
-    const renderStepContent = () => {
-        const inputBg = colors.bgInput;
+    const inputBg = colors.bgInput;
 
+    const renderStepContent = () => {
         switch (activeStep) {
             case 0:
                 return (
                     <VStack spacing={5} align="stretch">
-                        <FormControl isInvalid={errors.name} isRequired>
-                            <FormLabel fontSize="sm" fontWeight="600">Business Name</FormLabel>
-                            <Input bg={inputBg} placeholder="e.g. My Restaurant" {...register("name", { required: "Business name is required" })} borderRadius="lg" />
-                            <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
+                        <FormControl isInvalid={errors.restaurant_name} isRequired>
+                            <FormLabel fontSize="sm" fontWeight="600">Restaurant Name</FormLabel>
+                            <Input bg={inputBg} placeholder="e.g. My Restaurant" borderRadius="lg" {...register("restaurant_name", { required: "Restaurant name is required" })} />
+                            <FormErrorMessage>{errors.restaurant_name?.message}</FormErrorMessage>
                         </FormControl>
 
                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                            <FormControl isInvalid={errors.start_date} isRequired>
-                                <FormLabel fontSize="sm" fontWeight="600">Start Date</FormLabel>
-                                <Input type="date" bg={inputBg} borderRadius="lg" {...register("start_date", { required: "Start date is required" })} />
-                                <FormErrorMessage>{errors.start_date?.message}</FormErrorMessage>
+                            <FormControl isInvalid={errors.phone}>
+                                <FormLabel fontSize="sm" fontWeight="600">Phone</FormLabel>
+                                <Input bg={inputBg} placeholder="+1 (555) 123-4567" borderRadius="lg" {...register("phone")} />
+                                <FormErrorMessage>{errors.phone?.message}</FormErrorMessage>
                             </FormControl>
-
-                            <FormControl isInvalid={errors.currency} isRequired>
-                                <FormLabel fontSize="sm" fontWeight="600">Currency</FormLabel>
-                                <Select bg={inputBg} placeholder="Select currency" borderRadius="lg" {...register("currency", { required: "Currency is required" })}>
-                                    <option value="1">USD ($)</option>
-                                    <option value="2">EUR (€)</option>
-                                    <option value="3">GBP (£)</option>
-                                    <option value="4">INR (₹)</option>
-                                </Select>
-                                <FormErrorMessage>{errors.currency?.message}</FormErrorMessage>
+                            <FormControl isInvalid={errors.email}>
+                                <FormLabel fontSize="sm" fontWeight="600">Restaurant Email</FormLabel>
+                                <Input bg={inputBg} type="email" placeholder="info@restaurant.com" borderRadius="lg" {...register("email")} />
+                                <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
                             </FormControl>
                         </SimpleGrid>
 
-                        <FormControl isInvalid={errors.country} isRequired>
-                            <FormLabel fontSize="sm" fontWeight="600">Country</FormLabel>
-                            <Input bg={inputBg} placeholder="Country" borderRadius="lg" {...register("country", { required: "Country is required" })} />
-                            <FormErrorMessage>{errors.country?.message}</FormErrorMessage>
-                        </FormControl>
-
-                        <FormControl isInvalid={errors.address} isRequired>
+                        <FormControl isInvalid={errors.address}>
                             <FormLabel fontSize="sm" fontWeight="600">Address</FormLabel>
-                            <Input bg={inputBg} placeholder="Street Address" borderRadius="lg" {...register("address", { required: "Address is required" })} />
+                            <Input bg={inputBg} placeholder="Street address" borderRadius="lg" {...register("address")} />
                             <FormErrorMessage>{errors.address?.message}</FormErrorMessage>
                         </FormControl>
 
                         <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4}>
-                            <FormControl isInvalid={errors.city} isRequired>
+                            <FormControl isInvalid={errors.city}>
                                 <FormLabel fontSize="sm" fontWeight="600">City</FormLabel>
-                                <Input bg={inputBg} placeholder="City" borderRadius="lg" {...register("city", { required: "City is required" })} />
+                                <Input bg={inputBg} placeholder="City" borderRadius="lg" {...register("city")} />
                                 <FormErrorMessage>{errors.city?.message}</FormErrorMessage>
                             </FormControl>
-                            <FormControl isInvalid={errors.state} isRequired>
+                            <FormControl isInvalid={errors.state}>
                                 <FormLabel fontSize="sm" fontWeight="600">State</FormLabel>
-                                <Input bg={inputBg} placeholder="State" borderRadius="lg" {...register("state", { required: "State is required" })} />
+                                <Input bg={inputBg} placeholder="State" borderRadius="lg" {...register("state")} />
                                 <FormErrorMessage>{errors.state?.message}</FormErrorMessage>
                             </FormControl>
-                            <FormControl isInvalid={errors.zip_code} isRequired>
+                            <FormControl isInvalid={errors.zip_code}>
                                 <FormLabel fontSize="sm" fontWeight="600">Zip Code</FormLabel>
-                                <Input bg={inputBg} placeholder="Zip" borderRadius="lg" {...register("zip_code", { required: "Zip code is required" })} />
+                                <Input bg={inputBg} placeholder="Zip" borderRadius="lg" {...register("zip_code")} />
                                 <FormErrorMessage>{errors.zip_code?.message}</FormErrorMessage>
+                            </FormControl>
+                        </SimpleGrid>
+
+                        <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                            <FormControl isInvalid={errors.country}>
+                                <FormLabel fontSize="sm" fontWeight="600">Country</FormLabel>
+                                <Input bg={inputBg} placeholder="Country" borderRadius="lg" {...register("country")} />
+                                <FormErrorMessage>{errors.country?.message}</FormErrorMessage>
+                            </FormControl>
+                            <FormControl>
+                                <FormLabel fontSize="sm" fontWeight="600">Currency</FormLabel>
+                                <Select bg={inputBg} borderRadius="lg" {...register("currency")}>
+                                    <option value="USD">USD ($)</option>
+                                    <option value="EUR">EUR (€)</option>
+                                    <option value="GBP">GBP (£)</option>
+                                    <option value="INR">INR (₹)</option>
+                                    <option value="BRL">BRL (R$)</option>
+                                    <option value="CAD">CAD (C$)</option>
+                                    <option value="AUD">AUD (A$)</option>
+                                </Select>
                             </FormControl>
                         </SimpleGrid>
                     </VStack>
@@ -200,71 +203,36 @@ const Register = () => {
                 return (
                     <VStack spacing={5} align="stretch">
                         <Text color="gray.500" fontSize="sm">
-                            Configure your financial settings. You can change these later in settings.
+                            Create your admin account to manage the restaurant.
                         </Text>
 
-                        <FormControl isInvalid={errors.fy_start_month} isRequired>
-                            <FormLabel fontSize="sm" fontWeight="600">Financial Start Month</FormLabel>
-                            <Select bg={colors.bgInput} placeholder="Select month" borderRadius="lg" {...register("fy_start_month", { required: "Required" })}>
-                                <option value="1">January</option>
-                                <option value="2">February</option>
-                                <option value="3">March</option>
-                                <option value="4">April</option>
-                                <option value="5">May</option>
-                                <option value="6">June</option>
-                                <option value="7">July</option>
-                                <option value="8">August</option>
-                                <option value="9">September</option>
-                                <option value="10">October</option>
-                                <option value="11">November</option>
-                                <option value="12">December</option>
-                            </Select>
-                            <FormErrorMessage>{errors.fy_start_month?.message}</FormErrorMessage>
-                        </FormControl>
-
-                        <FormControl isInvalid={errors.accounting_method} isRequired>
-                            <FormLabel fontSize="sm" fontWeight="600">Stock Accounting Method</FormLabel>
-                            <Select bg={colors.bgInput} placeholder="Select method" borderRadius="lg" {...register("accounting_method", { required: "Required" })}>
-                                <option value="fifo">FIFO (First In, First Out)</option>
-                                <option value="lifo">LIFO (Last In, First Out)</option>
-                                <option value="weighted">Weighted Average</option>
-                            </Select>
-                            <FormHelperText>Choose how your inventory cost is calculated.</FormHelperText>
-                            <FormErrorMessage>{errors.accounting_method?.message}</FormErrorMessage>
-                        </FormControl>
-                    </VStack>
-                );
-
-            case 2:
-                return (
-                    <VStack spacing={5} align="stretch">
                         <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
                             <FormControl isInvalid={errors.first_name} isRequired>
                                 <FormLabel fontSize="sm" fontWeight="600">First Name</FormLabel>
-                                <Input bg={colors.bgInput} placeholder="John" borderRadius="lg" {...register("first_name", { required: "Required" })} />
+                                <Input bg={inputBg} placeholder="John" borderRadius="lg" {...register("first_name", { required: "First name is required" })} />
                                 <FormErrorMessage>{errors.first_name?.message}</FormErrorMessage>
                             </FormControl>
-                            <FormControl isInvalid={errors.last_name} isRequired>
+                            <FormControl isInvalid={errors.last_name}>
                                 <FormLabel fontSize="sm" fontWeight="600">Last Name</FormLabel>
-                                <Input bg={colors.bgInput} placeholder="Doe" borderRadius="lg" {...register("last_name", { required: "Required" })} />
+                                <Input bg={inputBg} placeholder="Doe" borderRadius="lg" {...register("last_name")} />
                                 <FormErrorMessage>{errors.last_name?.message}</FormErrorMessage>
                             </FormControl>
                         </SimpleGrid>
 
                         <FormControl isInvalid={errors.username} isRequired>
                             <FormLabel fontSize="sm" fontWeight="600">Username</FormLabel>
-                            <Input bg={colors.bgInput} placeholder="johndoe123" borderRadius="lg" {...register("username", { required: "Required" })} />
+                            <Input bg={inputBg} placeholder="johndoe123" borderRadius="lg" {...register("username", { required: "Username is required", minLength: { value: 4, message: "Minimum 4 characters" } })} />
                             <FormErrorMessage>{errors.username?.message}</FormErrorMessage>
                         </FormControl>
 
-                        <FormControl isInvalid={errors.email} isRequired>
+                        <FormControl isInvalid={errors.email_owner} isRequired>
                             <FormLabel fontSize="sm" fontWeight="600">Email Address</FormLabel>
                             <Input
-                                bg={colors.bgInput}
+                                bg={inputBg}
                                 type="email"
                                 placeholder="john@example.com"
                                 borderRadius="lg"
-                                {...register("email", {
+                                {...register("email_owner", {
                                     required: "Email is required",
                                     pattern: {
                                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
@@ -272,14 +240,14 @@ const Register = () => {
                                     },
                                 })}
                             />
-                            <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+                            <FormErrorMessage>{errors.email_owner?.message}</FormErrorMessage>
                         </FormControl>
 
                         <FormControl isInvalid={errors.password} isRequired>
                             <FormLabel fontSize="sm" fontWeight="600">Password</FormLabel>
                             <InputGroup size="md">
                                 <Input
-                                    bg={colors.bgInput}
+                                    bg={inputBg}
                                     {...register("password", {
                                         required: "Password is required",
                                         minLength: { value: 6, message: "Minimum 6 characters" },
@@ -312,7 +280,7 @@ const Register = () => {
             bg={colors.bgPage}
             p={{ base: 4, md: 8 }}
         >
-            <Box w="full" maxW="800px" mx="auto">
+            <Box w="full" maxW="700px" mx="auto">
                 <VStack spacing={6} mb={8}>
                     <Flex
                         bg="brand.600"
@@ -330,7 +298,7 @@ const Register = () => {
                             Create your account
                         </Heading>
                         <Text color="gray.500" mt={2}>
-                            Complete the steps to launch your restaurant dashboard
+                            Set up your restaurant and start taking orders
                         </Text>
                     </Box>
                 </VStack>
@@ -409,11 +377,11 @@ const Register = () => {
                                 variant="primary"
                                 onClick={handleSubmit(onSubmit)}
                                 isLoading={isSubmitting}
-                                loadingText="Submitting..."
+                                loadingText="Creating..."
                                 rightIcon={<CheckIcon />}
                                 borderRadius="lg"
                             >
-                                Complete Registration
+                                Create Account
                             </Button>
                         ) : (
                             <Button

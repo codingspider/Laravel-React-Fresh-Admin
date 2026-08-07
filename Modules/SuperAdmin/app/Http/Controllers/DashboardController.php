@@ -15,9 +15,121 @@ use Modules\Accounting\Models\Expense;
 use App\Models\InventoryItem;
 use App\Models\InventoryCategory;
 use Carbon\Carbon;
+use Modules\Restaurant\Models\Restaurant;
+use Modules\Plan\Models\Plan;
+use Modules\Subscription\Models\Subscription;
 
 class DashboardController extends Controller
 {
+    /**
+     * Platform-wide dashboard for super admins.
+     * Aggregates restaurants, plans and subscriptions across all businesses.
+     */
+    public function platformStats(Request $request): JsonResponse
+    {
+        if (!isSuperAdmin()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans('superadmin::module.forbidden'),
+            ], 403);
+        }
+
+        $now = Carbon::now();
+
+        $totalRestaurants = Restaurant::count();
+        $activeRestaurants = Restaurant::where('status', 'active')->count();
+        $totalPlans = Plan::count();
+        $activePlans = Plan::where('status', 'active')->where('is_active', true)->count();
+
+        $subscriptions = Subscription::query();
+        $totalSubscriptions = (clone $subscriptions)->count();
+        $activeSubscriptions = (clone $subscriptions)->where('status', 'active')
+            ->where(function ($q) use ($now) {
+                $q->where(fn ($q2) => $q2->where('is_trial', false)->where('ends_at', '>', $now))
+                  ->orWhere(fn ($q2) => $q2->where('is_trial', true)->where('trial_ends_at', '>', $now));
+            })
+            ->count();
+        $trialSubscriptions = (clone $subscriptions)->where('is_trial', true)->count();
+        $expiredSubscriptions = (clone $subscriptions)
+            ->where(function ($q) use ($now) {
+                $q->where(fn ($q2) => $q2->where('is_trial', false)->where(function ($q3) use ($now) {
+                    $q3->whereNull('ends_at')->orWhere('ends_at', '<=', $now);
+                }))
+                ->orWhere(fn ($q2) => $q2->where('is_trial', true)->where(function ($q3) use ($now) {
+                    $q3->whereNull('trial_ends_at')->orWhere('trial_ends_at', '<=', $now);
+                }));
+            })
+            ->count();
+        $subscriptionRevenue = (clone $subscriptions)->where('payment_status', 'paid')->sum('payment_amount');
+
+        $recentRestaurants = Restaurant::with('owner:id,name,email')
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn ($r) => [
+                'id' => $r->id,
+                'name' => $r->name,
+                'logo' => $r->logo,
+                'status' => $r->status,
+                'owner_name' => $r->owner->name ?? null,
+                'created_at' => $r->created_at?->toISOString(),
+            ]);
+
+        $recentSubscriptions = Subscription::with(['restaurant:id,name,slug', 'plan:id,name'])
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+            ->map(fn ($s) => [
+                'id' => $s->id,
+                'restaurant_name' => $s->restaurant->name ?? null,
+                'plan_name' => $s->plan->name ?? null,
+                'status' => $s->status,
+                'is_trial' => $s->is_trial ?? false,
+                'starts_at' => $s->starts_at?->toISOString(),
+                'ends_at' => $s->ends_at?->toISOString(),
+                'created_at' => $s->created_at?->toISOString(),
+            ]);
+
+        $planDistribution = Subscription::with('plan:id,name')
+            ->select('plan_id', DB::raw('COUNT(*) as total'))
+            ->groupBy('plan_id')
+            ->get()
+            ->map(fn ($row) => [
+                'plan_name' => $row->plan->name ?? 'N/A',
+                'total' => (int) $row->total,
+            ]);
+
+        $statusDistribution = Subscription::select('status', DB::raw('COUNT(*) as total'))
+            ->groupBy('status')
+            ->get()
+            ->map(fn ($row) => [
+                'status' => $row->status ?: 'unknown',
+                'total' => (int) $row->total,
+            ]);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans('superadmin::module.platform_stats_fetched'),
+            'data' => [
+                'stats' => [
+                    'total_restaurants' => $totalRestaurants,
+                    'active_restaurants' => $activeRestaurants,
+                    'total_plans' => $totalPlans,
+                    'active_plans' => $activePlans,
+                    'total_subscriptions' => $totalSubscriptions,
+                    'active_subscriptions' => $activeSubscriptions,
+                    'trial_subscriptions' => $trialSubscriptions,
+                    'expired_subscriptions' => $expiredSubscriptions,
+                    'subscription_revenue' => round((float) $subscriptionRevenue, 2),
+                ],
+                'recent_restaurants' => $recentRestaurants,
+                'recent_subscriptions' => $recentSubscriptions,
+                'plan_distribution' => $planDistribution,
+                'status_distribution' => $statusDistribution,
+            ],
+        ]);
+    }
+
     public function stats(Request $request): JsonResponse
     {
         $restaurantId = getRestaurantId();

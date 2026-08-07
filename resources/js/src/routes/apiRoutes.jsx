@@ -407,6 +407,10 @@ export const DELETE_CUSTOMER = (id) => `/v1/customers/${id}`;
 
 // Dashboard
 export const DASHBOARD_STATS = '/v1/dashboard/stats';
+export const PLATFORM_STATS = '/v1/dashboard/platform-stats';
+
+// Front Website
+export const WEBSITE_SETTINGS = '/v1/website/settings';
 
 // Profile
 export const UPDATE_PROFILE = '/update-profile';
