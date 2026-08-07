@@ -46,6 +46,9 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', 
     Route::get('/set-permission', [AuthController::class, 'giveAllPermissionsToAdmin']);
     Route::post('/extract-text-from-image', [OcrController::class, 'extract']);
 
+    Route::post('/update-profile', [AuthController::class, 'updateProfile']);
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
+
     
 });
 

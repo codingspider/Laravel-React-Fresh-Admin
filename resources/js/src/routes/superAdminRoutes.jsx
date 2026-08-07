@@ -62,6 +62,8 @@ import LoyaltySettings from "../components/admin/loyalty/LoyaltySettings";
 import LoyaltyCustomers from "../components/admin/loyalty/LoyaltyCustomers";
 import LoyaltyTransactions from "../components/admin/loyalty/LoyaltyTransactions";
 
+import Notifications from "../components/admin/notifications/Notifications";
+
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
 import UserEdit from './../components/user/UserEdit';
@@ -352,6 +354,8 @@ export const LOYALTY_SETTINGS_PATH = "/loyalty/settings";
 export const LOYALTY_CUSTOMERS_PATH = "/loyalty/customers";
 export const LOYALTY_TRANSACTIONS_PATH = "/loyalty/transactions";
 
+export const NOTIFICATIONS_PATH = "/notifications";
+
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <Dashboard /> },
     { path: `/settings`, element: <MasterSetting /> },
@@ -562,4 +566,7 @@ export const superAdminRoutes = [
     { path: LOYALTY_SETTINGS_PATH, element: <LoyaltySettings /> },
     { path: LOYALTY_CUSTOMERS_PATH, element: <LoyaltyCustomers /> },
     { path: LOYALTY_TRANSACTIONS_PATH, element: <LoyaltyTransactions /> },
+
+    // Notifications
+    { path: NOTIFICATIONS_PATH, element: <Notifications /> },
 ];

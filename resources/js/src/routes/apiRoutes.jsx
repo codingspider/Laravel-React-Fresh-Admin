@@ -407,3 +407,15 @@ export const DELETE_CUSTOMER = (id) => `/v1/customers/${id}`;
 
 // Dashboard
 export const DASHBOARD_STATS = '/v1/dashboard/stats';
+
+// Profile
+export const UPDATE_PROFILE = '/update-profile';
+export const CHANGE_PASSWORD = '/change-password';
+
+// Notifications
+export const NOTIFICATIONS_LIST = '/v1/notifications';
+export const NOTIFICATIONS_UNREAD_COUNT = '/v1/notifications/unread-count';
+export const NOTIFICATIONS_READ_ALL = '/v1/notifications/read-all';
+export const NOTIFICATIONS_MARK_READ = (id) => `/v1/notifications/${id}/read`;
+export const NOTIFICATIONS_DELETE = (id) => `/v1/notifications/${id}`;
+export const NOTIFICATIONS_CLEAR_READ = '/v1/notifications/read-all';

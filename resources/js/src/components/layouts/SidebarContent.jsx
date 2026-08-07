@@ -39,6 +39,7 @@ import {
     UserCheck,
     FileText,
     Star,
+    Bell,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -89,6 +90,7 @@ import {
     LOYALTY_SETTINGS_PATH,
     LOYALTY_CUSTOMERS_PATH,
     LOYALTY_TRANSACTIONS_PATH,
+    NOTIFICATIONS_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -218,6 +220,12 @@ const navItems = [
             { path: LOYALTY_CUSTOMERS_PATH, label: 'Customers', permission: 'view_loyalty_customers' },
             { path: LOYALTY_TRANSACTIONS_PATH, label: 'Transactions', permission: 'view_loyalty_transactions' },
         ],
+    },
+    {
+        path: NOTIFICATIONS_PATH,
+        icon: Bell,
+        label: 'Notifications',
+        permission: 'view_notifications',
     },
     {
         icon: MonitorPlay,
@@ -510,7 +518,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                     bgClip="text"
                     noOfLines={1}
                 >
-                    Restaurant
+                    {restaurant?.name || localStorage.getItem('app_name') || 'Restaurant'}
                 </Text>
             )}
         </Flex>

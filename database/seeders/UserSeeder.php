@@ -304,6 +304,10 @@ class UserSeeder extends Seeder
             'view_loyalty_customers',
             'view_loyalty_transactions',
             'manage_loyalty_points',
+
+            // Notifications
+            'view_notifications',
+            'delete_notifications',
         ];
 
         foreach ($permissions as $permission) {

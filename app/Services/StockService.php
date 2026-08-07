@@ -54,6 +54,13 @@ class StockService
             $item->quantity = $newStock;
             $item->save();
 
+            if ($quantity < 0 && $item->track_stock && $item->minimum_stock !== null
+                && $newStock <= (float) $item->minimum_stock
+                && $previousStock > (float) $item->minimum_stock
+            ) {
+                \Modules\Notification\Events\LowStockAlert::dispatch($item, $newStock, $restaurantId);
+            }
+
             $transaction = InventoryTransaction::create([
                 'restaurant_id' => $restaurantId,
                 'item_id' => $itemId,

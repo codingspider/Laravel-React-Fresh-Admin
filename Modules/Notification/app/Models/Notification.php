@@ -2,19 +2,54 @@
 
 namespace Modules\Notification\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Notifications\DatabaseNotification;
 
-class Notification extends Model
+class Notification extends DatabaseNotification
 {
-    use HasFactory, SoftDeletes;
+    protected $table = 'notifications';
 
-    protected $fillable = ['restaurant_id', 'name', 'status'];
-    protected $casts = ['metadata' => 'array'];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'id',
+        'type',
+        'notifiable_type',
+        'notifiable_id',
+        'data',
+        'read_at',
+        'restaurant_id',
+    ];
+
+    protected $casts = [
+        'data' => 'array',
+        'read_at' => 'datetime',
+    ];
 
     public function restaurant()
     {
-        return $this->belongsTo(\App\Models\Restaurant::class);
+        return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
+    }
+
+    public function notifiable()
+    {
+        return $this->morphTo();
+    }
+
+    public function scopeUnread($query)
+    {
+        return $query->whereNull('read_at');
+    }
+
+    public function scopeForRestaurant($query, ?int $restaurantId)
+    {
+        return $query->where('restaurant_id', $restaurantId);
+    }
+
+    public function isRead(): bool
+    {
+        return $this->read_at !== null;
     }
 }
