@@ -41,6 +41,9 @@ import {
     Star,
     Bell,
     BarChart3,
+    History,
+    Database,
+    HeartHandshake,
 } from 'lucide-react';
 import {
     DASHBOARD_PATH,
@@ -97,7 +100,13 @@ import {
     LOYALTY_SETTINGS_PATH,
     LOYALTY_CUSTOMERS_PATH,
     LOYALTY_TRANSACTIONS_PATH,
+    CRM_DASHBOARD_PATH,
+    CRM_CUSTOMER_LIST_PATH,
+    CRM_SEGMENT_LIST_PATH,
+    CRM_FOLLOW_UP_LIST_PATH,
     NOTIFICATIONS_PATH,
+    ACTIVITY_LOG_PATH,
+    BACKUP_LIST_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -241,11 +250,35 @@ const navItems = [
         ],
     },
     {
+        icon: HeartHandshake,
+        label: 'CRM',
+        permission: 'view_customers',
+        excludeRole: 'super_admin',
+        children: [
+            { path: CRM_DASHBOARD_PATH, label: 'Dashboard', permission: 'view_crm_dashboard' },
+            { path: CRM_CUSTOMER_LIST_PATH, label: 'Customers', permission: 'view_customers' },
+            { path: CRM_SEGMENT_LIST_PATH, label: 'Segments', permission: 'view_segments' },
+            { path: CRM_FOLLOW_UP_LIST_PATH, label: 'Follow-ups', permission: 'view_follow_ups' },
+        ],
+    },
+    {
         path: NOTIFICATIONS_PATH,
         icon: Bell,
         label: 'Notifications',
         permission: 'view_notifications',
         excludeRole: 'super_admin',
+    },
+    {
+        path: ACTIVITY_LOG_PATH,
+        icon: History,
+        label: 'Activity Logs',
+        permission: 'view_activity_logs',
+    },
+    {
+        path: BACKUP_LIST_PATH,
+        icon: Database,
+        label: 'Backups',
+        permission: 'view_backups',
     },
     {
         icon: MonitorPlay,

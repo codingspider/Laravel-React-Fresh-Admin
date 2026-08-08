@@ -1475,6 +1475,18 @@ return [
     'work_hours' => 'Work Hours',
     'overtime_hours' => 'Overtime Hours',
 
+    'activity_logs_fetched' => 'Activity logs fetched successfully',
+
+    'backups_fetched' => 'Backups fetched successfully',
+    'backup_created' => 'Database backup created successfully',
+    'backup_restored' => 'Database restored successfully',
+    'backup_deleted' => 'Backup deleted successfully',
+    'backup_not_found' => 'Backup not found',
+    'backup_file_missing' => 'Backup file not found on disk',
+    'backup_invalid_file' => 'Invalid backup file. Only .sql files are allowed.',
+    'backup_create_failed' => 'Failed to create the database backup',
+    'backup_restore_failed' => 'Failed to restore the database',
+
     'leave_request' => 'Leave Request',
     'leave_requests' => 'Leave Requests',
     'add_leave_request' => 'Add Leave Request',

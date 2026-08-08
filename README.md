@@ -207,6 +207,19 @@ php artisan scribe:generate
 - Form Request validation on every write endpoint
 - File uploads handled exclusively through the central `uploadImage()` helper
 
+## Activity Log
+
+Every **store, update or delete** request (POST, PUT, PATCH, DELETE) is automatically recorded to the `activity_logs` table by the global `App\Http\Middleware\LogActivity` middleware.
+
+The middleware captures the authenticated user, restaurant/branch scope, HTTP method, path, a human-readable description (e.g. `Updated menu item #42`), the sanitized request payload, response status, IP address and user agent. Records are written after the response is sent (terminable middleware), so logging adds no latency.
+
+- GET requests and authentication endpoints (`login`, `logout`, `register`, password routes) are not logged.
+- Sensitive fields (`password`, `tokens`, card numbers, base64 file blobs) are stripped before storage.
+
+```php
+App\Models\ActivityLog::latest()->paginate(20); // e.g. for an admin audit page
+```
+
 ## License
 
 This is a proprietary commercial application. Redistribution and resale are subject to the terms of the original license agreement.

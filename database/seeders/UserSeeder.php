@@ -42,6 +42,15 @@ class UserSeeder extends Seeder
             'access_business_settings',
             'access_invoice_settings',
 
+            // Activity Log
+            'view_activity_logs',
+
+            // Backups
+            'view_backups',
+            'create_backups',
+            'restore_backups',
+            'delete_backups',
+
             // Restaurant
             'view_restaurants',
             'create_restaurants',
@@ -157,6 +166,27 @@ class UserSeeder extends Seeder
             'create_customers',
             'update_customers',
             'delete_customers',
+
+            // CRM - Dashboard
+            'view_crm_dashboard',
+
+            // CRM - Segments
+            'view_segments',
+            'create_segments',
+            'update_segments',
+            'delete_segments',
+
+            // CRM - Follow-ups
+            'view_follow_ups',
+            'create_follow_ups',
+            'update_follow_ups',
+            'delete_follow_ups',
+            'complete_follow_ups',
+
+            // CRM - Customer Notes
+            'view_customer_notes',
+            'create_customer_notes',
+            'delete_customer_notes',
 
             // Suppliers
             'view_suppliers',

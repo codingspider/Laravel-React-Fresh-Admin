@@ -379,6 +379,20 @@ export const POS_COUPON = (id) => `/v1/pos/coupons/${id}`;
 export const POS_VALIDATE_COUPON = '/v1/pos/coupons/validate';
 export const POS_REFUND = (saleId) => `/v1/pos/${saleId}/refund`;
 
+// CRM
+export const CRM_DASHBOARD = '/v1/crm/dashboard';
+export const CRM_CUSTOMERS = '/v1/crm/customers';
+export const CRM_CUSTOMER = (id) => `/v1/crm/customers/${id}`;
+export const CRM_CUSTOMER_NOTES = (id) => `/v1/crm/customers/${id}/notes`;
+export const CRM_NOTE = (id) => `/v1/crm/notes/${id}`;
+export const CRM_SEGMENTS = '/v1/crm/segments';
+export const CRM_SEGMENT = (id) => `/v1/crm/segments/${id}`;
+export const CRM_SEGMENTS_ALL = '/v1/crm/segments/all';
+export const CRM_SEGMENT_CUSTOMERS = (id) => `/v1/crm/segments/${id}/customers`;
+export const CRM_FOLLOW_UPS = '/v1/crm/follow-ups';
+export const CRM_FOLLOW_UP = (id) => `/v1/crm/follow-ups/${id}`;
+export const CRM_FOLLOW_UP_COMPLETE = (id) => `/v1/crm/follow-ups/${id}/complete`;
+
 // Loyalty
 export const LOYALTY_SETTINGS = '/v1/loyalty/settings';
 export const LOYALTY_CUSTOMERS = '/v1/loyalty/customers';
@@ -434,3 +448,14 @@ export const NOTIFICATIONS_READ_ALL = '/v1/notifications/read-all';
 export const NOTIFICATIONS_MARK_READ = (id) => `/v1/notifications/${id}/read`;
 export const NOTIFICATIONS_DELETE = (id) => `/v1/notifications/${id}`;
 export const NOTIFICATIONS_CLEAR_READ = '/v1/notifications/read-all';
+
+// Activity Logs
+export const ACTIVITY_LOG_LIST = '/activity-logs';
+
+// Backups
+export const BACKUP_LIST = '/backups';
+export const BACKUP_CREATE = '/backups';
+export const BACKUP_DOWNLOAD = (id) => `/backups/${id}/download`;
+export const BACKUP_RESTORE = (id) => `/backups/${id}/restore`;
+export const BACKUP_RESTORE_UPLOAD = '/backups/restore-upload';
+export const BACKUP_DELETE = (id) => `/backups/${id}`;

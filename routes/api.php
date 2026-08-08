@@ -1,8 +1,10 @@
 <?php
 
+use App\Http\Controllers\API\ActivityLogController;
 use App\Http\Controllers\API\Admin\LocationController;
 use App\Http\Controllers\API\Admin\RoleController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\BackupController;
 use App\Http\Controllers\API\BusinessController;
 use App\Http\Controllers\API\GeneralController;
 use App\Http\Controllers\API\PLanController;
@@ -42,6 +44,15 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', 
     Route::get('get/locations', [LocationController::class, 'getAllLocations']);
     Route::get('get/roles', [RoleController::class, 'getAllRole']);
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('activity-logs', [ActivityLogController::class, 'index']);
+
+    Route::get('backups', [BackupController::class, 'index']);
+    Route::post('backups', [BackupController::class, 'store']);
+    Route::get('backups/{backup}/download', [BackupController::class, 'download']);
+    Route::post('backups/{backup}/restore', [BackupController::class, 'restore']);
+    Route::post('backups/restore-upload', [BackupController::class, 'restoreUpload']);
+    Route::delete('backups/{backup}', [BackupController::class, 'destroy']);
 
     Route::get('/set-permission', [AuthController::class, 'giveAllPermissionsToAdmin']);
     Route::post('/extract-text-from-image', [OcrController::class, 'extract']);

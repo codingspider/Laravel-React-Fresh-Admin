@@ -23,6 +23,7 @@ class Sale extends Model
         'user_id',
         'invoice_number',
         'order_type',
+        'source',
         'status',
         'subtotal',
         'discount_amount',

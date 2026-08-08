@@ -17,6 +17,8 @@ class StoreSaleRequest extends FormRequest
             'branch_id' => 'nullable|exists:branches,id',
             'table_id' => 'nullable|exists:tables,id',
             'customer_id' => 'nullable|exists:customers,id',
+            'guest_name' => 'nullable|string|max:255',
+            'guest_phone' => 'nullable|string|max:50',
             'order_type' => 'required|in:dine_in,takeaway,delivery',
             'items' => 'required|array|min:1',
             'items.*.menu_item_id' => 'required|exists:menu_items,id',

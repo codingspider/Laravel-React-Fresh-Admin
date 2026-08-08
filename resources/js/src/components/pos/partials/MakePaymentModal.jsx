@@ -20,6 +20,8 @@ export default function MakePaymentModal({ isOpen, onClose, sale, onPaymentSucce
   const [submitting, setSubmitting] = useState(false);
 
   const due = Math.max(0, (parseFloat(sale?.total) || 0) - (parseFloat(sale?.amount_paid) || 0));
+  const enteredAmount = parseFloat(paymentAmount) || 0;
+  const changeAmount = Math.max(0, enteredAmount - due);
 
   const handlePayment = async () => {
     const amount = parseFloat(paymentAmount);
@@ -27,8 +29,8 @@ export default function MakePaymentModal({ isOpen, onClose, sale, onPaymentSucce
       toast({ title: t('Please enter a valid amount'), status: 'warning', duration: 2000, isClosable: true });
       return;
     }
-    if (amount > due + 0.01) {
-      toast({ title: t('Amount exceeds due balance'), status: 'warning', duration: 2000, isClosable: true });
+    if (changeAmount > 0 && paymentMethod !== 'cash') {
+      toast({ title: t('Overpayment is only allowed for cash'), status: 'warning', duration: 2500, isClosable: true });
       return;
     }
     setSubmitting(true);
@@ -90,6 +92,12 @@ export default function MakePaymentModal({ isOpen, onClose, sale, onPaymentSucce
                 <Text fontSize="sm" fontWeight="700">{t('Due Amount')}</Text>
                 <Text fontSize="sm" fontWeight="700" color="red.500">{formatAmount(due)}</Text>
               </HStack>
+              {changeAmount > 0 && (
+                <HStack justify="space-between" mt={1}>
+                  <Text fontSize="sm" color={colors.textSecondary}>{t('Change')}</Text>
+                  <Text fontSize="sm" fontWeight="700" color="green.500">{formatAmount(changeAmount)}</Text>
+                </HStack>
+              )}
             </Box>
             <FormControl>
               <FormLabel fontSize="sm" fontWeight="600" color={colors.textPrimary}>{t('Payment Method')}</FormLabel>

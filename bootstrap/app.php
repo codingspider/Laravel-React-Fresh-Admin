@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->append(\App\Http\Middleware\LogActivity::class);
+
         $middleware->alias([
             'check_active_business' => \App\Http\Middleware\CheckBusinessIsActive::class,
             'cookie.filter' => \App\Http\Middleware\CookieFilter::class,

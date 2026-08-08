@@ -20,12 +20,14 @@ class Payment extends Model
         'type',
         'reference_number',
         'amount',
+        'change',
         'notes',
         'refund_reason',
     ];
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'change' => 'decimal:2',
     ];
 
     public function sale(): BelongsTo

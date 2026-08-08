@@ -431,9 +431,16 @@ export default function POSScreen() {
         });
         paidSale = res.data?.data;
       } else {
+        const submittedAmount = parseFloat(paymentAmount) || currentSale.total;
+        const dueForScreen = Math.max(0, (parseFloat(currentSale.total) || 0) - (parseFloat(currentSale.amount_paid) || 0));
+        if (submittedAmount > dueForScreen + 0.01 && paymentMethod !== 'cash') {
+          toast({ title: t('Overpayment is only allowed for cash'), status: 'warning', duration: 2500, isClosable: true });
+          setSubmitting(false);
+          return;
+        }
         const res = await axios.post(POS_PROCESS_PAYMENT(currentSale.id), {
           payment_method: paymentMethod,
-          amount: parseFloat(paymentAmount) || currentSale.total,
+          amount: submittedAmount,
         });
         paidSale = res.data?.data;
       }

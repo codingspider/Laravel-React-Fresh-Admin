@@ -132,21 +132,27 @@ class PosService
                 'user_id' => auth()->id(),
             ]));
 
-            $totalPaid = $sale->payments()->sum('amount') + $payment->amount;
-            $change = max(0, $totalPaid - $sale->total);
+            $totalTendered = $sale->payments()->where('type', 'sale')->sum('amount');
+            $totalChange = max(0, $totalTendered - (float) $sale->total);
+            $changeForThisPayment = max(0, $totalChange - (float) $sale->change_amount);
+            $amountPaid = min((float) $sale->total, $totalTendered);
+
+            if ($changeForThisPayment > 0) {
+                $payment->update(['change' => $changeForThisPayment]);
+            }
 
             $paymentStatus = 'unpaid';
-            if ($totalPaid >= $sale->total) {
+            if ($amountPaid >= (float) $sale->total) {
                 $paymentStatus = 'paid';
-            } elseif ($totalPaid > 0) {
+            } elseif ($amountPaid > 0) {
                 $paymentStatus = 'partial';
             }
 
             $newStatus = $paymentStatus === 'paid' ? 'completed' : $sale->status;
 
             $sale->update([
-                'amount_paid' => $totalPaid,
-                'change_amount' => $change,
+                'amount_paid' => $amountPaid,
+                'change_amount' => $totalChange,
                 'payment_status' => $paymentStatus,
                 'status' => $newStatus,
             ]);

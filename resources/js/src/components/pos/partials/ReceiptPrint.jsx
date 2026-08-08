@@ -65,7 +65,7 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
       <div class="block-title">${t('payment_summary')}</div>
       <table class="data-table">
         <thead><tr>
-          <th>#</th><th>Method</th><th>Reference</th><th class="r">Amount</th><th>Date</th>
+          <th>#</th><th>Method</th><th>Reference</th><th class="r">Amount</th><th class="r">Change</th><th>Date</th>
         </tr></thead>
         <tbody>${sale.payments.map((p, i) => `
           <tr>
@@ -73,6 +73,7 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
             <td class="c-item">${(p.payment_method || '').replace('_', ' ')}</td>
             <td class="c-qty">${p.reference_number || '-'}</td>
             <td class="c-total">${formatAmount(p.amount)}</td>
+            <td class="c-total">${parseFloat(p.change) > 0 ? formatAmount(p.change) : '-'}</td>
             <td class="c-qty">${p.created_at ? new Date(p.created_at).toLocaleString() : '-'}</td>
           </tr>`).join('')}
         </tbody>
@@ -218,6 +219,7 @@ function buildA4Html(sale, restaurant, formatAmount, t) {
         <div class="totals-row total"><span class="label">${t('total')}</span><span class="value">${formatAmount(sale.total)}</span></div>
         ${due > 0 ? `<div class="totals-row"><span class="label">${t('amount_paid')}</span><span class="value paid">${formatAmount(sale.amount_paid)}</span></div>
         <div class="totals-row"><span class="label">${t('due')}</span><span class="value due">${formatAmount(due)}</span></div>` : `<div class="totals-row"><span class="label">${t('paid')}</span><span class="value paid">${formatAmount(sale.amount_paid)}</span></div>`}
+        ${parseFloat(sale.change_amount) > 0 ? `<div class="totals-row"><span class="label">${t('change')}</span><span class="value">${formatAmount(sale.change_amount)}</span></div>` : ''}
       </div>
     </div>
 
@@ -312,6 +314,7 @@ function buildThermalHtml(sale, restaurant, formatAmount, t) {
   <div class="row bold" style="font-size:14px;"><span>${t('total')}:</span><span>${formatAmount(sale.total)}</span></div>
   ${due > 0 ? `<div class="row"><span>${t('paid')}:</span><span>${formatAmount(sale.amount_paid)}</span></div>
   <div class="row bold"><span>${t('due')}:</span><span>${formatAmount(due)}</span></div>` : `<div class="row"><span>${t('status')}:</span><span class="bold">PAID IN FULL</span></div>`}
+  ${parseFloat(sale.change_amount) > 0 ? `<div class="row"><span>${t('change')}:</span><span>${formatAmount(sale.change_amount)}</span></div>` : ''}
   <div class="divider"></div>
   <div class="center" style="margin-top:8px;font-size:11px;">${footerText}</div>
 </body></html>`;

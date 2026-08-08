@@ -65,7 +65,17 @@ import LoyaltySettings from "../components/admin/loyalty/LoyaltySettings";
 import LoyaltyCustomers from "../components/admin/loyalty/LoyaltyCustomers";
 import LoyaltyTransactions from "../components/admin/loyalty/LoyaltyTransactions";
 
+// CRM
+import CrmDashboard from "../components/admin/crm/CrmDashboard";
+import CrmCustomerList from "../components/admin/crm/CrmCustomerList";
+import CrmCustomerForm from "../components/admin/crm/CrmCustomerForm";
+import CrmCustomerDetail from "../components/admin/crm/CrmCustomerDetail";
+import CrmSegmentList from "../components/admin/crm/CrmSegmentList";
+import CrmFollowUpList from "../components/admin/crm/CrmFollowUpList";
+
 import Notifications from "../components/admin/notifications/Notifications";
+import ActivityLogList from "../components/admin/activity-log/ActivityLogList";
+import BackupList from "../components/admin/backup/BackupList";
 
 import UserList from "../components/user/UserList";
 import UserCreate from "../components/user/UserCreate";
@@ -372,7 +382,20 @@ export const LOYALTY_SETTINGS_PATH = "/loyalty/settings";
 export const LOYALTY_CUSTOMERS_PATH = "/loyalty/customers";
 export const LOYALTY_TRANSACTIONS_PATH = "/loyalty/transactions";
 
+// CRM
+export const CRM_DASHBOARD_PATH = "/crm/dashboard";
+export const CRM_CUSTOMER_LIST_PATH = "/crm/customers";
+export const CRM_CUSTOMER_CREATE_PATH = "/crm/customer/create";
+export const CRM_CUSTOMER_EDIT_PATH = (id) => `/crm/customer/edit/${id}`;
+export const CRM_CUSTOMER_VIEW_PATH = (id) => `/crm/customer/view/${id}`;
+export const CRM_SEGMENT_LIST_PATH = "/crm/segments";
+export const CRM_FOLLOW_UP_LIST_PATH = "/crm/follow-ups";
+
 export const NOTIFICATIONS_PATH = "/notifications";
+
+export const ACTIVITY_LOG_PATH = "/activity-logs";
+
+export const BACKUP_LIST_PATH = "/backups";
 
 export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <SuperAdminDashboard /> },
@@ -596,6 +619,21 @@ export const superAdminRoutes = [
     { path: LOYALTY_CUSTOMERS_PATH, element: <LoyaltyCustomers /> },
     { path: LOYALTY_TRANSACTIONS_PATH, element: <LoyaltyTransactions /> },
 
+    // CRM
+    { path: CRM_DASHBOARD_PATH, element: <CrmDashboard /> },
+    { path: CRM_CUSTOMER_LIST_PATH, element: <CrmCustomerList /> },
+    { path: CRM_CUSTOMER_CREATE_PATH, element: <CrmCustomerForm /> },
+    { path: CRM_CUSTOMER_EDIT_PATH(":id"), element: <CrmCustomerForm /> },
+    { path: CRM_CUSTOMER_VIEW_PATH(":id"), element: <CrmCustomerDetail /> },
+    { path: CRM_SEGMENT_LIST_PATH, element: <CrmSegmentList /> },
+    { path: CRM_FOLLOW_UP_LIST_PATH, element: <CrmFollowUpList /> },
+
     // Notifications
     { path: NOTIFICATIONS_PATH, element: <Notifications /> },
+
+    // Activity Logs
+    { path: ACTIVITY_LOG_PATH, element: <ActivityLogList /> },
+
+    // Backups
+    { path: BACKUP_LIST_PATH, element: <BackupList /> },
 ];

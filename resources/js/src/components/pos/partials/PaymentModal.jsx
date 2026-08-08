@@ -63,6 +63,10 @@ export default function PaymentModal({
   const redeemAmount = parseFloat(paymentAmount) || 0;
   const redeemOverLimit = loyaltyPreview?.enabled && redeemAmount > (parseFloat(loyaltyPreview.max_redeem_amount) || 0);
 
+  const dueAmount = Math.max(0, saleTotal - (parseFloat(currentSale?.amount_paid) || 0));
+  const enteredAmount = parseFloat(paymentAmount) || 0;
+  const changeAmount = Math.max(0, enteredAmount - dueAmount);
+
   const getPaymentIcon = (pm) => {
     if (pm.icon && typeof pm.icon !== 'string') return pm.icon;
     return paymentMethodIcons[pm.value] || CreditCard;
@@ -122,7 +126,15 @@ export default function PaymentModal({
                     {t('Paid')}: {formatAmount(currentSale.amount_paid)}
                   </Text>
                   <Text fontSize="sm" color="red.500" fontWeight="600">
-                    {t('Due')}: {formatAmount(Math.max(0, saleTotal - currentSale.amount_paid))}
+                    {t('Due')}: {formatAmount(dueAmount)}
+                  </Text>
+                </HStack>
+              )}
+              {!isSplitPayment && changeAmount > 0 && paymentMethod === 'cash' && (
+                <HStack justify="center" spacing={2} mt={3} p={2} bg="green.50" _dark={{ bg: 'green.900' }} borderRadius="lg">
+                  <Banknote size={16} />
+                  <Text fontSize="md" fontWeight="700" color="green.600" _dark={{ color: 'green.300' }}>
+                    {t('Change to return')}: {formatAmount(changeAmount)}
                   </Text>
                 </HStack>
               )}
