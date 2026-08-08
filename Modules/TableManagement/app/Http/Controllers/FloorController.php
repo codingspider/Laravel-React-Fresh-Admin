@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\TableManagement\Http\Requests\StoreFloorRequest;
+use Modules\TableManagement\Http\Requests\UpdateFloorRequest;
 use Modules\TableManagement\Resources\FloorResource;
 use Modules\TableManagement\Services\FloorService;
 
@@ -65,20 +66,14 @@ class FloorController extends Controller
         ]);
     }
 
-    public function update(Request $request, $id): JsonResponse
+    public function update(UpdateFloorRequest $request, $id): JsonResponse
     {
         $floor = $this->service->find($id);
         if (getRestaurantId() && $floor->restaurant_id != getRestaurantId()) {
             abort(403, 'Unauthorized');
         }
 
-        $validated = $request->validate([
-            'name' => 'sometimes|string|max:255',
-            'description' => 'nullable|string|max:500',
-            'sort_order' => 'nullable|integer|min:0',
-            'layout_data' => 'nullable|array',
-            'status' => 'sometimes|in:active,inactive',
-        ]);
+        $validated = $request->validated();
 
         $floor = $this->service->update($id, $validated);
 

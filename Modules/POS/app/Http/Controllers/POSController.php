@@ -9,6 +9,10 @@ use Modules\POS\Http\Requests\StoreSaleRequest;
 use Modules\POS\Http\Requests\ProcessPaymentRequest;
 use Modules\POS\Http\Requests\StartSessionRequest;
 use Modules\POS\Http\Requests\CloseSessionRequest;
+use Modules\POS\Http\Requests\MergeBillsRequest;
+use Modules\POS\Http\Requests\ProcessMultiplePaymentsRequest;
+use Modules\POS\Http\Requests\ProcessRefundRequest;
+use Modules\POS\Http\Requests\AddItemToSaleRequest;
 use Modules\POS\Resources\PosSessionResource;
 use Modules\POS\Resources\SaleResource;
 use Modules\POS\Services\PosService;
@@ -205,13 +209,8 @@ class POSController extends Controller
         ]);
     }
 
-    public function mergeBills(Request $request): JsonResponse
+    public function mergeBills(MergeBillsRequest $request): JsonResponse
     {
-        $request->validate([
-            'sale_ids' => 'required|array|min:2',
-            'sale_ids.*' => 'required|exists:sales,id',
-        ]);
-
         $saleIds = $request->input('sale_ids');
         $restaurantId = getRestaurantId();
 
@@ -277,16 +276,8 @@ class POSController extends Controller
         ]);
     }
 
-    public function processMultiplePayments(Request $request, $saleId): JsonResponse
+    public function processMultiplePayments(ProcessMultiplePaymentsRequest $request, $saleId): JsonResponse
     {
-        $request->validate([
-            'payments' => 'required|array|min:1',
-            'payments.*.payment_method' => 'required|in:cash,card,upi,online,credit,loyalty,gift_card,other',
-            'payments.*.amount' => 'required|numeric|min:0.01',
-            'payments.*.reference_number' => 'nullable|string|max:255',
-            'payments.*.notes' => 'nullable|string|max:255',
-        ]);
-
         $sale = $this->saleRepo->find($saleId);
 
         foreach ($request->payments as $paymentData) {
@@ -302,15 +293,8 @@ class POSController extends Controller
         ]);
     }
 
-    public function processRefund(Request $request, $saleId): JsonResponse
+    public function processRefund(ProcessRefundRequest $request, $saleId): JsonResponse
     {
-        $request->validate([
-            'amount' => 'required|numeric|min:0.01',
-            'payment_method' => 'required|in:cash,card,upi,online,credit,loyalty,gift_card,other',
-            'refund_reason' => 'nullable|string|max:500',
-            'notes' => 'nullable|string|max:500',
-        ]);
-
         $sale = $this->saleRepo->find($saleId);
         $sale = $this->posService->processRefund($sale, $request->validated());
 
@@ -321,15 +305,8 @@ class POSController extends Controller
         ]);
     }
 
-    public function addItem(Request $request, $saleId): JsonResponse
+    public function addItem(AddItemToSaleRequest $request, $saleId): JsonResponse
     {
-        $request->validate([
-            'menu_item_id' => 'required|exists:menu_items,id',
-            'quantity' => 'required|integer|min:1',
-            'discount_amount' => 'nullable|numeric|min:0',
-            'notes' => 'nullable|string|max:255',
-        ]);
-
         $sale = $this->saleRepo->find($saleId);
         $this->posService->addItemsToSale($sale, [$request->validated()]);
         $this->posService->recalculateSale($sale->fresh());

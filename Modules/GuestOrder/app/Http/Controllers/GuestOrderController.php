@@ -4,34 +4,15 @@ namespace Modules\GuestOrder\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
+use Modules\GuestOrder\Http\Requests\StoreGuestOrderRequest;
 use Modules\GuestOrder\Services\GuestOrderService;
 
 class GuestOrderController extends Controller
 {
     public function __construct(protected GuestOrderService $service) {}
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreGuestOrderRequest $request): JsonResponse
     {
-        $request->validate([
-            'restaurant_id' => 'required|integer|exists:restaurants,id',
-            'branch_id' => 'nullable|integer|exists:branches,id',
-            'table_id' => 'nullable|integer|exists:tables,id',
-            'guest_name' => 'nullable|string|max:255',
-            'guest_phone' => 'nullable|string|max:50',
-            'items' => 'required|array|min:1',
-            'items.*.menu_item_id' => 'required|integer|exists:menu_items,id',
-            'items.*.item_name' => 'required|string|max:255',
-            'items.*.quantity' => 'required|integer|min:1',
-            'items.*.unit_price' => 'required|numeric|min:0',
-            'items.*.modifiers' => 'nullable|array',
-            'items.*.modifiers.*.id' => 'required_with:items.*.modifiers|integer',
-            'items.*.modifiers.*.name' => 'required_with:items.*.modifiers|string',
-            'items.*.modifiers.*.price' => 'required_with:items.*.modifiers|numeric|min:0',
-            'items.*.notes' => 'nullable|string|max:255',
-            'notes' => 'nullable|string|max:500',
-        ]);
-
         $sale = $this->service->placeOrder($request->only([
             'restaurant_id', 'branch_id', 'table_id', 'items', 'notes',
             'guest_name', 'guest_phone',

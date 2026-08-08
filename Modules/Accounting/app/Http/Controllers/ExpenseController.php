@@ -5,6 +5,8 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Requests\StoreExpenseRequest;
+use Modules\Accounting\Http\Requests\UpdateExpenseRequest;
 use Modules\Accounting\Services\ExpenseService;
 
 class ExpenseController extends Controller
@@ -37,23 +39,11 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreExpenseRequest $request): JsonResponse
     {
         $restaurantId = getRestaurantId($request->user());
 
-        $data = $request->validate([
-            'accounting_expense_category_id' => 'nullable|exists:accounting_expense_categories,id',
-            'account_id' => 'nullable|exists:accounts,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'branch_id' => 'nullable|exists:branches,id',
-            'reference_number' => 'nullable|string|max:255',
-            'payment_method' => 'nullable|string|max:50',
-            'amount' => 'required|numeric|min:0',
-            'expense_date' => 'nullable|date',
-            'notes' => 'nullable|string',
-            'attachment' => 'nullable|string|max:255',
-            'status' => 'nullable|in:pending,approved,rejected',
-        ]);
+        $data = $request->validated();
 
         $data['restaurant_id'] = $restaurantId;
 
@@ -84,21 +74,9 @@ class ExpenseController extends Controller
         ]);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateExpenseRequest $request, int $id): JsonResponse
     {
-        $data = $request->validate([
-            'accounting_expense_category_id' => 'nullable|exists:accounting_expense_categories,id',
-            'account_id' => 'nullable|exists:accounts,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'branch_id' => 'nullable|exists:branches,id',
-            'reference_number' => 'nullable|string|max:255',
-            'payment_method' => 'nullable|string|max:50',
-            'amount' => 'sometimes|required|numeric|min:0',
-            'expense_date' => 'nullable|date',
-            'notes' => 'nullable|string',
-            'attachment' => 'nullable|string|max:255',
-            'status' => 'nullable|in:pending,approved,rejected',
-        ]);
+        $data = $request->validated();
 
         $expense = $this->service->update($id, $data);
 

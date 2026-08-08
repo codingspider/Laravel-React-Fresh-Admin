@@ -5,8 +5,10 @@ namespace Modules\TableManagement\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\TableManagement\Http\Requests\AvailableTablesRequest;
 use Modules\TableManagement\Http\Requests\StoreTableRequest;
 use Modules\TableManagement\Http\Requests\UpdateTableRequest;
+use Modules\TableManagement\Http\Requests\UpdateTableStatusRequest;
 use Modules\TableManagement\Resources\TableResource;
 use Modules\TableManagement\Services\TableService;
 
@@ -111,14 +113,13 @@ class TableController extends Controller
         ]);
     }
 
-    public function updateStatus(Request $request, $id): JsonResponse
+    public function updateStatus(UpdateTableStatusRequest $request, $id): JsonResponse
     {
         $table = $this->service->find($id);
         if (getRestaurantId() && $table->restaurant_id != getRestaurantId()) {
             abort(403, 'Unauthorized');
         }
 
-        $request->validate(['status' => 'required|in:available,reserved,occupied,billing,cleaning']);
         $table = $this->service->updateStatus($id, $request->input('status'));
 
         return response()->json([
@@ -128,13 +129,8 @@ class TableController extends Controller
         ]);
     }
 
-    public function available(Request $request): JsonResponse
+    public function available(AvailableTablesRequest $request): JsonResponse
     {
-        $request->validate([
-            'branch_id' => 'required|exists:branches,id',
-            'guest_count' => 'nullable|integer|min:1',
-        ]);
-
         $restaurantId = getRestaurantId();
         if (!$restaurantId) {
             abort(403, 'Unauthorized');

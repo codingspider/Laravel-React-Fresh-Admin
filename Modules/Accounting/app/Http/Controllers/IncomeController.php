@@ -5,6 +5,8 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Requests\StoreIncomeRequest;
+use Modules\Accounting\Http\Requests\UpdateIncomeRequest;
 use Modules\Accounting\Services\IncomeService;
 
 class IncomeController extends Controller
@@ -37,21 +39,11 @@ class IncomeController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreIncomeRequest $request): JsonResponse
     {
         $restaurantId = getRestaurantId($request->user());
 
-        $data = $request->validate([
-            'account_id' => 'nullable|exists:accounts,id',
-            'branch_id' => 'nullable|exists:branches,id',
-            'source' => 'required|in:pos_sale,manual_income,other_income',
-            'category' => 'nullable|string|max:255',
-            'reference_number' => 'nullable|string|max:255',
-            'payment_method' => 'nullable|string|max:50',
-            'amount' => 'required|numeric|min:0',
-            'income_date' => 'nullable|date',
-            'notes' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $data['restaurant_id'] = $restaurantId;
 
@@ -82,19 +74,9 @@ class IncomeController extends Controller
         ]);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateIncomeRequest $request, int $id): JsonResponse
     {
-        $data = $request->validate([
-            'account_id' => 'nullable|exists:accounts,id',
-            'branch_id' => 'nullable|exists:branches,id',
-            'source' => 'sometimes|required|in:pos_sale,manual_income,other_income',
-            'category' => 'nullable|string|max:255',
-            'reference_number' => 'nullable|string|max:255',
-            'payment_method' => 'nullable|string|max:50',
-            'amount' => 'sometimes|required|numeric|min:0',
-            'income_date' => 'nullable|date',
-            'notes' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $income = $this->service->update($id, $data);
 

@@ -158,13 +158,12 @@ function ModifierModal({ isOpen, onClose, item, currencySymbol, onAddToCart }) {
                       key={mod.id}
                       p={3}
                       bg={isSelected ? 'teal.50' : 'gray.50'}
-                      _dark={{ bg: isSelected ? 'teal.900' : 'gray.700' }}
+                      _dark={{ bg: isSelected ? 'teal.900' : 'gray.700', borderColor: isSelected ? 'teal.500' : 'transparent' }}
                       borderRadius="lg"
                       cursor="pointer"
                       onClick={() => toggleModifier(mod, mg)}
                       border="2px solid"
                       borderColor={isSelected ? 'teal.400' : 'transparent'}
-                      _dark={{ borderColor: isSelected ? 'teal.500' : 'transparent' }}
                       align="center"
                       transition="all 0.15s"
                       _hover={{ borderColor: isSelected ? 'teal.400' : 'gray.300' }}
@@ -238,12 +237,11 @@ function MenuItemCard({ item, currencySymbol, onAddToCart, onOpenModifier }) {
   return (
     <Box
       bg="white"
-      _dark={{ bg: 'gray.800' }}
+      _dark={{ bg: 'gray.800', borderColor: 'gray.700' }}
       borderRadius="xl"
       overflow="hidden"
       border="1px solid"
       borderColor="gray.100"
-      _dark={{ borderColor: 'gray.700' }}
       animation={`${slideUp} 0.4s ease-out`}
       _hover={{ shadow: 'md', transform: 'translateY(-2px)' }}
       transition="all 0.2s"

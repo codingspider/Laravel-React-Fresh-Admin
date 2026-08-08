@@ -91,7 +91,7 @@ export default function QrOrderingSettings() {
   return (
     <VStack spacing={6} align="stretch">
       {/* URL Info */}
-      <Box p={4} bg="teal.50" _dark={{ bg: "teal.900" }} borderRadius="lg" border="1px solid" borderColor="teal.200" _dark={{ borderColor: "teal.700" }}>
+      <Box p={4} bg="teal.50" _dark={{ bg: "teal.900", borderColor: "teal.700" }} borderRadius="lg" border="1px solid" borderColor="teal.200">
         <Text fontWeight="bold" color="teal.700" _dark={{ color: "teal.200" }} mb={2}>
           {t("how_it_works")}
         </Text>

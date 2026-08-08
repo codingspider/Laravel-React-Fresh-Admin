@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Modules\Restaurant\Http\Requests\StoreRestaurantRequest;
 use Modules\Restaurant\Http\Requests\UpdateRestaurantRequest;
+use Modules\Restaurant\Http\Requests\UpdateTaxSettingsRequest;
+use Modules\Restaurant\Http\Requests\UpdateWorkingHoursRequest;
 use Modules\Restaurant\Resources\RestaurantResource;
 use Modules\Restaurant\Services\RestaurantService;
 use Spatie\Permission\Models\Role;
@@ -136,14 +138,13 @@ class RestaurantController extends Controller
         ]);
     }
 
-    public function updateWorkingHours(Request $request, $id): JsonResponse
+    public function updateWorkingHours(UpdateWorkingHoursRequest $request, $id): JsonResponse
     {
         $restaurant = $this->service->find($id);
         if (getRestaurantId() && $restaurant->id != getRestaurantId()) {
             abort(403, 'Unauthorized');
         }
 
-        $request->validate(['working_hours' => 'required|array']);
         $restaurant = $this->service->updateWorkingHours($id, $request->input('working_hours'));
 
         return response()->json([
@@ -153,18 +154,12 @@ class RestaurantController extends Controller
         ]);
     }
 
-    public function updateTaxSettings(Request $request, $id): JsonResponse
+    public function updateTaxSettings(UpdateTaxSettingsRequest $request, $id): JsonResponse
     {
         $restaurant = $this->service->find($id);
         if (getRestaurantId() && $restaurant->id != getRestaurantId()) {
             abort(403, 'Unauthorized');
         }
-
-        $request->validate([
-            'tax_rate' => 'nullable|numeric|min:0|max:100',
-            'tax_name' => 'nullable|string|max:50',
-            'tax_inclusive' => 'nullable|boolean',
-        ]);
 
         $restaurant = $this->service->updateTaxSettings($id, $request->only([
             'tax_rate', 'tax_name', 'tax_inclusive',

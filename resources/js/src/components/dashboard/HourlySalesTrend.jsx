@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
+import EmptyState from '../ui/EmptyState';
 
 const CustomTooltip = ({ active, payload, label }) => {
     const colors = useThemeColors();
@@ -53,41 +54,45 @@ export default function HourlySalesTrend({ data = [] }) {
                 </Heading>
             </Box>
             <Box h={{ base: '250px', md: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data.map(d => ({ ...d, total: Number(d.total) || 0 }))}>
-                        <defs>
-                            <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="5%" stopColor="#0d9488" stopOpacity={0.15} />
-                                <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
-                            </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-                        <XAxis
-                            dataKey="hour"
-                            axisLine={false}
-                            tickLine={false}
-                            fontSize={11}
-                            tick={{ fill: '#9ca3af' }}
-                            interval={2}
-                        />
-                        <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            fontSize={11}
-                            tick={{ fill: '#9ca3af' }}
-                        />
-                        <RechartsTooltip content={<CustomTooltip />} />
-                        <Area
-                            type="monotone"
-                            dataKey="total"
-                            stroke="#0d9488"
-                            strokeWidth={2.5}
-                            fill="url(#colorSales)"
-                            dot={false}
-                            activeDot={{ r: 6, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
-                        />
-                    </AreaChart>
-                </ResponsiveContainer>
+                {!data || data.length === 0 ? (
+                    <EmptyState compact title={t('No sales data available')} />
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={data.map(d => ({ ...d, total: Number(d.total) || 0 }))}>
+                            <defs>
+                                <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="5%" stopColor="#0d9488" stopOpacity={0.15} />
+                                    <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                                </linearGradient>
+                            </defs>
+                            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                            <XAxis
+                                dataKey="hour"
+                                axisLine={false}
+                                tickLine={false}
+                                fontSize={11}
+                                tick={{ fill: '#9ca3af' }}
+                                interval={2}
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                fontSize={11}
+                                tick={{ fill: '#9ca3af' }}
+                            />
+                            <RechartsTooltip content={<CustomTooltip />} />
+                            <Area
+                                type="monotone"
+                                dataKey="total"
+                                stroke="#0d9488"
+                                strokeWidth={2.5}
+                                fill="url(#colorSales)"
+                                dot={false}
+                                activeDot={{ r: 6, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
+                            />
+                        </AreaChart>
+                    </ResponsiveContainer>
+                )}
             </Box>
         </Box>
     );

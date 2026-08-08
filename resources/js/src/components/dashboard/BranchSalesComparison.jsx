@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
+import EmptyState from '../ui/EmptyState';
 
 const CustomTooltip = ({ active, payload, label }) => {
     const colors = useThemeColors();
@@ -72,29 +73,33 @@ export default function BranchSalesComparison({ data = [] }) {
                 </Select>
             </Flex>
             <Box h={{ base: '250px', md: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={chartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-                        <XAxis
-                            dataKey="name"
-                            axisLine={false}
-                            tickLine={false}
-                            fontSize={12}
-                            tick={{ fill: '#9ca3af' }}
-                        />
-                        <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            fontSize={12}
-                            tick={{ fill: '#9ca3af' }}
-                        />
-                        <RechartsTooltip
-                            content={<CustomTooltip />}
-                            cursor={{ fill: useColorModeValue('#f5f5f5', '#2a2a2a') }}
-                        />
-                        <Bar dataKey="sales" fill="#0d9488" radius={[6, 6, 0, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
+                {!chartData || chartData.length === 0 ? (
+                    <EmptyState compact title={t('No sales data available')} />
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={chartData}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                            <XAxis
+                                dataKey="name"
+                                axisLine={false}
+                                tickLine={false}
+                                fontSize={12}
+                                tick={{ fill: '#9ca3af' }}
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                fontSize={12}
+                                tick={{ fill: '#9ca3af' }}
+                            />
+                            <RechartsTooltip
+                                content={<CustomTooltip />}
+                                cursor={{ fill: useColorModeValue('#f5f5f5', '#2a2a2a') }}
+                            />
+                            <Bar dataKey="sales" fill="#0d9488" radius={[6, 6, 0, 0]} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                )}
             </Box>
         </Box>
     );

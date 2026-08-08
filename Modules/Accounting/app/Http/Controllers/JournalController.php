@@ -4,6 +4,8 @@ namespace Modules\Accounting\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Requests\StoreJournalEntryRequest;
+use Modules\Accounting\Http\Requests\UpdateJournalEntryRequest;
 use Modules\Accounting\Services\JournalService;
 use Modules\Accounting\Http\Resources\JournalEntryResource;
 use Modules\Accounting\Models\Account;
@@ -48,25 +50,11 @@ class JournalController extends Controller
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StoreJournalEntryRequest $request)
     {
         $restaurantId = getRestaurantId($request->user());
 
-        $data = $request->validate([
-            'account_id' => 'nullable|exists:accounts,id',
-            'entry_type' => 'nullable|in:debit,credit',
-            'amount' => 'nullable|numeric|min:0',
-            'entry_date' => 'nullable|date',
-            'reference_number' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'source_module' => 'nullable|string|max:50',
-            'reference_id' => 'nullable|string|max:255',
-            'entries' => 'nullable|array',
-            'entries.*.account_id' => 'required|exists:accounts,id',
-            'entries.*.entry_type' => 'required|in:debit,credit',
-            'entries.*.amount' => 'required|numeric|min:0',
-            'entries.*.description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         $data['restaurant_id'] = $restaurantId;
 
@@ -88,23 +76,9 @@ class JournalController extends Controller
         ], 201);
     }
 
-    public function update(Request $request, int $id)
+    public function update(UpdateJournalEntryRequest $request, int $id)
     {
-        $data = $request->validate([
-            'account_id' => 'sometimes|required|exists:accounts,id',
-            'entry_type' => 'sometimes|required|in:debit,credit',
-            'amount' => 'sometimes|required|numeric|min:0',
-            'entry_date' => 'nullable|date',
-            'reference_number' => 'nullable|string|max:255',
-            'description' => 'nullable|string',
-            'source_module' => 'nullable|string|max:50',
-            'reference_id' => 'nullable|string|max:255',
-            'entries' => 'nullable|array',
-            'entries.*.account_id' => 'required|exists:accounts,id',
-            'entries.*.entry_type' => 'required|in:debit,credit',
-            'entries.*.amount' => 'required|numeric|min:0',
-            'entries.*.description' => 'nullable|string',
-        ]);
+        $data = $request->validated();
 
         try {
             if (!empty($data['entries'])) {

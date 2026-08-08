@@ -3,6 +3,7 @@ import { Box, Heading, Text, Flex, Select, HStack, VStack } from '@chakra-ui/rea
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
+import EmptyState from '../ui/EmptyState';
 
 const COLORS = ['#0d9488', '#14B8A6', '#2DD4BF', '#5EEAD4', '#0F766E', '#115E59', '#134E4A'];
 
@@ -75,25 +76,29 @@ export default function OrderTypeDistribution({ data = [] }) {
                 </Select>
             </Flex>
             <Box h={{ base: '250px', md: '280px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                        <Pie
-                            data={chartData}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={{ base: 50, md: 65 }}
-                            outerRadius={{ base: 80, md: 100 }}
-                            paddingAngle={3}
-                            dataKey="value"
-                        >
-                            {chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <RechartsTooltip content={<CustomTooltip />} />
-                        <Legend content={<CustomLegend />} />
-                    </PieChart>
-                </ResponsiveContainer>
+                {!chartData || chartData.length === 0 ? (
+                    <EmptyState compact title={t('No order data available')} />
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                            <Pie
+                                data={chartData}
+                                cx="50%"
+                                cy="50%"
+                                innerRadius={{ base: 50, md: 65 }}
+                                outerRadius={{ base: 80, md: 100 }}
+                                paddingAngle={3}
+                                dataKey="value"
+                            >
+                                {chartData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                ))}
+                            </Pie>
+                            <RechartsTooltip content={<CustomTooltip />} />
+                            <Legend content={<CustomLegend />} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                )}
             </Box>
         </Box>
     );

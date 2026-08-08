@@ -12,6 +12,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
+import EmptyState from '../ui/EmptyState';
 
 const CustomTooltip = ({ active, payload, label }) => {
     const colors = useThemeColors();
@@ -66,33 +67,37 @@ export default function SalesAnalytics({ data = [] }) {
                 </Select>
             </Flex>
             <Box h={{ base: '250px', md: '300px' }}>
-                <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data.map(d => ({ ...d, total: Number(d.total) || 0 }))}>
-                        <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
-                        <XAxis
-                            dataKey="day"
-                            axisLine={false}
-                            tickLine={false}
-                            fontSize={12}
-                            tick={{ fill: '#9ca3af' }}
-                        />
-                        <YAxis
-                            axisLine={false}
-                            tickLine={false}
-                            fontSize={12}
-                            tick={{ fill: '#9ca3af' }}
-                        />
-                        <RechartsTooltip content={<CustomTooltip />} />
-                        <Line
-                            type="monotone"
-                            dataKey="total"
-                            stroke="#0d9488"
-                            strokeWidth={2.5}
-                            dot={{ r: 4, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
-                            activeDot={{ r: 6, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
-                        />
-                    </LineChart>
-                </ResponsiveContainer>
+                {!data || data.length === 0 ? (
+                    <EmptyState compact title={t('No sales data available')} />
+                ) : (
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={data.map(d => ({ ...d, total: Number(d.total) || 0 }))}>
+                            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} vertical={false} />
+                            <XAxis
+                                dataKey="day"
+                                axisLine={false}
+                                tickLine={false}
+                                fontSize={12}
+                                tick={{ fill: '#9ca3af' }}
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                fontSize={12}
+                                tick={{ fill: '#9ca3af' }}
+                            />
+                            <RechartsTooltip content={<CustomTooltip />} />
+                            <Line
+                                type="monotone"
+                                dataKey="total"
+                                stroke="#0d9488"
+                                strokeWidth={2.5}
+                                dot={{ r: 4, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
+                                activeDot={{ r: 6, fill: '#0d9488', stroke: 'white', strokeWidth: 2 }}
+                            />
+                        </LineChart>
+                    </ResponsiveContainer>
+                )}
             </Box>
         </Box>
     );

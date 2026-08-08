@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Modules\Loyalty\Http\Requests\AdjustLoyaltyPointsRequest;
+use Modules\Loyalty\Http\Requests\CustomerPointsRequest;
 use Modules\Loyalty\Http\Requests\RedeemPreviewRequest;
 use Modules\Loyalty\Http\Requests\UpdateLoyaltySettingsRequest;
 use Modules\Loyalty\Services\LoyaltyService;
@@ -53,10 +54,8 @@ class LoyaltyController extends Controller
         ]);
     }
 
-    public function points(Request $request): JsonResponse
+    public function points(CustomerPointsRequest $request): JsonResponse
     {
-        $request->validate(['customer_id' => 'required|integer|exists:customers,id']);
-
         $data = $this->service->points((int) getRestaurantId(), (int) $request->input('customer_id'));
 
         return response()->json([

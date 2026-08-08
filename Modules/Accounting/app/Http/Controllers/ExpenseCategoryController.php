@@ -5,6 +5,8 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Requests\StoreExpenseCategoryRequest;
+use Modules\Accounting\Http\Requests\UpdateExpenseCategoryRequest;
 use Modules\Accounting\Services\ExpenseCategoryService;
 
 class ExpenseCategoryController extends Controller
@@ -37,17 +39,11 @@ class ExpenseCategoryController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreExpenseCategoryRequest $request): JsonResponse
     {
         $restaurantId = getRestaurantId($request->user());
 
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'code' => 'nullable|string|max:20',
-            'description' => 'nullable|string',
-            'account_id' => 'nullable|exists:accounts,id',
-            'status' => 'nullable|in:active,inactive',
-        ]);
+        $data = $request->validated();
 
         $data['restaurant_id'] = $restaurantId;
 
@@ -78,15 +74,9 @@ class ExpenseCategoryController extends Controller
         ]);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateExpenseCategoryRequest $request, int $id): JsonResponse
     {
-        $data = $request->validate([
-            'name' => 'sometimes|required|string|max:255',
-            'code' => 'nullable|string|max:20',
-            'description' => 'nullable|string',
-            'account_id' => 'nullable|exists:accounts,id',
-            'status' => 'nullable|in:active,inactive',
-        ]);
+        $data = $request->validated();
 
         $category = $this->service->update($id, $data);
 

@@ -5,6 +5,8 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Requests\StoreCashBankRequest;
+use Modules\Accounting\Http\Requests\UpdateCashBankRequest;
 use Modules\Accounting\Services\CashBankService;
 
 class CashBankController extends Controller
@@ -37,22 +39,11 @@ class CashBankController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreCashBankRequest $request): JsonResponse
     {
         $restaurantId = getRestaurantId($request->user());
 
-        $data = $request->validate([
-            'type' => 'required|in:cash_deposit,cash_withdraw,bank_deposit,bank_withdraw,transfer',
-            'account_id' => 'required|exists:accounts,id',
-            'from_account_id' => 'nullable|exists:accounts,id',
-            'to_account_id' => 'nullable|exists:accounts,id',
-            'amount' => 'required|numeric|min:0',
-            'reference_number' => 'nullable|string|max:255',
-            'payment_method' => 'nullable|string|max:50',
-            'transaction_date' => 'nullable|date',
-            'notes' => 'nullable|string',
-            'status' => 'nullable|in:pending,completed,cancelled',
-        ]);
+        $data = $request->validated();
 
         $data['restaurant_id'] = $restaurantId;
         $data['status'] = $data['status'] ?? 'completed';
@@ -89,20 +80,9 @@ class CashBankController extends Controller
         ]);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateCashBankRequest $request, int $id): JsonResponse
     {
-        $data = $request->validate([
-            'type' => 'sometimes|required|in:cash_deposit,cash_withdraw,bank_deposit,bank_withdraw,transfer',
-            'account_id' => 'sometimes|required|exists:accounts,id',
-            'from_account_id' => 'nullable|exists:accounts,id',
-            'to_account_id' => 'nullable|exists:accounts,id',
-            'amount' => 'sometimes|required|numeric|min:0',
-            'reference_number' => 'nullable|string|max:255',
-            'payment_method' => 'nullable|string|max:50',
-            'transaction_date' => 'nullable|date',
-            'notes' => 'nullable|string',
-            'status' => 'nullable|in:pending,completed,cancelled',
-        ]);
+        $data = $request->validated();
 
         $transaction = CashBankTransaction::findOrFail($id);
         $transaction->update($data);

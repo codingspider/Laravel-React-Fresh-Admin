@@ -5,6 +5,8 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Requests\StoreAccountRequest;
+use Modules\Accounting\Http\Requests\UpdateAccountRequest;
 use Modules\Accounting\Services\AccountService;
 use Modules\Accounting\Models\Account;
 
@@ -38,20 +40,11 @@ class AccountController extends Controller
         ]);
     }
 
-    public function store(Request $request): JsonResponse
+    public function store(StoreAccountRequest $request): JsonResponse
     {
         $restaurantId = getRestaurantId($request->user());
 
-        $data = $request->validate([
-            'code' => 'required|string|max:20',
-            'name' => 'required|string|max:255',
-            'type' => 'required|in:asset,liability,equity,income,expense',
-            'account_group' => 'required|string|max:50',
-            'parent_id' => 'nullable|exists:accounts,id',
-            'description' => 'nullable|string',
-            'opening_balance' => 'nullable|numeric|min:0',
-            'status' => 'nullable|in:active,inactive',
-        ]);
+        $data = $request->validated();
 
         $data['restaurant_id'] = $restaurantId;
 
@@ -82,18 +75,9 @@ class AccountController extends Controller
         ]);
     }
 
-    public function update(Request $request, int $id): JsonResponse
+    public function update(UpdateAccountRequest $request, int $id): JsonResponse
     {
-        $data = $request->validate([
-            'code' => 'sometimes|required|string|max:20',
-            'name' => 'sometimes|required|string|max:255',
-            'type' => 'sometimes|required|in:asset,liability,equity,income,expense',
-            'account_group' => 'sometimes|required|string|max:50',
-            'parent_id' => 'nullable|exists:accounts,id',
-            'description' => 'nullable|string',
-            'opening_balance' => 'nullable|numeric|min:0',
-            'status' => 'nullable|in:active,inactive',
-        ]);
+        $data = $request->validated();
 
         $account = $this->service->update($id, $data);
 
