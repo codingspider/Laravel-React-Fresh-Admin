@@ -7,8 +7,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Modules\Branch\Models\Branch;
 use Modules\Restaurant\Models\Restaurant;
 
+use App\Models\Concerns\BranchScoped;
+
 class ActivityLog extends Model
 {
+    use BranchScoped;
+
     protected $fillable = [
         'user_id',
         'restaurant_id',

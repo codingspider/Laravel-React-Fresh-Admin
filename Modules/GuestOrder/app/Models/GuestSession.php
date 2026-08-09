@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+use App\Models\Concerns\BranchScoped;
+
 class GuestSession extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BranchScoped;
 
     protected $guarded = ['id'];
 

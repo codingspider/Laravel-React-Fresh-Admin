@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Carbon\Carbon;
 
+use App\Models\Concerns\BranchScoped;
+
 class Coupon extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BranchScoped;
 
     protected $fillable = [
         'restaurant_id',

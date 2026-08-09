@@ -9,9 +9,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Modules\Customer\Models\Customer;
 
+use App\Models\Concerns\BranchScoped;
+
 class Segment extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, BranchScoped;
 
     protected $table = 'crm_segments';
 

@@ -667,6 +667,20 @@ if (!function_exists('getRestaurantId')) {
     }
 }
 
+if (!function_exists('getBranchId')) {
+    function getBranchId($user = null): ?int
+    {
+        $user = $user ?? auth()->user();
+        if (!$user) return null;
+
+        if (isSuperAdmin($user)) return null;
+
+        if (isset($user->_branch_id)) return $user->_branch_id;
+
+        return $user->branch_id ?? null;
+    }
+}
+
 if (!function_exists('formatCurrency')) {
     function formatCurrency($amount, $currencyCode = null, $restaurant = null): string
     {

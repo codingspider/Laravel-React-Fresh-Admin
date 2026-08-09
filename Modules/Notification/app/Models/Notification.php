@@ -4,8 +4,12 @@ namespace Modules\Notification\Models;
 
 use Illuminate\Notifications\DatabaseNotification;
 
+use App\Models\Concerns\BranchScoped;
+
 class Notification extends DatabaseNotification
 {
+    use BranchScoped;
+
     protected $table = 'notifications';
 
     /**

@@ -5,8 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Models\Concerns\BranchScoped;
+
 class InventoryBatch extends Model
 {
+    use BranchScoped;
+
     protected $guarded = ['id'];
 
     protected $casts = [

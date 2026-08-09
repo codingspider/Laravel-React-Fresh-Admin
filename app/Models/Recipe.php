@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+use App\Models\Concerns\BranchScoped;
+
 class Recipe extends Model
 {
-    use SoftDeletes;
+    use SoftDeletes, BranchScoped;
 
     protected $guarded = ['id'];
 

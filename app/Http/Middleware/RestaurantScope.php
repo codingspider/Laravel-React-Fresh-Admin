@@ -20,6 +20,9 @@ class RestaurantScope
             }
             $request->merge(['_restaurant_id' => $restaurantId]);
             $user->_restaurant_id = $restaurantId;
+
+            $request->merge(['_branch_id' => $user->branch_id]);
+            $user->_branch_id = $user->branch_id;
         }
         return $next($request);
     }

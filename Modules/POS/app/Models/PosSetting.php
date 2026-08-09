@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+use App\Models\Concerns\BranchScoped;
+
 class PosSetting extends Model
 {
-    use HasFactory;
+    use HasFactory, BranchScoped;
 
     protected $fillable = [
         'restaurant_id',
