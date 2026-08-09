@@ -1,10 +1,52 @@
+# AI Coding Rules
+
+## Token Efficiency
+- Be extremely concise.
+- Do not explain unless explicitly asked.
+- Do not repeat requirements or completed work.
+- Do not narrate reasoning or actions.
+- Do not inspect unrelated files.
+- Do not modify unrelated code.
+- Make the smallest possible change.
+- Reuse existing code and project patterns.
+- Do not create files unless required.
+- Do not ask questions when the task is clear.
+- Never repeat a failed approach without first identifying the cause.
+- Do not output large code blocks unless requested.
+
+## Implementation
+- Inspect only relevant files.
+- Follow existing architecture and coding patterns.
+- Preserve all working functionality.
+- Prefer minimal targeted changes over refactoring.
+- Complete the task directly when requirements are clear.
+
+## Final Response
+After completing the task, respond with only:
+1. What changed.
+2. Any remaining issue.
+
+
+
 # Development Guidelines & Coding Standards
 
 The project must be developed with a strong focus on **clean architecture, maintainability, scalability, performance, and CodeCanyon compatibility**. Every implementation should follow Laravel and React best practices while ensuring the codebase remains easy to understand, extend, and maintain.
 
 ## General Coding Standards
 
-* Follow **PSR-12** coding standards throughout the project.
+* PSR-12 Coding Standard অনুসরণ করা
+* Clean Architecture
+* SOLID Principles
+* DRY (Don't Repeat Yourself)
+* Proper Service Layer
+* Repository Pattern (যেখানে প্রয়োজন)
+* Reusable Components
+* No duplicated code
+* No unused files
+* No commented-out production code
+* Proper Exception Handling
+* Proper Validation
+* Proper Logging
 * Adhere to **SOLID principles**, **DRY (Don't Repeat Yourself)**, and **KISS (Keep It Simple)**.
 * Write clean, readable, and self-documenting code.
 * Use meaningful class, method, variable, and file names.
@@ -207,16 +249,6 @@ The following roles are seeded and available:
 | `super_admin` | Full access to all modules and settings |
 | `admin` | Full access (same as super_admin, kept for extensibility) |
 | `restaurant_owner` | Full access to own restaurant data |
-| `manager` | Broad access to most modules, limited user management |
-| `branch_manager` | Access to branch operations, menu, tables, orders |
-| `cashier` | POS, orders, menu items, customers only |
-| `waiter` | View menu, tables, reservations, create orders |
-| `kitchen_staff` | View orders, kitchen display, manage kitchen orders |
-| `chef` | Full menu management, kitchen display, inventory view |
-| `delivery_boy` | View and manage deliveries only |
-| `accountant` | Reports, purchases, inventory, customers, suppliers |
-| `hr_manager` | User management and reports |
-| `inventory_manager` | Full inventory, purchasing, suppliers management |
 
 ### Permission Naming Convention
 
@@ -475,5 +507,3 @@ Before proceeding to **Phase 2**, complete the frontend implementation using **R
 * Keep layouts responsive across desktop, tablet, and mobile devices.
 * Use reusable form components, table components, and modal components wherever possible.
 * Maintain consistent spacing, typography, iconography, and component behaviour throughout the application.
-
-The frontend should be production-ready, fully responsive, translation-ready, dark mode compatible, and consistent with the overall application design before moving on to **Phase 2**.

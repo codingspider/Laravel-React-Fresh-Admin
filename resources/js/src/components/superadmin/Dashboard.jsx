@@ -165,6 +165,7 @@ const SubscriptionAlert = () => {
 
 export default function Dashboard() {
     const { t } = useTranslation();
+    const { can } = usePermission();
     const { formatAmount } = useCurrencyFormatter();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -176,6 +177,10 @@ export default function Dashboard() {
     }, [t]);
 
     useEffect(() => {
+        if (!can('view_dashboard_data')) {
+            setLoading(false);
+            return;
+        }
         const fetchStats = async () => {
             try {
                 setLoading(true);
@@ -190,7 +195,7 @@ export default function Dashboard() {
             }
         };
         fetchStats();
-    }, [t]);
+    }, [t, can]);
 
     const statCards = stats ? [
         { title: t('Total Sales'), value: formatAmount(stats.stats.total_sales), icon: DollarSign, iconColor: '#22c55e', iconBg: 'rgba(34,197,94,0.1)' },

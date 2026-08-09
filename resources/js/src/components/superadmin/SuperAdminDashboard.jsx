@@ -83,6 +83,10 @@ export default function SuperAdminDashboard() {
     const isSuperAdmin = hasRole('super_admin') || hasRole('super-admin');
 
     useEffect(() => {
+        if (!isSuperAdmin) {
+            setLoading(false);
+            return;
+        }
         let active = true;
         const fetchStats = async () => {
             try {
@@ -101,7 +105,7 @@ export default function SuperAdminDashboard() {
         return () => {
             active = false;
         };
-    }, []);
+    }, [isSuperAdmin]);
 
     if (!isSuperAdmin) {
         return <Dashboard />;

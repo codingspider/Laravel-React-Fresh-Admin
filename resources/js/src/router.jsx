@@ -11,6 +11,8 @@ import CustomerDisplay from "./components/customer/CustomerDisplay";
 import { superAdminRoutes } from "./routes/superAdminRoutes";
 import { SUPER_ADMIN_BASE, LOGIN, ROOT, UNAUTHORIZED, FORGOT, RESET_PASSWORD, REGISTER } from "./routes/commonRoutes";
 import ProtectedRoute from "./ProtectedRoute";
+import PermissionRoute from "./PermissionRoute";
+import getRoutePermission from "./routes/routePermissions";
 
 const router = createBrowserRouter([
   { path: LOGIN, element: <Login /> },
@@ -30,7 +32,14 @@ const router = createBrowserRouter([
       <MainLayout />
     ),
     errorElement: <ErrorPage />,
-    children: superAdminRoutes,
+    children: superAdminRoutes.map((route) => ({
+      ...route,
+      element: (
+        <PermissionRoute permission={getRoutePermission(route.path)}>
+          {route.element}
+        </PermissionRoute>
+      ),
+    })),
   }
 ]);
 

@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import useThemeColors from '../../../hooks/useThemeColors';
 import api from '../../../axios';
+import { cacheEntity, getCachedEntity, TABLES } from '../../../services/offlineApi';
 import { POS_COUPONS } from '../../../routes/apiRoutes';
 import InvoiceSearchModal from './InvoiceSearchModal';
 
@@ -83,9 +84,17 @@ export default function TopBar({
     try {
       const res = await api.get(POS_COUPONS, { params: { per_page: 100 } });
       const data = res.data?.data?.data || res.data?.data || [];
-      setCoupons(data.filter(c => c.is_valid));
+      const validCoupons = data.filter(c => c.is_valid);
+      setCoupons(validCoupons);
+      await cacheEntity(TABLES.COUPONS, validCoupons);
     } catch (err) {
-      setCouponError(t('Failed to load coupons'));
+      const cached = await getCachedEntity(TABLES.COUPONS);
+      if (cached.length > 0) {
+        setCoupons(cached);
+        setCouponError(null);
+      } else {
+        setCouponError(t('Failed to load coupons'));
+      }
     } finally {
       setCouponsLoading(false);
     }

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Box,
     Flex,
@@ -107,268 +108,284 @@ import {
     NOTIFICATIONS_PATH,
     ACTIVITY_LOG_PATH,
     BACKUP_LIST_PATH,
+    RESTAURANT_LIST_PATH,
+    BRANCH_LIST_PATH,
+    MENU_CATEGORY_LIST_PATH,
+    MENU_ITEM_LIST_PATH,
+    MODIFIER_GROUP_LIST_PATH,
+    FLOOR_LIST_PATH,
+    TABLE_LIST_PATH,
+    RESERVATION_LIST_PATH,
+    POS_TERMINAL_PATH,
+    POS_SALES_PATH,
+    POS_COUPONS_PATH,
+    POS_SETTINGS_PATH,
+    KITCHEN_DISPLAY_PATH,
+    CUSTOMER_DISPLAY_SETTINGS_PATH,
+    SETTINGS_PATH,
+    GENERAL_SETTINGS_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
-const navItems = [
+const navItems = (t) => [
     {
         path: DASHBOARD_PATH,
         icon: LayoutDashboard,
-        label: 'Dashboard',
+        label: t('dashboard'),
         permission: 'view_dashboard_data',
     },
     {
         icon: Crown,
-        label: 'Super Admin',
+        label: t('super_admin'),
         role: 'super_admin',
         children: [
-            { path: '/restaurant/list', label: 'Restaurants', permission: 'view_restaurants' },
-            { path: PACKAGE_LIST_PATH, label: 'Packages', permission: 'view_packages' },
-            { path: PLAN_LIST_PATH, label: 'Plans', permission: 'view_plans' },
-            { path: SUBSCRIPTION_LIST_PATH, label: 'Subscriptions', permission: 'view_subscriptions' },
-            { path: FAQ_LIST_PATH, label: 'FAQs' },
+            { path: RESTAURANT_LIST_PATH, label: t('restaurants'), permission: 'view_restaurants' },
+            { path: PACKAGE_LIST_PATH, label: t('packages'), permission: 'view_packages' },
+            { path: PLAN_LIST_PATH, label: t('plans'), permission: 'view_plans' },
+            { path: SUBSCRIPTION_LIST_PATH, label: t('subscriptions'), permission: 'view_subscriptions' },
+            { path: FAQ_LIST_PATH, label: t('faqs') },
         ],
     },
     {
         icon: BarChart3,
-        label: 'Platform Reports',
+        label: t('platform_reports'),
         role: 'super_admin',
         children: [
-            { path: PLATFORM_REPORTS_PATH, label: 'Platform Overview' },
-            { path: PLAN_REPORT_PATH, label: 'Plan Report' },
-            { path: SUBSCRIPTION_REPORT_PATH, label: 'Subscription Report' },
-            { path: RESTAURANT_REPORT_PATH, label: 'Restaurant Report' },
+            { path: PLATFORM_REPORTS_PATH, label: t('platform_overview') },
+            { path: PLAN_REPORT_PATH, label: t('plan_report') },
+            { path: SUBSCRIPTION_REPORT_PATH, label: t('subscription_report') },
+            { path: RESTAURANT_REPORT_PATH, label: t('restaurant_report') },
         ],
     },
     {
         icon: GitBranch,
-        label: 'Branches',
+        label: t('branches'),
         permission: 'view_branches',
         excludeRole: 'super_admin',
         children: [
-            { path: '/branch/list', label: 'All Branches', permission: 'view_branches' },
+            { path: BRANCH_LIST_PATH, label: t('all_branches'), permission: 'view_branches' },
         ],
     },
     {
         icon: Utensils,
-        label: 'Menu',
+        label: t('menu'),
         permission: 'view_menu_items',
         excludeRole: 'super_admin',
         children: [
-            { path: '/menu/categories', label: 'Categories', permission: 'view_menu_categories' },
-            { path: '/menu/items', label: 'Items', permission: 'view_menu_items' },
-            { path: '/menu/modifier-groups', label: 'Modifier Groups', permission: 'view_modifier_groups' },
+            { path: MENU_CATEGORY_LIST_PATH, label: t('categories'), permission: 'view_menu_categories' },
+            { path: MENU_ITEM_LIST_PATH, label: t('items'), permission: 'view_menu_items' },
+            { path: MODIFIER_GROUP_LIST_PATH, label: t('modifier_groups'), permission: 'view_modifier_groups' },
         ],
     },
     {
         icon: Grid3x3,
-        label: 'Table Management',
+        label: t('table_management'),
         permission: 'view_tables',
         excludeRole: 'super_admin',
         children: [
-            { path: '/table-management/floors', label: 'Floors', permission: 'view_floors' },
-            { path: '/table-management/tables', label: 'Tables', permission: 'view_tables' },
-            { path: '/table-management/reservations', label: 'Reservations', permission: 'view_reservations' },
+            { path: FLOOR_LIST_PATH, label: t('floors'), permission: 'view_floors' },
+            { path: TABLE_LIST_PATH, label: t('tables'), permission: 'view_tables' },
+            { path: RESERVATION_LIST_PATH, label: t('reservations'), permission: 'view_reservations' },
         ],
     },
     {
         icon: Monitor,
-        label: 'POS',
+        label: t('pos'),
         permission: 'view_pos',
         excludeRole: 'super_admin',
         children: [
-            { path: '/pos/terminal', label: 'POS Terminal', permission: 'view_pos' },
-            { path: '/pos/sales', label: 'Sales History', permission: 'view_pos' },
-            { path: '/pos/coupons', label: 'Coupons', permission: 'view_pos' },
-            { path: '/pos/settings', label: 'POS Settings', permission: 'view_pos' },
+            { path: POS_TERMINAL_PATH, label: t('pos_terminal'), permission: 'view_pos' },
+            { path: POS_SALES_PATH, label: t('sales_history'), permission: 'view_pos' },
+            { path: POS_COUPONS_PATH, label: t('coupons'), permission: 'view_pos' },
+            { path: POS_SETTINGS_PATH, label: t('pos_settings'), permission: 'view_pos' },
         ],
     },
     {
         icon: ChefHat,
-        label: 'Kitchen Display',
+        label: t('kitchen_display'),
         permission: 'view_kitchen_display',
         excludeRole: 'super_admin',
         children: [
-            { path: '/kitchen/display', label: 'Kitchen Display', permission: 'view_kitchen_display' },
+            { path: KITCHEN_DISPLAY_PATH, label: t('kitchen_display'), permission: 'view_kitchen_display' },
         ],
     },
 
     {
         icon: UserCheck,
-        label: 'HRM',
+        label: t('hrm'),
         permission: 'view_employees',
         excludeRole: 'super_admin',
         children: [
-            { path: HRM_DEPARTMENT_LIST_PATH, label: 'Departments', permission: 'view_departments' },
-            { path: HRM_DESIGNATION_LIST_PATH, label: 'Designations', permission: 'view_designations' },
-            { path: HRM_EMPLOYEE_LIST_PATH, label: 'Employees', permission: 'view_employees' },
-            { path: HRM_ATTENDANCE_LIST_PATH, label: 'Attendance', permission: 'view_attendance' },
-            // { path: HRM_LEAVE_LIST_PATH, label: 'Leave Requests', permission: 'view_leave_requests' },
-            // { path: HRM_HOLIDAY_LIST_PATH, label: 'Holidays', permission: 'view_holidays' },
-            { path: HRM_PAYROLL_LIST_PATH, label: 'Payroll', permission: 'view_payrolls' },
+            { path: HRM_DEPARTMENT_LIST_PATH, label: t('departments'), permission: 'view_departments' },
+            { path: HRM_DESIGNATION_LIST_PATH, label: t('designations'), permission: 'view_designations' },
+            { path: HRM_EMPLOYEE_LIST_PATH, label: t('employees'), permission: 'view_employees' },
+            { path: HRM_ATTENDANCE_LIST_PATH, label: t('attendance'), permission: 'view_attendance' },
+            // { path: HRM_LEAVE_LIST_PATH, label: t('leave_requests'), permission: 'view_leave_requests' },
+            // { path: HRM_HOLIDAY_LIST_PATH, label: t('holidays'), permission: 'view_holidays' },
+            { path: HRM_PAYROLL_LIST_PATH, label: t('payroll'), permission: 'view_payrolls' },
         ],
     },
     {
         icon: CreditCard,
-        label: 'Accounting',
+        label: t('accounting'),
         permission: 'view_accounts',
         excludeRole: 'super_admin',
         children: [
-            { path: ACCOUNTING_DASHBOARD_PATH, label: 'Dashboard', permission: 'view_accounting_dashboard' },
-            { path: ACCOUNTING_LIST_PATH, label: 'Chart of Accounts', permission: 'view_accounts' },
-            { path: INCOME_LIST_PATH, label: 'Income', permission: 'view_income' },
-            { path: EXPENSE_LIST_PATH, label: 'Expenses', permission: 'view_expenses' },
-            { path: EXPENSE_CATEGORY_LIST_PATH, label: 'Expense Categories', permission: 'view_expense_categories' },
-            { path: CASH_BANK_LIST_PATH, label: 'Cash & Bank', permission: 'view_cash_bank' },
-            { path: JOURNAL_LIST_PATH, label: 'Journal Entries', permission: 'view_journal_entries' },
-            { path: LEDGER_LIST_PATH, label: 'Ledger', permission: 'view_ledger' },
-            { path: TRIAL_BALANCE_PATH, label: 'Trial Balance', permission: 'view_trial_balance' },
+            { path: ACCOUNTING_DASHBOARD_PATH, label: t('dashboard'), permission: 'view_accounting_dashboard' },
+            { path: ACCOUNTING_LIST_PATH, label: t('chart_of_accounts'), permission: 'view_accounts' },
+            { path: INCOME_LIST_PATH, label: t('income'), permission: 'view_income' },
+            { path: EXPENSE_LIST_PATH, label: t('expenses'), permission: 'view_expenses' },
+            { path: EXPENSE_CATEGORY_LIST_PATH, label: t('expense_categories'), permission: 'view_expense_categories' },
+            { path: CASH_BANK_LIST_PATH, label: t('cash_bank'), permission: 'view_cash_bank' },
+            { path: JOURNAL_LIST_PATH, label: t('journal_entries'), permission: 'view_journal_entries' },
+            { path: LEDGER_LIST_PATH, label: t('ledger'), permission: 'view_ledger' },
+            { path: TRIAL_BALANCE_PATH, label: t('trial_balance'), permission: 'view_trial_balance' },
         ],
     },
     {
         icon: FileText,
-        label: 'Reports',
+        label: t('reports'),
         permission: 'view_reports',
         excludeRole: 'super_admin',
         children: [
-            { path: PROFIT_LOSS_PATH, label: 'Profit & Loss', permission: 'view_profit_loss_report' },
-            { path: SALE_REPORT_PATH, label: 'Sales Report', permission: 'view_sale_report' },
-            { path: PURCHASE_REPORT_PATH, label: 'Purchase Report', permission: 'view_purchase_report' },
-            { path: TAX_REPORT_PATH, label: 'Tax Report', permission: 'view_tax_report' },
-            { path: EXPENSE_REPORT_PATH, label: 'Expense Report', permission: 'view_expense_report' },
+            { path: PROFIT_LOSS_PATH, label: t('profit_loss'), permission: 'view_profit_loss_report' },
+            { path: SALE_REPORT_PATH, label: t('sales_report'), permission: 'view_sale_report' },
+            { path: PURCHASE_REPORT_PATH, label: t('purchase_report'), permission: 'view_purchase_report' },
+            { path: TAX_REPORT_PATH, label: t('tax_report'), permission: 'view_tax_report' },
+            { path: EXPENSE_REPORT_PATH, label: t('expense_report'), permission: 'view_expense_report' },
         ],
     },
     {
         icon: Star,
-        label: 'Loyalty',
+        label: t('loyalty'),
         permission: 'view_loyalty_settings',
         excludeRole: 'super_admin',
         children: [
-            { path: LOYALTY_SETTINGS_PATH, label: 'Programme', permission: 'view_loyalty_settings' },
-            { path: LOYALTY_CUSTOMERS_PATH, label: 'Customers', permission: 'view_loyalty_customers' },
-            { path: LOYALTY_TRANSACTIONS_PATH, label: 'Transactions', permission: 'view_loyalty_transactions' },
+            { path: LOYALTY_SETTINGS_PATH, label: t('programme'), permission: 'view_loyalty_settings' },
+            { path: LOYALTY_CUSTOMERS_PATH, label: t('customers'), permission: 'view_loyalty_customers' },
+            { path: LOYALTY_TRANSACTIONS_PATH, label: t('transactions'), permission: 'view_loyalty_transactions' },
         ],
     },
     {
         icon: HeartHandshake,
-        label: 'CRM',
+        label: t('crm'),
         permission: 'view_customers',
         excludeRole: 'super_admin',
         children: [
-            { path: CRM_DASHBOARD_PATH, label: 'Dashboard', permission: 'view_crm_dashboard' },
-            { path: CRM_CUSTOMER_LIST_PATH, label: 'Customers', permission: 'view_customers' },
-            { path: CRM_SEGMENT_LIST_PATH, label: 'Segments', permission: 'view_segments' },
-            { path: CRM_FOLLOW_UP_LIST_PATH, label: 'Follow-ups', permission: 'view_follow_ups' },
+            { path: CRM_DASHBOARD_PATH, label: t('dashboard'), permission: 'view_crm_dashboard' },
+            { path: CRM_CUSTOMER_LIST_PATH, label: t('customers'), permission: 'view_customers' },
+            { path: CRM_SEGMENT_LIST_PATH, label: t('segments'), permission: 'view_segments' },
+            { path: CRM_FOLLOW_UP_LIST_PATH, label: t('follow_ups'), permission: 'view_follow_ups' },
         ],
     },
     {
         path: NOTIFICATIONS_PATH,
         icon: Bell,
-        label: 'Notifications',
+        label: t('notifications'),
         permission: 'view_notifications',
         excludeRole: 'super_admin',
     },
     {
         path: ACTIVITY_LOG_PATH,
         icon: History,
-        label: 'Activity Logs',
+        label: t('activity_logs'),
         permission: 'view_activity_logs',
     },
     {
         path: BACKUP_LIST_PATH,
         icon: Database,
-        label: 'Backups',
+        label: t('backups'),
         permission: 'view_backups',
     },
     {
         icon: MonitorPlay,
-        label: 'Customer Display',
+        label: t('customer_display'),
         permission: 'view_customer_display',
         excludeRole: 'super_admin',
         children: [
-            { path: '/customer-display/settings', label: 'Settings', permission: 'manage_customer_display' },
+            { path: CUSTOMER_DISPLAY_SETTINGS_PATH, label: t('settings'), permission: 'manage_customer_display' },
         ],
     },
     {
         icon: Package,
-        label: 'Inventory',
+        label: t('inventory'),
         permission: 'view_inventory',
         excludeRole: 'super_admin',
         children: [
-            { path: INVENTORY_ITEM_LIST_PATH, label: 'All Items', permission: 'view_inventory' },
-            { path: INVENTORY_CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_inventory' },
-            { path: CUSTOMER_LIST_PATH, label: 'Customers', permission: 'view_inventory' },
-            { path: SUPPLIER_LIST_PATH, label: 'Suppliers', permission: 'view_inventory' },
-            { path: UNIT_LIST_PATH, label: 'Units', permission: 'view_units' },
+            { path: INVENTORY_ITEM_LIST_PATH, label: t('all_items'), permission: 'view_inventory' },
+            { path: INVENTORY_CATEGORY_LIST_PATH, label: t('categories'), permission: 'view_inventory' },
+            { path: CUSTOMER_LIST_PATH, label: t('customers'), permission: 'view_inventory' },
+            { path: SUPPLIER_LIST_PATH, label: t('suppliers'), permission: 'view_inventory' },
+            { path: UNIT_LIST_PATH, label: t('units'), permission: 'view_units' },
         ],
     },
 
     {
         icon: ChefHat,
-        label: 'Recipes',
+        label: t('recipes'),
         permission: 'view_recipes',
         excludeRole: 'super_admin',
         children: [
-            { path: RECIPE_LIST_PATH, label: 'All Recipes', permission: 'view_recipes' },
-            { path: RECIPE_CATEGORY_LIST_PATH, label: 'Categories', permission: 'view_recipes' },
+            { path: RECIPE_LIST_PATH, label: t('all_recipes'), permission: 'view_recipes' },
+            { path: RECIPE_CATEGORY_LIST_PATH, label: t('categories'), permission: 'view_recipes' },
         ],
     },
 
     {
         icon: ShoppingCart,
-        label: 'Purchases',
+        label: t('purchases'),
         permission: 'view_purchases',
         excludeRole: 'super_admin',
         children: [
-            { path: PURCHASE_LIST_PATH, label: 'All Purchases', permission: 'view_purchases' },
+            { path: PURCHASE_LIST_PATH, label: t('all_purchases'), permission: 'view_purchases' },
         ],
     },
 
     {
         icon: Boxes,
-        label: 'Stock Movements',
+        label: t('stock_movements'),
         permission: 'view_stock_movements',
         excludeRole: 'super_admin',
         children: [
-            { path: STOCK_OVERVIEW_PATH, label: 'Overview', permission: 'view_stock_movements' },
-            { path: STOCK_TRANSACTIONS_PATH, label: 'Transactions', permission: 'view_stock_movements' },
-            { path: STOCK_BATCHES_PATH, label: 'Batches', permission: 'view_stock_movements' },
-            { path: STOCK_TRANSFERS_PATH, label: 'Transfers', permission: 'view_stock_movements' },
-            { path: STOCK_ADJUSTMENTS_PATH, label: 'Adjustments', permission: 'view_stock_movements' },
-            { path: STOCK_WASTE_PATH, label: 'Waste', permission: 'view_stock_movements' },
+            { path: STOCK_OVERVIEW_PATH, label: t('overview'), permission: 'view_stock_movements' },
+            { path: STOCK_TRANSACTIONS_PATH, label: t('transactions'), permission: 'view_stock_movements' },
+            { path: STOCK_BATCHES_PATH, label: t('batches'), permission: 'view_stock_movements' },
+            { path: STOCK_TRANSFERS_PATH, label: t('transfers'), permission: 'view_stock_movements' },
+            { path: STOCK_ADJUSTMENTS_PATH, label: t('adjustments'), permission: 'view_stock_movements' },
+            { path: STOCK_WASTE_PATH, label: t('waste'), permission: 'view_stock_movements' },
         ],
     },
 
     {
         icon: Users,
-        label: 'User Management',
+        label: t('user_management'),
         permission: 'view_user',
         children: [
-            { path: USER_LIST_PATH, label: 'All Users', permission: 'view_user' },
-            { path: ROLE_LIST_PATH, label: 'Roles & Permissions', permission: 'role_list' },
+            { path: USER_LIST_PATH, label: t('all_users'), permission: 'view_user' },
+            { path: ROLE_LIST_PATH, label: t('roles_permissions'), permission: 'role_list' },
         ],
     },
 
     {
         icon: Settings,
-        label: 'Currencies',
+        label: t('currencies'),
         permission: 'view_currencies',
         role: 'super_admin',
         children: [
-            { path: CURRENCY_LIST_PATH, label: 'All Currencies', permission: 'view_currencies' },
+            { path: CURRENCY_LIST_PATH, label: t('all_currencies'), permission: 'view_currencies' },
         ],
     },
 
     {
-        path: '/settings',
+        path: SETTINGS_PATH,
         icon: Settings,
-        label: 'Settings',
+        label: t('settings'),
         role: 'super_admin',
     },
     {
-        path: '/settings/general',
+        path: GENERAL_SETTINGS_PATH,
         icon: Settings,
-        label: 'General Settings',
+        label: t('general_settings'),
         permission: 'access_business_settings',
         excludeRole: 'super_admin',
     },
@@ -376,6 +393,7 @@ const navItems = [
 
 export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOpen, setIsMobileOpen }) {
     const { can, hasRole, restaurant } = usePermission();
+    const { t } = useTranslation();
     const [openMenus, setOpenMenus] = useState({});
     const location = useLocation();
     const colors = useThemeColors();
@@ -643,7 +661,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                     overflowY="auto"
                     overflowX="hidden"
                 >
-                    {navItems.map(item => (
+                    {navItems(t).map(item => (
                         <NavItem
                             key={item.label}
                             item={item}
@@ -728,7 +746,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                 </Flex>
 
                 <VStack spacing={1} p={3} flex="1" align="stretch" overflowY="auto">
-                    {navItems.map(item => (
+                    {navItems(t).map(item => (
                         <NavItem key={item.label} item={item} isMobile={true} />
                     ))}
                 </VStack>

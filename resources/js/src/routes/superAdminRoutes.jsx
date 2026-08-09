@@ -217,6 +217,27 @@ export const RESTAURANT_ADD_PATH = "/restaurant/create";
 export const RESTAURANT_VIEW_PATH = "/restaurant/view/:id";
 export const RESTAURANT_EDIT_PATH = "/restaurant/edit/:id";
 
+export const BRANCH_LIST_PATH = "/branch/list";
+
+export const MENU_CATEGORY_LIST_PATH = "/menu/categories";
+export const MENU_ITEM_LIST_PATH = "/menu/items";
+export const MODIFIER_GROUP_LIST_PATH = "/menu/modifier-groups";
+
+export const FLOOR_LIST_PATH = "/table-management/floors";
+export const TABLE_LIST_PATH = "/table-management/tables";
+export const RESERVATION_LIST_PATH = "/table-management/reservations";
+
+export const POS_TERMINAL_PATH = "/pos/terminal";
+export const POS_SALES_PATH = "/pos/sales";
+export const POS_COUPONS_PATH = "/pos/coupons";
+export const POS_SETTINGS_PATH = "/pos/settings";
+
+export const KITCHEN_DISPLAY_PATH = "/kitchen/display";
+export const CUSTOMER_DISPLAY_SETTINGS_PATH = "/customer-display/settings";
+
+export const SETTINGS_PATH = "/settings";
+export const GENERAL_SETTINGS_PATH = "/settings/general";
+
 export const USER_LIST_PATH = "/user/list";
 export const USER_ADD_PATH = "/user/create";
 export const USER_EDIT_PATH = "/user/edit/:id";

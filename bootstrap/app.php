@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'cookie.filter' => \App\Http\Middleware\CookieFilter::class,
             'restaurant.scope' => \App\Http\Middleware\RestaurantScope::class,
             'module.access' => \App\Http\Middleware\CheckModuleAccess::class,
+            'permission.check' => \App\Http\Middleware\CheckPermission::class,
             'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         ]);
 
@@ -28,9 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->statefulApi();
+        $middleware->appendToGroup('api', \App\Http\Middleware\CheckPermission::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })
     ->create();
-

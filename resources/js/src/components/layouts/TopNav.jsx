@@ -119,6 +119,7 @@ const NotificationBell = () => {
     const navigate = useNavigate();
     const colors = useThemeColors();
     const { t } = useTranslation();
+    const { can } = usePermission();
     const { formatAmount } = useCurrencyFormatter();
     const [unread, setUnread] = useState(0);
     const [items, setItems] = useState([]);
@@ -126,15 +127,17 @@ const NotificationBell = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     const fetchUnread = useCallback(async () => {
+        if (!can('view_notifications')) return;
         try {
             const res = await api.get(NOTIFICATIONS_UNREAD_COUNT);
             setUnread(res.data?.data?.unread_count || 0);
         } catch {
             setUnread(0);
         }
-    }, []);
+    }, [can]);
 
     useEffect(() => {
+        if (!can('view_notifications')) return;
         fetchUnread();
         const id = setInterval(fetchUnread, 30000);
         window.addEventListener('focus', fetchUnread);
@@ -142,9 +145,10 @@ const NotificationBell = () => {
             clearInterval(id);
             window.removeEventListener('focus', fetchUnread);
         };
-    }, [fetchUnread]);
+    }, [fetchUnread, can]);
 
     const loadItems = async () => {
+        if (!can('view_notifications')) return;
         setLoading(true);
         try {
             const res = await api.get(NOTIFICATIONS_LIST, { params: { per_page: 8 } });

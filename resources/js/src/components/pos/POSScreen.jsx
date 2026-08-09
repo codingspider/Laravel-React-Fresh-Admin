@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import {
   Box, Flex, Text, VStack, Center, Spinner, useToast, useDisclosure,
   AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader,
-  AlertDialogContent, AlertDialogOverlay, Button, HStack,
+  AlertDialogContent, AlertDialogOverlay, Button, HStack, Badge,
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { WarningIcon } from '@chakra-ui/icons';
@@ -12,9 +12,12 @@ import {
   STORE_POS_SALE, POS_PROCESS_PAYMENT, POS_PROCESS_MULTIPLE_PAYMENTS,
   POS_CANCEL_SALE, POS_HELD_ORDERS, POS_RECALL_ORDER, POS_HOLD_ORDER,
   LIST_CUSTOMER, POS_SETTINGS, POS_VALIDATE_COUPON, POS_MERGE_BILLS,
-  LIST_BRANCH,
+  LIST_BRANCH, LIST_MODIFIER_GROUP, GET_INVOICE_SETTING, POS_COUPONS,
 } from '../../routes/apiRoutes';
 import useThemeColors from '../../hooks/useThemeColors';
+import { useNetworkStatus } from '../../hooks/useNetworkStatus';
+import { usePersistentCart } from '../../hooks/usePersistentCart';
+import { offlineApi, cacheEntity, getCachedEntity, TABLES, getPendingQueueCount } from '../../services/offlineApi';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
 import { usePermission } from '../../context/PermissionContext';
 import TopBar from './partials/TopBar';
@@ -41,7 +44,7 @@ export default function POSScreen() {
   const [customers, setCustomers] = useState([]);
   const [branches, setBranches] = useState([]);
   const [selectedBranchId, setSelectedBranchId] = useState(null);
-  const [cart, setCart] = useState([]);
+  const { cart, setCart, clearCart: clearLocalCart, isHydrated: cartHydrated } = usePersistentCart([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [orderType, setOrderType] = useState('dine_in');
@@ -62,6 +65,8 @@ export default function POSScreen() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mobileCartOpen, setMobileCartOpen] = useState(false);
   const [posSettings, setPosSettings] = useState(null);
+  const [pendingQueueCount, setPendingQueueCount] = useState(0);
+  const { isOnline, isOffline, isChecking } = useNetworkStatus();
 
   const { isOpen: isPaymentOpen, onOpen: onPaymentOpen, onClose: onPaymentClose } = useDisclosure();
   const { isOpen: isRecallOpen, onOpen: onRecallOpen, onClose: onRecallClose } = useDisclosure();
@@ -80,17 +85,24 @@ export default function POSScreen() {
 
   const fetchData = useCallback(async () => {
     try {
-      const [catRes, tableRes, custRes, settingsRes, branchRes] = await Promise.all([
+      const [catRes, tableRes, custRes, settingsRes, branchRes, modRes, invoiceRes, couponRes] = await Promise.all([
         axios.get(`${LIST_MENU_CATEGORY}?per_page=100`),
         axios.get(`${LIST_TABLE}?per_page=100`).catch(() => ({ data: { data: [] } })),
         axios.get(`${LIST_CUSTOMER}?per_page=500`).catch(() => ({ data: { data: [] } })),
         axios.get(POS_SETTINGS).catch(() => ({ data: { data: null } })),
         axios.get(`${LIST_BRANCH}?per_page=100`).catch(() => ({ data: { data: [] } })),
+        axios.get(`${LIST_MODIFIER_GROUP}?per_page=100`).catch(() => ({ data: { data: [] } })),
+        axios.get(GET_INVOICE_SETTING).catch(() => ({ data: { data: null } })),
+        axios.get(POS_COUPONS, { params: { per_page: 100 } }).catch(() => ({ data: { data: [] } })),
       ]);
-      setCategories(catRes.data?.data?.data || catRes.data?.data || []);
-      setTables(tableRes.data?.data?.data || tableRes.data?.data || []);
-      setCustomers(custRes.data?.data?.data || custRes.data?.data || []);
+      const categoriesData = catRes.data?.data?.data || catRes.data?.data || [];
+      const tablesData = tableRes.data?.data?.data || tableRes.data?.data || [];
+      const customersData = custRes.data?.data?.data || custRes.data?.data || [];
       const branchList = branchRes.data?.data?.data || branchRes.data?.data || [];
+
+      setCategories(categoriesData);
+      setTables(tablesData);
+      setCustomers(customersData);
       setBranches(branchList);
       setSelectedBranchId(prev => prev || user?.branch_id ||
         branchList.find(b => b.is_main)?.id || branchList[0]?.id || null);
@@ -100,8 +112,47 @@ export default function POSScreen() {
         if (settings.default_tax_rate) setTaxRate(parseFloat(settings.default_tax_rate));
         if (settings.default_tax_name) setTaxName(settings.default_tax_name);
       }
-    } catch {
-      toast({ title: t('Failed to load POS data'), status: 'error', duration: 3000, isClosable: true });
+      const modifierGroupsData = modRes.data?.data?.data || modRes.data?.data || [];
+      const invoiceData = invoiceRes.data?.data || null;
+      const couponsData = couponRes.data?.data?.data || couponRes.data?.data || [];
+
+      await Promise.all([
+        cacheEntity(TABLES.CATEGORIES, categoriesData),
+        cacheEntity(TABLES.TABLES, tablesData),
+        cacheEntity(TABLES.CUSTOMERS, customersData),
+        cacheEntity(TABLES.BRANCHES, branchList),
+        cacheEntity(TABLES.POS_SETTINGS, settings ? [settings] : []),
+        cacheEntity(TABLES.MODIFIER_GROUPS, modifierGroupsData),
+        cacheEntity(TABLES.INVOICE_SETTINGS, invoiceData ? [invoiceData] : []),
+        cacheEntity(TABLES.COUPONS, couponsData),
+      ]);
+    } catch (err) {
+      const [cachedCats, cachedTables, cachedCusts, cachedBranches, cachedSettings, cachedModGroups, cachedCoupons] =
+        await Promise.all([
+          getCachedEntity(TABLES.CATEGORIES),
+          getCachedEntity(TABLES.TABLES),
+          getCachedEntity(TABLES.CUSTOMERS),
+          getCachedEntity(TABLES.BRANCHES),
+          getCachedEntity(TABLES.POS_SETTINGS),
+          getCachedEntity(TABLES.MODIFIER_GROUPS),
+          getCachedEntity(TABLES.COUPONS),
+        ]);
+
+      if (cachedCats.length > 0) setCategories(cachedCats);
+      if (cachedTables.length > 0) setTables(cachedTables);
+      if (cachedCusts.length > 0) setCustomers(cachedCusts);
+      if (cachedBranches.length > 0) {
+        setBranches(cachedBranches);
+        setSelectedBranchId(prev => prev || user?.branch_id ||
+          cachedBranches.find(b => b.is_main)?.id || cachedBranches[0]?.id || null);
+      }
+      if (cachedSettings.length > 0) {
+        const s = cachedSettings[0];
+        setPosSettings(s);
+        if (s.default_tax_rate) setTaxRate(parseFloat(s.default_tax_rate));
+        if (s.default_tax_name) setTaxName(s.default_tax_name);
+      }
+      // toast({ title: t('Showing cached data (offline)'), status: 'warning', duration: 4000, isClosable: true });
     } finally {
       setLoading(false);
     }
@@ -110,11 +161,43 @@ export default function POSScreen() {
   const fetchHeldOrders = useCallback(async () => {
     try {
       const res = await axios.get(POS_HELD_ORDERS);
-      setHeldOrders(res.data?.data?.data || res.data?.data || []);
-    } catch { }
-  }, []);
+      const serverOrders = res.data?.data?.data || res.data?.data || [];
+      await cacheEntity(TABLES.HELD_ORDERS, serverOrders);
+      setHeldOrders(serverOrders);
+    } catch {
+      const localOrders = await getCachedEntity(TABLES.HELD_ORDERS);
+      if (localOrders.length > 0) {
+        setHeldOrders(localOrders);
+        // toast({ title: t('Showing cached held orders (offline)'), status: 'warning', duration: 3000, isClosable: true });
+      }
+    }
+  }, [t, toast]);
 
   useEffect(() => { fetchData(); fetchHeldOrders(); }, [fetchData, fetchHeldOrders]);
+
+  const pollQueueCount = useCallback(async () => {
+    const count = await getPendingQueueCount();
+    setPendingQueueCount(count);
+  }, []);
+
+  useEffect(() => {
+    pollQueueCount();
+    const interval = setInterval(pollQueueCount, 10000);
+    const handler = () => pollQueueCount();
+    window.addEventListener("online", handler);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("online", handler);
+    };
+  }, [pollQueueCount]);
+
+  const postOffline = useCallback(async (url, data) => {
+    return await offlineApi({ method: "post", url, data });
+  }, []);
+
+  const putOffline = useCallback(async (url, data) => {
+    return await offlineApi({ method: "put", url, data });
+  }, []);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -154,13 +237,25 @@ export default function POSScreen() {
         const seen = new Set(prev.map(i => i.id));
         return [...prev, ...items.filter(i => !seen.has(i.id))];
       });
+      if (!append) {
+        await cacheEntity(TABLES.MENU_ITEMS, items);
+      }
       setPage(pageToLoad);
       setHasMore(pageToLoad < lastPage);
       setTotalItems(total);
     } catch {
       if (!append) {
-        setMenuItems([]);
-        setFilteredItems([]);
+        const cachedItems = await getCachedEntity(TABLES.MENU_ITEMS);
+        setMenuItems(cachedItems);
+        setFilteredItems(cachedItems);
+        if (cachedItems.length > 0) {
+          setTotalItems(cachedItems.length);
+          setPage(1);
+          setHasMore(false);
+        } else {
+          setMenuItems([]);
+          setFilteredItems([]);
+        }
       }
     } finally {
       setMenuLoading(false);
@@ -288,7 +383,7 @@ export default function POSScreen() {
   );
 
   const resetCart = useCallback(() => {
-    setCart([]);
+    clearLocalCart();
     setCurrentSale(null);
     setSelectedTable(null);
     setSelectedCustomer(null);
@@ -304,10 +399,10 @@ export default function POSScreen() {
     setSplitPayments([{ method: 'cash', amount: '', reference: '' }]);
     setTaxRate(posSettings?.default_tax_rate ? parseFloat(posSettings.default_tax_rate) : 0);
     setTaxName(posSettings?.default_tax_name || '');
-  }, [posSettings]);
+  }, [posSettings, clearLocalCart]);
 
   const clearCartOnly = useCallback(() => {
-    setCart([]);
+    clearLocalCart();
     setDiscountValue('');
     setCouponCode('');
     setShipping('0');
@@ -318,7 +413,7 @@ export default function POSScreen() {
   const validateCoupon = useCallback(async () => {
     if (!couponCode) return;
     try {
-      const res = await axios.post(POS_VALIDATE_COUPON, {
+      const res = await postOffline(POS_VALIDATE_COUPON, {
         code: couponCode,
         order_amount: cartSubtotal,
         restaurant_id: user?.restaurant_id || null,
@@ -345,7 +440,7 @@ export default function POSScreen() {
 
   const mergeBills = useCallback(async (saleIds) => {
     try {
-      const res = await axios.post(POS_MERGE_BILLS, { sale_ids: saleIds });
+      const res = await postOffline(POS_MERGE_BILLS, { sale_ids: saleIds });
       const sale = res.data.data;
       const mergedCart = (sale.items || []).map(item => ({
         menu_item_id: item.menu_item_id,
@@ -397,24 +492,31 @@ export default function POSScreen() {
         notes: notes || null,
         kitchen_notes: kitchenNotes || null,
       };
-      const res = await axios.post(STORE_POS_SALE, payload);
+      const res = await postOffline(STORE_POS_SALE, payload);
       setCurrentSale(res.data.data);
       setPaymentAmount(res.data.data.total?.toString() || cartTotal.toFixed(2));
       onPaymentOpen();
-      fetchHeldOrders();
-      toast({ title: t('Order created'), status: 'success', duration: 2000, isClosable: true });
+
+      if (res._queued) {
+        await cacheEntity(TABLES.HELD_ORDERS, [res.data.data]);
+        toast({ title: t('Order queued (offline)'), description: t('Will sync when online'), status: 'warning', duration: 4000, isClosable: true });
+      } else {
+        fetchHeldOrders();
+        toast({ title: t('Order created'), status: 'success', duration: 2000, isClosable: true });
+      }
     } catch {
       toast({ title: t('Failed to create order'), status: 'error', duration: 3000, isClosable: true });
     } finally {
       setSubmitting(false);
     }
-  }, [cart, orderType, selectedBranchId, selectedTable, selectedCustomer, discountType, discountValue, couponCode, shippingAmount, taxRate, taxName, notes, kitchenNotes, cartTotal, toast, t, onPaymentOpen, fetchHeldOrders]);
+  }, [cart, orderType, selectedBranchId, selectedTable, selectedCustomer, discountType, discountValue, couponCode, shippingAmount, taxRate, taxName, notes, kitchenNotes, cartTotal, toast, t, onPaymentOpen]);
 
   const processPayment = useCallback(async () => {
     if (!currentSale) return;
     setSubmitting(true);
     try {
       let paidSale = null;
+      let isQueued = false;
       if (isSplitPayment) {
         const validPayments = splitPayments.filter(p => parseFloat(p.amount) > 0);
         if (validPayments.length === 0) {
@@ -422,7 +524,7 @@ export default function POSScreen() {
           setSubmitting(false);
           return;
         }
-        const res = await axios.post(POS_PROCESS_MULTIPLE_PAYMENTS(currentSale.id), {
+        const res = await postOffline(POS_PROCESS_MULTIPLE_PAYMENTS(currentSale.id), {
           payments: validPayments.map(p => ({
             payment_method: p.method,
             amount: parseFloat(p.amount),
@@ -430,6 +532,7 @@ export default function POSScreen() {
           })),
         });
         paidSale = res.data?.data;
+        isQueued = res._queued;
       } else {
         const submittedAmount = parseFloat(paymentAmount) || currentSale.total;
         const dueForScreen = Math.max(0, (parseFloat(currentSale.total) || 0) - (parseFloat(currentSale.amount_paid) || 0));
@@ -438,13 +541,20 @@ export default function POSScreen() {
           setSubmitting(false);
           return;
         }
-        const res = await axios.post(POS_PROCESS_PAYMENT(currentSale.id), {
+        const res = await postOffline(POS_PROCESS_PAYMENT(currentSale.id), {
           payment_method: paymentMethod,
           amount: submittedAmount,
         });
         paidSale = res.data?.data;
+        isQueued = res._queued;
       }
-      toast({ title: t('Payment processed successfully'), status: 'success', duration: 2000, isClosable: true });
+      toast({
+        title: isQueued ? t('Payment queued (offline)') : t('Payment processed successfully'),
+        description: isQueued ? t('Will sync when online') : undefined,
+        status: isQueued ? 'warning' : 'success',
+        duration: 2000,
+        isClosable: true,
+      });
       resetCart();
       onPaymentClose();
       fetchHeldOrders();
@@ -472,7 +582,7 @@ export default function POSScreen() {
     }
     setSubmitting(true);
     try {
-      const storeRes = await axios.post(STORE_POS_SALE, {
+      const payload = {
         order_type: orderType,
         branch_id: selectedBranchId || null,
         table_id: selectedTable,
@@ -484,19 +594,28 @@ export default function POSScreen() {
         shipping: shippingAmount,
         notes: notes || null,
         kitchen_notes: kitchenNotes || null,
-      });
-      
+      };
+      const storeRes = await postOffline(STORE_POS_SALE, payload);
+
       const saleId = storeRes.data.data?.id;
       if (!saleId) {
         throw new Error('No sale ID returned');
       }
-      
-      await axios.post(POS_HOLD_ORDER(saleId));
+
+      if (storeRes._queued) {
+        const heldOrder = { ...storeRes.data.data, status: 'held', isSynced: false };
+        const existing = await getCachedEntity(TABLES.HELD_ORDERS);
+        const updated = [...existing, heldOrder];
+        await cacheEntity(TABLES.HELD_ORDERS, updated);
+        setHeldOrders(updated);
+        toast({ title: t('Order held (offline)'), description: t('Will sync when online'), status: 'warning', duration: 4000, isClosable: true });
+      } else {
+        await postOffline(POS_HOLD_ORDER(saleId));
+        toast({ title: t('Order held'), status: 'info', duration: 2000, isClosable: true });
+      }
       resetCart();
-      fetchHeldOrders();
-      toast({ title: t('Order held'), status: 'info', duration: 2000, isClosable: true });
     } catch (error) {
-      console.error('Hold error:', error.response?.data || error.message);
+      console.error('Hold error:', error?.response?.data || error?.message || error);
       toast({ title: t('Failed to hold order'), status: 'error', duration: 3000, isClosable: true });
     } finally {
       setSubmitting(false);
@@ -505,7 +624,7 @@ export default function POSScreen() {
 
   const recallOrder = useCallback(async (held) => {
     try {
-      const res = await axios.post(POS_RECALL_ORDER(held.id));
+      const res = await postOffline(POS_RECALL_ORDER(held.id));
       const sale = res.data.data;
       const recalledCart = (sale.items || []).map(item => ({
         menu_item_id: item.menu_item_id,
@@ -541,7 +660,7 @@ export default function POSScreen() {
       return;
     }
     try {
-      await axios.post(POS_CANCEL_SALE(currentSale.id));
+      await postOffline(POS_CANCEL_SALE(currentSale.id));
       resetCart();
       fetchHeldOrders();
       toast({ title: t('Order cancelled'), status: 'info', duration: 2000, isClosable: true });
@@ -622,6 +741,22 @@ export default function POSScreen() {
           setCouponCode={setCouponCode}
           onBarcodeScan={handleBarcodeScan}
         />
+
+        {(isOffline || pendingQueueCount > 0) && (
+          <Flex px={4} py={2} alignItems="center" gap={3}
+            bg={isOffline ? colors.bgWarning : colors.bgInfo}
+            borderBottom="1px solid" borderColor={colors.borderDefault}>
+            <Box w={2} h={2} borderRadius="full" bg={isOffline ? "red.500" : "yellow.400"} />
+            <Text fontSize="sm" fontWeight="500" color={colors.textPrimary}>
+              {isOffline ? t('Working offline — data will sync when connection is restored') : null}
+            </Text>
+            {pendingQueueCount > 0 && (
+              <Badge colorScheme="yellow" fontSize="xs">
+                {pendingQueueCount} {t('pending')}
+              </Badge>
+            )}
+          </Flex>
+        )}
 
         <CategoryChips
           categories={categories}

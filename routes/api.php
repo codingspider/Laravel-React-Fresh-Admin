@@ -24,6 +24,7 @@ Route::controller(RegisterController::class)->group(function(){
     Route::post('store/business/info', 'storeBusinessInfo')->middleware(['web']);
 });
 
+
 Route::middleware(['auth:sanctum', EnsureFrontendRequestsAreStateful::class])->prefix('superadmin')->group(function () {
     // Add more super admin routes here
     Route::get('users', [UserController::class, 'index']);
@@ -190,4 +191,3 @@ Route::middleware('auth:sanctum')->get('/permissions', function (\Illuminate\Htt
         'data' => $permissions,
     ]);
 });
-

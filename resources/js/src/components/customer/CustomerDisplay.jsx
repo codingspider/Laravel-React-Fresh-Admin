@@ -243,14 +243,14 @@ const CustomerDisplay = () => {
     const orderIdsRef = useRef(new Set());
 
     const restaurantId = searchParams.get('restaurant_id') || undefined;
-
-    const pollMs = data?.settings?.refresh_interval
-        ? Math.max(5, data.settings.refresh_interval) * 1000
-        : DEFAULT_POLL_MS;
+    const branchId = searchParams.get('branch_id') || undefined;
 
     const fetchBoard = useCallback(async () => {
         try {
-            const params = restaurantId ? { restaurant_id: restaurantId } : {};
+            const params = {
+                ...(restaurantId ? { restaurant_id: restaurantId } : {}),
+                ...(branchId ? { branch_id: branchId } : {}),
+            };
             const response = await api.get(CUSTOMER_DISPLAY_BOARD, { params });
             const payload = response.data?.data || {};
 
@@ -272,7 +272,11 @@ const CustomerDisplay = () => {
         } finally {
             setLoading(false);
         }
-    }, [restaurantId, soundEnabled]);
+    }, [restaurantId, branchId, soundEnabled]);
+
+    const pollMs = data?.settings?.refresh_interval
+        ? Math.max(5, data.settings.refresh_interval) * 1000
+        : DEFAULT_POLL_MS;
 
     useEffect(() => {
         fetchBoard();

@@ -1,5 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import api from './../axios';
+import { db, TABLES } from './../db';
+import { cacheEntity, getCachedEntity } from './../services/offlineApi';
 
 const PermissionContext = createContext();
 
@@ -30,15 +32,21 @@ export const PermissionProvider = ({ children }) => {
     const fetchPermissions = useCallback(async () => {
         setLoading(true);
         try {
-            const response = await api.get('/user');
+            const response = await api.apiGet('/user');
             const userData = response.data.data || response.data;
             applyUserData(userData);
+            await cacheEntity(TABLES.USERS, [userData]);
         } catch (error) {
-            setPermissions([]);
-            setRoles([]);
-            setRestaurant(null);
-            setUser(null);
-            setIsAuthenticated(false);
+            const cached = await getCachedEntity(TABLES.USERS);
+            if (cached.length > 0) {
+                applyUserData(cached[0]);
+            } else {
+                setPermissions([]);
+                setRoles([]);
+                setRestaurant(null);
+                setUser(null);
+                setIsAuthenticated(false);
+            }
         } finally {
             setLoading(false);
         }

@@ -7,7 +7,7 @@ use Modules\CRM\Http\Controllers\FollowUpController;
 use Modules\CRM\Http\Controllers\NoteController;
 use Modules\CRM\Http\Controllers\SegmentController;
 
-Route::prefix('v1/crm')->middleware(['auth:sanctum', 'throttle:60,1', 'restaurant.scope', 'module.access'])->group(function () {
+Route::prefix('v1/crm')->middleware(['auth:sanctum', 'throttle:120,1', 'restaurant.scope', 'module.access'])->group(function () {
     // CRM Dashboard
     Route::get('dashboard', [CrmDashboardController::class, 'index']);
 

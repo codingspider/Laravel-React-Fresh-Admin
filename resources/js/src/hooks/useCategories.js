@@ -1,63 +1,68 @@
-// src/hooks/useBranches.js
-import { useEffect, useState } from "react";
-import { db } from "../db";
+import { useEffect, useState, useCallback } from "react";
+import { TABLES } from "../db";
 import api from "../axios";
+import { cacheEntity, getCachedEntity } from "../services/offlineApi";
 import { GET_ALL_CATEGROIES } from "../routes/apiRoutes";
 
 export function useCategories() {
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+    const [categories, setCategories] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [isFromCache, setIsFromCache] = useState(false);
 
-  // Fetch branches from Dexie first, otherwise from API
-  const fetchCategories = async () => {
-    setLoading(true);
+    const fetchCategories = useCallback(async () => {
+        setLoading(true);
+        setIsFromCache(false);
 
-    try {
-      // 1. Load from IndexedDB first
-      const localCategories = await db.categories.toArray();
+        try {
+            const localCategories = await getCachedEntity(TABLES.CATEGORIES);
+            if (localCategories.length > 0) {
+                setCategories(localCategories);
+                setIsFromCache(true);
+            }
 
-      if (localCategories.length > 0) {
-        setCategories(localCategories);
-      }
+            const res = await api.get(GET_ALL_CATEGROIES);
+            const latestCategories = Array.isArray(res.data?.data) ? res.data.data : (res.data?.data?.data || res.data?.data || []);
 
-      // 2. Always fetch latest data from API
-      const res = await api.get(GET_ALL_CATEGROIES);
+            setCategories(latestCategories);
+            setIsFromCache(false);
 
-      const latestCategories = res.data.data;
+            await cacheEntity(TABLES.CATEGORIES, latestCategories);
+        } catch (err) {
+            console.error("fetchCategories error:", err);
+            const cached = await getCachedEntity(TABLES.CATEGORIES);
+            if (cached.length > 0) {
+                setCategories(cached);
+                setIsFromCache(true);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-      // 3. Update state
-      setCategories(latestCategories);
+    const refreshCategories = useCallback(async () => {
+        setLoading(true);
+        setIsFromCache(false);
+        try {
+            const res = await api.get(GET_ALL_CATEGROIES);
+            const categoryData = Array.isArray(res.data?.data) ? res.data.data : (res.data?.data?.data || res.data?.data || []);
+            setCategories(categoryData);
+            setIsFromCache(false);
+            await cacheEntity(TABLES.CATEGORIES, categoryData);
+        } catch (err) {
+            console.error("refreshCategories error:", err);
+            const cached = await getCachedEntity(TABLES.CATEGORIES);
+            if (cached.length > 0) {
+                setCategories(cached);
+                setIsFromCache(true);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
-      // 4. Update IndexedDB
-      await db.categories.clear();
-      await db.categories.bulkPut(latestCategories);
+    useEffect(() => {
+        fetchCategories();
+    }, [fetchCategories]);
 
-    } catch (err) {
-      console.error("fetchCategories error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Clear and refresh branches (force fetch from API)
-  const refreshCategories = async () => {
-    setLoading(true);
-    try {
-      const res = await api.get(GET_ALL_CATEGROIES);
-      const categoryData = res.data.data;
-      setCategories(categoryData);
-      await db.categories.clear();
-      await db.categories.bulkPut(categoryData);
-    } catch (err) {
-      console.error("refreshBranches error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  return { categories, loading, refreshCategories };
+    return { categories, loading, refreshCategories, isFromCache };
 }

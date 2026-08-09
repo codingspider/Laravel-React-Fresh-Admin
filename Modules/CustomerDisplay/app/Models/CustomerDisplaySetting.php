@@ -41,6 +41,8 @@ class CustomerDisplaySetting extends Model
      */
     public function getStatusesAttribute(): array
     {
-        return $this->active_statuses ?? config('customersdisplay.active_statuses', []);
+        $statuses = $this->active_statuses;
+
+        return empty($statuses) ? config('customersdisplay.active_statuses', []) : $statuses;
     }
 }

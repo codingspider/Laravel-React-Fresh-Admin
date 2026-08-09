@@ -5,7 +5,7 @@ use Modules\TableManagement\Http\Controllers\TableController;
 use Modules\TableManagement\Http\Controllers\ReservationController;
 use Modules\TableManagement\Http\Controllers\FloorController;
 
-Route::prefix('v1')->middleware(['auth:sanctum','throttle:60,1', 'restaurant.scope', 'module.access'])->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum','throttle:120,1', 'restaurant.scope', 'module.access'])->group(function () {
     Route::get('tables/available', [TableController::class, 'available']);
     Route::apiResource('tables', TableController::class);
     Route::put('tables/{table}/status', [TableController::class, 'updateStatus']);

@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\Loyalty\Http\Controllers\LoyaltyController;
 
-Route::prefix('v1')->middleware(['auth:sanctum','throttle:60,1', 'restaurant.scope', 'module.access'])->group(function () {
+Route::prefix('v1')->middleware(['auth:sanctum','throttle:120,1', 'restaurant.scope', 'module.access'])->group(function () {
     Route::get('loyalty/settings', [LoyaltyController::class, 'settings'])->name('loyalty.settings');
     Route::put('loyalty/settings', [LoyaltyController::class, 'updateSettings'])->name('loyalty.settings.update');
     Route::get('loyalty/customers', [LoyaltyController::class, 'customers'])->name('loyalty.customers');

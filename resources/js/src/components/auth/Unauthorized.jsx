@@ -48,17 +48,6 @@ const Unauthorized = () => {
                         You don't have permission to access this page. Please contact your administrator if you believe this is a mistake.
                     </Text>
                 </VStack>
-
-                <Button
-                    as={ReactRouterLink}
-                    to={LOGIN}
-                    variant="primary"
-                    leftIcon={<Icon as={ArrowLeft} boxSize={4} />}
-                    size="lg"
-                    borderRadius="lg"
-                >
-                    Back to Login
-                </Button>
             </VStack>
         </Flex>
     );

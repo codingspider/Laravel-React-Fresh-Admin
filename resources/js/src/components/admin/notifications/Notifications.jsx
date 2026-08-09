@@ -4,6 +4,7 @@ import {
   Icon, IconButton, SimpleGrid, Tooltip,
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
+import { usePermission } from '../../../context/PermissionContext';
 import { Search, CheckCheck, Trash2, Bell, ShoppingBag, RotateCcw, TriangleAlert } from 'lucide-react';
 import api from '../../../axios';
 import {
@@ -42,6 +43,7 @@ export default function Notifications() {
   const toast = useToast();
   const colors = useThemeColors();
   const { formatAmount } = useCurrencyFormatter();
+  const { can } = usePermission();
 
   const toastRef = useRef(toast);
   const tRef = useRef(t);
@@ -49,13 +51,14 @@ export default function Notifications() {
   tRef.current = t;
 
   const fetchUnread = useCallback(async () => {
+    if (!can('view_notifications')) return;
     try {
       const res = await api.get(NOTIFICATIONS_UNREAD_COUNT);
       setUnread(res.data?.data?.unread_count || 0);
     } catch {
       setUnread(0);
     }
-  }, []);
+  }, [can]);
 
   const fetchData = useCallback(async () => {
     try {

@@ -25,9 +25,11 @@ class KitchenDisplayController extends Controller
     {
         abort_unless($request->user()->can('view_kitchen_display'), 403);
 
+        $user = $request->user();
+
         $filters = [
             'restaurant_id' => getRestaurantId(),
-            'branch_id' => $request->input('branch_id'),
+            'branch_id' => $user->branch_id ?? $request->input('branch_id'),
         ];
 
         $data = $this->service->board($filters);

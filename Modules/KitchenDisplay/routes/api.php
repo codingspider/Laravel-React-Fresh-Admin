@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Modules\KitchenDisplay\Http\Controllers\KitchenDisplayController;
 
-Route::middleware(['auth:sanctum','throttle:60,1', 'restaurant.scope', 'module.access'])
+Route::middleware(['auth:sanctum','throttle:120,1', 'restaurant.scope', 'module.access'])
     ->prefix('v1')
     ->group(function () {
         Route::get('kitchen/display', [KitchenDisplayController::class, 'board'])->name('kitchen.display');

@@ -8,7 +8,7 @@ Route::prefix('v1')->group(function () {
     Route::get('plans/pub', [PlanController::class, 'publicIndex']);
 
     // Authenticated resource routes
-    Route::middleware(['auth:sanctum','throttle:60,1'])->group(function () {
+    Route::middleware(['auth:sanctum','throttle:120,1'])->group(function () {
         Route::apiResource('plans', PlanController::class);
     });
 });

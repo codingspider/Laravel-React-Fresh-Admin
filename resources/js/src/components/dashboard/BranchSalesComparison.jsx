@@ -40,6 +40,7 @@ export default function BranchSalesComparison({ data = [] }) {
     const colors = useThemeColors();
     const [period, setPeriod] = useState('all');
     const gridColor = useColorModeValue('#f0f0f0', '#2D3748');
+    const cursorFill = useColorModeValue('#f5f5f5', '#2a2a2a');
 
     const chartData = data.map(item => ({
         name: item.branch_name,
@@ -94,7 +95,7 @@ export default function BranchSalesComparison({ data = [] }) {
                             />
                             <RechartsTooltip
                                 content={<CustomTooltip />}
-                                cursor={{ fill: useColorModeValue('#f5f5f5', '#2a2a2a') }}
+                                cursor={{ fill: cursorFill }}
                             />
                             <Bar dataKey="sales" fill="#0d9488" radius={[6, 6, 0, 0]} />
                         </BarChart>

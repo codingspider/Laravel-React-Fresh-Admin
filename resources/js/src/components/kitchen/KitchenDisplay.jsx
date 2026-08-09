@@ -372,7 +372,7 @@ export default function KitchenDisplay() {
     const { t } = useTranslation();
     const colors = useThemeColors();
     const toast = useToast();
-    const { can } = usePermission();
+    const { can, user } = usePermission();
 
     const [board, setBoard] = useState({ columns: { new: [], preparing: [], ready: [] }, stats: { new: 0, preparing: 0, ready: 0, delayed: 0 } });
     const [chefs, setChefs] = useState([]);
@@ -400,8 +400,11 @@ export default function KitchenDisplay() {
         async (silent = false) => {
             if (!silent) setRefreshing(true);
             try {
-                const res = await api.get(KDS_BOARD);
+                const res = await api.get(KDS_BOARD, {
+                    params: { branch_id: user?.branch_id || undefined },
+                });
                 const data = res.data?.data || {};
+
                 const prevKnown = knownIdsRef.current;
                 const currentIds = new Set();
 
@@ -439,16 +442,22 @@ export default function KitchenDisplay() {
                 setBoard({ columns, stats });
                 knownIdsRef.current = currentIds;
                 readyIdsRef.current = new Set(columns.ready.map((o) => o.id));
-            } catch {
+            } catch (err) {
                 if (!silent) {
-                    toast({ title: t('Failed to load kitchen display'), status: 'error', duration: 3000, isClosable: true });
+                    toast({
+                        title: t('Failed to load kitchen display'),
+                        description: t('Unable to fetch orders from the server'),
+                        status: 'error',
+                        duration: 3000,
+                        isClosable: true,
+                    });
                 }
             } finally {
                 setLoading(false);
                 setRefreshing(false);
             }
         },
-        [toast, t, soundOn, notify]
+        [toast, t, soundOn, notify, user?.branch_id]
     );
 
     const fetchChefs = useCallback(async () => {
@@ -523,7 +532,7 @@ export default function KitchenDisplay() {
             <PageHeader
                 title="Kitchen Display"
                 subtitle="Live orders and preparation tracking"
-                breadcrumbs={[{ label: 'Kitchen', path: '/kitchen/display' }, { label: 'Kitchen Display', isCurrent: true }]}
+                breadcrumbs={[{ label: t('Kitchen'), path: '/kitchen/display' }, { label: t('Kitchen Display'), isCurrent: true }]}
             >
                 <Tooltip label={soundOn ? t('Mute notifications') : t('Enable notifications')}>
                     <IconButton

@@ -20,7 +20,7 @@ Route::prefix('v1')->group(function () {
 });
 
 // Protected settings
-Route::middleware(['auth:sanctum','throttle:60,1', 'restaurant.scope', 'module.access'])
+Route::middleware(['auth:sanctum','throttle:120,1', 'restaurant.scope', 'module.access'])
     ->prefix('v1')
     ->group(function () {
         Route::get('customer-display/settings', [CustomerDisplayController::class, 'settings'])->name('customer-display.settings');
