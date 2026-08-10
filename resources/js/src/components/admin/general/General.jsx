@@ -24,7 +24,7 @@ import { Link as ReactRouterLink } from "react-router-dom";
 import { ADMIN_DASHBOARD_PATH } from "../../../routes/adminRoutes";
 import { useTranslation } from "react-i18next";
 import api from "../../../axios";
-import { GET_INVOICE_SETTING, GET_NOTIFICATION_SETTING } from "../../../routes/apiRoutes";
+import { GET_INVOICE_SETTING } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import Setting from "./Setting";
 import NotificationSettings from "./NotificationSettings";
@@ -36,17 +36,7 @@ const General = () => {
     const colors = useThemeColors();
     const { t } = useTranslation();
     const [invoiceSetting, setInvoiceSetting] = useState(null);
-    const [existingSetting, setExistingSetting] = useState([]);
 
-    const getSettings = async () => {
-        try {
-            const res = await api.get(GET_NOTIFICATION_SETTING);
-            setExistingSetting(res.data.data);
-        } catch (error) {
-            console.error("Failed to fetch settings:", error);
-        }
-    };
-    
     const getInvoiceSettings = async () => {
         try {
             const res = await api.get(GET_INVOICE_SETTING);
@@ -57,7 +47,6 @@ const General = () => {
     };
 
     useEffect(() => {
-        getSettings();
         getInvoiceSettings();
     }, []);
 
@@ -160,7 +149,7 @@ const General = () => {
                                     <CurrencySetting></CurrencySetting>
                                 </TabPanel>
                                 <TabPanel>
-                                    <NotificationSettings existingSetting={existingSetting}></NotificationSettings>
+                                    <NotificationSettings></NotificationSettings>
                                 </TabPanel>
                                 <TabPanel>
                                     <QrOrderingSettings />

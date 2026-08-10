@@ -30,6 +30,8 @@ class NotificationServiceProvider extends EventServiceProvider
 
     public function boot(): void
     {
+        $this->mergeConfigFrom(__DIR__ . '/../../config/config.php', $this->moduleNameLower);
+
         Route::middleware('api')->prefix('api')->name('api.')->group(function () {
             $this->loadRoutesFrom(__DIR__ . '/../../routes/api.php');
         });

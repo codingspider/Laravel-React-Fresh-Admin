@@ -8,6 +8,8 @@ class NotificationDatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        //
+        $this->call([
+            SmsTemplateSeeder::class,
+        ]);
     }
 }
