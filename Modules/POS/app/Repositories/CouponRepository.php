@@ -17,7 +17,7 @@ class CouponRepository
 
     public function getAll(array $filters = [], int $perPage = 15)
     {
-        $query = $this->model->with('restaurant');
+        $query = $this->model->with(['restaurant', 'branch']);
 
         if (!empty($filters['restaurant_id'])) {
             $query->where('restaurant_id', $filters['restaurant_id']);

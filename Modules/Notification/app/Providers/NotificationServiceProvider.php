@@ -5,6 +5,7 @@ namespace Modules\Notification\Providers;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider;
 use Illuminate\Support\Facades\Route;
 use Modules\Notification\Events\LowStockAlert;
+use Modules\Notification\Listeners\NotifyGuestOrderConfirmation;
 use Modules\Notification\Listeners\NotifyLowStock;
 use Modules\Notification\Listeners\NotifySaleCompleted;
 use Modules\Notification\Listeners\NotifySaleRefunded;
@@ -19,6 +20,7 @@ class NotificationServiceProvider extends EventServiceProvider
     protected $listen = [
         SaleCompleted::class => [
             NotifySaleCompleted::class,
+            NotifyGuestOrderConfirmation::class,
         ],
         SaleRefunded::class => [
             NotifySaleRefunded::class,

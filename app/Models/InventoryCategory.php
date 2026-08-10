@@ -23,6 +23,11 @@ class InventoryCategory extends Model
         return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
     }
 
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

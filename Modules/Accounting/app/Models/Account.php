@@ -43,6 +43,11 @@ class Account extends Model
         return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
     }
 
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
+
     public function parent(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'parent_id');

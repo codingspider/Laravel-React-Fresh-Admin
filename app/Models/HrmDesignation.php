@@ -42,6 +42,11 @@ class HrmDesignation extends Model
         return $this->belongsTo(HrmDepartment::class, 'department_id');
     }
 
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
+
     public function employees(): HasMany
     {
         return $this->hasMany(HrmEmployee::class, 'designation_id');

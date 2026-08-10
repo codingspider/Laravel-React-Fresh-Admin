@@ -11,6 +11,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import useThemeColors from "../../../hooks/useThemeColors";
 import {
   LIST_EMPLOYEE,
@@ -32,8 +33,9 @@ export default function AttendanceList() {
   const [summary, setSummary] = useState({});
   const [employeeFilter, setEmployeeFilter] = useState("");
   const [employees, setEmployees] = useState([]);
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+   const [dateFrom, setDateFrom] = useState("");
+   const [dateTo, setDateTo] = useState("");
+   const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -49,6 +51,7 @@ export default function AttendanceList() {
     if (employeeFilter) params.employee_id = employeeFilter;
     if (dateFrom) params.date_from = dateFrom;
     if (dateTo) params.date_to = dateTo;
+    if (branchFilter) params.branch_id = branchFilter;
 
     api.get("/attendance", { params })
       .then((res) => {
@@ -77,7 +80,7 @@ export default function AttendanceList() {
     document.title = `${app_name} | ${t("attendance")}`;
     fetchData();
     fetchEmployees();
-  }, [pageIndex, globalFilter, employeeFilter, dateFrom, dateTo, t]);
+   }, [pageIndex, globalFilter, employeeFilter, dateFrom, dateTo, branchFilter, t]);
 
   const columns = [
     {
@@ -125,6 +128,12 @@ export default function AttendanceList() {
           </Badge>
         );
       },
+    },
+    {
+      header: t("branch"),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+      ),
     },
     {
       header: t("actions"),
@@ -209,7 +218,9 @@ export default function AttendanceList() {
           pageCount={pageCount}
           isLoading={isLoading}
           totalItems={totalItems}
-        />
+        >
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+        </TanStackTable>
       </Box>
     </Box>
   );

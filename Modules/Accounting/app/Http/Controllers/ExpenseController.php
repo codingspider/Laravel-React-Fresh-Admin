@@ -18,7 +18,7 @@ class ExpenseController extends Controller
     public function index(Request $request): JsonResponse
     {
         $restaurantId = getRestaurantId($request->user());
-        $filters = $request->only(['search', 'status', 'date_from', 'date_to']);
+        $filters = $request->only(['search', 'status', 'date_from', 'date_to', 'branch_id']);
         $filters['restaurant_id'] = $restaurantId;
 
         $data = $this->service->paginate(

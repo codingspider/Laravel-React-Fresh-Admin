@@ -44,6 +44,7 @@ import TanStackTable from '../../../TanStackTable';
 import PageHeader from '../../ui/PageHeader';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { usePermission } from '../../../context/PermissionContext';
+import BranchFilter from '../../ui/BranchFilter';
 
 const EMPTY_FORM = { name: '', description: '', color: '#0d9488' };
 
@@ -55,6 +56,7 @@ export default function CrmSegmentList() {
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const { can } = usePermission();
     const toast = useToast();
@@ -75,7 +77,7 @@ export default function CrmSegmentList() {
         try {
             setIsLoading(true);
             const res = await api.get(CRM_SEGMENTS, {
-                params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || '' },
+                params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || '', branch_id: branchFilter || '' },
             });
             const items = res.data?.data?.data || res.data?.data || [];
             const total = res.data?.meta?.total || res.data?.data?.total || items.length;
@@ -93,7 +95,7 @@ export default function CrmSegmentList() {
         const app_name = localStorage.getItem('app_name');
         document.title = `${app_name} | CRM Segments`;
         fetchData();
-    }, [fetchData]);
+    }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
     const handleSearch = (value) => {
         setGlobalFilter(value);
@@ -239,6 +241,12 @@ export default function CrmSegmentList() {
             ),
         },
         {
+            header: t('Branch'),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || '-'}</Text>
+            ),
+        },
+        {
             header: t('Actions'),
             cell: ({ row }) => (
                 <Menu>
@@ -322,6 +330,7 @@ export default function CrmSegmentList() {
                             {t('Add Segment')}
                         </Button>
                     )}
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
             </Box>
 

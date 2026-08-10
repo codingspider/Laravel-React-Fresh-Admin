@@ -21,6 +21,7 @@ import api from "../../axios";
 import TanStackTable from "../../TanStackTable";
 import PageHeader from "../ui/PageHeader";
 import TableExportButtons from "../ui/TableExportButtons";
+import BranchFilter from "../ui/BranchFilter";
 import { LIST_MODIFIER_GROUP, DELETE_MODIFIER_GROUP } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 
@@ -32,6 +33,7 @@ export default function ModifierGroupList() {
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -45,6 +47,7 @@ export default function ModifierGroupList() {
                     page: pageIndex + 1,
                     per_page: pageSize,
                     search: globalFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
             const items = res.data?.data?.data || res.data?.data || [];
@@ -57,7 +60,7 @@ export default function ModifierGroupList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize]);
+    }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -163,6 +166,12 @@ export default function ModifierGroupList() {
             },
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("actions"),
             cell: ({ row }) => (
                 <Menu>
@@ -234,7 +243,9 @@ export default function ModifierGroupList() {
                     isLoading={isLoading}
                     addURL="/menu/modifier-group/create"
                     totalItems={totalItems}
-                />
+                >
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+                </TanStackTable>
             </Box>
         </Box>
     );

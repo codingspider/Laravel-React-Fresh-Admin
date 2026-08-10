@@ -24,7 +24,7 @@ class CouponController extends Controller
     {
         $filters = array_filter([
             'restaurant_id' => $request->user()?->restaurant_id,
-            'branch_id' => $request->user()?->branch_id,
+            'branch_id' => $request->filled('branch_id') ? $request->input('branch_id') : $request->user()?->branch_id,
             'is_active' => $request->boolean('is_active'),
             'search' => $request->input('search'),
         ]);

@@ -14,7 +14,7 @@ class DesignationController extends Controller
     public function index(Request $request)
     {
         $restaurantId = getRestaurantId($request->user());
-        $filters = $request->only(['search', 'department_id', 'status']);
+        $filters = $request->only(['search', 'department_id', 'status', 'branch_id']);
         $filters['restaurant_id'] = $restaurantId;
 
         $data = $this->service->paginate(

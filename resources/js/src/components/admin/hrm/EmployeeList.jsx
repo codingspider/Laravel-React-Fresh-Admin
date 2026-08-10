@@ -11,6 +11,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import useThemeColors from "../../../hooks/useThemeColors";
 import {
   LIST_EMPLOYEE,
@@ -32,7 +33,8 @@ export default function EmployeeList() {
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
   const [summary, setSummary] = useState({});
-  const [statusFilter, setStatusFilter] = useState("");
+    const [statusFilter, setStatusFilter] = useState("");
+    const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -43,8 +45,9 @@ export default function EmployeeList() {
     const params = {
       page: pageIndex + 1,
       per_page: pageSize,
-      search: globalFilter || "",
-    };
+       search: globalFilter || "",
+     };
+    if (branchFilter) params.branch_id = branchFilter;
     if (statusFilter) params.status = statusFilter;
 
     api.get(LIST_EMPLOYEE, { params })
@@ -67,7 +70,7 @@ export default function EmployeeList() {
     const app_name = localStorage.getItem("app_name");
     document.title = `${app_name} | ${t("employees")}`;
     fetchData();
-  }, [pageIndex, globalFilter, statusFilter, pageSize, t]);
+  }, [pageIndex, globalFilter, statusFilter, branchFilter, pageSize, t]);
 
   const deleteItem = async (id) => {
     const result = await Swal.fire({
@@ -142,6 +145,12 @@ export default function EmployeeList() {
       },
     },
     {
+      header: t("branch"),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+      ),
+    },
+    {
       header: t("actions"),
       cell: ({ row }) => (
         <Menu>
@@ -193,7 +202,9 @@ export default function EmployeeList() {
           pageCount={pageCount}
           isLoading={isLoading}
           totalItems={totalItems}
-        />
+        >
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+        </TanStackTable>
       </Box>
     </Box>
   );

@@ -42,7 +42,7 @@ const ReservationCreate = () => {
             .then((res) => {
                 setTables(res.data.data || []);
             })
-            .catch(() => {});
+            .catch(() => { });
     }, []);
 
     const onSubmit = async (data) => {
@@ -181,7 +181,7 @@ const ReservationCreate = () => {
                                     />
                                 </FormControl>
 
-                                <FormControl>
+                                <FormControl isRequired>
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"
@@ -191,7 +191,7 @@ const ReservationCreate = () => {
                                         {t("guest_phone")}
                                     </FormLabel>
                                     <Input
-                                        {...register("guest_phone")}
+                                        {...register("guest_phone", { required: true })}
                                         type="text"
                                         placeholder={t("guest_phone")}
                                         bg={colors.bgInput}

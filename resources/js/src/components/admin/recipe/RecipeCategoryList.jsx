@@ -11,6 +11,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_RECIPE_CATEGORY, DELETE_RECIPE_CATEGORY } from "../../../routes/apiRoutes";
 import { RECIPE_CATEGORY_LIST_PATH, RECIPE_CATEGORY_ADD_PATH, RECIPE_CATEGORY_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
@@ -24,6 +25,7 @@ export default function RecipeCategoryList() {
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
   const [statusFilter, setStatusFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -32,9 +34,9 @@ export default function RecipeCategoryList() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await api.get(LIST_RECIPE_CATEGORY, {
-        params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || "" },
-      });
+const res = await api.get(LIST_RECIPE_CATEGORY, {
+      params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || "", branch_id: branchFilter || "" },
+    });
       const items = res.data?.data?.data || res.data?.data || [];
       const total = res.data?.meta?.total || res.data?.data?.total || items.length;
       setData(items);
@@ -51,7 +53,7 @@ export default function RecipeCategoryList() {
     const app_name = localStorage.getItem("app_name");
     document.title = `${app_name} | ${t("recipe_categories")}`;
     fetchData();
-  }, [fetchData, t]);
+  }, [pageIndex, globalFilter, pageSize, statusFilter, branchFilter]);
 
   const deleteItem = async (id) => {
     const result = await Swal.fire({
@@ -117,6 +119,12 @@ export default function RecipeCategoryList() {
       },
     },
     {
+      header: t("branch"),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+      ),
+    },
+    {
       header: t("actions"),
       cell: ({ row }) => (
         <Menu>
@@ -162,7 +170,9 @@ export default function RecipeCategoryList() {
           isLoading={isLoading}
           addURL={RECIPE_CATEGORY_ADD_PATH}
           totalItems={totalItems}
-        />
+        >
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+        </TanStackTable>
       </Box>
     </Box>
   );

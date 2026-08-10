@@ -30,7 +30,7 @@ class DepartmentService
             $query->where('status', $filters['status']);
         }
 
-        return $query->orderBy('name')->paginate($perPage);
+        return $query->with('branch')->orderBy('name')->paginate($perPage);
     }
 
     public function find(int $id): ?HrmDepartment

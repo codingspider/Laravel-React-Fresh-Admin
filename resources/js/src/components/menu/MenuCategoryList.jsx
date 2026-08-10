@@ -20,6 +20,7 @@ import api from "../../axios";
 import TanStackTable from "../../TanStackTable";
 import PageHeader from "../ui/PageHeader";
 import TableExportButtons from "../ui/TableExportButtons";
+import BranchFilter from "../ui/BranchFilter";
 import { LIST_MENU_CATEGORY, DELETE_MENU_CATEGORY } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 
@@ -31,6 +32,7 @@ export default function MenuCategoryList() {
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -44,6 +46,7 @@ export default function MenuCategoryList() {
                     page: pageIndex + 1,
                     per_page: pageSize,
                     search: globalFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
             const items = res.data?.data?.data || res.data?.data || [];
@@ -56,7 +59,7 @@ export default function MenuCategoryList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize]);
+    }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -148,6 +151,12 @@ export default function MenuCategoryList() {
             ),
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("actions"),
             cell: ({ row }) => (
                 <Menu>
@@ -216,10 +225,12 @@ export default function MenuCategoryList() {
                     pageSize={pageSize}
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
-                    isLoading={isLoading}
+                 isLoading={isLoading}
                     addURL="/menu/category/create"
                     totalItems={totalItems}
-                />
+                >
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+                </TanStackTable>
             </Box>
         </Box>
     );

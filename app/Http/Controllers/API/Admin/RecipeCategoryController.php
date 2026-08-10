@@ -11,11 +11,15 @@ class RecipeCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = RecipeCategory::query();
+        $query = RecipeCategory::query()->with(['branch:id,name']);
 
         $restaurantId = getRestaurantId($request->user());
         if ($restaurantId) {
             $query->where('restaurant_id', $restaurantId);
+        }
+
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
         }
 
         $query->when($request->filled('search'), fn($q) => $q->where('name', 'like', '%' . $request->search . '%'));

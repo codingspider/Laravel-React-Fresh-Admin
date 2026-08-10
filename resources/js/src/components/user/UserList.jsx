@@ -26,6 +26,7 @@ import PageHeader from "../ui/PageHeader";
 import { LIST_USER, DELETE_USER } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 import TableExportButtons from "../ui/TableExportButtons";
+import BranchFilter from "../ui/BranchFilter";
 
 export default function UserList() {
     const [data, setData] = useState([]);
@@ -35,6 +36,7 @@ export default function UserList() {
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -48,6 +50,7 @@ export default function UserList() {
                     page: pageIndex + 1,
                     per_page: pageSize,
                     search: globalFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
 
@@ -62,7 +65,7 @@ export default function UserList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize]);
+    }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -129,6 +132,12 @@ export default function UserList() {
             accessorKey: "email",
             cell: ({ getValue }) => (
                 <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
             ),
         },
         {
@@ -203,7 +212,9 @@ export default function UserList() {
                     isLoading={isLoading}
                     addURL={USER_ADD_PATH}
                     totalItems={totalItems}
-                />
+                >
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+                </TanStackTable>
             </Box>
         </Box>
     );

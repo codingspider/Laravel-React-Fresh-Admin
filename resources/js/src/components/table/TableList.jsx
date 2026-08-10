@@ -21,6 +21,7 @@ import api from "../../axios";
 import TanStackTable from "../../TanStackTable";
 import PageHeader from "../ui/PageHeader";
 import TableExportButtons from "../ui/TableExportButtons";
+import BranchFilter from "../ui/BranchFilter";
 import { LIST_TABLE, DELETE_TABLE } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 import QRCodeModal from "./QRCodeModal";
@@ -42,6 +43,7 @@ export default function TableList() {
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [statusFilter, setStatusFilter] = useState("");
+    const [branchFilter, setBranchFilter] = useState(null);
     const [qrModalOpen, setQrModalOpen] = useState(false);
     const [selectedTable, setSelectedTable] = useState(null);
     const { t } = useTranslation();
@@ -58,6 +60,7 @@ export default function TableList() {
                     per_page: pageSize,
                     search: globalFilter || "",
                     status: statusFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
             const items = res.data?.data?.data || res.data?.data || [];
@@ -70,7 +73,7 @@ export default function TableList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize, statusFilter]);
+    }, [pageIndex, globalFilter, pageSize, statusFilter, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -183,6 +186,12 @@ export default function TableList() {
             },
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("actions"),
             cell: ({ row }) => (
                 <Menu>
@@ -275,6 +284,7 @@ export default function TableList() {
                             <option key={s} value={s}>{t(s)}</option>
                         ))}
                     </Select>
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
             </Box>
 

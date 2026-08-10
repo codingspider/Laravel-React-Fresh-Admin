@@ -37,8 +37,11 @@ class PayrollRepository
 
     public function paginate($perPage = 15, array $filters = [])
     {
-        return $this->model->query()
-            ->when($filters['search'] ?? null, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
+        return $this->model->with(['branch', 'employee'])
+            ->when($filters['branch_id'] ?? null, fn($q, $b) => $q->where('branch_id', $b))
+            ->when($filters['search'] ?? null, fn($q, $s) => $q->where(function ($q) use ($s) {
+                $q->whereHas('employee', fn($q) => $q->where('name', 'like', "%{$s}%"));
+            }))
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }

@@ -26,6 +26,10 @@ class ReservationResource extends JsonResource
             'special_requests' => $this->special_requests,
             'internal_notes' => $this->internal_notes,
             'table' => new TableResource($this->whenLoaded('table')),
+            'branch' => $this->whenLoaded('branch', fn() => [
+                'id' => $this->branch->id,
+                'name' => $this->branch->name,
+            ]),
             'customer' => $this->whenLoaded('customer'),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

@@ -42,9 +42,14 @@ class Recipe extends Model
         return $this->belongsTo(RecipeCategory::class, 'category_id');
     }
 
-    public function yieldUnit(): BelongsTo
+        public function yieldUnit(): BelongsTo
     {
         return $this->belongsTo(Unit::class, 'yield_unit_id');
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
     public function ingredients(): HasMany

@@ -25,6 +25,10 @@ class PayrollService
             $q->where('status', $filters['status']);
         });
 
+        $query->when(!empty($filters['branch_id']), function ($q) use ($filters) {
+            $q->where('branch_id', $filters['branch_id']);
+        });
+
         $query->when(!empty($filters['search']), function ($q) use ($filters) {
             $q->whereHas('employee', function ($q) use ($filters) {
                 $q->where('first_name', 'like', '%' . $filters['search'] . '%')

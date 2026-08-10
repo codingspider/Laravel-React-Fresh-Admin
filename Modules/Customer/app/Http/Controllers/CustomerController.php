@@ -19,6 +19,7 @@ class CustomerController extends Controller
     {
         $filters = [
             'search' => $request->input('search'),
+            'branch_id' => $request->input('branch_id'),
             'is_active' => $request->filled('is_active') ? (bool) $request->input('is_active') : null,
             'restaurant_id' => $request->input('restaurant_id') ?? getRestaurantId(),
         ];

@@ -30,7 +30,11 @@ class DesignationService
             $query->where('status', $filters['status']);
         }
 
-        return $query->orderBy('name')->paginate($perPage);
+        $query->when(!empty($filters['branch_id']), function ($q) use ($filters) {
+            $q->where('branch_id', $filters['branch_id']);
+        });
+
+        return $query->with('department', 'branch')->orderBy('name')->paginate($perPage);
     }
 
     public function find(int $id): ?HrmDesignation

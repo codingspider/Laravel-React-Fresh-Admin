@@ -11,6 +11,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_PURCHASE, DELETE_PURCHASE, LIST_SUPPLIER } from "../../../routes/apiRoutes";
 import { PURCHASE_LIST_PATH, PURCHASE_ADD_PATH, PURCHASE_EDIT_PATH, PURCHASE_VIEW_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
@@ -26,6 +27,7 @@ export default function PurchaseList() {
   const [supplierFilter, setSupplierFilter] = useState("");
   const [suppliers, setSuppliers] = useState([]);
   const [orderTypeFilter, setOrderTypeFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -41,6 +43,7 @@ export default function PurchaseList() {
           search: globalFilter || "",
           supplier_id: supplierFilter || "",
           order_type: orderTypeFilter || "",
+          branch_id: branchFilter || "",
         },
       });
       const items = res.data?.data?.data || res.data?.data || [];
@@ -53,7 +56,7 @@ export default function PurchaseList() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, globalFilter, pageSize, supplierFilter, orderTypeFilter]);
+  }, [pageIndex, globalFilter, pageSize, supplierFilter, orderTypeFilter, branchFilter]);
 
   useEffect(() => {
     const app_name = localStorage.getItem("app_name");
@@ -208,6 +211,7 @@ export default function PurchaseList() {
             <option value="purchase_order">{t("purchase_order")}</option>
             <option value="direct_purchase">{t("direct_purchase")}</option>
           </Select>
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
         </TanStackTable>
       </Box>
     </Box>

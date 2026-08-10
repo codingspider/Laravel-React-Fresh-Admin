@@ -11,12 +11,14 @@ class InventoryCategoryController extends Controller
 {
     public function index(Request $request)
     {
-        $query = InventoryCategory::query();
+        $query = InventoryCategory::with(['branch:id,name']);
 
         $restaurantId = getRestaurantId($request->user());
         if ($restaurantId) {
             $query->where('restaurant_id', $restaurantId);
         }
+
+        $query->when($request->filled('branch_id'), fn($q) => $q->where('branch_id', $request->branch_id));
 
         $query->when($request->filled('search'), function ($q) use ($request) {
             $q->where('name', 'like', '%' . $request->search . '%');

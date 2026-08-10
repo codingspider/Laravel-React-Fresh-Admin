@@ -40,8 +40,9 @@ class MenuCategoryRepository
 
     public function paginate($perPage = 15, array $filters = [])
     {
-        return $this->model->withCount('menuItems')
+        return $this->model->with('branch')->withCount('menuItems')
             ->when($filters['restaurant_id'] ?? null, fn($q, $r) => $q->where('restaurant_id', $r))
+            ->when($filters['branch_id'] ?? null, fn($q, $b) => $q->where('branch_id', $b))
             ->when($filters['search'] ?? null, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->when($filters['status'] ?? null, fn($q, $s) => $q->where('status', $s))
             ->orderBy('sort_order')

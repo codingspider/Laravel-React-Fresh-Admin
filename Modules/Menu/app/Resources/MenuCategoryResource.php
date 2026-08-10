@@ -20,6 +20,7 @@ class MenuCategoryResource extends JsonResource
             'status' => $this->status,
             'metadata' => $this->metadata,
             'items_count' => $this->whenCounted('menuItems'),
+            'branch' => $this->whenLoaded('branch', fn() => $this->branch ? ['id' => $this->branch->id, 'name' => $this->branch->name] : null),
             'children' => MenuCategoryResource::collection($this->whenLoaded('children')),
             'created_at' => $this->created_at?->toISOString(),
             'updated_at' => $this->updated_at?->toISOString(),

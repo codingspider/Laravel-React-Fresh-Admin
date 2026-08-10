@@ -154,6 +154,12 @@ export default function ReservationList() {
             ),
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("guests"),
             accessorKey: "guest_count",
             cell: ({ getValue }) => (

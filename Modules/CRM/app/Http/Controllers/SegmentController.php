@@ -24,10 +24,11 @@ class SegmentController extends Controller
     {
         $this->authorizeAction($request, 'view_segments');
 
-        $filters = [
-            'search' => $request->input('search'),
-            'restaurant_id' => $this->restaurantId($request),
-        ];
+$filters = [
+    'search' => $request->input('search'),
+    'branch_id' => $request->input('branch_id'),
+    'restaurant_id' => $this->restaurantId($request),
+];
 
         $data = $this->service->paginate(
             (int) $request->input('per_page', 15),

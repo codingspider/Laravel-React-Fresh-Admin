@@ -35,6 +35,11 @@ class ModifierGroup extends Model
         return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
     }
 
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
+
     public function modifiers(): HasMany
     {
         return $this->hasMany(Modifier::class);

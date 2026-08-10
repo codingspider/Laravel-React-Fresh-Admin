@@ -19,6 +19,7 @@ import api from '../../../axios';
 import TanStackTable from '../../../TanStackTable';
 import PageHeader from '../../ui/PageHeader';
 import TableExportButtons from '../../ui/TableExportButtons';
+import BranchFilter from '../../ui/BranchFilter';
 import { POS_COUPONS, POS_COUPON } from '../../../routes/apiRoutes';
 import { DASHBOARD_PATH } from '../../../routes/superAdminRoutes';
 import useThemeColors from '../../../hooks/useThemeColors';
@@ -40,6 +41,7 @@ export default function CouponList() {
   const [totalItems, setTotalItems] = useState(0);
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState(null);
+  const [branchFilter, setBranchFilter] = useState(null);
 
   const fetchData = useCallback(async (signal) => {
     try {
@@ -49,6 +51,7 @@ export default function CouponList() {
           page: pageIndex + 1,
           per_page: pageSize,
           search: search || "",
+        branch_id: branchFilter || "",
         },
         signal,
       });
@@ -64,7 +67,7 @@ export default function CouponList() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, search, pageSize]);
+    }, [pageIndex, search, pageSize, branchFilter]);
 
   useEffect(() => {
     const app_name = localStorage.getItem("app_name");
@@ -183,6 +186,12 @@ export default function CouponList() {
       cell: ({ getValue }) => (
         <Text fontSize="sm">{getValue() ? new Date(getValue()).toLocaleDateString() : "-"}</Text>
       ),
+     },
+    {
+      header: t("branch"),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+      ),
     },
     {
       header: t("actions"),
@@ -258,7 +267,9 @@ export default function CouponList() {
           isLoading={isLoading}
           totalItems={totalItems}
           hideAddBtn="true"
-        />
+        >
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+        </TanStackTable>
       </Box>
 
       <CouponFormModal

@@ -23,6 +23,7 @@ import {
 } from "../../../routes/superAdminRoutes";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_UNIT, DELETE_UNIT } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 
@@ -34,6 +35,7 @@ export default function UnitList() {
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -47,6 +49,7 @@ export default function UnitList() {
                     page: pageIndex + 1,
                     per_page: pageSize,
                     search: globalFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
 
@@ -61,7 +64,7 @@ export default function UnitList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize]);
+    }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -128,6 +131,12 @@ export default function UnitList() {
             accessorKey: "short_name",
             cell: ({ getValue }) => (
                 <Text fontSize="sm">{getValue() || "-"}</Text>
+            ),
+        },
+        {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
             ),
         },
         {
@@ -200,7 +209,9 @@ export default function UnitList() {
                     isLoading={isLoading}
                     addURL={UNIT_ADD_PATH}
                     totalItems={totalItems}
-                />
+                >
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+                </TanStackTable>
             </Box>
         </Box>
     );

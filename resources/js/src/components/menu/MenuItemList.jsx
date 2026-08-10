@@ -38,6 +38,7 @@ import TableExportButtons from "../ui/TableExportButtons";
 import { LIST_MENU_ITEM, DELETE_MENU_ITEM, BRANCH_OPTIONS, ASSIGN_MENU_ITEM_BRANCH } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../useCurrencyFormatter";
+import BranchFilter from "../../../src/components/ui/BranchFilter";
 
 export default function MenuItemList() {
     const [data, setData] = useState([]);
@@ -391,20 +392,7 @@ export default function MenuItemList() {
                     addURL="/menu/item/create"
                     totalItems={totalItems}
                 >
-                    <Select
-                        maxW="170px"
-                        size="md"
-                        value={branchFilter}
-                        onChange={(e) => { setBranchFilter(e.target.value); setPageIndex(0); }}
-                        placeholder={t("all_branches")}
-                        borderRadius="lg"
-                    >
-                        {branches.map((branch) => (
-                            <option key={branch.id} value={branch.id}>
-                                {branch.name}
-                            </option>
-                        ))}
-                    </Select>
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                     <Select
                         maxW="170px"
                         size="md"

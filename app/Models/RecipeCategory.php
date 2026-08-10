@@ -24,6 +24,11 @@ class RecipeCategory extends Model
         return $this->belongsTo(\Modules\Restaurant\Models\Restaurant::class);
     }
 
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
+
     public function recipes(): HasMany
     {
         return $this->hasMany(Recipe::class, 'category_id');

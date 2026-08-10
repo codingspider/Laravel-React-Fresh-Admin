@@ -12,6 +12,7 @@ class CouponResource extends JsonResource
             'id' => $this->id,
             'restaurant_id' => $this->restaurant_id,
             'branch_id' => $this->branch_id,
+        'branch' => $this->whenLoaded('branch', fn() => $this->branch ? ['id' => $this->branch->id, 'name' => $this->branch->name] : null),
             'code' => $this->code,
             'type' => $this->type,
             'value' => (float) $this->value,

@@ -21,6 +21,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_EXPENSE, DELETE_EXPENSE } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
@@ -34,6 +35,7 @@ export default function ExpenseList() {
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [statusFilter, setStatusFilter] = useState("");
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -49,6 +51,7 @@ export default function ExpenseList() {
                     per_page: pageSize,
                     search: globalFilter || "",
                     status: statusFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
             const items = res.data?.data?.data || res.data?.data || [];
@@ -61,7 +64,7 @@ export default function ExpenseList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize, statusFilter]);
+    }, [pageIndex, globalFilter, pageSize, statusFilter, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -192,6 +195,12 @@ export default function ExpenseList() {
             },
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("actions"),
             cell: ({ row }) => (
                 <Menu>
@@ -276,6 +285,7 @@ export default function ExpenseList() {
                         <option value="approved">{t("approved")}</option>
                         <option value="rejected">{t("rejected")}</option>
                     </Select>
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
             </Box>
         </Box>

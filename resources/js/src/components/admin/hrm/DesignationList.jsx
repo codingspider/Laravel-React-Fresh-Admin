@@ -12,6 +12,7 @@ import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
 import useThemeColors from "../../../hooks/useThemeColors";
+import BranchFilter from "../../ui/BranchFilter";
 import {
   LIST_DESIGNATION,
   DELETE_DESIGNATION,
@@ -33,6 +34,7 @@ export default function DesignationList() {
   const [totalItems, setTotalItems] = useState(0);
   const [departments, setDepartments] = useState([]);
   const [statusFilter, setStatusFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,6 +48,7 @@ export default function DesignationList() {
       search: globalFilter || "",
     };
     if (statusFilter) params.status = statusFilter;
+    if (branchFilter) params.branch_id = branchFilter;
 
     api.get(LIST_DESIGNATION, { params })
       .then((res) => {
@@ -73,7 +76,7 @@ export default function DesignationList() {
     document.title = `${app_name} | ${t("designations")}`;
     fetchData();
     fetchDepartments();
-  }, [pageIndex, globalFilter, statusFilter, pageSize, t]);
+  }, [pageIndex, globalFilter, statusFilter, branchFilter, pageSize, t]);
 
   const deleteItem = async (id) => {
     const result = await Swal.fire({
@@ -133,6 +136,12 @@ export default function DesignationList() {
       },
     },
     {
+      header: t("branch"),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+      ),
+    },
+    {
       header: t("actions"),
       cell: ({ row }) => (
         <Menu>
@@ -174,7 +183,9 @@ export default function DesignationList() {
           pageCount={pageCount}
           isLoading={isLoading}
           totalItems={totalItems}
-        />
+        >
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+        </TanStackTable>
       </Box>
     </Box>
   );

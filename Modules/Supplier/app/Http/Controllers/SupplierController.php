@@ -15,7 +15,7 @@ class SupplierController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->only(['search', 'status']);
+        $filters = $request->only(['search', 'status', 'branch_id']);
         $filters['restaurant_id'] = getRestaurantId();
 
         $data = $this->service->paginate(

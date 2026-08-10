@@ -11,6 +11,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_RECIPE, DELETE_RECIPE, RECIPE_OPTIONS } from "../../../routes/apiRoutes";
 import { RECIPE_LIST_PATH, RECIPE_ADD_PATH, RECIPE_EDIT_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
@@ -24,6 +25,7 @@ export default function RecipeList() {
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const [categories, setCategories] = useState([]);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -39,6 +41,7 @@ export default function RecipeList() {
           per_page: pageSize,
           search: globalFilter || "",
           category_id: categoryFilter || "",
+          branch_id: branchFilter || "",
         },
       });
       const items = res.data?.data?.data || res.data?.data || [];
@@ -51,13 +54,13 @@ export default function RecipeList() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, globalFilter, pageSize, categoryFilter]);
+  }, [pageIndex, globalFilter, pageSize, categoryFilter, branchFilter]);
 
   useEffect(() => {
     const app_name = localStorage.getItem("app_name");
     document.title = `${app_name} | ${t("recipe_management")}`;
     fetchData();
-    api.get(RECIPE_OPTIONS).then((res) => setCategories(res.data?.data?.categories || [])).catch(() => {});
+    api.get(RECIPE_OPTIONS).then((res) => setCategories(res.data?.data?.categories || [])).catch(() => { });
   }, [fetchData, t]);
 
   const deleteItem = async (id) => {
@@ -148,6 +151,12 @@ export default function RecipeList() {
       },
     },
     {
+      header: t("branch"),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+      ),
+    },
+    {
       header: t("actions"),
       cell: ({ row }) => (
         <Menu>
@@ -203,6 +212,8 @@ export default function RecipeList() {
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </Select>
+
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
         </TanStackTable>
       </Box>
     </Box>

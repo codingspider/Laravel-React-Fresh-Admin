@@ -14,7 +14,7 @@ class PayrollController extends Controller
     public function index(Request $request)
     {
         $restaurantId = getRestaurantId($request->user());
-        $filters = $request->only(['search', 'status', 'employee_id', 'pay_period_start', 'pay_period_end']);
+        $filters = $request->only(['search', 'status', 'branch_id', 'employee_id', 'pay_period_start', 'pay_period_end']);
         $filters['restaurant_id'] = $restaurantId;
 
         $data = $this->service->paginate(

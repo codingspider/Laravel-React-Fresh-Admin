@@ -44,6 +44,7 @@ import TanStackTable from '../../../TanStackTable';
 import PageHeader from '../../ui/PageHeader';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { usePermission } from '../../../context/PermissionContext';
+import BranchFilter from '../../ui/BranchFilter';
 
 const STATUS_COLORS = {
     pending: 'orange',
@@ -61,6 +62,7 @@ export default function CrmFollowUpList() {
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [statusFilter, setStatusFilter] = useState('');
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const { can } = usePermission();
     const toast = useToast();
@@ -80,6 +82,7 @@ export default function CrmFollowUpList() {
             setIsLoading(true);
             const params = { page: pageIndex + 1, per_page: pageSize, search: globalFilter || '' };
             if (statusFilter) params.status = statusFilter;
+            if (branchFilter) params.branch_id = branchFilter;
             const res = await api.get(CRM_FOLLOW_UPS, { params });
             const items = res.data?.data?.data || res.data?.data || [];
             const total = res.data?.meta?.total || res.data?.data?.total || items.length;
@@ -91,7 +94,7 @@ export default function CrmFollowUpList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize, statusFilter]);
+    }, [pageIndex, globalFilter, pageSize, statusFilter, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem('app_name');
@@ -262,6 +265,12 @@ export default function CrmFollowUpList() {
             },
         },
         {
+            header: t('Branch'),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || '-'}</Text>
+            ),
+        },
+        {
             header: t('Actions'),
             cell: ({ row }) => (
                 <Menu>
@@ -316,7 +325,13 @@ export default function CrmFollowUpList() {
                     { label: t('CRM'), path: CRM_DASHBOARD_PATH },
                     { label: t('Follow-ups'), isCurrent: true },
                 ]}
-            />
+            >
+                {can('create_follow_ups') && (
+                    <Button colorScheme="teal" size="md" leftIcon={<Plus size={16} />} onClick={openCreate}>
+                        {t('Add Follow-up')}
+                    </Button>
+                )}
+            </PageHeader>
 
             <Box
                 bg={colors.bgCard}
@@ -353,6 +368,9 @@ export default function CrmFollowUpList() {
                         <option value="pending">{t('Pending')}</option>
                         <option value="completed">{t('Completed')}</option>
                     </Select>
+
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+
                     {can('create_follow_ups') && (
                         <Button colorScheme="teal" size="md" leftIcon={<Plus size={16} />} onClick={openCreate}>
                             {t('Add Follow-up')}

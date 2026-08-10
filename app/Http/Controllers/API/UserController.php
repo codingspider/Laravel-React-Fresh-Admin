@@ -16,7 +16,16 @@ class UserController extends BaseController
     {
         try {
             $search = $request->input('search');
-            $query = User::query();
+            $query = User::with(['branch:id,name']);
+
+            $restaurantId = getRestaurantId($request->user());
+            if ($restaurantId) {
+                $query->where('restaurant_id', $restaurantId);
+            }
+
+            if ($request->filled('branch_id')) {
+                $query->where('branch_id', $request->branch_id);
+            }
 
             if ($search) {
                 $query->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%");

@@ -37,7 +37,8 @@ class SupplierRepository
 
     public function paginate($perPage = 15, array $filters = [])
     {
-        return $this->model->query()
+        return $this->model->with('branch')
+            ->when($filters['branch_id'] ?? null, fn($q, $b) => $q->where('branch_id', $b))
             ->when($filters['search'] ?? null, fn($q, $s) => $q->where('name', 'like', "%{$s}%"))
             ->orderByDesc('created_at')
             ->paginate($perPage);

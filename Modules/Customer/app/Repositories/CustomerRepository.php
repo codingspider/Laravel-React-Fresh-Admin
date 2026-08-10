@@ -37,8 +37,9 @@ class CustomerRepository
 
     public function paginate($perPage = 15, array $filters = [])
     {
-        return $this->model->query()
+        return $this->model->with('branch')
             ->when($filters['restaurant_id'] ?? null, fn($q, $rid) => $q->where('restaurant_id', $rid))
+            ->when($filters['branch_id'] ?? null, fn($q, $bid) => $q->where('branch_id', $bid))
             ->when($filters['search'] ?? null, fn($q, $s) => $q->where(function ($q) use ($s) {
                 $q->where('name', 'like', "%{$s}%")
                     ->orWhere('company', 'like', "%{$s}%")

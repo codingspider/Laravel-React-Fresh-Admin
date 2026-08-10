@@ -21,6 +21,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_INCOME, DELETE_INCOME } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
@@ -34,6 +35,7 @@ export default function IncomeList() {
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [sourceFilter, setSourceFilter] = useState("");
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -49,6 +51,7 @@ export default function IncomeList() {
                     per_page: pageSize,
                     search: globalFilter || "",
                     source: sourceFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
             const items = res.data?.data?.data || res.data?.data || [];
@@ -61,7 +64,7 @@ export default function IncomeList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize, sourceFilter]);
+    }, [pageIndex, globalFilter, pageSize, sourceFilter, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -187,6 +190,12 @@ export default function IncomeList() {
             ),
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("actions"),
             cell: ({ row }) => (
                 <Menu>
@@ -271,6 +280,7 @@ export default function IncomeList() {
                         <option value="manual_income">{t("manual_income")}</option>
                         <option value="other_income">{t("other_income")}</option>
                     </Select>
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
             </Box>
         </Box>

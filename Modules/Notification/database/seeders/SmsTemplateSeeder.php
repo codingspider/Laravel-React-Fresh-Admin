@@ -51,6 +51,18 @@ class SmsTemplateSeeder extends Seeder
                 'body' => 'Dear {customer}, your order #{order_id} is ready. We look forward to serving you at {restaurant_name}.',
                 'is_active' => true,
             ],
+            [
+                'name' => 'Low Stock Alert',
+                'channel' => 'sms',
+                'body' => 'Alert: {item} at {restaurant_name} is running low on stock ({stock} remaining).',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Low Stock Alert',
+                'channel' => 'whatsapp',
+                'body' => 'Alert: {item} at {restaurant_name} is running low on stock ({stock} remaining).',
+                'is_active' => true,
+            ],
         ];
 
         foreach ($templates as $template) {

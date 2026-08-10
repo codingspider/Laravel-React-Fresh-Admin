@@ -15,7 +15,7 @@ class ReservationRepository
 
     public function find($id): Reservation
     {
-        return $this->model->with(['table', 'customer'])->findOrFail($id);
+        return $this->model->with(['table', 'customer', 'branch'])->findOrFail($id);
     }
 
     public function create(array $data): Reservation
@@ -37,7 +37,7 @@ class ReservationRepository
 
     public function paginate($perPage = 15, array $filters = [])
     {
-        return $this->model->with(['table', 'customer'])
+        return $this->model->with(['table', 'customer', 'branch'])
             ->when($filters['restaurant_id'] ?? null, fn($q, $r) => $q->where('restaurant_id', $r))
             ->when($filters['branch_id'] ?? null, fn($q, $b) => $q->where('branch_id', $b))
             ->when($filters['status'] ?? null, fn($q, $s) => $q->where('status', $s))

@@ -17,16 +17,20 @@ class RecipeController extends Controller
 
     public function index(Request $request)
     {
-        $query = Recipe::with(['category:id,name', 'yieldUnit:id,actual_name,short_name', 'ingredients.inventoryItem:id,name,unit_cost']);
+        $query = Recipe::with(['category:id,name', 'branch:id,name', 'yieldUnit:id,actual_name,short_name', 'ingredients.inventoryItem:id,name,unit_cost']);
 
         $restaurantId = getRestaurantId($request->user());
         if ($restaurantId) {
             $query->where('restaurant_id', $restaurantId);
         }
 
-        $query->when($request->filled('search'), function ($q) use ($request) {
-            $q->where('name', 'like', '%' . $request->search . '%');
-        });
+        if ($request->filled('branch_id')) {
+            $query->where('branch_id', $request->branch_id);
+        }
+
+        $query->when($request->filled('search'), fn($q) =>
+            $q->where('name', 'like', '%' . $request->search . '%')
+        );
 
         $query->when($request->filled('category_id'), fn($q) => $q->where('category_id', $request->category_id));
         $query->when($request->filled('status'), fn($q) => $q->where('status', $request->status));

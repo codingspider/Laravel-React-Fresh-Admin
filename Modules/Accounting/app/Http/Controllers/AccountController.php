@@ -19,7 +19,7 @@ class AccountController extends Controller
     public function index(Request $request): JsonResponse
     {
         $restaurantId = getRestaurantId($request->user());
-        $filters = $request->only(['search', 'type', 'account_group', 'status']);
+        $filters = $request->only(['search', 'type', 'account_group', 'status', 'branch_id']);
         $filters['restaurant_id'] = $restaurantId;
 
         $data = $this->service->paginate(

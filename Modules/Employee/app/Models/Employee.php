@@ -19,4 +19,9 @@ class Employee extends Model
     {
         return $this->belongsTo(\App\Models\Restaurant::class);
     }
+
+    public function branch()
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
 }

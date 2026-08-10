@@ -12,6 +12,7 @@ import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
 import useThemeColors from "../../../hooks/useThemeColors";
+import BranchFilter from "../../ui/BranchFilter";
 import {
   LIST_DEPARTMENT,
   DELETE_DEPARTMENT,
@@ -33,6 +34,7 @@ export default function DepartmentList() {
   const [totalItems, setTotalItems] = useState(0);
   const [summary, setSummary] = useState({});
   const [statusFilter, setStatusFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -46,6 +48,7 @@ export default function DepartmentList() {
       search: globalFilter || "",
     };
     if (statusFilter) params.status = statusFilter;
+    if (branchFilter) params.branch_id = branchFilter;
 
     api.get(LIST_DEPARTMENT, { params })
       .then((res) => {
@@ -67,7 +70,7 @@ export default function DepartmentList() {
     const app_name = localStorage.getItem("app_name");
     document.title = `${app_name} | ${t("departments")}`;
     fetchData();
-  }, [pageIndex, globalFilter, statusFilter, pageSize]);
+  }, [pageIndex, globalFilter, statusFilter, branchFilter, pageSize]);
 
   const deleteItem = async (id) => {
     const result = await Swal.fire({
@@ -125,8 +128,14 @@ export default function DepartmentList() {
           </Badge>
         );
       },
-    },
-    {
+  },
+  {
+      header: t("branch"),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+      ),
+  },
+  {
       header: t("actions"),
       cell: ({ row }) => (
         <Menu>
@@ -175,7 +184,9 @@ export default function DepartmentList() {
           pageCount={pageCount}
           isLoading={isLoading}
           totalItems={totalItems}
-        />
+        >
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+        </TanStackTable>
       </Box>
     </Box>
   );

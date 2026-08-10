@@ -48,6 +48,11 @@ class Customer extends Model
         return $this->belongsTo(\App\Models\Restaurant::class);
     }
 
+    public function branch()
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
+    }
+
     /**
      * CRM segments this customer belongs to.
      */

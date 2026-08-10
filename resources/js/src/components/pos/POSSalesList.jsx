@@ -37,6 +37,7 @@ import api from "../../axios";
 import TanStackTable from "../../TanStackTable";
 import PageHeader from "../ui/PageHeader";
 import TableExportButtons from "../ui/TableExportButtons";
+import BranchFilter from "../ui/BranchFilter";
 import { LIST_POS_SALES, GET_POS_SALE, POS_REFUND } from "../../routes/apiRoutes";
 import useThemeColors from "../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../useCurrencyFormatter";
@@ -70,6 +71,7 @@ export default function POSSalesList() {
     const [totalItems, setTotalItems] = useState(0);
     const [statusFilter, setStatusFilter] = useState("");
     const [paymentFilter, setPaymentFilter] = useState("");
+    const [branchFilter, setBranchFilter] = useState(null);
     const [refundSale, setRefundSale] = useState(null);
     const [refundAmount, setRefundAmount] = useState("");
     const [refundMethod, setRefundMethod] = useState("cash");
@@ -99,6 +101,7 @@ export default function POSSalesList() {
                     search: globalFilter || "",
                     status: statusFilter || "",
                     payment_status: paymentFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
             const items = res.data?.data?.data || res.data?.data || [];
@@ -111,7 +114,7 @@ export default function POSSalesList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize, statusFilter, paymentFilter]);
+    }, [pageIndex, globalFilter, pageSize, statusFilter, paymentFilter, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -332,6 +335,12 @@ export default function POSSalesList() {
             },
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("actions"),
             cell: ({ row }) => {
                 const sale = row.original;
@@ -478,6 +487,7 @@ export default function POSSalesList() {
                             <option key={s} value={s}>{t(s)}</option>
                         ))}
                     </Select>
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
             </Box>
 
