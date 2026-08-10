@@ -191,6 +191,28 @@ export default function POSScreen() {
     };
   }, [pollQueueCount]);
 
+  useEffect(() => {
+    if (!isOffline) return undefined;
+
+    const handleBeforeUnload = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    const trapBack = () => {
+      window.history.pushState(null, '', window.location.href);
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', trapBack);
+    trapBack();
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', trapBack);
+    };
+  }, [isOffline]);
+
   const postOffline = useCallback(async (url, data) => {
     return await offlineApi({ method: "post", url, data });
   }, []);

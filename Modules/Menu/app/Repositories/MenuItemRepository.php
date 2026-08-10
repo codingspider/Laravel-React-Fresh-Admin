@@ -15,7 +15,7 @@ class MenuItemRepository
 
     public function find($id): MenuItem
     {
-        return $this->model->with(['category', 'variants', 'modifierGroups.modifiers'])->findOrFail($id);
+        return $this->model->with(['category', 'branch', 'variants', 'modifierGroups.modifiers'])->findOrFail($id);
     }
 
     public function create(array $data): MenuItem
@@ -47,8 +47,9 @@ class MenuItemRepository
 
     public function paginate($perPage = 15, array $filters = [])
     {
-        return $this->model->with(['category', 'variants', 'modifierGroups.modifiers'])
+        return $this->model->with(['category', 'branch', 'variants', 'modifierGroups.modifiers'])
             ->when($filters['restaurant_id'] ?? null, fn($q, $r) => $q->where('restaurant_id', $r))
+            ->when($filters['branch_id'] ?? null, fn($q, $b) => $q->where('branch_id', $b))
             ->when($filters['category_id'] ?? null, fn($q, $c) => $q->where('menu_category_id', $c))
             ->when($filters['search'] ?? null, fn($q, $s) => $q->where(function ($query) use ($s) {
                 $query->where('name', 'like', "%{$s}%")

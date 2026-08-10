@@ -13,6 +13,11 @@ class BranchService
         return $this->repository->paginate($perPage, $filters);
     }
 
+    public function query()
+    {
+        return $this->repository->query();
+    }
+
     public function find(int $id)
     {
         return $this->repository->find($id);

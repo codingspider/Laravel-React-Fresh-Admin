@@ -3,6 +3,7 @@
 namespace Modules\CustomerDisplay\Services;
 
 use Illuminate\Support\Facades\Log;
+use Modules\Branch\Models\Branch;
 use Modules\CustomerDisplay\Models\CustomerDisplaySetting;
 use Modules\POS\Models\Coupon;
 use Modules\POS\Models\Sale;
@@ -70,6 +71,16 @@ class CustomerDisplayService
      */
     public function settings(int $restaurantId, ?int $branchId = null): CustomerDisplaySetting
     {
+        if ($branchId === null) {
+            $branchId = getBranchId();
+
+            if ($branchId === null) {
+                $branchId = Branch::where('restaurant_id', $restaurantId)
+                    ->where('is_main', true)
+                    ->value('id');
+            }
+        }
+
         return CustomerDisplaySetting::firstOrCreate(
             ['restaurant_id' => $restaurantId, 'branch_id' => $branchId],
             [

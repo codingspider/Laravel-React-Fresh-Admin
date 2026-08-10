@@ -11,6 +11,8 @@ class MenuItemResource extends JsonResource
         return [
             'id' => $this->id,
             'restaurant_id' => $this->restaurant_id,
+            'branch_id' => $this->branch_id,
+            'branch' => $this->whenLoaded('branch', fn() => $this->branch?->name),
             'menu_category_id' => $this->menu_category_id,
             'name' => $this->name,
             'slug' => $this->slug,

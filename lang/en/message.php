@@ -8,7 +8,7 @@ return [
     |--------------------------------------------------------------------------
     */
 
-    'application_name' => 'Application Name',
+        'application_name' => 'Application Name',
     'restaurant_name' => 'Restaurant Name',
     'restaurant_logo' => 'Restaurant Logo',
     'password' => 'Password',
@@ -66,6 +66,7 @@ return [
     'delivery_boy' => 'Delivery Boy',
     'pick_up' => 'Pick Up',
     'backup' => 'Backup',
+    'backups' => 'Backups',
     'login_history' => 'Login History',
     'expense' => 'Expense',
     'expense_head' => 'Expense Head',
@@ -424,6 +425,18 @@ return [
     // Menu Item form
     'featured' => 'Featured',
     'preparation_time' => 'Preparation Time',
+    'notifications' => 'Notifications',
+    'customer_management' => 'Customer Management',
+    'manage_all_customers' => 'Manage All Customers',
+    'add_customer' => 'Add Customer',
+    'manage_your_system_settings' => 'Manage Your System Settings',
+    'add_menu_item' => 'Add Menu Item',
+    'assign_to_branche' => 'Assign to Branches',
+    'assign_to_branch' => 'Assign to Branch',
+    'selected_items' => 'Selected items',
+    'target_branch' => 'Target Branch',
+    'assign' => 'Assign',
+    'error_assigning_branch' => 'Error assigning to branch',
 
     // Modifier Groups (for Menu Items)
     'modifier_groups' => 'Modifier Groups',
@@ -435,6 +448,25 @@ return [
     'max' => 'Max',
     'menu_category_management' => 'Menu Category Management',
     'manage_all_menu_categories' => 'Manage All Menu Categories',
+    'menu' => 'Menu',
+    'branch_management' => 'Branch Management',
+    'manage_all_branches' => 'Manage All Branches',
+    'menu_item_management' => 'Menu Item Management',
+    'manage_all_menu_items' => 'Manage All Menu Items',
+    'menu_items' => 'Menu Items',
+    'modifier_group_management' => 'Modifier Group Management',
+    'manage_all_modifier_groups' => 'Manage All Modifier Groups',
+    'max_selections' => 'Max Selections',
+    'modifiers' => 'Modifiers',
+    'add_modifier' => 'Add Modifier',
+    'add_modifier_group' => 'Add Modifier Group',
+    'floor_management' => 'Floor Management',
+    'manage_all_floors' => 'Manage All Floors',
+    'coupon_management' => 'Coupon Management',
+    'manage_coupons' => 'Manage All Coupons',
+    'create_coupon' => 'Create Coupon',
+    'pos_settings' => 'POS Settings',
+    'kitchen_display' => 'Kitchen Display',
 
     // Currency Module
     'currencies' => 'Currencies',
@@ -1405,6 +1437,9 @@ return [
     'upload_document' => 'Upload Document',
     'user' => 'User',
     'view_all_stock_movements' => 'View All Stock Movements',
+
+    'stock_movements' => 'Stock Movements',
+
     'view_transactions' => 'View Transactions',
     'waste' => 'Waste',
      'yield_quantity' => 'Yield Quantity',
@@ -1830,6 +1865,7 @@ return [
     'reference_type' => 'Reference Type',
     'source_module' => 'Source Module',
     'entry_type' => 'Entry Type',
+    'general_setting' => 'General Setting',
 
     // Accounting - Ledger
     'ledger' => 'Ledger',
@@ -1949,6 +1985,7 @@ return [
     'pos_sales' => 'POS Sales',
     'manage_pos_sales' => 'Manage POS Sales',
     'all_payment' => 'All Payment',
+    'overview' => 'Overview',
 
     // Reports
     'sale_report' => 'Sales Report',
@@ -2281,4 +2318,28 @@ return [
     'Upload your merchant payment QR code (UPI, bank, or gateway). Customers scan it to pay for their order.' => 'Upload your merchant payment QR code (UPI, bank, or gateway). Customers scan it to pay for their order.',
     'Which order statuses appear on the board.' => 'Which order statuses appear on the board.',
     'off' => 'off',
+
+    // Sidebar keys
+    'super_admin' => 'Super Admin',
+    'faqs' => 'FAQs',
+    'platform_overview' => 'Platform Overview',
+    'plan_report' => 'Plan Report',
+    'subscription_report' => 'Subscription Report',
+    'restaurant_report' => 'Restaurant Report',
+    'all_branches' => 'All Branches',
+    'pos_terminal' => 'POS Terminal',
+    'accounting' => 'Accounting',
+    'profit_loss' => 'Profit & Loss',
+    'loyalty' => 'Loyalty',
+    'programme' => 'Programme',
+    'crm' => 'CRM',
+    'segments' => 'Segments',
+    'follow_ups' => 'Follow-ups',
+    'activity_logs' => 'Activity Logs',
+    'customer_display' => 'Customer Display',
+    'all_items' => 'All Items',
+    'all_recipes' => 'All Recipes',
+    'all_purchases' => 'All Purchases',
+    'all_users' => 'All Users',
+    'general_settings' => 'General Settings',
 ];

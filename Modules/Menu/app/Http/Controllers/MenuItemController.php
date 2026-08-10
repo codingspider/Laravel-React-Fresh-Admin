@@ -5,6 +5,7 @@ namespace Modules\Menu\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Menu\Http\Requests\AssignBranchRequest;
 use Modules\Menu\Http\Requests\StoreMenuItemRequest;
 use Modules\Menu\Http\Requests\UpdateMenuItemRequest;
 use Modules\Menu\Resources\MenuItemResource;
@@ -18,7 +19,7 @@ class MenuItemController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $filters = $request->only(['search', 'status', 'category_id', 'is_featured']);
+        $filters = $request->only(['search', 'status', 'category_id', 'is_featured', 'branch_id']);
         $filters['restaurant_id'] = getRestaurantId();
 
         $data = $this->service->paginate(
@@ -57,6 +58,22 @@ class MenuItemController extends Controller
             'message' => trans($this->langKey . '.created'),
             'data' => new MenuItemResource($item),
         ], 201);
+    }
+
+    public function assignBranch(AssignBranchRequest $request): JsonResponse
+    {
+        $data = $request->validated();
+
+        $count = $this->service->assignToBranch(
+            $data['item_ids'],
+            (int) $data['branch_id']
+        );
+
+        return response()->json([
+            'status' => 'success',
+            'message' => trans('menu::module.branch_assigned', ['count' => $count]),
+            'data' => ['count' => $count],
+        ]);
     }
 
     public function show($id): JsonResponse

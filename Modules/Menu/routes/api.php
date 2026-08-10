@@ -13,6 +13,7 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 Route::prefix('v1')->middleware(['auth:sanctum','throttle:120,1', 'restaurant.scope', 'module.access'])->group(function () {
     Route::get('menu/categories/tree', [MenuCategoryController::class, 'tree']);
     Route::apiResource('menu/categories', MenuCategoryController::class);
+    Route::post('menu/items/assign-branch', [MenuItemController::class, 'assignBranch']);
     Route::apiResource('menu/items', MenuItemController::class);
     Route::apiResource('menu/modifier-groups', ModifierGroupController::class);
 });

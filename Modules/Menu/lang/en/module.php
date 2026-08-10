@@ -3,6 +3,7 @@
 return [
     'activated' => 'Menu Item activated successfully.',
     'already_exists' => 'Menu Item already exists.',
+    'branch_assigned' => ':count menu items assigned to branch successfully.',
     'bulk_deleted' => '{count} menu items deleted successfully.',
     'bulk_updated' => '{count} menu items updated successfully.',
     'category_reordered' => 'Menu category reordered.',

@@ -16,6 +16,18 @@ class BranchController extends Controller
 
     public function __construct(protected BranchService $service) {}
 
+    public function options(): JsonResponse
+    {
+        $branches = $this->service->query()
+            ->where('restaurant_id', getRestaurantId())
+            ->get(['id', 'restaurant_id', 'name', 'is_main']);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $branches,
+        ]);
+    }
+
     public function index(Request $request): JsonResponse
     {
         $filters = $request->only(['search', 'status']);

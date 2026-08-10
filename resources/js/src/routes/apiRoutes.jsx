@@ -295,6 +295,7 @@ export const UPDATE_RESTAURANT_TAX = (id) => `/v1/restaurants/${id}/tax-settings
 
 // Branch
 export const LIST_BRANCH = '/v1/branches';
+export const BRANCH_OPTIONS = '/v1/branch-options';
 export const LIST_BRANCH_V1 = '/v1/branches';
 export const STORE_BRANCH = '/v1/branches';
 export const STORE_BRANCH_V1 = '/v1/branches';
@@ -320,6 +321,7 @@ export const STORE_MENU_ITEM = '/v1/menu/items';
 export const GET_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
 export const UPDATE_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
 export const DELETE_MENU_ITEM = (id) => `/v1/menu/items/${id}`;
+export const ASSIGN_MENU_ITEM_BRANCH = '/v1/menu/items/assign-branch';
 
 // Modifier Groups
 export const LIST_MODIFIER_GROUP = '/v1/menu/modifier-groups';

@@ -57,10 +57,13 @@ class GuestOrderService
     {
         $categories = \Modules\Menu\Models\MenuCategory::where('restaurant_id', $restaurantId)
             ->where('status', 'active')
-            ->with(['menuItems' => function ($q) use ($restaurantId) {
+            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+            ->with(['menuItems' => function ($q) use ($restaurantId, $branchId) {
                 $q->where('status', 'active')
-                    ->with(['modifierGroups' => function ($g) {
+                    ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
+                    ->with(['modifierGroups' => function ($g) use ($branchId) {
                         $g->where('status', 'active')
+                            ->when($branchId, fn ($q) => $q->where('branch_id', $branchId))
                             ->with(['modifiers' => function ($m) {
                                 $m->where('status', 'active');
                             }]);

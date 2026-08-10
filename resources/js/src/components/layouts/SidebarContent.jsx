@@ -349,7 +349,7 @@ const navItems = (t) => [
         children: [
             { path: STOCK_OVERVIEW_PATH, label: t('overview'), permission: 'view_stock_movements' },
             { path: STOCK_TRANSACTIONS_PATH, label: t('transactions'), permission: 'view_stock_movements' },
-            { path: STOCK_BATCHES_PATH, label: t('batches'), permission: 'view_stock_movements' },
+            // { path: STOCK_BATCHES_PATH, label: t('batches'), permission: 'view_stock_movements' },
             { path: STOCK_TRANSFERS_PATH, label: t('transfers'), permission: 'view_stock_movements' },
             { path: STOCK_ADJUSTMENTS_PATH, label: t('adjustments'), permission: 'view_stock_movements' },
             { path: STOCK_WASTE_PATH, label: t('waste'), permission: 'view_stock_movements' },

@@ -2,9 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box, VStack, HStack, Text, Button, Card, CardBody, Switch, Input,
   SimpleGrid, Heading, Divider, useToast, Spinner, Center, Badge, FormControl, FormLabel,
+  Icon,
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
-import { Save, Star, Users, Coins, ArrowUpCircle, ArrowDownCircle } from 'lucide-react';
+import { Save, Star, Users, Coins, CircleArrowUp, CircleArrowDown } from 'lucide-react';
 import api from '../../../axios';
 import { LOYALTY_SETTINGS } from '../../../routes/apiRoutes';
 import { DASHBOARD_PATH } from '../../../routes/superAdminRoutes';
@@ -108,8 +109,8 @@ export default function LoyaltySettings() {
   const summaryCards = [
     { label: t('Customers Enrolled'), value: summary.customers_enrolled, icon: Users, color: 'brand.500' },
     { label: t('Points in Circulation'), value: summary.points_in_circulation, icon: Coins, color: 'purple.500' },
-    { label: t('Lifetime Points Earned'), value: summary.lifetime_points_earned, icon: ArrowUpCircle, color: 'green.500' },
-    { label: t('Lifetime Points Redeemed'), value: summary.lifetime_points_redeemed, icon: ArrowDownCircle, color: 'orange.500' },
+    { label: t('Lifetime Points Earned'), value: summary.lifetime_points_earned, icon: CircleArrowUp, color: 'green.500' },
+    { label: t('Lifetime Points Redeemed'), value: summary.lifetime_points_redeemed, icon: CircleArrowDown, color: 'orange.500' },
   ];
 
   if (loading) {
@@ -138,7 +139,7 @@ export default function LoyaltySettings() {
               <CardBody>
                 <HStack spacing={3}>
                   <Box p={2.5} bg={subtleBg} borderRadius="lg">
-                    <card.icon size={20} color={card.color} />
+                    <Icon as={card.icon} boxSize={5} color={card.color} />
                   </Box>
                   <Box>
                     <Text fontSize="xs" color={textSecondary}>{card.label}</Text>

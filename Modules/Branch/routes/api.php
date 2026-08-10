@@ -9,6 +9,7 @@ use App\Http\Controllers\API\Admin\VariationController;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
 Route::prefix('v1')->middleware(['auth:sanctum','throttle:120,1', 'restaurant.scope', 'module.access'])->group(function () {
+    Route::get('branch-options', [BranchController::class, 'options']);
     Route::get('branches', [BranchController::class, 'index']);
     Route::post('branches', [BranchController::class, 'store']);
     Route::get('branches/{branch}', [BranchController::class, 'show']);

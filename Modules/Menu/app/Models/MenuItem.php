@@ -17,6 +17,7 @@ class MenuItem extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'branch_id',
         'menu_category_id',
         'name',
         'slug',
@@ -56,6 +57,11 @@ class MenuItem extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(MenuCategory::class, 'menu_category_id');
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class, 'branch_id');
     }
 
     public function variants(): HasMany
