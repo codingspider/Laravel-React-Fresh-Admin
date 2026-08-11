@@ -28,7 +28,7 @@ import {
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { MoreHorizontal, Users, Plus } from 'lucide-react';
+import { MoreHorizontal, Users } from 'lucide-react';
 import api from '../../../axios';
 import {
     CRM_SEGMENTS,
@@ -45,6 +45,7 @@ import PageHeader from '../../ui/PageHeader';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { usePermission } from '../../../context/PermissionContext';
 import BranchFilter from '../../ui/BranchFilter';
+import TableExportButtons from "../../ui/TableExportButtons";
 
 const EMPTY_FORM = { name: '', description: '', color: '#0d9488' };
 
@@ -300,16 +301,15 @@ export default function CrmSegmentList() {
                     { label: t('CRM'), path: CRM_DASHBOARD_PATH },
                     { label: t('Segments'), isCurrent: true },
                 ]}
-            />
-
-            <Box
-                bg={colors.bgCard}
-                p={{ base: 4, md: 6 }}
-                borderRadius="xl"
-                boxShadow="card"
-                border="1px solid"
-                borderColor={colors.borderDefault}
+                action="#"
+                onClick={openCreate}
+                actionLabel={t('Add Segment')}
+                showAction={can('create_segments')}
             >
+                <TableExportButtons data={data} columns={columns} filename="recipes" />
+            </PageHeader>
+
+            <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault}>
                 <TanStackTable
                     columns={columns}
                     data={data}
@@ -321,18 +321,15 @@ export default function CrmSegmentList() {
                     pageCount={pageCount}
                     isLoading={isLoading}
                     onSearch={handleSearch}
-                    hideAddBtn={can('create_segments') ? 'false' : 'true'}
-                    searchPlaceholder={t('Search segments...')}
                     totalItems={totalItems}
+                    searchPlaceholder={t('Search segments...')}
                 >
-                    {can('create_segments') && (
-                        <Button colorScheme="teal" size="md" leftIcon={<Plus size={16} />} onClick={openCreate}>
-                            {t('Add Segment')}
-                        </Button>
-                    )}
+
                     <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
             </Box>
+
+
 
             {/* Create/Edit Modal */}
             <Modal isOpen={modalMode === 'create' || modalMode === 'edit'} onClose={() => setModalMode(null)} isCentered>

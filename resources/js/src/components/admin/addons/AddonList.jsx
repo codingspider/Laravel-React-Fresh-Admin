@@ -228,7 +228,7 @@ export default function AddonList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={ADDON_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 />
             </Box>

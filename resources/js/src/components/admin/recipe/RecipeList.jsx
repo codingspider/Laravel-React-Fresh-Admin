@@ -200,7 +200,7 @@ export default function RecipeList() {
           setPageIndex={setPageIndex}
           pageCount={pageCount}
           isLoading={isLoading}
-          addURL={RECIPE_ADD_PATH}
+          hideAddBtn="true"
           totalItems={totalItems}
         >
           <Select

@@ -251,6 +251,7 @@ export default function BranchList() {
                     isLoading={isLoading}
                     addURL="/branch/create"
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <Select
                         maxW="160px"

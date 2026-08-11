@@ -225,9 +225,10 @@ export default function MenuCategoryList() {
                     pageSize={pageSize}
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
-                 isLoading={isLoading}
+                    isLoading={isLoading}
                     addURL="/menu/category/create"
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>

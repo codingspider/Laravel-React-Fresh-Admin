@@ -288,7 +288,7 @@ export default function AccountList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL="/accounting/accounts/create"
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
                     <Select

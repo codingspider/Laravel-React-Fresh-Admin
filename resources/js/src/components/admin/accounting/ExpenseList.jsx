@@ -270,7 +270,7 @@ export default function ExpenseList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL="/accounting/expenses/create"
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
                     <Select

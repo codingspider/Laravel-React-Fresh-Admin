@@ -228,7 +228,7 @@ export default function VariationList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={VARIATION_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 />
             </Box>

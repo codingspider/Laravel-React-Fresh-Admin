@@ -239,7 +239,7 @@ export default function ExpenseCategoryList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL="/accounting/expense-categories/create"
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
                     <Select

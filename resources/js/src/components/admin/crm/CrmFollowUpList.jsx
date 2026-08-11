@@ -28,7 +28,7 @@ import {
 } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { EditIcon, DeleteIcon } from '@chakra-ui/icons';
-import { MoreHorizontal, Check, Plus } from 'lucide-react';
+import { MoreHorizontal, Check } from 'lucide-react';
 import api from '../../../axios';
 import {
     CRM_FOLLOW_UPS,
@@ -325,13 +325,11 @@ export default function CrmFollowUpList() {
                     { label: t('CRM'), path: CRM_DASHBOARD_PATH },
                     { label: t('Follow-ups'), isCurrent: true },
                 ]}
-            >
-                {can('create_follow_ups') && (
-                    <Button colorScheme="teal" size="md" leftIcon={<Plus size={16} />} onClick={openCreate}>
-                        {t('Add Follow-up')}
-                    </Button>
-                )}
-            </PageHeader>
+                action="#"
+                onClick={openCreate}
+                actionLabel={t('Add Follow-up')}
+                showAction={can('create_follow_ups')}
+            />
 
             <Box
                 bg={colors.bgCard}
@@ -352,7 +350,7 @@ export default function CrmFollowUpList() {
                     pageCount={pageCount}
                     isLoading={isLoading}
                     onSearch={handleSearch}
-                    hideAddBtn={can('create_follow_ups') ? 'false' : 'true'}
+                    hideAddBtn="true"
                     searchPlaceholder={t('Search follow-ups...')}
                     totalItems={totalItems}
                 >
@@ -370,12 +368,6 @@ export default function CrmFollowUpList() {
                     </Select>
 
                     <BranchFilter value={branchFilter} onChange={setBranchFilter} />
-
-                    {can('create_follow_ups') && (
-                        <Button colorScheme="teal" size="md" leftIcon={<Plus size={16} />} onClick={openCreate}>
-                            {t('Add Follow-up')}
-                        </Button>
-                    )}
                 </TanStackTable>
             </Box>
 

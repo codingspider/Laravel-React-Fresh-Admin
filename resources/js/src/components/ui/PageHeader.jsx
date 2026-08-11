@@ -24,6 +24,8 @@ export default function PageHeader({
     actionLabel,
     actionIcon,
     actionColor = 'primary',
+    onClick,
+    showAction = true,
     children,
 }) {
     const { t } = useTranslation();
@@ -81,12 +83,13 @@ export default function PageHeader({
 
                 <HStack spacing={3}>
                     {children}
-                    {action && (
+                    {action && showAction && (
                         <Button
                             variant={actionColor}
                             leftIcon={actionIcon ? <Icon as={actionIcon} boxSize={4} /> : undefined}
-                            as={ReactRouterLink}
-                            to={action}
+                            as={onClick ? undefined : ReactRouterLink}
+                            to={onClick ? undefined : action}
+                            onClick={onClick}
                             size="md"
                         >
                             {t(actionLabel)}

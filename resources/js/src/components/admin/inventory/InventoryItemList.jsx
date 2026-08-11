@@ -294,7 +294,7 @@ export default function InventoryItemList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={INVENTORY_ITEM_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
                     <Select

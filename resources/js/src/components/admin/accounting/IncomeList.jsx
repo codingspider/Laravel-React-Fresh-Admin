@@ -265,7 +265,7 @@ export default function IncomeList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL="/accounting/income/create"
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
                     <Select

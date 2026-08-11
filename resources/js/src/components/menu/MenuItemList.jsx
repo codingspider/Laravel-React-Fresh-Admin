@@ -391,6 +391,7 @@ export default function MenuItemList() {
                     isLoading={isLoading}
                     addURL="/menu/item/create"
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                     <Select

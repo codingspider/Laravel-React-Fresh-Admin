@@ -63,7 +63,7 @@ export default function StockWaste() {
       const unwrap = (r) => r.data?.data?.data || r.data?.data || [];
       setBranches(unwrap(b));
       setItems(unwrap(i));
-    }).catch(() => {});
+    }).catch(() => { });
   }, [fetchData, t]);
 
   const openCreate = () => {
@@ -130,8 +130,8 @@ export default function StockWaste() {
         subtitle={t("record_damaged_or_expired_stock")}
         breadcrumbs={[{ label: t("dashboard"), path: DASHBOARD_PATH }, { label: t("stock_management"), path: STOCK_OVERVIEW_PATH }, { label: t("waste"), isCurrent: true }]}
       >
-        <Button colorScheme="teal" leftIcon={<AddIcon />} onClick={openCreate}>{t("record_waste")}</Button>
         <TableExportButtons data={data} columns={columns} filename="stock-waste" />
+        <Button colorScheme="teal" leftIcon={<AddIcon />} onClick={openCreate}>{t("record_waste")}</Button>
       </PageHeader>
 
       <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault}>
@@ -148,14 +148,14 @@ export default function StockWaste() {
           totalItems={totalItems}
         >
           <Select maxW="170px" size="md" value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPageIndex(0); }} placeholder={t("all_types")} bg={colors.bgInput}
-          borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-        >
-          <option value="damage">damage</option>
-          <option value="expired">expired</option>
-          <option value="spillage">spillage</option>
-          <option value="other">other</option>
-        </Select>
-      </TanStackTable>
+            borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+          >
+            <option value="damage">damage</option>
+            <option value="expired">expired</option>
+            <option value="spillage">spillage</option>
+            <option value="other">other</option>
+          </Select>
+        </TanStackTable>
       </Box>
 
       <Modal isOpen={isOpen} onClose={onClose} size="xl">
@@ -166,32 +166,32 @@ export default function StockWaste() {
           <ModalBody>
             <Flex direction="column" gap={4}>
               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                 <FormControl>
-                   <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textLabel} mb={2}>{t("branch")}</FormLabel>
-                   <Select value={form.branch_id} onChange={(e) => setForm((f) => ({ ...f, branch_id: e.target.value }))} placeholder={t("select_branch")} bg={colors.bgInput}
-                     borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                   >
-                     {(Array.isArray(branches) ? branches : []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                   </Select>
-                 </FormControl>
-                 <FormControl>
-                   <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textLabel} mb={2}>{t("type")}</FormLabel>
-                   <Select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} bg={colors.bgInput}
-                     borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                   >
-                     <option value="damage">damage</option>
-                     <option value="expired">expired</option>
-                     <option value="spillage">spillage</option>
-                     <option value="other">other</option>
-                   </Select>
-                 </FormControl>
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textLabel} mb={2}>{t("branch")}</FormLabel>
+                  <Select value={form.branch_id} onChange={(e) => setForm((f) => ({ ...f, branch_id: e.target.value }))} placeholder={t("select_branch")} bg={colors.bgInput}
+                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                  >
+                    {(Array.isArray(branches) ? branches : []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </Select>
+                </FormControl>
+                <FormControl>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textLabel} mb={2}>{t("type")}</FormLabel>
+                  <Select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))} bg={colors.bgInput}
+                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                  >
+                    <option value="damage">damage</option>
+                    <option value="expired">expired</option>
+                    <option value="spillage">spillage</option>
+                    <option value="other">other</option>
+                  </Select>
+                </FormControl>
               </SimpleGrid>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textLabel} mb={2}>{t("reason")}</FormLabel>
-                 <Input value={form.reason} onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))} bg={colors.bgInput}
-                   borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                 />
-               </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textLabel} mb={2}>{t("reason")}</FormLabel>
+                <Input value={form.reason} onChange={(e) => setForm((f) => ({ ...f, reason: e.target.value }))} bg={colors.bgInput}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                />
+              </FormControl>
               <Box>
                 <Flex justify="space-between" align="center" mb={2}>
                   <Text fontSize="sm" fontWeight="600">{t("items")}</Text>
@@ -199,14 +199,14 @@ export default function StockWaste() {
                 </Flex>
                 {form.items.map((line, index) => (
                   <Flex key={index} gap={2} mb={2}>
-                     <Select value={line.item_id} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].item_id = e.target.value; return { ...f, items }; })} placeholder={t("select_item")} flex="2" bg={colors.bgInput}
-                       borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                     >
-                       {(Array.isArray(items) ? items : []).map((it) => <option key={it.id} value={it.id}>{it.name}</option>)}
-                     </Select>
-                     <Input type="number" min="0" step="0.01" placeholder={t("quantity")} value={line.quantity} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].quantity = e.target.value; return { ...f, items }; })} bg={colors.bgInput}
-                       borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                     />
+                    <Select value={line.item_id} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].item_id = e.target.value; return { ...f, items }; })} placeholder={t("select_item")} flex="2" bg={colors.bgInput}
+                      borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                    >
+                      {(Array.isArray(items) ? items : []).map((it) => <option key={it.id} value={it.id}>{it.name}</option>)}
+                    </Select>
+                    <Input type="number" min="0" step="0.01" placeholder={t("quantity")} value={line.quantity} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].quantity = e.target.value; return { ...f, items }; })} bg={colors.bgInput}
+                      borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                    />
                     <IconButton size="sm" variant="ghost" colorScheme="red" icon={<DeleteIcon />} aria-label={t("remove")} onClick={() => setForm((f) => ({ ...f, items: f.items.filter((_, i) => i !== index) }))} />
                   </Flex>
                 ))}

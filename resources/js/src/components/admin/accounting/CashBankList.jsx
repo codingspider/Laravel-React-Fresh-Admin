@@ -174,7 +174,7 @@ export default function CashBankList() {
             <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault}>
                 <TanStackTable columns={columns} data={data} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
                     pageIndex={pageIndex} pageSize={pageSize} setPageIndex={setPageIndex} pageCount={pageCount}
-                    isLoading={isLoading} addURL="/accounting/cash-bank/create" totalItems={totalItems}>
+                    isLoading={isLoading} hideAddBtn="true" totalItems={totalItems}>
                     <Select maxW="160px" size="md" value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPageIndex(0); }} placeholder={t("all_sources")} borderRadius="lg">
                         <option value="cash_deposit">{t("cash_deposit")}</option>
                         <option value="cash_withdraw">{t("cash_withdraw")}</option>

@@ -261,6 +261,7 @@ export default function ReservationList() {
                     isLoading={isLoading}
                     addURL="/table-management/reservation/create"
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <Select
                         maxW="160px"

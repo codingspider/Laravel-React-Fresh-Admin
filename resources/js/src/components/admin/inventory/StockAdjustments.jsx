@@ -150,8 +150,8 @@ export default function StockAdjustments() {
         subtitle={t("record_stock_takes_and_corrections")}
         breadcrumbs={[{ label: t("dashboard"), path: DASHBOARD_PATH }, { label: t("stock_management"), path: STOCK_OVERVIEW_PATH }, { label: t("adjustments"), isCurrent: true }]}
       >
-        <Button colorScheme="teal" leftIcon={<AddIcon />} onClick={openCreate}>{t("create_adjustment")}</Button>
         <TableExportButtons data={data} columns={columns} filename="stock-adjustments" />
+        <Button colorScheme="teal" leftIcon={<AddIcon />} onClick={openCreate}>{t("create_adjustment")}</Button>
       </PageHeader>
 
       <Box bg={colors.bgCard} p={{ base: 4, md: 6 }} borderRadius="xl" boxShadow="card" border="1px solid" borderColor={colors.borderDefault}>

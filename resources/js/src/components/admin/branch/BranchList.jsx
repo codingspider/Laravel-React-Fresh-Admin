@@ -230,7 +230,7 @@ export default function BranchList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={BRANCH_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 />
             </Box>

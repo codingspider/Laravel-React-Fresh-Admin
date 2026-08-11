@@ -218,7 +218,7 @@ export default function ItemList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={ITEM_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 />
             </Box>

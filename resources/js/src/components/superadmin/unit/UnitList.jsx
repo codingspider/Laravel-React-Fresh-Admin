@@ -209,6 +209,7 @@ export default function UnitList() {
                     isLoading={isLoading}
                     addURL={UNIT_ADD_PATH}
                     totalItems={totalItems}
+                    hideAddBtn='true'
                 >
                     <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>

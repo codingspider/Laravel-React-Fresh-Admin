@@ -168,7 +168,7 @@ const res = await api.get(LIST_RECIPE_CATEGORY, {
           setPageIndex={setPageIndex}
           pageCount={pageCount}
           isLoading={isLoading}
-          addURL={RECIPE_CATEGORY_ADD_PATH}
+          hideAddBtn="true"
           totalItems={totalItems}
         >
           <BranchFilter value={branchFilter} onChange={setBranchFilter} />

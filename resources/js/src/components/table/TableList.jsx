@@ -271,6 +271,7 @@ export default function TableList() {
                     isLoading={isLoading}
                     addURL="/table-management/table/create"
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <Select
                         maxW="160px"

@@ -195,7 +195,7 @@ export default function PurchaseList() {
           setPageIndex={setPageIndex}
           pageCount={pageCount}
           isLoading={isLoading}
-          addURL={PURCHASE_ADD_PATH}
+          hideAddBtn="true"
           totalItems={totalItems}
         >
           <Select maxW="180px" size="md" value={supplierFilter} onChange={(e) => { setSupplierFilter(e.target.value); setPageIndex(0); }} placeholder={t("all_suppliers")} bg={colors.bgInput}

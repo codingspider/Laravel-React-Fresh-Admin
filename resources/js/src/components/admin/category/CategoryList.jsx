@@ -212,7 +212,7 @@ export default function CategoryList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={CATEGORY_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 />
             </Box>

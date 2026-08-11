@@ -192,6 +192,7 @@ export default function List() {
                     isLoading={isLoading}
                     addURL={ROLE_ADD_PATH}
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 />
             </Box>
         </Box>

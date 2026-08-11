@@ -253,7 +253,7 @@ export default function CustomerList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={CUSTOMER_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
                     <Select

@@ -212,6 +212,7 @@ export default function UserList() {
                     isLoading={isLoading}
                     addURL={USER_ADD_PATH}
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>

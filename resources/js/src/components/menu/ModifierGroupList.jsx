@@ -243,6 +243,7 @@ export default function ModifierGroupList() {
                     isLoading={isLoading}
                     addURL="/menu/modifier-group/create"
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>

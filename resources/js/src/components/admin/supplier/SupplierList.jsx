@@ -262,7 +262,7 @@ export default function SupplierList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
-                    addURL={SUPPLIER_ADD_PATH}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
                     <Select

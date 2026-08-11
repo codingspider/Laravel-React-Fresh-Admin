@@ -230,6 +230,7 @@ export default function FloorList() {
                     isLoading={isLoading}
                     addURL="/table-management/floor/create"
                     totalItems={totalItems}
+                    hideAddBtn="true"
                 >
                     <Select
                         maxW="160px"
