@@ -105,6 +105,10 @@ class LogActivity
 
         $path = '/' . trim($request->path(), '/');
 
+        if (str_starts_with($path, '/install')) {
+            return false;
+        }
+
         foreach (self::SKIP_PATH_SEGMENTS as $segment) {
             if (str_contains($path, '/' . $segment)) {
                 return false;

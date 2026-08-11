@@ -21,5 +21,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         JsonResource::withoutWrapping();
+
+        $this->loadViewsFrom(__DIR__ . '/../../Modules/Installer/resources/views', 'installer');
+        $this->mergeConfigFrom(__DIR__ . '/../../Modules/Installer/config/config.php', 'installer');
     }
 }

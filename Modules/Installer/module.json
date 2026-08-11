@@ -1,0 +1,11 @@
+{
+    "name": "Installer",
+    "alias": "installer",
+    "description": "Laravel Web Installer Module",
+    "keywords": [],
+    "priority": 100,
+    "providers": [
+        "Modules\\Installer\\Providers\\InstallerServiceProvider"
+    ],
+    "files": []
+}

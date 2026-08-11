@@ -45,6 +45,7 @@
             "Modules\\Employee\\": "Modules/Employee/app/",
             "Modules\\Finance\\": "Modules/Finance/app/",
             "Modules\\HRM\\": "Modules/HRM/app/",
+            "Modules\\Installer\\": "Modules/Installer/app/",
             "Modules\\Inventory\\": "Modules/Inventory/app/",
             "Modules\\Invoice\\": "Modules/Invoice/app/",
             "Modules\\KitchenDisplay\\": "Modules/KitchenDisplay/app/",
