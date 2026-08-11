@@ -49,6 +49,8 @@ import {
     Users,
     Package,
     Zap,
+    Wallet,
+    TrendingUp,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from './../../LanguageProvider';
@@ -432,18 +434,23 @@ function ProfileMenu() {
 }
 
 const QUICK_ACTIONS = [
-    { label: 'New Sale', icon: ShoppingCart, bg: 'linear-gradient(135deg, #0d9488, #14b8a6)', path: '/pos/terminal' },
-    { label: 'Orders', icon: Receipt, bg: 'linear-gradient(135deg, #f59e0b, #f97316)', path: '/pos/sales' },
-    { label: 'Accounts', icon: Receipt, bg: 'linear-gradient(135deg, #667eea, #764ba2)', path: '/accounting/dashboard' },
-    { label: 'Profit & Loss', icon: Receipt, bg: 'linear-gradient(135deg, #f093fb, #f5576c)', path: '/accounting/reports/profit-loss' },
+    { label: 'New Sale', icon: ShoppingCart, bg: 'linear-gradient(135deg, #0d9488, #14b8a6)', path: '/pos/terminal', permission: 'process_sale' },
+    { label: 'Orders', icon: Receipt, bg: 'linear-gradient(135deg, #f59e0b, #f97316)', path: '/pos/sales', permission: 'view_pos' },
+    { label: 'Accounts', icon: Wallet, bg: 'linear-gradient(135deg, #667eea, #764ba2)', path: '/accounting/dashboard', permission: 'access_business_settings' },
+    { label: 'Profit & Loss', icon: TrendingUp, bg: 'linear-gradient(135deg, #f093fb, #f5576c)', path: '/accounting/reports/profit-loss', permission: 'view_reports' },
 ];
 
 function QuickActions() {
     const navigate = useNavigate();
+    const { can } = usePermission();
+
+    const visibleActions = QUICK_ACTIONS.filter((action) => !action.permission || can(action.permission));
+
+    if (visibleActions.length === 0) return null;
 
     return (
         <HStack spacing={2} display={{ base: 'none', lg: 'flex' }}>
-            {QUICK_ACTIONS.map((action) => (
+            {visibleActions.map((action) => (
                 <Tooltip key={action.label} label={action.label} hasArrow placement="bottom">
                     <Button
                         size="sm"

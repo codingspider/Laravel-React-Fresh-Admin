@@ -360,6 +360,7 @@ const navItems = (t) => [
         icon: Users,
         label: t('user_management'),
         permission: 'view_user',
+        excludeRole: 'super_admin',
         children: [
             { path: USER_LIST_PATH, label: t('all_users'), permission: 'view_user' },
             { path: ROLE_LIST_PATH, label: t('roles_permissions'), permission: 'role_list' },

@@ -20,7 +20,7 @@ class RoleController extends BaseController
     {
         try {
             $roles = $this->scopedRoleQuery()
-                ->select('id', 'name', 'restaurant_id')
+                ->select('id', 'name', 'restaurant_id', 'branch_id')
                 ->when($request->search, function ($q, $search) {
                     $q->where('name', 'like', "%{$search}%");
                 })
@@ -39,9 +39,17 @@ class RoleController extends BaseController
     public function getAllRole(Request $request)
     {
         try {
-            $roles = $this->scopedRoleQuery()
-                ->orderBy('name')
-                ->get();
+            $branchId = $request->input('branch_id');
+
+            $query = $this->scopedRoleQuery();
+
+            if ($branchId) {
+                $query->where('branch_id', $branchId);
+            } else {
+                $query->whereNull('branch_id');
+            }
+
+            $roles = $query->orderBy('name')->get();
 
             return $this->sendResponse($roles, 'Role retrieved successfully.');
         } catch (\Exception $e) {
@@ -63,6 +71,7 @@ class RoleController extends BaseController
         $data = [
             'id' => $role->id,
             'name' => $role->name,
+            'branch_id' => $role->branch_id,
             'permissions' => $role->permissions->pluck('name')
         ];
 
@@ -80,15 +89,24 @@ class RoleController extends BaseController
             return $this->sendError('Role not found.', 404);
         }
 
-        return $this->sendResponse($role, 'Role retrieved successfully.');
+        $data = [
+            'id' => $role->id,
+            'name' => $role->name,
+            'branch_id' => $role->branch_id,
+            'restaurant_id' => $role->restaurant_id,
+            'permissions' => $role->permissions->pluck('name')
+        ];
+
+        return $this->sendResponse($data, 'Role retrieved successfully.');
     }
 
     /**
-     * Store a new role scoped to the authenticated user's restaurant.
+     * Store a new role scoped to the authenticated user's restaurant and branch.
      */
     public function store(Request $request)
     {
         $restaurantId = getRestaurantId();
+        $branchId = $request->input('branch_id');
 
         $validator = Validator::make($request->all(), [
             'name' => [
@@ -97,8 +115,10 @@ class RoleController extends BaseController
                 'max:255',
                 Rule::unique(config('permission.table_names.roles'), 'name')
                     ->where('guard_name', 'web')
-                    ->where('restaurant_id', $restaurantId),
+                    ->where('restaurant_id', $restaurantId)
+                    ->where('branch_id', $branchId),
             ],
+            'branch_id' => 'nullable|exists:branches,id',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string',
         ]);
@@ -113,6 +133,7 @@ class RoleController extends BaseController
             $role->name = $request->name;
             $role->guard_name = 'web';
             $role->restaurant_id = $restaurantId;
+            $role->branch_id = $branchId;
             $role->save();
 
             // Create permissions if not exist & assign
@@ -136,7 +157,7 @@ class RoleController extends BaseController
     }
 
     /**
-     * Update a role scoped to the current restaurant.
+     * Update a role scoped to the current restaurant and branch.
      */
     public function update(Request $request, $id)
     {
@@ -147,6 +168,7 @@ class RoleController extends BaseController
         }
 
         $restaurantId = getRestaurantId();
+        $branchId = $request->input('branch_id');
 
         $validator = Validator::make($request->all(), [
             'name' => [
@@ -156,8 +178,10 @@ class RoleController extends BaseController
                 Rule::unique(config('permission.table_names.roles'), 'name')
                     ->where('guard_name', 'web')
                     ->where('restaurant_id', $restaurantId)
+                    ->where('branch_id', $branchId)
                     ->ignore($role->id),
             ],
+            'branch_id' => 'nullable|exists:branches,id',
             'permissions' => 'nullable|array',
             'permissions.*' => 'string',
         ]);
@@ -169,8 +193,9 @@ class RoleController extends BaseController
         DB::beginTransaction();
 
         try {
-            // Update role name
+            // Update role name and branch
             $role->name = $request->name;
+            $role->branch_id = $branchId;
             $role->save();
 
             // Sync permissions (IMPORTANT)
@@ -234,5 +259,16 @@ class RoleController extends BaseController
                 $q->where('restaurant_id', $restaurantId);
             }
         });
+    }
+
+    /**
+     * Get the branch ID for the authenticated user.
+     */
+    private function getBranchId()
+    {
+        $user = auth()->user();
+        if (!$user) return null;
+        if (isSuperAdmin($user)) return null;
+        return $user->branch_id ?? null;
     }
 }

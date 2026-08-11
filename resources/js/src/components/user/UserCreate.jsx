@@ -15,6 +15,7 @@ import {
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
 import { useForm } from "react-hook-form";
+import { useWatch } from "react-hook-form";
 import api from "../../axios";
 import { GET_ALL_ROLES, STORE_USER, LIST_BRANCH } from "../../routes/apiRoutes";
 import { DASHBOARD_PATH, USER_LIST_PATH } from "../../routes/superAdminRoutes";
@@ -23,7 +24,7 @@ import PageHeader from "../ui/PageHeader";
 
 const UserCreate = () => {
     const colors = useThemeColors();
-    const { register, handleSubmit, reset } = useForm();
+    const { register, handleSubmit, reset, control } = useForm();
     const { t } = useTranslation();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [roles, setRoles] = useState([]);
@@ -32,16 +33,13 @@ const UserCreate = () => {
     const toast = useToast();
     const navigate = useNavigate();
     const [show, setShow] = useState(false);
+    const selectedBranch = useWatch({ control, name: "branch_id" });
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setIsLoadingData(true);
-                const [roleRes, branchRes] = await Promise.all([
-                    api.get(GET_ALL_ROLES),
-                    api.get(`${LIST_BRANCH}?per_page=100`).catch(() => ({ data: { data: [] } })),
-                ]);
-                setRoles(roleRes.data?.data || roleRes.data || []);
+                const branchRes = await api.get(`${LIST_BRANCH}?per_page=100`).catch(() => ({ data: { data: [] } }));
                 setBranches(branchRes.data?.data?.data || branchRes.data?.data || []);
             } catch (err) {
                 console.error("fetchData error:", err);
@@ -51,6 +49,20 @@ const UserCreate = () => {
         };
         fetchData();
     }, []);
+
+    useEffect(() => {
+        const fetchRoles = async () => {
+            try {
+                const params = selectedBranch ? { branch_id: selectedBranch } : {};
+                const roleRes = await api.get(GET_ALL_ROLES, { params });
+                setRoles(roleRes.data?.data || roleRes.data || []);
+            } catch (err) {
+                console.error("fetchRoles error:", err);
+                setRoles([]);
+            }
+        };
+        fetchRoles();
+    }, [selectedBranch]);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
