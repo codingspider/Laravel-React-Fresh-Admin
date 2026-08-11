@@ -17,9 +17,8 @@ class ExpenseCategoryController extends Controller
 
     public function index(Request $request): JsonResponse
     {
-        $restaurantId = getRestaurantId($request->user());
-        $filters = $request->only(['search', 'status']);
-        $filters['restaurant_id'] = $restaurantId;
+        $filters = $request->only(['search', 'status', 'branch_id']);
+        $filters['restaurant_id'] = getRestaurantId($request->user());
 
         $data = $this->service->paginate(
             $request->input('per_page', 15),

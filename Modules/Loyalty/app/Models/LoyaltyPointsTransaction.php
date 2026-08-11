@@ -14,6 +14,7 @@ class LoyaltyPointsTransaction extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'branch_id',
         'customer_id',
         'loyalty_id',
         'type',
@@ -53,5 +54,10 @@ class LoyaltyPointsTransaction extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by');
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 }

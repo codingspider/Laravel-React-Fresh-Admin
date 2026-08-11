@@ -133,35 +133,89 @@ class DashboardController extends Controller
     public function stats(Request $request): JsonResponse
     {
         $restaurantId = getRestaurantId();
+        $branchId = $request->input('branch_id');
+        $dateFrom = $request->input('date_from');
+        $dateTo = $request->input('date_to');
 
         $now = Carbon::now();
         $startOfDay = $now->copy()->startOfDay();
         $endOfDay = $now->copy()->endOfDay();
 
+        $dateFilter = function ($q) use ($dateFrom, $dateTo, $startOfDay, $endOfDay) {
+            if ($dateFrom && $dateTo) {
+                $q->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+            } elseif ($dateFrom) {
+                $q->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+            } elseif ($dateTo) {
+                $q->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+            }
+        };
+
+        $branchFilter = function ($q) use ($branchId) {
+            if ($branchId) {
+                $q->where('branch_id', $branchId);
+            }
+        };
+
         // ── Stats Cards ──
         $totalSales = Sale::where('restaurant_id', $restaurantId)
             ->where('status', '!=', 'cancelled')
+            ->tap($branchFilter)
+            ->when($dateFrom || $dateTo, function ($q) use ($dateFrom, $dateTo) {
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+                }
+            })
             ->sum('total');
 
         $totalOrders = Sale::where('restaurant_id', $restaurantId)
             ->where('status', '!=', 'cancelled')
+            ->tap($branchFilter)
+            ->when($dateFrom || $dateTo, function ($q) use ($dateFrom, $dateTo) {
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+                }
+            })
             ->count();
 
         $activeOrders = Sale::where('restaurant_id', $restaurantId)
             ->whereIn('status', ['pending', 'confirmed', 'preparing', 'ready'])
+            ->tap($branchFilter)
             ->count();
 
         $averageOrderValue = $totalOrders > 0 ? $totalSales / $totalOrders : 0;
 
-        $totalUsers = \App\Models\User::where('restaurant_id', $restaurantId)->count();
+        $totalUsers = \App\Models\User::where('restaurant_id', $restaurantId)
+            ->when($branchId, fn ($q, $b) => $q->where('branch_id', $b))
+            ->count();
         $totalMenus = MenuCategory::where('restaurant_id', $restaurantId)->count();
         $totalProducts = MenuItem::where('restaurant_id', $restaurantId)->count();
         $totalCategories = InventoryCategory::where('restaurant_id', $restaurantId)->count();
 
-        // ── Hourly Sales Trend (today) ──
-        $hourlySales = Sale::where('restaurant_id', $restaurantId)
+        // ── Hourly Sales Trend ──
+        $hourlyQuery = Sale::where('restaurant_id', $restaurantId)
             ->where('status', '!=', 'cancelled')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
+            ->tap($branchFilter);
+
+        if ($dateFrom && $dateTo) {
+            $hourlyQuery->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+        } elseif ($dateFrom) {
+            $hourlyQuery->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+        } elseif ($dateTo) {
+            $hourlyQuery->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+        } else {
+            $hourlyQuery->whereBetween('created_at', [$startOfDay, $endOfDay]);
+        }
+
+        $hourlySales = $hourlyQuery
             ->selectRaw('HOUR(created_at) as hour, SUM(total) as total')
             ->groupBy('hour')
             ->pluck('total', 'hour')
@@ -176,11 +230,26 @@ class DashboardController extends Controller
             ];
         })->toArray();
 
-        // ── Sales Analytics (weekly) ──
-        $weeklySales = Sale::where('restaurant_id', $restaurantId)
+        // ── Sales Analytics ──
+        $analyticsQuery = Sale::where('restaurant_id', $restaurantId)
             ->where('status', '!=', 'cancelled')
-            ->where('created_at', '>=', $now->copy()->subDays(7))
-            ->selectRaw('DAYOFWEEK(created_at) as day_of_week, SUM(total) as total')
+            ->tap($branchFilter);
+
+        if ($dateFrom && $dateTo) {
+            $analyticsQuery->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+            $analyticsQuery->selectRaw('DAYOFWEEK(created_at) as day_of_week, SUM(total) as total')
+                ->groupBy('day_of_week')
+                ->pluck('total', 'day_of_week')
+                ->toArray();
+        } elseif ($dateFrom) {
+            $analyticsQuery->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+        } elseif ($dateTo) {
+            $analyticsQuery->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+        } else {
+            $analyticsQuery->where('created_at', '>=', $now->copy()->subDays(7));
+        }
+
+        $weeklySales = $analyticsQuery->selectRaw('DAYOFWEEK(created_at) as day_of_week, SUM(total) as total')
             ->groupBy('day_of_week')
             ->pluck('total', 'day_of_week')
             ->toArray();
@@ -194,8 +263,16 @@ class DashboardController extends Controller
         })->values()->toArray();
 
         // ── Top Selling Products ──
-        $topProducts = SaleItem::whereHas('sale', function ($q) use ($restaurantId) {
+        $topProducts = SaleItem::whereHas('sale', function ($q) use ($restaurantId, $branchId, $dateFrom, $dateTo) {
                 $q->where('restaurant_id', $restaurantId)->where('status', '!=', 'cancelled');
+                if ($branchId) $q->where('branch_id', $branchId);
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+                }
             })
             ->select('menu_item_id', DB::raw('SUM(quantity) as quantity_sold'), DB::raw('SUM(total) as total_amount'))
             ->groupBy('menu_item_id')
@@ -217,6 +294,16 @@ class DashboardController extends Controller
         $branchSales = Sale::where('sales.restaurant_id', $restaurantId)
             ->where('sales.status', '!=', 'cancelled')
             ->whereNotNull('sales.branch_id')
+            ->when($branchId, fn ($q, $b) => $q->where('sales.branch_id', $b))
+            ->when($dateFrom || $dateTo, function ($q) use ($dateFrom, $dateTo) {
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('sales.created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('sales.created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('sales.created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+                }
+            })
             ->join('branches', 'sales.branch_id', '=', 'branches.id')
             ->select('sales.branch_id', 'branches.name as branch_name', DB::raw('SUM(sales.total) as total_sales'), DB::raw('COUNT(*) as total_orders'))
             ->groupBy('sales.branch_id', 'branches.name')
@@ -237,6 +324,16 @@ class DashboardController extends Controller
         // ── Order Type Distribution ──
         $orderTypeDistribution = Sale::where('restaurant_id', $restaurantId)
             ->where('status', '!=', 'cancelled')
+            ->tap($branchFilter)
+            ->when($dateFrom || $dateTo, function ($q) use ($dateFrom, $dateTo) {
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+                }
+            })
             ->select('order_type', DB::raw('COUNT(*) as count'))
             ->groupBy('order_type')
             ->pluck('count', 'order_type')
@@ -248,6 +345,16 @@ class DashboardController extends Controller
 
         // ── Order Status Distribution ──
         $orderStatusDistribution = Sale::where('restaurant_id', $restaurantId)
+            ->tap($branchFilter)
+            ->when($dateFrom || $dateTo, function ($q) use ($dateFrom, $dateTo) {
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+                }
+            })
             ->select('status', DB::raw('COUNT(*) as count'))
             ->groupBy('status')
             ->pluck('count', 'status')
@@ -259,6 +366,7 @@ class DashboardController extends Controller
 
         // ── Low Stock Alerts ──
         $lowStockItems = InventoryItem::where('restaurant_id', $restaurantId)
+            ->when($branchId, fn ($q, $b) => $q->where('branch_id', $b))
             ->whereColumn('current_stock', '<=', 'minimum_stock')
             ->where('current_stock', '>', 0)
             ->orderBy('current_stock')
@@ -274,21 +382,43 @@ class DashboardController extends Controller
                 ];
             });
 
-        // ── Cash Movements (today) ──
-        $cashIn = Sale::where('restaurant_id', $restaurantId)
+        // ── Cash Movements ──
+        $cashQuery = Sale::where('restaurant_id', $restaurantId)
             ->where('payment_status', 'paid')
             ->where('status', '!=', 'cancelled')
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->sum('total');
+            ->tap($branchFilter);
 
-        $cashOut = Expense::where('restaurant_id', $restaurantId)
-            ->whereBetween('created_at', [$startOfDay, $endOfDay])
-            ->sum('amount');
+        $expenseQuery = Expense::where('restaurant_id', $restaurantId)
+            ->when($branchId, fn ($q, $b) => $q->where('branch_id', $b));
 
-        // ── Payments Overview (all time) ──
-        $paymentMethods = Payment::whereHas('sale', function ($q) use ($restaurantId) {
-                $q->where('restaurant_id', $restaurantId)
-                  ->where('status', '!=', 'cancelled');
+        if ($dateFrom && $dateTo) {
+            $cashQuery->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+            $expenseQuery->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+        } elseif ($dateFrom) {
+            $cashQuery->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+            $expenseQuery->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+        } elseif ($dateTo) {
+            $cashQuery->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+            $expenseQuery->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+        } else {
+            $cashQuery->whereBetween('created_at', [$startOfDay, $endOfDay]);
+            $expenseQuery->whereBetween('created_at', [$startOfDay, $endOfDay]);
+        }
+
+        $cashIn = $cashQuery->sum('total');
+        $cashOut = $expenseQuery->sum('amount');
+
+        // ── Payments Overview ──
+        $paymentMethods = Payment::whereHas('sale', function ($q) use ($restaurantId, $branchId, $dateFrom, $dateTo) {
+                $q->where('restaurant_id', $restaurantId)->where('status', '!=', 'cancelled');
+                if ($branchId) $q->where('branch_id', $branchId);
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('created_at', [Carbon::parse($dateFrom)->startOfDay(), Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('created_at', '>=', Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('created_at', '<=', Carbon::parse($dateTo)->endOfDay());
+                }
             })
             ->select('payment_method', DB::raw('SUM(amount) as total'))
             ->groupBy('payment_method')

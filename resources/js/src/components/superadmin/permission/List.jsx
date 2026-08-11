@@ -22,6 +22,7 @@ import { DELETE_ROLE, LIST_ROLE } from "../../../routes/apiRoutes";
 import PageHeader from "../../ui/PageHeader";
 import useThemeColors from "../../../hooks/useThemeColors";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 
 export default function List() {
     const [data, setData] = useState([]);
@@ -31,6 +32,7 @@ export default function List() {
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -44,6 +46,7 @@ export default function List() {
                     page: pageIndex + 1,
                     per_page: pageSize,
                     search: globalFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
 
@@ -58,7 +61,7 @@ export default function List() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize]);
+    }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -193,7 +196,9 @@ export default function List() {
                     addURL={ROLE_ADD_PATH}
                     totalItems={totalItems}
                     hideAddBtn="true"
-                />
+                >
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+                </TanStackTable>
             </Box>
         </Box>
     );

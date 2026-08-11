@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Heading, Text, Flex, Image, Select, HStack, VStack } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Heading, Text, Flex, Image, HStack, VStack } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
@@ -8,7 +8,6 @@ export default function TopSellingProducts({ data = [] }) {
     const { t } = useTranslation();
     const colors = useThemeColors();
     const { formatAmount } = useCurrencyFormatter();
-    const [period, setPeriod] = useState('all');
 
     return (
         <Box
@@ -18,24 +17,11 @@ export default function TopSellingProducts({ data = [] }) {
             border="1px solid"
             borderColor={colors.borderDefault}
         >
-            <Flex justify="space-between" align="center" mb={6} wrap="wrap" gap={3}>
+            <Box mb={6}>
                 <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                     {t('Top Selling Products')}
                 </Heading>
-                <Select
-                    size="sm"
-                    maxW="140px"
-                    borderRadius="lg"
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    focusBorderColor="brand.500"
-                >
-                    <option value="all">{t('All The Time')}</option>
-                    <option value="today">{t('Today')}</option>
-                    <option value="week">{t('This Week')}</option>
-                    <option value="month">{t('This Month')}</option>
-                </Select>
-            </Flex>
+            </Box>
             <VStack spacing={0} align="stretch">
                 {data.map((product, index) => (
                     <Flex

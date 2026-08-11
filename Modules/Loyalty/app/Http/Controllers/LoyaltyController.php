@@ -43,7 +43,7 @@ class LoyaltyController extends Controller
     {
         $data = $this->service->customers(
             (int) getRestaurantId(),
-            $request->only(['search']),
+            $request->only(['search', 'branch_id']),
             (int) $request->input('per_page', 15)
         );
 
@@ -69,7 +69,7 @@ class LoyaltyController extends Controller
     {
         $data = $this->service->transactions(
             (int) getRestaurantId(),
-            $request->only(['customer_id', 'type', 'date_from', 'date_to']),
+            $request->only(['customer_id', 'type', 'date_from', 'date_to', 'branch_id']),
             (int) $request->input('per_page', 15)
         );
 

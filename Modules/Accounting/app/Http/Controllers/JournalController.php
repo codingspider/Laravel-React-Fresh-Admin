@@ -23,7 +23,7 @@ class JournalController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only([
-            'search', 'account_id', 'entry_type', 'date_from', 'date_to',
+            'search', 'account_id', 'entry_type', 'date_from', 'date_to', 'branch_id',
         ]);
         $filters['restaurant_id'] = $request->user()->restaurant_id ?? 1;
 
@@ -138,7 +138,7 @@ class JournalController extends Controller
     public function ledger(Request $request)
     {
         $restaurantId = $request->user()->restaurant_id ?? 1;
-        $filters = $request->only(['account_id', 'date_from', 'date_to']);
+        $filters = $request->only(['account_id', 'date_from', 'date_to', 'branch_id']);
 
         $ledger = $this->journalService->generalLedger($restaurantId, $filters);
 
@@ -159,7 +159,7 @@ class JournalController extends Controller
     public function ledgerByAccount(Request $request, int $accountId)
     {
         $restaurantId = $request->user()->restaurant_id ?? 1;
-        $filters = $request->only(['date_from', 'date_to']);
+        $filters = $request->only(['date_from', 'date_to', 'branch_id']);
 
         $account = Account::forRestaurant($restaurantId)->find($accountId);
         if (!$account) {
@@ -173,6 +173,9 @@ class JournalController extends Controller
             ->byAccount($accountId)
             ->when(!empty($filters['date_from']) && !empty($filters['date_to']), function ($q) use ($filters) {
                 $q->byDateRange($filters['date_from'], $filters['date_to']);
+            })
+            ->when(!empty($filters['branch_id']), function ($q) use ($filters) {
+                $q->where('branch_id', $filters['branch_id']);
             })
             ->with('account')
             ->orderBy('entry_date')
@@ -205,6 +208,8 @@ class JournalController extends Controller
                 'credit' => $credit,
                 'balance' => $runningBalance,
                 'source_module' => $entry->source_module,
+                'branch_id' => $entry->branch_id,
+                'branch' => $entry->branch ? ['id' => $entry->branch->id, 'name' => $entry->branch->name] : null,
             ];
         }
 
@@ -225,7 +230,7 @@ class JournalController extends Controller
     public function trialBalance(Request $request)
     {
         $restaurantId = $request->user()->restaurant_id ?? 1;
-        $filters = $request->only(['date_from', 'date_to']);
+        $filters = $request->only(['date_from', 'date_to', 'branch_id']);
 
         $result = $this->journalService->trialBalance($restaurantId, $filters);
 

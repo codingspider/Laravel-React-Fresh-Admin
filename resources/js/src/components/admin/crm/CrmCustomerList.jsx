@@ -38,6 +38,7 @@ import {
 import TanStackTable from '../../../TanStackTable';
 import PageHeader from '../../ui/PageHeader';
 import useThemeColors from '../../../hooks/useThemeColors';
+import BranchFilter from '../../ui/BranchFilter';
 import { usePermission } from '../../../context/PermissionContext';
 import { useCurrencyFormatter } from '../../../useCurrencyFormatter';
 
@@ -68,6 +69,7 @@ export default function CrmCustomerList() {
     const [totalItems, setTotalItems] = useState(0);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const { can } = usePermission();
     const navigate = useNavigate();
@@ -79,7 +81,7 @@ export default function CrmCustomerList() {
         try {
             setIsLoading(true);
             const res = await api.get(CRM_CUSTOMERS, {
-                params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || '' },
+                params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || '', branch_id: branchFilter || '' },
             });
             const items = res.data?.data?.data || res.data?.data || [];
             const total = res.data?.meta?.total || res.data?.data?.total || items.length;
@@ -91,7 +93,7 @@ export default function CrmCustomerList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize]);
+    }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem('app_name');
@@ -211,6 +213,12 @@ export default function CrmCustomerList() {
             ),
         },
         {
+            header: t('Branch'),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || '-'}</Text>
+            ),
+        },
+        {
             header: t('Actions'),
             cell: ({ row }) => (
                 <Menu>
@@ -285,10 +293,12 @@ export default function CrmCustomerList() {
                     pageCount={pageCount}
                     isLoading={isLoading}
                     onSearch={handleSearch}
-                    hideAddBtn={can('create_customers') ? 'false' : 'true'}
+                    hideAddBtn="true"
                     searchPlaceholder={t('Search customers...')}
                     totalItems={totalItems}
-                />
+                >
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+                </TanStackTable>
             </Box>
 
             <Modal isOpen={!!deleteTarget} onClose={() => setDeleteTarget(null)} isCentered>

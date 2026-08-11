@@ -21,6 +21,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_CASH_BANK, DELETE_CASH_BANK } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
@@ -34,6 +35,7 @@ export default function CashBankList() {
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
     const [typeFilter, setTypeFilter] = useState("");
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const toast = useToast();
@@ -49,6 +51,7 @@ export default function CashBankList() {
                     per_page: pageSize,
                     search: globalFilter || "",
                     type: typeFilter || "",
+                    branch_id: branchFilter || "",
                 },
             });
             const items = res.data?.data?.data || res.data?.data || [];
@@ -61,7 +64,7 @@ export default function CashBankList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize, typeFilter]);
+    }, [pageIndex, globalFilter, pageSize, typeFilter, branchFilter]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -143,6 +146,12 @@ export default function CashBankList() {
             },
         },
         {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
+            ),
+        },
+        {
             header: t("actions"),
             cell: ({ row }) => (
                 <Menu>
@@ -182,6 +191,8 @@ export default function CashBankList() {
                         <option value="bank_withdraw">{t("bank_withdraw")}</option>
                         <option value="transfer">{t("transfer")}</option>
                     </Select>
+
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
             </Box>
         </Box>

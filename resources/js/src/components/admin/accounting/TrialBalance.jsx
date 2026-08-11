@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../../axios";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { TRIAL_BALANCE } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
@@ -27,6 +28,7 @@ export default function TrialBalance() {
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
     const [loading, setLoading] = useState(false);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const colors = useThemeColors();
     const { formatAmount } = useCurrencyFormatter();
@@ -38,6 +40,7 @@ export default function TrialBalance() {
             const params = {};
             if (dateFrom) params.date_from = dateFrom;
             if (dateTo) params.date_to = dateTo;
+            if (branchFilter) params.branch_id = branchFilter;
 
             const res = await api.get(TRIAL_BALANCE, { params });
             const result = res.data?.data || { balances: [], total_debit: 0, total_credit: 0, balanced: true };
@@ -58,7 +61,7 @@ export default function TrialBalance() {
         } finally {
             setLoading(false);
         }
-    }, [dateFrom, dateTo, t, toast]);
+    }, [dateFrom, dateTo, branchFilter, t, toast]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -122,6 +125,9 @@ export default function TrialBalance() {
                                 fontSize: "14px",
                             }}
                         />
+                    </GridItem>
+                    <GridItem display="flex" alignItems="flex-end">
+                        <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                     </GridItem>
                 </Grid>
 

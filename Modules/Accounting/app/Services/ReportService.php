@@ -321,19 +321,47 @@ class ReportService
         }, $grouped);
     }
 
-    public function dashboard(int $restaurantId): array
+    public function dashboard(int $restaurantId, array $filters = []): array
     {
+        $branchId = $filters['branch_id'] ?? null;
+        $dateFrom = $filters['date_from'] ?? null;
+        $dateTo = $filters['date_to'] ?? null;
+
         $today = now()->format('Y-m-d');
         $monthStart = now()->startOfMonth()->format('Y-m-d');
         $monthEnd = now()->endOfMonth()->format('Y-m-d');
 
-        $todayEntries = JournalEntry::forRestaurant($restaurantId)
-            ->whereDate('entry_date', $today)
-            ->get();
+        $dateFromActual = $dateFrom ?: $today;
+        $dateToActual = $dateTo ?: $today;
+        $monthFromActual = $dateFrom ?: $monthStart;
+        $monthToActual = $dateTo ?: $monthEnd;
 
-        $monthEntries = JournalEntry::forRestaurant($restaurantId)
-            ->whereBetween('entry_date', [$monthStart, $monthEnd])
-            ->get();
+        $branchFilter = function ($q) use ($branchId) {
+            if ($branchId) {
+                $q->where('branch_id', $branchId);
+            }
+        };
+
+        $todayQuery = JournalEntry::forRestaurant($restaurantId)
+            ->tap($branchFilter);
+
+        $monthQuery = JournalEntry::forRestaurant($restaurantId)
+            ->tap($branchFilter);
+
+        if ($dateFrom && $dateTo) {
+            $todayQuery->whereBetween('entry_date', [$dateFrom, $dateTo]);
+        } else {
+            $todayQuery->whereDate('entry_date', $today);
+        }
+
+        if ($dateFrom && $dateTo) {
+            $monthQuery->whereBetween('entry_date', [$dateFrom, $dateTo]);
+        } else {
+            $monthQuery->whereBetween('entry_date', [$monthStart, $monthEnd]);
+        }
+
+        $todayEntries = $todayQuery->get();
+        $monthEntries = $monthQuery->get();
 
         $todaySales = $todayEntries->where('entry_type', 'debit')
             ->where('source_module', 'income')
@@ -358,12 +386,14 @@ class ReportService
         $cashBankAccounts = Account::forRestaurant($restaurantId)
             ->byType('asset')
             ->whereIn('account_group', ['cash', 'bank', 'bkash', 'nagad', 'rocket'])
+            ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
             ->get();
 
         $cashBankBalance = 0;
         foreach ($cashBankAccounts as $account) {
             $accountEntries = JournalEntry::forRestaurant($restaurantId)
                 ->byAccount($account->id)
+                ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
                 ->get();
 
             $balance = $account->opening_balance ?? 0;
@@ -375,6 +405,7 @@ class ReportService
 
         $receivables = Account::forRestaurant($restaurantId)
             ->where('account_group', 'accounts_receivable')
+            ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
             ->first();
 
         $receivablesBalance = 0;
@@ -382,6 +413,7 @@ class ReportService
             $balance = $receivables->opening_balance ?? 0;
             $accountEntries = JournalEntry::forRestaurant($restaurantId)
                 ->byAccount($receivables->id)
+                ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
                 ->get();
             foreach ($accountEntries as $entry) {
                 $balance += $entry->entry_type === 'debit' ? $entry->amount : -$entry->amount;
@@ -391,6 +423,7 @@ class ReportService
 
         $payables = Account::forRestaurant($restaurantId)
             ->where('account_group', 'accounts_payable')
+            ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
             ->first();
 
         $payablesBalance = 0;
@@ -398,6 +431,7 @@ class ReportService
             $balance = $payables->opening_balance ?? 0;
             $accountEntries = JournalEntry::forRestaurant($restaurantId)
                 ->byAccount($payables->id)
+                ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
                 ->get();
             foreach ($accountEntries as $entry) {
                 $balance += $entry->entry_type === 'credit' ? $entry->amount : -$entry->amount;
@@ -406,15 +440,23 @@ class ReportService
         }
 
         $salesByDay = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i)->format('Y-m-d');
+        $daysToShow = ($dateFrom && $dateTo) ? 7 : 7;
+        for ($i = $daysToShow - 1; $i >= 0; $i--) {
+            if ($dateFrom && $dateTo) {
+                $startCarbon = \Carbon\Carbon::parse($dateFrom);
+                $date = $startCarbon->copy()->addDays($daysToShow - 1 - $i)->format('Y-m-d');
+            } else {
+                $date = now()->subDays($i)->format('Y-m-d');
+            }
             $dailySales = JournalEntry::forRestaurant($restaurantId)
+                ->tap($branchFilter)
                 ->where('entry_date', $date)
                 ->where('entry_type', 'debit')
                 ->whereHas('account', fn($q) => $q->where('type', 'income'))
                 ->sum('amount');
 
             $dailyExpenses = JournalEntry::forRestaurant($restaurantId)
+                ->tap($branchFilter)
                 ->where('entry_date', $date)
                 ->where('entry_type', 'debit')
                 ->whereHas('account', fn($q) => $q->where('type', 'expense'))

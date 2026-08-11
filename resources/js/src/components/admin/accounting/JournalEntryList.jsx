@@ -17,6 +17,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LIST_JOURNAL, DELETE_JOURNAL, JOURNAL_LEDGER } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
@@ -34,6 +35,7 @@ export default function JournalEntryList() {
     const [accounts, setAccounts] = useState([]);
     const [dateFrom, setDateFrom] = useState("");
     const [dateTo, setDateTo] = useState("");
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const colors = useThemeColors();
     const { formatAmount } = useCurrencyFormatter();
@@ -48,6 +50,7 @@ export default function JournalEntryList() {
                 search: globalFilter || "",
                 entry_type: typeFilter || "",
                 account_id: accountFilter || "",
+                branch_id: branchFilter || "",
             };
             if (dateFrom) params.date_from = dateFrom;
             if (dateTo) params.date_to = dateTo;
@@ -63,7 +66,7 @@ export default function JournalEntryList() {
         } finally {
             setIsLoading(false);
         }
-    }, [pageIndex, globalFilter, pageSize, typeFilter, accountFilter, dateFrom, dateTo]);
+    }, [pageIndex, globalFilter, pageSize, typeFilter, accountFilter, dateFrom, dateTo, branchFilter]);
 
     const fetchAccounts = useCallback(async () => {
         try {
@@ -200,6 +203,12 @@ export default function JournalEntryList() {
                 <Text fontSize="sm" noOfLines={1} maxW="150px">
                     {getValue() || "-"}
                 </Text>
+            ),
+        },
+        {
+            header: t("branch"),
+            cell: ({ row }) => (
+                <Text fontSize="sm">{row.original.branch?.name || "-"}</Text>
             ),
         },
         {
@@ -351,9 +360,10 @@ export default function JournalEntryList() {
                     setPageIndex={setPageIndex}
                     pageCount={pageCount}
                     isLoading={isLoading}
+                    hideAddBtn="true"
                     totalItems={totalItems}
                 >
-
+                    <BranchFilter value={branchFilter} onChange={setBranchFilter} />
                 </TanStackTable>
 
 

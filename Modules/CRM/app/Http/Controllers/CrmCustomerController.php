@@ -24,15 +24,8 @@ class CrmCustomerController extends Controller
     {
         $this->authorizeAction($request, 'view_customers');
 
-        $filters = [
-            'search' => $request->input('search'),
-            'segment_id' => $request->input('segment_id'),
-            'lead_status' => $request->input('lead_status'),
-            'source' => $request->input('source'),
-            'birthday_month' => $request->input('birthday_month'),
-            'min_spend' => $request->input('min_spend'),
-            'restaurant_id' => $this->restaurantId($request),
-        ];
+        $filters = $request->only(['search', 'segment_id', 'lead_status', 'source', 'birthday_month', 'min_spend', 'branch_id']);
+        $filters['restaurant_id'] = $this->restaurantId($request);
 
         if ($request->filled('is_active')) {
             $filters['is_active'] = (bool) $request->input('is_active');

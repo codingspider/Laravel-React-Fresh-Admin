@@ -17,6 +17,7 @@ class CashBankTransaction extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'branch_id',
         'account_id',
         'from_account_id',
         'to_account_id',
@@ -55,6 +56,11 @@ class CashBankTransaction extends Model
     public function toAccount(): BelongsTo
     {
         return $this->belongsTo(Account::class, 'to_account_id');
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
     public function scopeForRestaurant($query, $restaurantId)

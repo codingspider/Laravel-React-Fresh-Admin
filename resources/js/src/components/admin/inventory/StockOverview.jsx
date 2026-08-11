@@ -16,6 +16,10 @@ import { STOCK_OVERVIEW, ADJUST_ITEM_STOCK, LIST_INVENTORY_CATEGORY } from "../.
 import { STOCK_OVERVIEW_PATH, STOCK_TRANSACTIONS_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
+import { usePermission } from "../../../context/PermissionContext";
+import BranchFilter from "../../ui/BranchFilter";
+
+const ADMIN_ROLES = ['super_admin', 'admin', 'restaurant_owner'];
 
 export default function StockOverview() {
   const [data, setData] = useState([]);
@@ -28,6 +32,7 @@ export default function StockOverview() {
   const [summary, setSummary] = useState({});
   const [typeFilter, setTypeFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const [categories, setCategories] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [adjustForm, setAdjustForm] = useState({ quantity: "", type: "adjustment", notes: "" });
@@ -37,6 +42,10 @@ export default function StockOverview() {
   const toast = useToast();
   const colors = useThemeColors();
   const { formatAmount } = useCurrencyFormatter();
+  const { user } = usePermission();
+
+  const isAdmin = user?.roles?.some((role) => ADMIN_ROLES.includes(role));
+  const userBranchId = user?.branch_id || null;
 
   const fetchData = useCallback(async () => {
     try {
@@ -48,6 +57,11 @@ export default function StockOverview() {
       };
       if (typeFilter) params.type = typeFilter;
       if (categoryFilter) params.category_id = categoryFilter;
+      if (isAdmin) {
+        if (branchFilter) params.branch_id = branchFilter;
+      } else if (userBranchId) {
+        params.branch_id = userBranchId;
+      }
       const res = await api.get(STOCK_OVERVIEW, { params });
       const items = res.data?.data?.data || res.data?.data || [];
       const total = res.data?.meta?.total || res.data?.data?.total || items.length;
@@ -60,7 +74,7 @@ export default function StockOverview() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, globalFilter, pageSize, typeFilter, categoryFilter]);
+  }, [pageIndex, globalFilter, pageSize, typeFilter, categoryFilter, isAdmin, userBranchId, branchFilter]);
 
   useEffect(() => {
     const app_name = localStorage.getItem("app_name");
@@ -212,9 +226,10 @@ export default function StockOverview() {
           isLoading={isLoading}
           totalItems={totalItems}
         >
-            <Select maxW="170px" size="md" value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPageIndex(0); }} placeholder={t("all_types")} bg={colors.bgInput}
-              borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-            >
+          {isAdmin && <BranchFilter value={branchFilter} onChange={setBranchFilter} />}
+          <Select maxW="170px" size="md" value={typeFilter} onChange={(e) => { setTypeFilter(e.target.value); setPageIndex(0); }} placeholder={t("all_types")} bg={colors.bgInput}
+            borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+          >
             <option value="raw_material">{t("raw_material")}</option>
             <option value="finished_product">{t("finished_product")}</option>
             <option value="both">{t("both")}</option>

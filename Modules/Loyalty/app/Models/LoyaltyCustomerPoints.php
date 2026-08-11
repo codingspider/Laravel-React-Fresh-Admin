@@ -15,6 +15,7 @@ class LoyaltyCustomerPoints extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'branch_id',
         'customer_id',
         'loyalty_id',
         'points_balance',

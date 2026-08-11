@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import api from "../../../axios";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { LEDGER_BY_ACCOUNT, LEDGER_ACCOUNTS } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
@@ -30,6 +31,7 @@ export default function LedgerList() {
     const [dateTo, setDateTo] = useState("");
     const [accountInfo, setAccountInfo] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [branchFilter, setBranchFilter] = useState(null);
     const { t } = useTranslation();
     const colors = useThemeColors();
     const { formatAmount } = useCurrencyFormatter();
@@ -56,6 +58,7 @@ export default function LedgerList() {
             const params = {};
             if (dateFrom) params.date_from = dateFrom;
             if (dateTo) params.date_to = dateTo;
+            if (branchFilter) params.branch_id = branchFilter;
 
             const res = await api.get(LEDGER_BY_ACCOUNT(selectedAccount), { params });
             const result = res.data?.data || null;
@@ -78,7 +81,7 @@ export default function LedgerList() {
         } finally {
             setLoading(false);
         }
-    }, [selectedAccount, dateFrom, dateTo, t, toast]);
+    }, [selectedAccount, dateFrom, dateTo, branchFilter, t, toast]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
@@ -98,6 +101,7 @@ export default function LedgerList() {
         { header: t("credit"), accessorKey: "credit" },
         { header: t("balance"), accessorKey: "balance" },
         { header: t("source_module"), accessorKey: "source_module" },
+        { header: t("branch"), accessorKey: "branch" },
     ];
 
     return (
@@ -166,6 +170,9 @@ export default function LedgerList() {
                             }}
                         />
                     </GridItem>
+                    <GridItem display="flex" alignItems="flex-end">
+                        <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+                    </GridItem>
                 </Grid>
 
                 {accountInfo && (
@@ -203,12 +210,13 @@ export default function LedgerList() {
                                 <Th fontSize="xs" textTransform="uppercase" textAlign="right">{t("debit")}</Th>
                                 <Th fontSize="xs" textTransform="uppercase" textAlign="right">{t("credit")}</Th>
                                 <Th fontSize="xs" textTransform="uppercase" textAlign="right">{t("balance")}</Th>
+                                <Th fontSize="xs" textTransform="uppercase">{t("branch")}</Th>
                             </Tr>
                         </Thead>
                         <Tbody>
                             {data.length === 0 ? (
                                 <Tr>
-                                    <Td colSpan="6" textAlign="center" py={8}>
+                                    <Td colSpan="7" textAlign="center" py={8}>
                                         <Text color="gray.500">{t("no_entries_in_ledger")}</Text>
                                     </Td>
                                 </Tr>
@@ -227,6 +235,7 @@ export default function LedgerList() {
                                         <Td fontSize="sm" textAlign="right" fontWeight="600">
                                             {formatAmount(parseFloat(item.balance || 0))}
                                         </Td>
+                                        <Td fontSize="sm">{item.branch?.name || "-"}</Td>
                                     </Tr>
                                 ))
                             )}

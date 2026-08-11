@@ -25,10 +25,14 @@ class InventoryStockController extends Controller
     public function overview(Request $request)
     {
         $restaurantId = getRestaurantId($request->user());
+        $branchId = $request->input('branch_id');
 
         $query = InventoryItem::with(['category:id,name', 'supplier:id,name']);
         if ($restaurantId) {
             $query->where('restaurant_id', $restaurantId);
+        }
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
         }
 
         $query->when($request->filled('search'), function ($q) use ($request) {
@@ -48,7 +52,7 @@ class InventoryStockController extends Controller
 
         $items = $query->orderBy('name')->paginate($request->input('per_page', 15));
 
-        $valuation = $this->stockService->valuation($restaurantId);
+        $valuation = $this->stockService->valuation($restaurantId, $branchId);
 
         return response()->json([
             'status' => 'success',
@@ -113,6 +117,7 @@ class InventoryStockController extends Controller
 
         $query->when($request->filled('type'), fn($q) => $q->where('type', $request->type));
         $query->when($request->filled('item_id'), fn($q) => $q->where('item_id', $request->item_id));
+        $query->when($request->filled('branch_id'), fn($q) => $q->where('branch_id', $request->branch_id));
         $query->when($request->filled('from'), fn($q) => $q->whereDate('created_at', '>=', $request->from));
         $query->when($request->filled('to'), fn($q) => $q->whereDate('created_at', '<=', $request->to));
 

@@ -26,12 +26,19 @@ import ReportSummaryCard from "./ReportSummaryCard";
 import { REPORT_META, REPORT_PURCHASES } from "../../../routes/apiRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
+import { usePermission } from "../../../context/PermissionContext";
+
+const ADMIN_ROLES = ['super_admin', 'admin', 'restaurant_owner'];
 
 export default function PurchaseReport() {
     const { t } = useTranslation();
+    const { user } = usePermission();
     const colors = useThemeColors();
     const toast = useToast();
     const { formatAmount } = useCurrencyFormatter();
+
+    const isAdmin = user?.roles?.some((role) => ADMIN_ROLES.includes(role));
+    const userBranchId = user?.branch_id || null;
 
     const today = new Date();
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -76,15 +83,18 @@ export default function PurchaseReport() {
         }
         setLoading(true);
         try {
-            const res = await api.get(REPORT_PURCHASES, {
-                params: {
-                    date_from: dateFrom,
-                    date_to: dateTo,
-                    branch_id: branchId || undefined,
-                    supplier_id: supplierId || undefined,
-                    status: status || undefined,
-                },
-            });
+            const params = {
+                date_from: dateFrom,
+                date_to: dateTo,
+                supplier_id: supplierId || undefined,
+                status: status || undefined,
+            };
+            if (isAdmin) {
+                params.branch_id = branchId || undefined;
+            } else if (userBranchId) {
+                params.branch_id = userBranchId;
+            }
+            const res = await api.get(REPORT_PURCHASES, { params });
             setReport(res.data?.data || null);
         } catch (err) {
             console.error("fetchReport error:", err);
@@ -92,7 +102,7 @@ export default function PurchaseReport() {
         } finally {
             setLoading(false);
         }
-    }, [dateFrom, dateTo, branchId, supplierId, status, t, toast]);
+    }, [dateFrom, dateTo, branchId, supplierId, status, t, toast, isAdmin, userBranchId]);
 
     useEffect(() => {
         fetchReport();
@@ -194,16 +204,18 @@ export default function PurchaseReport() {
                         </Text>
                         <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)} {...filterProps} />
                     </GridItem>
-                    <GridItem>
-                        <Text fontSize="xs" fontWeight="500" color={colors.textSecondary} mb={1}>
-                            {t("branch")}
-                        </Text>
-                        <Select value={branchId} onChange={(e) => setBranchId(e.target.value)} placeholder={t("all_branches")} {...filterProps}>
-                            {meta.branches.map((b) => (
-                                <option key={b.id} value={b.id}>{b.name}</option>
-                            ))}
-                        </Select>
-                    </GridItem>
+                    {isAdmin && (
+                        <GridItem>
+                            <Text fontSize="xs" fontWeight="500" color={colors.textSecondary} mb={1}>
+                                {t("branch")}
+                            </Text>
+                            <Select value={branchId} onChange={(e) => setBranchId(e.target.value)} placeholder={t("all_branches")} {...filterProps}>
+                                {meta.branches.map((b) => (
+                                    <option key={b.id} value={b.id}>{b.name}</option>
+                                ))}
+                            </Select>
+                        </GridItem>
+                    )}
                     <GridItem>
                         <Text fontSize="xs" fontWeight="500" color={colors.textSecondary} mb={1}>
                             {t("supplier")}

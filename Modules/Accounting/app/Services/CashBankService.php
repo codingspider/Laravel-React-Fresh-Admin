@@ -36,7 +36,11 @@ class CashBankService
             $q->where('transaction_date', '<=', $filters['date_to']);
         });
 
-        return $query->with(['account', 'fromAccount', 'toAccount'])
+        $query->when(!empty($filters['branch_id']), function ($q) use ($filters) {
+            $q->where('branch_id', $filters['branch_id']);
+        });
+
+        return $query->with(['account', 'fromAccount', 'toAccount', 'branch:id,name'])
             ->orderByDesc('transaction_date')
             ->paginate($perPage);
     }

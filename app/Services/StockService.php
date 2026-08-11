@@ -138,13 +138,16 @@ class StockService
     /**
      * Stock valuation summary across all items.
      */
-    public function valuation(?int $restaurantId = null): array
+    public function valuation(?int $restaurantId = null, ?int $branchId = null): array
     {
         $restaurantId = $restaurantId ?? getRestaurantId();
 
         $query = InventoryItem::query();
         if ($restaurantId) {
             $query->where('restaurant_id', $restaurantId);
+        }
+        if ($branchId) {
+            $query->where('branch_id', $branchId);
         }
 
         $items = $query->get();
@@ -166,6 +169,7 @@ class StockService
             'total_stock_qty' => round($totalQty, 2),
             'low_stock_items' => $lowStock,
             'expiring_soon' => InventoryBatch::when($restaurantId, fn($q) => $q->where('restaurant_id', $restaurantId))
+                ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
                 ->where('remaining_qty', '>', 0)
                 ->whereNotNull('expiry_date')
                 ->whereDate('expiry_date', '<=', now()->addDays(30))

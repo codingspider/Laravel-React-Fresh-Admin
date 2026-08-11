@@ -14,26 +14,85 @@ class CrmDashboardService
      *
      * @return array<string, mixed>
      */
-    public function summary(int $restaurantId): array
+    public function summary(int $restaurantId, array $filters = []): array
     {
         $now = now();
+        $branchId = $filters['branch_id'] ?? null;
+        $dateFrom = $filters['date_from'] ?? null;
+        $dateTo = $filters['date_to'] ?? null;
 
         $birthdayWindow = $this->upcomingRecurringDateRange($now, 30);
 
+        $branchFilter = function ($q) use ($branchId) {
+            if ($branchId) {
+                $q->where('branch_id', $branchId);
+            }
+        };
+
+        $dateFilter = function ($q) use ($dateFrom, $dateTo) {
+            if ($dateFrom && $dateTo) {
+                $q->whereBetween('created_at', [\Carbon\Carbon::parse($dateFrom)->startOfDay(), \Carbon\Carbon::parse($dateTo)->endOfDay()]);
+            } elseif ($dateFrom) {
+                $q->where('created_at', '>=', \Carbon\Carbon::parse($dateFrom)->startOfDay());
+            } elseif ($dateTo) {
+                $q->where('created_at', '<=', \Carbon\Carbon::parse($dateTo)->endOfDay());
+            }
+        };
+
+        $totalCustomers = Customer::where('restaurant_id', $restaurantId)
+            ->tap($branchFilter)
+            ->when($dateFrom || $dateTo, $dateFilter)
+            ->count();
+
+        $newCustomersQuery = Customer::where('restaurant_id', $restaurantId)
+            ->tap($branchFilter);
+
+        if ($dateFrom || $dateTo) {
+            $newCustomersQuery->when($dateFrom || $dateTo, $dateFilter);
+        } else {
+            $newCustomersQuery->where('created_at', '>=', $now->copy()->startOfMonth());
+        }
+
+        $activeCustomers = Customer::where('restaurant_id', $restaurantId)
+            ->tap($branchFilter)
+            ->where('is_active', true)
+            ->count();
+
+        $totalSpent = Customer::where('restaurant_id', $restaurantId)
+            ->tap($branchFilter)
+            ->when($dateFrom || $dateTo, $dateFilter)
+            ->sum('total_spent');
+
+        $pendingFollowUps = FollowUp::where('restaurant_id', $restaurantId)
+            ->tap($branchFilter)
+            ->where('status', 'pending')
+            ->when($dateFrom || $dateTo, function ($q) use ($dateFrom, $dateTo) {
+                if ($dateFrom && $dateTo) {
+                    $q->whereBetween('due_at', [\Carbon\Carbon::parse($dateFrom)->startOfDay(), \Carbon\Carbon::parse($dateTo)->endOfDay()]);
+                } elseif ($dateFrom) {
+                    $q->where('due_at', '>=', \Carbon\Carbon::parse($dateFrom)->startOfDay());
+                } elseif ($dateTo) {
+                    $q->where('due_at', '<=', \Carbon\Carbon::parse($dateTo)->endOfDay());
+                }
+            })
+            ->count();
+
+        $recentCustomersQuery = Customer::where('restaurant_id', $restaurantId)
+            ->tap($branchFilter)
+            ->with('segments:id,name,color');
+
+        if ($dateFrom || $dateTo) {
+            $recentCustomersQuery->when($dateFrom || $dateTo, $dateFilter);
+        }
+
         return [
-            'total_customers' => (int) Customer::where('restaurant_id', $restaurantId)->count(),
-            'new_customers_this_month' => (int) Customer::where('restaurant_id', $restaurantId)
-                ->where('created_at', '>=', $now->copy()->startOfMonth())
-                ->count(),
-            'active_customers' => (int) Customer::where('restaurant_id', $restaurantId)
-                ->where('is_active', true)
-                ->count(),
-            'total_spent' => (float) Customer::where('restaurant_id', $restaurantId)->sum('total_spent'),
-            'pending_follow_ups' => (int) FollowUp::where('restaurant_id', $restaurantId)
-                ->where('status', 'pending')
-                ->count(),
-            'upcoming_birthdays' => $this->upcomingCustomers($restaurantId, 'dob', $birthdayWindow['start'], $birthdayWindow['end'], $now),
-            'upcoming_anniversaries' => $this->upcomingCustomers($restaurantId, 'anniversary', $birthdayWindow['start'], $birthdayWindow['end'], $now),
+            'total_customers' => (int) $totalCustomers,
+            'new_customers_this_month' => (int) $newCustomersQuery->count(),
+            'active_customers' => (int) $activeCustomers,
+            'total_spent' => (float) $totalSpent,
+            'pending_follow_ups' => (int) $pendingFollowUps,
+            'upcoming_birthdays' => $this->upcomingCustomers($restaurantId, 'dob', $birthdayWindow['start'], $birthdayWindow['end'], $now, $branchId),
+            'upcoming_anniversaries' => $this->upcomingCustomers($restaurantId, 'anniversary', $birthdayWindow['start'], $birthdayWindow['end'], $now, $branchId),
             'segment_breakdown' => Segment::where('restaurant_id', $restaurantId)
                 ->withCount('customers')
                 ->orderBy('name')
@@ -46,8 +105,7 @@ class CrmDashboardService
                 ])
                 ->values()
                 ->toArray(),
-            'recent_customers' => Customer::where('restaurant_id', $restaurantId)
-                ->with('segments:id,name,color')
+            'recent_customers' => $recentCustomersQuery
                 ->orderByDesc('created_at')
                 ->limit(5)
                 ->get(['id', 'name', 'phone', 'email', 'total_spent', 'created_at'])
@@ -73,10 +131,11 @@ class CrmDashboardService
      *
      * @return array<int, array<string, mixed>>
      */
-    protected function upcomingCustomers(int $restaurantId, string $column, string $start, string $end, Carbon $now): array
+    protected function upcomingCustomers(int $restaurantId, string $column, string $start, string $end, Carbon $now, ?int $branchId = null): array
     {
         $customers = Customer::where('restaurant_id', $restaurantId)
             ->whereNotNull($column)
+            ->when($branchId, fn($q, $b) => $q->where('branch_id', $b))
             ->get(['id', 'name', 'phone', $column]);
 
         return $customers

@@ -43,6 +43,12 @@ import {
     RotateCcw,
     TriangleAlert,
     CheckCheck,
+    Plus,
+    ShoppingCart,
+    Receipt,
+    Users,
+    Package,
+    Zap,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { LanguageContext } from './../../LanguageProvider';
@@ -425,6 +431,43 @@ function ProfileMenu() {
     );
 }
 
+const QUICK_ACTIONS = [
+    { label: 'New Sale', icon: ShoppingCart, bg: 'linear-gradient(135deg, #0d9488, #14b8a6)', path: '/pos/terminal' },
+    { label: 'Orders', icon: Receipt, bg: 'linear-gradient(135deg, #f59e0b, #f97316)', path: '/pos/sales' },
+    { label: 'Accounts', icon: Receipt, bg: 'linear-gradient(135deg, #667eea, #764ba2)', path: '/accounting/dashboard' },
+    { label: 'Profit & Loss', icon: Receipt, bg: 'linear-gradient(135deg, #f093fb, #f5576c)', path: '/accounting/reports/profit-loss' },
+];
+
+function QuickActions() {
+    const navigate = useNavigate();
+
+    return (
+        <HStack spacing={2} display={{ base: 'none', lg: 'flex' }}>
+            {QUICK_ACTIONS.map((action) => (
+                <Tooltip key={action.label} label={action.label} hasArrow placement="bottom">
+                    <Button
+                        size="sm"
+                        variant="solid"
+                        bg={action.bg}
+                        color="white"
+                        leftIcon={<Icon as={action.icon} boxSize={4} />}
+                        onClick={() => navigate(action.path)}
+                        borderRadius="lg"
+                        fontWeight="600"
+                        fontSize="xs"
+                        px={3}
+                        _hover={{ transform: 'translateY(-1px)', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
+                        _active={{ transform: 'translateY(0)' }}
+                        transition="all 0.15s ease"
+                    >
+                        {action.label}
+                    </Button>
+                </Tooltip>
+            ))}
+        </HStack>
+    );
+}
+
 export default function TopNav({ onMobileMenuOpen }) {
     const colors = useThemeColors();
 
@@ -454,10 +497,10 @@ export default function TopNav({ onMobileMenuOpen }) {
                     borderRadius="lg"
                     size="sm"
                 />
-
             </HStack>
 
-            <HStack spacing={1}>
+            <HStack spacing={2}>
+                <QuickActions />
                 <LanguageSelector />
                 <ThemeToggle />
                 <NotificationBell />

@@ -14,6 +14,7 @@ class Customer extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'branch_id',
         'name',
         'company',
         'email',

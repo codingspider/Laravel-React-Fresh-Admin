@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Heading, Text, Select, Flex, useColorModeValue } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Heading, Text, useColorModeValue } from '@chakra-ui/react';
 import {
     LineChart,
     Line,
@@ -38,7 +38,6 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function SalesAnalytics({ data = [] }) {
     const { t } = useTranslation();
     const colors = useThemeColors();
-    const [period, setPeriod] = useState('weekly');
     const gridColor = useColorModeValue('#f0f0f0', '#2D3748');
 
     return (
@@ -49,23 +48,14 @@ export default function SalesAnalytics({ data = [] }) {
             border="1px solid"
             borderColor={colors.borderDefault}
         >
-            <Flex justify="space-between" align="center" mb={6} wrap="wrap" gap={3}>
+            <Box mb={6}>
                 <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                     {t('Sales Analytics')}
                 </Heading>
-                <Select
-                    size="sm"
-                    maxW="120px"
-                    borderRadius="lg"
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    focusBorderColor="brand.500"
-                >
-                    <option value="daily">{t('Daily')}</option>
-                    <option value="weekly">{t('Weekly')}</option>
-                    <option value="monthly">{t('Monthly')}</option>
-                </Select>
-            </Flex>
+                <Text fontSize="sm" color={colors.textSecondary} mt={1}>
+                    {t('Daily breakdown for the selected period')}
+                </Text>
+            </Box>
             <Box h={{ base: '250px', md: '300px' }}>
                 {!data || data.length === 0 ? (
                     <EmptyState compact title={t('No sales data available')} />

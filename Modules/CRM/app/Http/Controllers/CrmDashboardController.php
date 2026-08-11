@@ -21,7 +21,8 @@ class CrmDashboardController extends Controller
         $this->authorizeAction($request, 'view_crm_dashboard');
 
         $restaurantId = $this->restaurantId($request);
-        $summary = $restaurantId ? $this->service->summary($restaurantId) : $this->emptySummary();
+        $filters = $request->only(['branch_id', 'date_from', 'date_to']);
+        $summary = $restaurantId ? $this->service->summary($restaurantId, $filters) : $this->emptySummary();
 
         return response()->json([
             'status' => 'success',

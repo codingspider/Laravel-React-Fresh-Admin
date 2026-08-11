@@ -18,6 +18,7 @@ class JournalEntry extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'branch_id',
         'account_id',
         'related_id',
         'related_type',
@@ -50,6 +51,11 @@ class JournalEntry extends Model
     public function related(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
     public function scopeForRestaurant($query, $restaurantId)

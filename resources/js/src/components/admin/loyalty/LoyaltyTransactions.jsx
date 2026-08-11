@@ -11,6 +11,7 @@ import { DASHBOARD_PATH } from '../../../routes/superAdminRoutes';
 import TanStackTable from '../../../TanStackTable';
 import PageHeader from '../../ui/PageHeader';
 import useThemeColors from '../../../hooks/useThemeColors';
+import BranchFilter from '../../ui/BranchFilter';
 
 const TYPE_STYLES = {
   earn: 'green',
@@ -34,6 +35,7 @@ export default function LoyaltyTransactions() {
   const [dateFrom, setDateFrom] = useState('');
   const [dateTo, setDateTo] = useState('');
   const [customers, setCustomers] = useState([]);
+  const [branchFilter, setBranchFilter] = useState(null);
 
   const { t } = useTranslation();
   const toast = useToast();
@@ -59,6 +61,7 @@ export default function LoyaltyTransactions() {
         date_from: dateFrom || undefined,
         date_to: dateTo || undefined,
         customer_id: customerFilter || undefined,
+        branch_id: branchFilter || undefined,
       };
       const res = await api.get(LOYALTY_TRANSACTIONS, { params });
       const items = res.data?.data?.data || res.data?.data || [];
@@ -72,7 +75,7 @@ export default function LoyaltyTransactions() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, pageSize, typeFilter, dateFrom, dateTo, customerFilter, toast, t]);
+  }, [pageIndex, pageSize, typeFilter, dateFrom, dateTo, customerFilter, branchFilter, toast, t]);
 
   useEffect(() => {
     const app_name = localStorage.getItem('app_name');
@@ -169,6 +172,12 @@ export default function LoyaltyTransactions() {
         <Text fontSize="sm" color="gray.500">{getValue() ? new Date(getValue()).toLocaleString() : '-'}</Text>
       ),
     },
+    {
+      header: t('Branch'),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch?.name || '-'}</Text>
+      ),
+    },
   ];
 
   return (
@@ -248,6 +257,8 @@ export default function LoyaltyTransactions() {
               borderRadius="lg"
             />
           </FormControl>
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+
           <HStack spacing={2}>
             <Button colorScheme="brand" leftIcon={<Icon as={Search} boxSize={4} />} borderRadius="lg" onClick={applyFilters}>
               {t('Filter')}

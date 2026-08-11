@@ -17,6 +17,7 @@ class CrmCustomerRepository
     {
         return $this->model->query()
             ->when($filters['restaurant_id'] ?? null, fn ($q, $restaurantId) => $q->where('restaurant_id', $restaurantId))
+            ->when($filters['branch_id'] ?? null, fn ($q, $b) => $q->where('branch_id', $b))
             ->when($filters['search'] ?? null, fn ($q, $search) => $q->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
                     ->orWhere('email', 'like', "%{$search}%")
@@ -29,7 +30,7 @@ class CrmCustomerRepository
             ->when($filters['min_spend'] ?? null, fn ($q, $minSpend) => $q->where('total_spent', '>=', (float) $minSpend))
             ->when($filters['birthday_month'] ?? null, fn ($q, $month) => $q->whereMonth('dob', (int) $month))
             ->when($filters['segment_id'] ?? null, fn ($q, $segmentId) => $q->whereHas('segments', fn ($q) => $q->where('crm_segments.id', $segmentId)))
-            ->with(['segments:id,name,color'])
+            ->with(['segments:id,name,color', 'branch:id,name'])
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }

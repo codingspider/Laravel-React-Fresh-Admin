@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Grid, SimpleGrid, Alert, AlertIcon, AlertTitle, AlertDescription, Badge, Text } from '@chakra-ui/react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, Grid, Alert, AlertIcon, AlertTitle, AlertDescription, Badge, Text, HStack, Button, Input, Flex, useColorModeValue } from '@chakra-ui/react';
 import { useTranslation } from 'react-i18next';
 import { usePermission } from '../../context/PermissionContext';
 import { useCurrencyFormatter } from '../../useCurrencyFormatter';
@@ -16,6 +16,8 @@ import OrderStatusDistribution from '../dashboard/OrderStatusDistribution';
 import LowStockAlerts from '../dashboard/LowStockAlerts';
 import CashMovementsOverview from '../dashboard/CashMovementsOverview';
 import PaymentsOverview from '../dashboard/PaymentsOverview';
+import BranchFilter from '../ui/BranchFilter';
+import useThemeColors from '../../hooks/useThemeColors';
 import {
     DollarSign,
     ShoppingCart,
@@ -25,6 +27,8 @@ import {
     LayoutList,
     Package,
     FolderOpen,
+    Calendar,
+    X,
 } from 'lucide-react';
 import { DASHBOARD_STATS } from '../../routes/apiRoutes';
 
@@ -163,39 +167,114 @@ const SubscriptionAlert = () => {
     );
 };
 
+const QUICK_FILTERS = [
+    { label: 'Today', value: 'today' },
+    { label: 'Yesterday', value: 'yesterday' },
+    { label: 'This Week', value: 'this_week' },
+    { label: 'This Month', value: 'this_month' },
+    { label: 'This Year', value: 'this_year' },
+];
+
+function getQuickDateRange(value) {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    switch (value) {
+        case 'today':
+            return { from: today.toISOString().split('T')[0], to: today.toISOString().split('T')[0] };
+        case 'yesterday': {
+            const y = new Date(today);
+            y.setDate(y.getDate() - 1);
+            return { from: y.toISOString().split('T')[0], to: y.toISOString().split('T')[0] };
+        }
+        case 'this_week': {
+            const start = new Date(today);
+            start.setDate(start.getDate() - start.getDay());
+            return { from: start.toISOString().split('T')[0], to: today.toISOString().split('T')[0] };
+        }
+        case 'this_month': {
+            const start = new Date(today.getFullYear(), today.getMonth(), 1);
+            return { from: start.toISOString().split('T')[0], to: today.toISOString().split('T')[0] };
+        }
+        case 'this_year': {
+            const start = new Date(today.getFullYear(), 0, 1);
+            return { from: start.toISOString().split('T')[0], to: today.toISOString().split('T')[0] };
+        }
+        default:
+            return { from: '', to: '' };
+    }
+}
+
+const ADMIN_ROLES = ['super_admin', 'admin', 'restaurant_owner'];
+
 export default function Dashboard() {
     const { t } = useTranslation();
-    const { can } = usePermission();
+    const { can, user } = usePermission();
     const { formatAmount } = useCurrencyFormatter();
+    const colors = useThemeColors();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [branchFilter, setBranchFilter] = useState(null);
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+    const [quickFilter, setQuickFilter] = useState('');
+
+    const isAdmin = user?.roles?.some((role) => ADMIN_ROLES.includes(role));
+    const userBranchId = user?.branch_id || null;
 
     useEffect(() => {
         const app_name = localStorage.getItem('app_name');
         document.title = `${app_name} | ${t('Dashboard')}`;
     }, [t]);
 
-    useEffect(() => {
+    const fetchStats = useCallback(async () => {
         if (!can('view_dashboard_data')) {
             setLoading(false);
             return;
         }
-        const fetchStats = async () => {
-            try {
-                setLoading(true);
-                const res = await api.get(DASHBOARD_STATS);
-                setStats(res.data.data);
-                setError(null);
-            } catch (err) {
-                console.error('Failed to fetch dashboard stats:', err);
-                setError(t('Failed to load dashboard data'));
-            } finally {
-                setLoading(false);
+        try {
+            setLoading(true);
+            const params = {};
+            if (isAdmin) {
+                if (branchFilter) params.branch_id = branchFilter;
+            } else if (userBranchId) {
+                params.branch_id = userBranchId;
             }
-        };
+            if (dateFrom) params.date_from = dateFrom;
+            if (dateTo) params.date_to = dateTo;
+            const res = await api.get(DASHBOARD_STATS, { params });
+            setStats(res.data.data);
+            setError(null);
+        } catch (err) {
+            console.error('Failed to fetch dashboard stats:', err);
+            setError(t('Failed to load dashboard data'));
+        } finally {
+            setLoading(false);
+        }
+    }, [t, can, isAdmin, userBranchId, branchFilter, dateFrom, dateTo]);
+
+    useEffect(() => {
         fetchStats();
-    }, [t, can]);
+    }, [fetchStats]);
+
+    const handleQuickFilter = (value) => {
+        setQuickFilter(value);
+        if (value) {
+            const range = getQuickDateRange(value);
+            setDateFrom(range.from);
+            setDateTo(range.to);
+        } else {
+            setDateFrom('');
+            setDateTo('');
+        }
+    };
+
+    const clearFilters = () => {
+        setBranchFilter(null);
+        setDateFrom('');
+        setDateTo('');
+        setQuickFilter('');
+    };
 
     const statCards = stats ? [
         { title: t('Total Sales'), value: formatAmount(stats.stats.total_sales), icon: DollarSign, iconColor: '#22c55e', iconBg: 'rgba(34,197,94,0.1)' },
@@ -228,6 +307,60 @@ export default function Dashboard() {
                 </Alert>
             )}
 
+            {/* Filters */}
+            <Box bg={colors.bgCard} p={{ base: 4, md: 5 }} borderRadius="xl" border="1px solid" borderColor={colors.borderDefault} mb={{ base: 5, md: 6 }}>
+                <Flex direction={{ base: 'column', md: 'row' }} align={{ base: 'stretch', md: 'flex-end' }} gap={3} flexWrap="wrap">
+                    {isAdmin && <BranchFilter value={branchFilter} onChange={setBranchFilter} />}
+                    <Box>
+                        <Text fontSize="xs" color={colors.textSecondary} mb={1}>{t('Date From')}</Text>
+                        <Input
+                            type="date"
+                            size="md"
+                            value={dateFrom}
+                            onChange={(e) => { setDateFrom(e.target.value); setQuickFilter(''); }}
+                            borderRadius="lg"
+                            bg={colors.bgSubtle}
+                        />
+                    </Box>
+                    <Box>
+                        <Text fontSize="xs" color={colors.textSecondary} mb={1}>{t('Date To')}</Text>
+                        <Input
+                            type="date"
+                            size="md"
+                            value={dateTo}
+                            onChange={(e) => { setDateTo(e.target.value); setQuickFilter(''); }}
+                            borderRadius="lg"
+                            bg={colors.bgSubtle}
+                        />
+                    </Box>
+                    <HStack spacing={2} flexWrap="wrap">
+                        {QUICK_FILTERS.map((f) => (
+                            <Button
+                                key={f.value}
+                                size="sm"
+                                variant={quickFilter === f.value ? 'primary' : 'outline'}
+                                borderRadius="lg"
+                                onClick={() => handleQuickFilter(quickFilter === f.value ? '' : f.value)}
+                                fontWeight="500"
+                            >
+                                {t(f.label)}
+                            </Button>
+                        ))}
+                    </HStack>
+                    {(branchFilter || dateFrom || dateTo) && (
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            borderRadius="lg"
+                            onClick={clearFilters}
+                            leftIcon={<X size={14} />}
+                        >
+                            {t('Clear')}
+                        </Button>
+                    )}
+                </Flex>
+            </Box>
+
             {/* Stats Cards - Row 1 (4 cards) */}
             <Grid
                 templateColumns={{ base: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(4, 1fr)' }}
@@ -235,7 +368,7 @@ export default function Dashboard() {
                 mb={{ base: 5, md: 6 }}
             >
                 {statCards.slice(0, 4).map((stat, i) => (
-                    <DashboardStatCard key={i} {...stat} />
+                    <DashboardStatCard key={i} {...stat} index={i} />
                 ))}
             </Grid>
 
@@ -246,7 +379,7 @@ export default function Dashboard() {
                 mb={{ base: 5, md: 6 }}
             >
                 {statCards.slice(4, 8).map((stat, i) => (
-                    <DashboardStatCard key={i} {...stat} />
+                    <DashboardStatCard key={i} {...stat} index={i + 4} />
                 ))}
             </Grid>
 

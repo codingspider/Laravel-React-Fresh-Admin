@@ -66,8 +66,9 @@ class ReportController extends Controller
     public function dashboard(Request $request)
     {
         $restaurantId = getRestaurantId($request->user());
+        $filters = $request->only(['branch_id', 'date_from', 'date_to']);
 
-        $data = $this->reportService->dashboard($restaurantId);
+        $data = $this->reportService->dashboard($restaurantId, $filters);
 
         return response()->json([
             'status' => 'success',

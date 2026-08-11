@@ -30,6 +30,13 @@ class JournalEntryResource extends JsonResource
             'entry_date' => $this->entry_date?->format('Y-m-d'),
             'description' => $this->description,
             'source_module' => $this->source_module,
+            'branch_id' => $this->branch_id,
+            'branch' => $this->whenLoaded('branch', function () {
+                return [
+                    'id' => $this->branch->id,
+                    'name' => $this->branch->name,
+                ];
+            }),
             'metadata' => $this->metadata,
             'created_at' => $this->created_at?->format('Y-m-d H:i:s'),
             'updated_at' => $this->updated_at?->format('Y-m-d H:i:s'),

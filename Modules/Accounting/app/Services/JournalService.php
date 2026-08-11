@@ -40,7 +40,11 @@ class JournalService
             $q->byDateRange($filters['date_from'], $filters['date_to']);
         });
 
-        return $query->with('account')
+        $query->when(!empty($filters['branch_id']), function ($q) use ($filters) {
+            $q->where('branch_id', $filters['branch_id']);
+        });
+
+        return $query->with(['account', 'branch:id,name'])
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }
@@ -182,6 +186,10 @@ class JournalService
             $query->byDateRange($filters['date_from'], $filters['date_to']);
         }
 
+        if (!empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
+        }
+
         $entries = $query->with('account')->orderBy('entry_date')->get();
 
         $grouped = [];
@@ -217,6 +225,10 @@ class JournalService
 
         if (!empty($filters['date_from']) && !empty($filters['date_to'])) {
             $query->byDateRange($filters['date_from'], $filters['date_to']);
+        }
+
+        if (!empty($filters['branch_id'])) {
+            $query->where('branch_id', $filters['branch_id']);
         }
 
         $entries = $query->with('account')->get();

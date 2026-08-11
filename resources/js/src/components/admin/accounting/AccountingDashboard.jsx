@@ -8,6 +8,8 @@ import {
     HStack,
     VStack,
     useToast,
+    Input,
+    Button,
 } from "@chakra-ui/react";
 import {
     LineChart,
@@ -32,15 +34,20 @@ import {
     FileText,
     Wallet,
     Clock,
+    X,
 } from "lucide-react";
 import api from "../../../axios";
 import PageHeader from "../../ui/PageHeader";
 import StatCard from "../../ui/StatCard";
 import useThemeColors from "../../../hooks/useThemeColors";
 import { useCurrencyFormatter } from "../../../useCurrencyFormatter";
+import { usePermission } from "../../../context/PermissionContext";
+import BranchFilter from "../../ui/BranchFilter";
 import { ACCOUNTING_DASHBOARD } from "../../../routes/apiRoutes";
 
 const COLORS = ["#0D9488", "#F59E0B", "#8B5CF6"];
+
+const ADMIN_ROLES = ['super_admin', 'admin', 'restaurant_owner'];
 
 const CustomTooltip = ({ active, payload, label }) => {
     const colors = useThemeColors();
@@ -68,16 +75,31 @@ export default function AccountingDashboard() {
     const [dashboard, setDashboard] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const { t } = useTranslation();
+    const { user } = usePermission();
     const colors = useThemeColors();
     const { formatAmount } = useCurrencyFormatter();
     const toast = useToast();
     const bg = colors.bgCard;
     const borderColor = colors.borderDefault;
+    const [branchFilter, setBranchFilter] = useState(null);
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+
+    const isAdmin = user?.roles?.some((role) => ADMIN_ROLES.includes(role));
+    const userBranchId = user?.branch_id || null;
 
     const fetchData = useCallback(async () => {
         try {
             setIsLoading(true);
-            const res = await api.get(ACCOUNTING_DASHBOARD);
+            const params = {};
+            if (isAdmin) {
+                if (branchFilter) params.branch_id = branchFilter;
+            } else if (userBranchId) {
+                params.branch_id = userBranchId;
+            }
+            if (dateFrom) params.date_from = dateFrom;
+            if (dateTo) params.date_to = dateTo;
+            const res = await api.get(ACCOUNTING_DASHBOARD, { params });
             setDashboard(res.data?.data || null);
         } catch (err) {
             console.error("fetchData error:", err);
@@ -90,13 +112,19 @@ export default function AccountingDashboard() {
         } finally {
             setIsLoading(false);
         }
-    }, [t, toast]);
+    }, [t, toast, isAdmin, userBranchId, branchFilter, dateFrom, dateTo]);
 
     useEffect(() => {
         const app_name = localStorage.getItem("app_name");
         document.title = `${app_name} | Accounting Dashboard`;
         fetchData();
     }, [fetchData]);
+
+    const clearFilters = () => {
+        setBranchFilter(null);
+        setDateFrom('');
+        setDateTo('');
+    };
 
     const stats = dashboard ? [
         {
@@ -152,6 +180,46 @@ export default function AccountingDashboard() {
                     { label: t("accounting_dashboard"), isCurrent: true },
                 ]}
             />
+
+            {/* Filters */}
+            <Box bg={bg} p={{ base: 4, md: 5 }} borderRadius="xl" border="1px solid" borderColor={borderColor} mb={{ base: 5, md: 6 }}>
+                <Flex direction={{ base: 'column', md: 'row' }} align={{ base: 'stretch', md: 'flex-end' }} gap={3} flexWrap="wrap">
+                    {isAdmin && <BranchFilter value={branchFilter} onChange={setBranchFilter} />}
+                    <Box>
+                        <Text fontSize="xs" color={colors.textSecondary} mb={1}>{t('Date From')}</Text>
+                        <Input
+                            type="date"
+                            size="md"
+                            value={dateFrom}
+                            onChange={(e) => setDateFrom(e.target.value)}
+                            borderRadius="lg"
+                            bg={colors.bgSubtle}
+                        />
+                    </Box>
+                    <Box>
+                        <Text fontSize="xs" color={colors.textSecondary} mb={1}>{t('Date To')}</Text>
+                        <Input
+                            type="date"
+                            size="md"
+                            value={dateTo}
+                            onChange={(e) => setDateTo(e.target.value)}
+                            borderRadius="lg"
+                            bg={colors.bgSubtle}
+                        />
+                    </Box>
+                    {(branchFilter || dateFrom || dateTo) && (
+                        <Button
+                            size="sm"
+                            variant="ghost"
+                            borderRadius="lg"
+                            onClick={clearFilters}
+                            leftIcon={<X size={14} />}
+                        >
+                            {t('Clear')}
+                        </Button>
+                    )}
+                </Flex>
+            </Box>
 
             {/* Stats Grid */}
             <Grid

@@ -35,7 +35,11 @@ class AccountService
             $q->where('status', $filters['status']);
         });
 
-        return $query->with('parent')->orderBy('code')->paginate($perPage);
+        $query->when(!empty($filters['branch_id']), function ($q) use ($filters) {
+            $q->where('branch_id', $filters['branch_id']);
+        });
+
+        return $query->with(['parent', 'branch:id,name'])->orderBy('code')->paginate($perPage);
     }
 
     public function find(int $id): ?Account

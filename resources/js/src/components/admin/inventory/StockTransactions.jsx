@@ -7,6 +7,7 @@ import api from "../../../axios";
 import TanStackTable from "../../../TanStackTable";
 import PageHeader from "../../ui/PageHeader";
 import TableExportButtons from "../../ui/TableExportButtons";
+import BranchFilter from "../../ui/BranchFilter";
 import { STOCK_TRANSACTIONS, LIST_INVENTORY_ITEM } from "../../../routes/apiRoutes";
 import { STOCK_OVERVIEW_PATH, DASHBOARD_PATH } from "../../../routes/superAdminRoutes";
 import useThemeColors from "../../../hooks/useThemeColors";
@@ -21,6 +22,7 @@ export default function StockTransactions() {
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
   const [typeFilter, setTypeFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const [items, setItems] = useState([]);
   const { t } = useTranslation();
   const colors = useThemeColors();
@@ -30,7 +32,7 @@ export default function StockTransactions() {
     try {
       setIsLoading(true);
       const res = await api.get(STOCK_TRANSACTIONS, {
-        params: { page: pageIndex + 1, per_page: pageSize, type: typeFilter || "", search: globalFilter || "" },
+        params: { page: pageIndex + 1, per_page: pageSize, type: typeFilter || "", search: globalFilter || "", branch_id: branchFilter || "" },
       });
       const list = res.data?.data?.data || res.data?.data || [];
       const total = res.data?.meta?.total || res.data?.data?.total || list.length;
@@ -42,7 +44,7 @@ export default function StockTransactions() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, pageSize, typeFilter, globalFilter]);
+  }, [pageIndex, pageSize, typeFilter, globalFilter, branchFilter]);
 
   useEffect(() => {
     const app_name = localStorage.getItem("app_name");
@@ -146,6 +148,8 @@ export default function StockTransactions() {
             <option value="return">return</option>
             <option value="consumption">consumption</option>
           </Select>
+
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
         </TanStackTable>
       </Box>
     </Box>

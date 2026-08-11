@@ -49,6 +49,8 @@ class LoyaltyService
                 $join->on('loyalty_customer_points.customer_id', '=', 'customers.id')
                     ->where('loyalty_customer_points.restaurant_id', '=', $restaurantId);
             })
+            ->leftJoin('branches', 'branches.id', '=', 'customers.branch_id')
+            ->when($filters['branch_id'] ?? null, fn ($q, $b) => $q->where('customers.branch_id', $b))
             ->when($filters['search'] ?? null, function ($q, $search) {
                 $q->where(function ($qq) use ($search) {
                     $qq->where('customers.name', 'like', "%{$search}%")
@@ -63,6 +65,8 @@ class LoyaltyService
                 'customers.email',
                 'customers.address',
                 'customers.city',
+                'customers.branch_id',
+                'branches.name as branch_name',
                 'loyalty_customer_points.points_balance',
                 'loyalty_customer_points.lifetime_points',
                 'loyalty_customer_points.total_redeemed',
@@ -103,9 +107,10 @@ class LoyaltyService
     public function transactions(int $restaurantId, array $filters = [], int $perPage = 15)
     {
         return LoyaltyPointsTransaction::query()
-            ->with('customer:id,name,phone')
+            ->with('customer:id,name,phone,branch_id')
             ->where('restaurant_id', $restaurantId)
             ->when($filters['customer_id'] ?? null, fn ($q, $id) => $q->where('customer_id', $id))
+            ->when($filters['branch_id'] ?? null, fn ($q, $b) => $q->where('branch_id', $b))
             ->when($filters['type'] ?? null, fn ($q, $type) => $q->where('type', $type))
             ->when($filters['date_from'] ?? null, fn ($q, $d) => $q->whereDate('created_at', '>=', $d))
             ->when($filters['date_to'] ?? null, fn ($q, $d) => $q->whereDate('created_at', '<=', $d))

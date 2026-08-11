@@ -17,6 +17,7 @@ import { DASHBOARD_PATH, LOYALTY_TRANSACTIONS_PATH } from '../../../routes/super
 import TanStackTable from '../../../TanStackTable';
 import PageHeader from '../../ui/PageHeader';
 import useThemeColors from '../../../hooks/useThemeColors';
+import BranchFilter from '../../ui/BranchFilter';
 import { usePermission } from '../../../context/PermissionContext';
 
 export default function LoyaltyCustomers() {
@@ -36,6 +37,7 @@ export default function LoyaltyCustomers() {
 
   const [adjustCustomer, setAdjustCustomer] = useState(null);
   const [adjustPoints, setAdjustPoints] = useState(0);
+  const [branchFilter, setBranchFilter] = useState(null);
   const [adjustReason, setAdjustReason] = useState('');
   const [adjusting, setAdjusting] = useState(false);
 
@@ -43,7 +45,7 @@ export default function LoyaltyCustomers() {
     try {
       setIsLoading(true);
       const res = await api.get(LOYALTY_CUSTOMERS, {
-        params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || '' },
+        params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || '', branch_id: branchFilter || '' },
       });
       const items = res.data?.data?.data || res.data?.data || [];
       const total = res.data?.meta?.total || res.data?.data?.total || items.length;
@@ -55,7 +57,7 @@ export default function LoyaltyCustomers() {
     } finally {
       setIsLoading(false);
     }
-  }, [pageIndex, globalFilter, pageSize]);
+  }, [pageIndex, globalFilter, pageSize, branchFilter]);
 
   useEffect(() => {
     const app_name = localStorage.getItem('app_name');
@@ -146,6 +148,12 @@ export default function LoyaltyCustomers() {
       ),
     },
     {
+      header: t('Branch'),
+      cell: ({ row }) => (
+        <Text fontSize="sm">{row.original.branch_name || '-'}</Text>
+      ),
+    },
+    {
       header: t('Actions'),
       cell: ({ row }) => (
         <Menu>
@@ -222,7 +230,9 @@ export default function LoyaltyCustomers() {
           hideAddBtn="true"
           searchPlaceholder={t('Search customers...')}
           totalItems={totalItems}
-        />
+        >
+          <BranchFilter value={branchFilter} onChange={setBranchFilter} />
+        </TanStackTable>
       </Box>
 
       <Modal isOpen={isOpen} onClose={onClose} isCentered>

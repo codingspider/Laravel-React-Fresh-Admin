@@ -18,6 +18,7 @@ class ExpenseCategory extends Model
 
     protected $fillable = [
         'restaurant_id',
+        'branch_id',
         'name',
         'code',
         'description',
@@ -43,6 +44,11 @@ class ExpenseCategory extends Model
     public function expenses(): HasMany
     {
         return $this->hasMany(Expense::class, 'accounting_expense_category_id');
+    }
+
+    public function branch(): BelongsTo
+    {
+        return $this->belongsTo(\Modules\Branch\Models\Branch::class);
     }
 
     public function scopeForRestaurant($query, $restaurantId)

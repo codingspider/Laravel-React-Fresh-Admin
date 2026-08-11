@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Box, Heading, Text, Flex, Select, HStack, VStack } from '@chakra-ui/react';
+import React from 'react';
+import { Box, Heading, Text, Flex, HStack, VStack } from '@chakra-ui/react';
 import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useTranslation } from 'react-i18next';
 import useThemeColors from '../../hooks/useThemeColors';
@@ -42,7 +42,6 @@ const CustomLegend = ({ payload }) => {
 export default function OrderTypeDistribution({ data = [] }) {
     const { t } = useTranslation();
     const colors = useThemeColors();
-    const [period, setPeriod] = useState('all');
 
     const chartData = data.map(item => ({
         name: item.type || t('Unknown'),
@@ -57,24 +56,11 @@ export default function OrderTypeDistribution({ data = [] }) {
             border="1px solid"
             borderColor={colors.borderDefault}
         >
-            <Flex justify="space-between" align="center" mb={6} wrap="wrap" gap={3}>
+            <Box mb={6}>
                 <Heading size="md" fontWeight="bold" color={colors.textHeading}>
                     {t('Order Type Distribution')}
                 </Heading>
-                <Select
-                    size="sm"
-                    maxW="140px"
-                    borderRadius="lg"
-                    value={period}
-                    onChange={(e) => setPeriod(e.target.value)}
-                    focusBorderColor="brand.500"
-                >
-                    <option value="all">{t('All The Time')}</option>
-                    <option value="today">{t('Today')}</option>
-                    <option value="week">{t('This Week')}</option>
-                    <option value="month">{t('This Month')}</option>
-                </Select>
-            </Flex>
+            </Box>
             <Box h={{ base: '250px', md: '280px' }}>
                 {!chartData || chartData.length === 0 ? (
                     <EmptyState compact title={t('No order data available')} />
