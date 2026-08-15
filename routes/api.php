@@ -39,7 +39,7 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'module.access', 're
     // Admin module routes have been distributed to their respective modules.
 });
 
-Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', 'cookie.filter'])->group(function () {
+Route::middleware(['cookie.filter', 'auth:sanctum', 'check_active_business', 'restaurant.scope'])->group(function () {
     Route::get('get/currencies', [GeneralController::class, 'getCurrency']);
     Route::get('get/timezones', [GeneralController::class, 'getTimezone']);
     Route::get('get/locations', [LocationController::class, 'getAllLocations']);
@@ -64,7 +64,7 @@ Route::middleware(['auth:sanctum', 'check_active_business', 'restaurant.scope', 
     
 });
 
-Route::middleware(['auth:sanctum', 'cookie.filter'])->get('/user', function (Request $request) {
+Route::middleware(['cookie.filter', 'auth:sanctum'])->get('/user', function (Request $request) {
     $user = $request->user();
     $restaurant = null;
     $subscription = null;

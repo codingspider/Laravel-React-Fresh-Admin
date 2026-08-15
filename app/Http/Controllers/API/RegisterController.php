@@ -202,9 +202,10 @@ class RegisterController extends BaseController
                 ? \Modules\Restaurant\Models\Restaurant::find($user->restaurant_id)
                 : \Modules\Restaurant\Models\Restaurant::where('owner_id', $user->id)->first();
 
+
             return response()->json([
                 'name' => $user->name,
-                'role' => $user->role ?? 'admin',
+                'role' => $user->roles->first()?->name,
                 'permissions' => $user->getAllPermissions()->pluck('name'),
                 'app_name' => $restaurant?->name ?: env("APP_NAME")
             ])->cookie($cookie);

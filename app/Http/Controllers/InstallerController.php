@@ -210,9 +210,10 @@ class InstallerController extends Controller
             $this->installer->createAdmin($validated);
             $this->installer->markAsInstalled();
 
+            $this->installer->updateEnvFile();
+
             return redirect()->to('/');
         } catch (\Exception $e) {
-            dd($e->getMessage());
             return back()->withErrors(['error' => 'Failed to create admin: ' . $e->getMessage()])->withInput();
         }
     }

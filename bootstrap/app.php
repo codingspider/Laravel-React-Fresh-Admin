@@ -24,9 +24,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->priority([
-            \App\Http\Middleware\CookieFilter::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+            \App\Http\Middleware\CookieFilter::class,
         ]);
+
+        $middleware->encryptCookies(except: ['access_token']);
 
         $middleware->statefulApi();
         $middleware->appendToGroup('api', \App\Http\Middleware\CheckPermission::class);

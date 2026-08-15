@@ -40,20 +40,26 @@
     let installationStarted = false;
 
     const startInstallation = () => {
-        if (installationStarted) {
-            return;
-        }
+    if (installationStarted) {
+        return;
+    }
 
-        installationStarted = true;
+    installationStarted = true;
 
-        fetch('{{ route('installer.start') }}', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Accept': 'application/json',
-            },
+    fetch('{{ route('installer.start') }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+        },
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error: ${response.status}`);
+                }
+
+                return response.json();
+            })
             .then(data => {
                 console.log('Installation started:', data);
 
@@ -61,7 +67,13 @@
             })
             .catch(error => {
                 console.error('Failed to start installation:', error);
+
                 installationStarted = false;
+
+                // Go back to the previous page
+                setTimeout(() => {
+                        window.location.href = '{{ route("installer.environment") }}';
+                }, 2000);
             });
     };
 

@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
 use Spatie\Permission\Models\Role;
+use Hash;
 
 class InstallerService
 {
@@ -85,6 +86,7 @@ class InstallerService
         }
     }
 
+    // before database migration
     public function writeEnvFile(array $data): bool
     {
         $envPath = base_path('.env');
@@ -100,14 +102,14 @@ class InstallerService
 
         $replacements = [
             'APP_NAME' => $data['APP_NAME'] ?? 'Laravel',
-            'APP_URL' => $data['APP_URL'] ?? 'http://localhost',
-            'FRONTEND_URL' => $data['FRONTEND_URL'] ?? ($data['APP_URL'] ?? 'http://localhost') . ':5173',
+            'APP_URL' => $data['APP_URL'] ?? 'http://localhost:8000',
+            'FRONTEND_URL' => $data['FRONTEND_URL'] ?? ($data['APP_URL'] ?? 'http://localhost'),
             'DB_HOST' => $data['DB_HOST'] ?? '127.0.0.1',
             'DB_PORT' => $data['DB_PORT'] ?? '3306',
             'DB_DATABASE' => $data['DB_DATABASE'] ?? '',
             'DB_USERNAME' => $data['DB_USERNAME'] ?? '',
             'DB_PASSWORD' => $data['DB_PASSWORD'] ?? '',
-            'SESSION_DRIVER' => 'file',
+            'SESSION_DRIVER' => $data['SESSION_DRIVER'] ?? 'file',
             'CACHE_STORE' => 'file',
             'QUEUE_CONNECTION' => 'sync',
         ];
@@ -125,6 +127,33 @@ class InstallerService
         $envContent = $this->setEnvValue($envContent, 'VITE_API_URL', ($data['APP_URL'] ?? 'http://localhost') . '/api');
         $envContent = $this->setEnvValue($envContent, 'PWA_NAME', $data['APP_NAME'] ?? 'Laravel');
         $envContent = $this->setEnvValue($envContent, 'PWA_SHORT_NAME', $data['APP_NAME'] ?? 'Laravel');
+
+        return File::put($envPath, $envContent) !== false;
+    }
+
+    // after migration and seed
+    public function updateEnvFile(): bool
+    {
+        $envPath = base_path('.env');
+        $envExample = base_path('.env.example');
+
+        if (File::exists($envPath)) {
+            $envContent = File::get($envPath);
+        } elseif (File::exists($envExample)) {
+            $envContent = File::get($envExample);
+        } else {
+            $envContent = $this->getDefaultEnvContent();
+        }
+
+        $replacements = [
+            'SESSION_DRIVER' => 'database',
+            'CACHE_STORE' => 'file',
+            'QUEUE_CONNECTION' => 'sync',
+        ];
+
+        foreach ($replacements as $key => $value) {
+            $envContent = $this->setEnvValue($envContent, $key, $value);
+        }
 
         return File::put($envPath, $envContent) !== false;
     }
@@ -235,16 +264,16 @@ class InstallerService
     {
         Log::info('Installer: Looking for super_admin role...');
 
-        $role = Role::where('name', 'super_admin')->first();
+        $role = Role::where('name', 'super_admin')
+            ->where('guard_name', 'web')
+            ->first();
 
-        Log::info('Installer: Role found: ' . ($role ? $role->name : 'none'));
-
-        Log::info('Installer: Creating user: ' . $data['email']);
+        Log::info('Installer: Role found: ' . ($role?->name ?? 'none'));
 
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => bcrypt($data['password']),
+            'password' => Hash::make($data['password']),
             'email_verified_at' => now(),
         ]);
 
@@ -256,8 +285,12 @@ class InstallerService
             Log::info('Installer: Role assigned to user.');
         }
 
+        // Reload relationships
+        $user->load('roles');
+
         return $user;
     }
+
     public function markAsInstalled(): bool
     {
         $content = "Installed at: " . now()->toDateTimeString() . "\n";
