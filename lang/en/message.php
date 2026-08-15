@@ -2383,4 +2383,11 @@ return [
     'email_recipient' => 'Recipient Email',
     'test_email_sent' => 'Test email sent successfully.',
     'test_email_failed' => 'Test email could not be sent.',
+
+    'platform_reports' => 'Platform Reports',
+    'price_placeholder' => 'Price Placeholder',
+    'add_table' => 'Add Table',
+    'reservations' => 'Reservations',
+    'tables' => 'Tables',
+    'coupons' => 'Coupons',
 ];

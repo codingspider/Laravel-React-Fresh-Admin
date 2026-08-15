@@ -104,8 +104,8 @@ Route::middleware(['cookie.filter', 'auth:sanctum'])->get('/user', function (Req
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'roles' => $user->getRoleNames(),
-            'permissions' => $user->getAllPermissions()->pluck('name'),
+            'roles' => $user->getRoleNames()->values()->all(),
+            'permissions' => $user->getAllPermissions()->pluck('name')->values()->all(),
             'restaurant_id' => $restaurant?->id,
             'restaurant' => $restaurant ? [
                 'id' => $restaurant->id,

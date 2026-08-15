@@ -442,7 +442,9 @@ const QUICK_ACTIONS = [
 
 function QuickActions() {
     const navigate = useNavigate();
-    const { can } = usePermission();
+    const { can, hasRole } = usePermission();
+
+    if (hasRole('super_admin')) return null;
 
     const visibleActions = QUICK_ACTIONS.filter((action) => !action.permission || can(action.permission));
 

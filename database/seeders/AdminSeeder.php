@@ -1,3 +1,42 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use Modules\Restaurant\Models\Restaurant;
+use Modules\Branch\Models\Branch;
+use Spatie\Permission\Models\Role;
+
+class AdminSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // Create Super Admin User
+        $superAdmin = User::firstOrCreate(
+            ['email' => 'superadmin@gmail.com'],
+            [
+                'name' => 'Super Admin',
+                'email' => 'superadmin@gmail.com',
+                'password' => Hash::make('123456789'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $superAdmin->assignRole('super_admin');
+
+        // Create Admin User
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@gmail.com'],
+            [
+                'name' => 'Admin',
+                'email' => 'admin@gmail.com',
+                'password' => Hash::make('123456789'),
+                'email_verified_at' => now(),
+            ]
+        );
+        $admin->assignRole('admin');
+
         // Create Restaurant Owner User (linked to restaurant)
         $restaurantOwner = User::firstOrCreate(
             ['email' => 'owner@gmail.com'],
@@ -50,3 +89,5 @@
                 'status' => 'active',
             ]
         );
+    }
+}
