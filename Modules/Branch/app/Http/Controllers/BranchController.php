@@ -68,6 +68,9 @@ class BranchController extends Controller
     public function show($id): JsonResponse
     {
         $branch = $this->service->find($id);
+        if (getRestaurantId() && $branch->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -78,6 +81,11 @@ class BranchController extends Controller
 
     public function update(UpdateBranchRequest $request, $id): JsonResponse
     {
+        $branch = $this->service->find($id);
+        if (getRestaurantId() && $branch->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $branch = $this->service->update($id, $request->validated());
 
         return response()->json([
@@ -89,6 +97,11 @@ class BranchController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $branch = $this->service->find($id);
+        if (getRestaurantId() && $branch->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([

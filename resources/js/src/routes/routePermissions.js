@@ -15,6 +15,7 @@ const permissions = {
     '/menu/items': 'view_menu_items',
     '/menu/item/create': 'create_menu_items',
     '/menu/item/edit': 'update_menu_items',
+    '/menu/item/view': 'view_menu_items',
     '/menu/modifier-groups': 'view_modifier_groups',
     '/menu/modifier-group/create': 'create_modifier_groups',
     '/menu/modifier-group/edit': 'update_modifier_groups',
@@ -28,6 +29,7 @@ const permissions = {
     '/table-management/reservations': 'view_reservations',
     '/table-management/reservation/create': 'create_reservations',
     '/table-management/reservation/edit': 'update_reservations',
+    '/table-management/reservation/view': 'view_reservations',
 
     '/pos/terminal': 'view_pos',
     '/pos/sales': 'view_pos',

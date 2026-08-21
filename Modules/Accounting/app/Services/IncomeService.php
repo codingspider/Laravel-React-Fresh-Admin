@@ -73,25 +73,25 @@ class IncomeService
 
     public function summary(array $filters = []): array
     {
-        $query = Income::query();
+        $base = Income::query();
 
         if (!empty($filters['restaurant_id'])) {
-            $query->forRestaurant($filters['restaurant_id']);
+            $base->forRestaurant($filters['restaurant_id']);
         }
 
-        $query->when(!empty($filters['date_from']), function ($q) use ($filters) {
+        $base->when(!empty($filters['date_from']), function ($q) use ($filters) {
             $q->where('income_date', '>=', $filters['date_from']);
         });
 
-        $query->when(!empty($filters['date_to']), function ($q) use ($filters) {
+        $base->when(!empty($filters['date_to']), function ($q) use ($filters) {
             $q->where('income_date', '<=', $filters['date_to']);
         });
 
         return [
-            'total' => $query->sum('amount'),
-            'pos_sales' => $query->bySource('pos_sale')->sum('amount'),
-            'manual_income' => $query->bySource('manual_income')->sum('amount'),
-            'other_income' => $query->bySource('other_income')->sum('amount'),
+            'total' => (clone $base)->sum('amount'),
+            'pos_sales' => (clone $base)->bySource('pos_sale')->sum('amount'),
+            'manual_income' => (clone $base)->bySource('manual_income')->sum('amount'),
+            'other_income' => (clone $base)->bySource('other_income')->sum('amount'),
         ];
     }
 }

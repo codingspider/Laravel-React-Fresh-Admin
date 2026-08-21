@@ -45,7 +45,7 @@ class TableController extends Controller
     {
         $data = $request->validated();
 
-        $restaurantId = $request->input('restaurant_id') ?? getRestaurantId();
+        $restaurantId = getRestaurantId();
         if (!$restaurantId && !empty($data['floor_id'])) {
             $restaurantId = \Modules\TableManagement\Models\Floor::where('id', $data['floor_id'])->value('restaurant_id');
         }
@@ -55,6 +55,16 @@ class TableController extends Controller
                 'status' => 'error',
                 'message' => trans($this->langKey . '.restaurant_required'),
             ], 422);
+        }
+
+        if (!empty($data['floor_id'])) {
+            $floor = \Modules\TableManagement\Models\Floor::find($data['floor_id']);
+            if (!$floor || $floor->restaurant_id != (int) $restaurantId) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => trans($this->langKey . '.restaurant_required'),
+                ], 422);
+            }
         }
 
         $data['restaurant_id'] = $restaurantId;

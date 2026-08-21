@@ -12,7 +12,7 @@ class StoreCashBankRequest extends FormRequest
     {
         return [
             'type' => 'required|in:cash_deposit,cash_withdraw,bank_deposit,bank_withdraw,transfer',
-            'account_id' => 'required|exists:accounts,id',
+            'account_id' => 'nullable|required_unless:type,transfer|exists:accounts,id',
             'from_account_id' => 'nullable|exists:accounts,id',
             'to_account_id' => 'nullable|exists:accounts,id',
             'amount' => 'required|numeric|min:0',

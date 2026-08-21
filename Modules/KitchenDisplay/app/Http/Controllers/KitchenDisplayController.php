@@ -29,7 +29,7 @@ class KitchenDisplayController extends Controller
 
         $filters = [
             'restaurant_id' => getRestaurantId(),
-            'branch_id' => $user->branch_id ?? $request->input('branch_id'),
+            'branch_id' => $request->input('branch_id') ?? $user->branch_id,
         ];
 
         $data = $this->service->board($filters);

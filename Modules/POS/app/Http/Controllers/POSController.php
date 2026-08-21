@@ -18,6 +18,7 @@ use Modules\POS\Resources\SaleResource;
 use Modules\POS\Services\PosService;
 use Modules\POS\Repositories\PosSessionRepository;
 use Modules\POS\Repositories\SaleRepository;
+use Modules\POS\Models\Sale;
 
 class POSController extends Controller
 {
@@ -51,6 +52,11 @@ class POSController extends Controller
 
     public function closeSession(CloseSessionRequest $request, $id): JsonResponse
     {
+        $session = $this->sessionRepo->find($id);
+        if (getRestaurantId() && $session->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $session = $this->posService->closeSession($id, $request->validated());
 
         return response()->json([
@@ -135,6 +141,7 @@ class POSController extends Controller
     public function show($id): JsonResponse
     {
         $sale = $this->saleRepo->find($id);
+        $this->authorizeSale($sale);
 
         return response()->json([
             'status' => 'success',
@@ -146,6 +153,7 @@ class POSController extends Controller
     public function processPayment(ProcessPaymentRequest $request, $saleId): JsonResponse
     {
         $sale = $this->saleRepo->find($saleId);
+        $this->authorizeSale($sale);
         $sale = $this->posService->processPayment($sale, $request->validated());
 
         return response()->json([
@@ -157,6 +165,8 @@ class POSController extends Controller
 
     public function holdOrder($id): JsonResponse
     {
+        $sale = $this->saleRepo->find($id);
+        $this->authorizeSale($sale);
         $sale = $this->posService->holdOrder($id);
 
         return response()->json([
@@ -168,6 +178,8 @@ class POSController extends Controller
 
     public function recallOrder($id): JsonResponse
     {
+        $sale = $this->saleRepo->find($id);
+        $this->authorizeSale($sale);
         $sale = $this->posService->recallOrder($id);
 
         return response()->json([
@@ -179,6 +191,8 @@ class POSController extends Controller
 
     public function cancelSale($id): JsonResponse
     {
+        $sale = $this->saleRepo->find($id);
+        $this->authorizeSale($sale);
         $sale = $this->posService->cancelSale($id);
 
         return response()->json([
@@ -279,6 +293,7 @@ class POSController extends Controller
     public function processMultiplePayments(ProcessMultiplePaymentsRequest $request, $saleId): JsonResponse
     {
         $sale = $this->saleRepo->find($saleId);
+        $this->authorizeSale($sale);
 
         foreach ($request->payments as $paymentData) {
             $this->posService->processPayment($sale->fresh(), $paymentData);
@@ -296,6 +311,7 @@ class POSController extends Controller
     public function processRefund(ProcessRefundRequest $request, $saleId): JsonResponse
     {
         $sale = $this->saleRepo->find($saleId);
+        $this->authorizeSale($sale);
         $sale = $this->posService->processRefund($sale, $request->validated());
 
         return response()->json([
@@ -308,6 +324,7 @@ class POSController extends Controller
     public function addItem(AddItemToSaleRequest $request, $saleId): JsonResponse
     {
         $sale = $this->saleRepo->find($saleId);
+        $this->authorizeSale($sale);
         $this->posService->addItemsToSale($sale, [$request->validated()]);
         $this->posService->recalculateSale($sale->fresh());
 
@@ -320,6 +337,8 @@ class POSController extends Controller
 
     public function removeItem($saleId, $itemId): JsonResponse
     {
+        $sale = $this->saleRepo->find($saleId);
+        $this->authorizeSale($sale);
         $this->posService->removeSaleItem($saleId, $itemId);
 
         return response()->json([
@@ -327,5 +346,12 @@ class POSController extends Controller
             'message' => trans($this->langKey . '.deleted'),
             'data' => new SaleResource($this->saleRepo->find($saleId)),
         ]);
+    }
+
+    protected function authorizeSale(Sale $sale): void
+    {
+        if (getRestaurantId() && $sale->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
     }
 }

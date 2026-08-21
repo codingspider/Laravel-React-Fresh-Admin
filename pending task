@@ -1,0 +1,8 @@
+app\Http\Controllers\API\Admin\PayrollController.php  // custom validation required
+app\Http\Controllers\API\Admin\AttendanceController.php  // custom validation required
+app\Http\Controllers\API\Admin\DepartmentController.php  // custom validation required
+app\Http\Controllers\API\Admin\DesignationController.php  // custom validation required
+app\Http\Controllers\API\Admin\EmployeeController.php  // custom validation required
+app\Http\Controllers\API\Admin\HolidayController.php  // custom validation required
+app\Http\Controllers\API\Admin\InventoryCategoryController.php  // custom validation required
+app\Http\Controllers\API\Admin\InventoryItemController.php  // custom validation required

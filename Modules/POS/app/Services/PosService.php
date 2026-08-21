@@ -104,7 +104,7 @@ class PosService
         $subtotal = $sale->items->sum('total');
         $discountAmount = (float) $sale->discount_amount;
 
-        if ($sale->discount_percent > 0 && $discountAmount === 0) {
+        if ($sale->discount_percent > 0 && (float) $sale->discount_amount === 0.0) {
             $discountAmount = $subtotal * ($sale->discount_percent / 100);
         }
 

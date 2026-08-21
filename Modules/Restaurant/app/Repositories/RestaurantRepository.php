@@ -56,6 +56,7 @@ class RestaurantRepository
             }))
             ->when($filters['status'] ?? null, fn($q, $s) => $q->where('status', $s))
             ->when($filters['owner_id'] ?? null, fn($q, $o) => $q->where('owner_id', $o))
+            ->when($filters['id'] ?? null, fn($q, $i) => $q->where('id', $i))
             ->orderByDesc('created_at')
             ->paginate($perPage);
     }

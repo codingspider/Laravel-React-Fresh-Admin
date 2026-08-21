@@ -370,7 +370,7 @@ const BranchCreate = () => {
                                     />
                                 </FormControl>
 
-                                <FormControl>
+                                <FormControl isRequired>
                                     <FormLabel
                                         fontSize="sm"
                                         fontWeight="semibold"

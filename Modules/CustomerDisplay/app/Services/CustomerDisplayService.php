@@ -35,7 +35,7 @@ class CustomerDisplayService
             ];
         }
 
-        $settings = $this->settings($restaurant->id);
+        $settings = $this->settings($restaurant->id, $branchId);
         $statuses = $settings->getStatusesAttribute();
 
         $orders = Sale::with(['items', 'table', 'branch', 'customer'])

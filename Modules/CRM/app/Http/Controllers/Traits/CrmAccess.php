@@ -35,4 +35,34 @@ trait CrmAccess
             abort(403, 'Unauthorized');
         }
     }
+
+    /**
+     * Keep only the ids that belong to the user's restaurant (all ids for super admins).
+     *
+     * @param  class-string<\Illuminate\Database\Eloquent\Model>  $model
+     * @param  array<int, int>  $ids
+     * @return array<int, int>
+     */
+    protected function filterOwnedIds(Request $request, string $model, array $ids): array
+    {
+        $restaurantId = $this->restaurantId($request);
+
+        if (!$restaurantId || $ids === []) {
+            return $ids;
+        }
+
+        return $model::where('restaurant_id', $restaurantId)
+            ->whereIn('id', $ids)
+            ->pluck('id')
+            ->all();
+    }
+
+    /**
+     * Resolve the tenant id for writes: scoped users always keep their own
+     * restaurant, only unscoped users (super admins) may choose one.
+     */
+    protected function resolveTenantId(Request $request, ?string $requested = null): ?int
+    {
+        return $this->restaurantId($request) ?? $requested;
+    }
 }

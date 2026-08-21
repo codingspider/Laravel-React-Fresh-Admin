@@ -10,6 +10,7 @@ return [
     'customer_created' => 'Customer created successfully.',
     'customer_deleted' => 'Customer deleted successfully.',
     'customer_fetched' => 'Customer fetched successfully.',
+    'customer_mismatch' => 'The selected customer does not belong to your restaurant.',
     'customer_updated' => 'Customer updated successfully.',
     'customers_fetched' => 'Customers fetched successfully.',
     'dashboard_fetched' => 'CRM dashboard fetched successfully.',

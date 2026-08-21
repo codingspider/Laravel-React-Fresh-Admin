@@ -5,12 +5,16 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Controllers\Concerns\AuthorizesRestaurant;
 use Modules\Accounting\Http\Requests\StoreCashBankRequest;
 use Modules\Accounting\Http\Requests\UpdateCashBankRequest;
+use Modules\Accounting\Models\CashBankTransaction;
 use Modules\Accounting\Services\CashBankService;
 
 class CashBankController extends Controller
 {
+    use AuthorizesRestaurant;
+
     protected string $langKey = 'accounting::module';
 
     public function __construct(protected CashBankService $service) {}
@@ -44,6 +48,13 @@ class CashBankController extends Controller
 
         $data = $request->validated();
 
+        $this->authorizeAccounts(
+            $request,
+            $data['account_id'] ?? null,
+            $data['from_account_id'] ?? null,
+            $data['to_account_id'] ?? null,
+        );
+
         $data['restaurant_id'] = $restaurantId;
         $data['status'] = $data['status'] ?? 'completed';
 
@@ -72,6 +83,8 @@ class CashBankController extends Controller
             ], 404);
         }
 
+        $this->authorizeOwned($request, $transaction->restaurant_id);
+
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.fetched'),
@@ -81,6 +94,9 @@ class CashBankController extends Controller
 
     public function update(UpdateCashBankRequest $request, int $id): JsonResponse
     {
+        $existing = CashBankTransaction::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
+
         $data = $request->validated();
 
         $transaction = CashBankTransaction::findOrFail($id);
@@ -95,6 +111,9 @@ class CashBankController extends Controller
 
     public function destroy(Request $request, int $id): JsonResponse
     {
+        $existing = CashBankTransaction::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
+
         $transaction = \Modules\Accounting\Models\CashBankTransaction::findOrFail($id);
         $transaction->delete();
 

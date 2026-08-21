@@ -127,6 +127,7 @@ class InventoryItemController extends Controller
     public function show($id)
     {
         $item = InventoryItem::with(['branch:id,name', 'category:id,name', 'supplier:id,name'])->findOrFail($id);
+        $this->authorizeRestaurant($item->restaurant_id);
 
         return response()->json([
             'status' => 'success',
@@ -138,6 +139,7 @@ class InventoryItemController extends Controller
     public function update(Request $request, $id)
     {
         $item = InventoryItem::findOrFail($id);
+        $this->authorizeRestaurant($item->restaurant_id);
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
@@ -176,11 +178,19 @@ class InventoryItemController extends Controller
     public function destroy($id)
     {
         $item = InventoryItem::findOrFail($id);
+        $this->authorizeRestaurant($item->restaurant_id);
         $item->delete();
 
         return response()->json([
             'status' => 'success',
             'message' => trans('message.inventory_item_deleted'),
         ]);
+    }
+
+    protected function authorizeRestaurant(?int $restaurantId): void
+    {
+        if (getRestaurantId() && $restaurantId != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
     }
 }

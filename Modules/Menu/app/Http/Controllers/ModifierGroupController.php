@@ -56,6 +56,9 @@ class ModifierGroupController extends Controller
     public function show($id): JsonResponse
     {
         $group = $this->service->find($id);
+        if (getRestaurantId() && $group->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -66,6 +69,11 @@ class ModifierGroupController extends Controller
 
     public function update(UpdateModifierGroupRequest $request, $id): JsonResponse
     {
+        $group = $this->service->find($id);
+        if (getRestaurantId() && $group->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $group = $this->service->update($id, $request->validated());
 
         return response()->json([
@@ -77,6 +85,11 @@ class ModifierGroupController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $group = $this->service->find($id);
+        if (getRestaurantId() && $group->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([

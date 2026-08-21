@@ -11,6 +11,7 @@ use Modules\CRM\Http\Requests\UpdateFollowUpRequest;
 use Modules\CRM\Http\Resources\FollowUpResource;
 use Modules\CRM\Models\FollowUp;
 use Modules\CRM\Services\FollowUpService;
+use Modules\Customer\Models\Customer;
 
 class FollowUpController extends Controller
 {
@@ -48,12 +49,23 @@ class FollowUpController extends Controller
         $this->authorizeAction($request, 'create_follow_ups');
 
         $data = $request->validated();
-        $data['restaurant_id'] = $data['restaurant_id'] ?? $this->restaurantId($request);
+        $data['restaurant_id'] = $this->resolveTenantId($request, $data['restaurant_id'] ?? null);
 
         if (!$data['restaurant_id']) {
             return response()->json([
                 'status' => 'error',
                 'message' => trans($this->langKey . '.restaurant_required'),
+            ], 422);
+        }
+
+        $customerOwned = Customer::where('id', $data['customer_id'])
+            ->where('restaurant_id', $data['restaurant_id'])
+            ->exists();
+
+        if (!$customerOwned) {
+            return response()->json([
+                'status' => 'error',
+                'message' => trans($this->langKey . '.customer_mismatch'),
             ], 422);
         }
 

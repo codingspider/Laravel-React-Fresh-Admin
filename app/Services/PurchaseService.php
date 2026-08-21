@@ -361,10 +361,10 @@ class PurchaseService
                     'reason' => $line['reason'] ?? null,
                 ]);
 
-                // Restore stock (return goods to inventory if already received)
+                // Returning goods to the supplier reduces inventory.
                 $this->stockService->adjustStock(
                     $invItem->id,
-                    $qty,
+                    -1 * $qty,
                     'return',
                     $restaurantId,
                     $purchase->branch_id,

@@ -44,6 +44,13 @@ class ReservationController extends Controller
         $data = $request->validated();
         $data['restaurant_id'] = getRestaurantId() ?? $request->user()->id;
 
+        if (!empty($data['table_id'])) {
+            $table = \Modules\TableManagement\Models\Table::withoutGlobalScopes()->find($data['table_id']);
+            if (!$table || (getRestaurantId() && $table->restaurant_id != getRestaurantId())) {
+                abort(403, 'Unauthorized');
+            }
+        }
+
         $reservation = $this->service->create($data);
 
         return response()->json([
@@ -56,6 +63,9 @@ class ReservationController extends Controller
     public function show($id): JsonResponse
     {
         $reservation = $this->service->find($id);
+        if (getRestaurantId() && $reservation->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -66,6 +76,11 @@ class ReservationController extends Controller
 
     public function update(UpdateReservationRequest $request, $id): JsonResponse
     {
+        $reservation = $this->service->find($id);
+        if (getRestaurantId() && $reservation->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $reservation = $this->service->update($id, $request->validated());
 
         return response()->json([
@@ -77,6 +92,11 @@ class ReservationController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $reservation = $this->service->find($id);
+        if (getRestaurantId() && $reservation->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([
@@ -85,8 +105,18 @@ class ReservationController extends Controller
         ]);
     }
 
+    private function authorizeRestaurantAccess(object $reservation): void
+    {
+        if (getRestaurantId() && $reservation->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+    }
+
     public function confirm($id): JsonResponse
     {
+        $reservation = $this->service->find($id);
+        $this->authorizeRestaurantAccess($reservation);
+
         $reservation = $this->service->confirm($id);
 
         return response()->json([
@@ -98,6 +128,9 @@ class ReservationController extends Controller
 
     public function cancel($id): JsonResponse
     {
+        $reservation = $this->service->find($id);
+        $this->authorizeRestaurantAccess($reservation);
+
         $reservation = $this->service->cancel($id);
 
         return response()->json([
@@ -109,6 +142,9 @@ class ReservationController extends Controller
 
     public function seat($id): JsonResponse
     {
+        $reservation = $this->service->find($id);
+        $this->authorizeRestaurantAccess($reservation);
+
         $reservation = $this->service->seat($id);
 
         return response()->json([
@@ -120,6 +156,9 @@ class ReservationController extends Controller
 
     public function complete($id): JsonResponse
     {
+        $reservation = $this->service->find($id);
+        $this->authorizeRestaurantAccess($reservation);
+
         $reservation = $this->service->complete($id);
 
         return response()->json([
@@ -131,6 +170,9 @@ class ReservationController extends Controller
 
     public function noShow($id): JsonResponse
     {
+        $reservation = $this->service->find($id);
+        $this->authorizeRestaurantAccess($reservation);
+
         $reservation = $this->service->noShow($id);
 
         return response()->json([

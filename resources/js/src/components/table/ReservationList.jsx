@@ -14,7 +14,7 @@ import {
     Select,
 } from "@chakra-ui/react";
 import { useTranslation } from "react-i18next";
-import { EditIcon, DeleteIcon } from "@chakra-ui/icons";
+import { EditIcon, DeleteIcon, ViewIcon } from "@chakra-ui/icons";
 import { MoreHorizontal } from "lucide-react";
 import Swal from "sweetalert2";
 import api from "../../axios";
@@ -202,6 +202,14 @@ export default function ReservationList() {
                         aria-label={t("actions")}
                     />
                     <MenuList minW="140px" p={1.5}>
+                        <MenuItem
+                            icon={<Icon as={ViewIcon} boxSize={4} />}
+                            borderRadius="md"
+                            fontSize="sm"
+                            onClick={() => navigate(`/table-management/reservation/view/${row.original.id}`)}
+                        >
+                            {t("view")}
+                        </MenuItem>
                         <MenuItem
                             icon={<Icon as={EditIcon} boxSize={4} />}
                             borderRadius="md"

@@ -356,6 +356,10 @@ class UserSeeder extends Seeder
             'view_user', 'create_user', 'update_user', 'delete_user',
             'view_dashboard_data',
             'access_business_settings', 'access_invoice_settings',
+
+            // Role & Permission Management — owner manages own team roles
+            'role_list', 'role_create', 'role_edit', 'role_delete', 'assign_roles', 'view_permissions',
+
             'view_restaurants', 'create_restaurants', 'update_restaurants', 'delete_restaurants',
             'view_branches', 'create_branches', 'update_branches', 'delete_branches',
             'view_menu_categories', 'create_menu_categories', 'update_menu_categories', 'delete_menu_categories',
@@ -367,6 +371,7 @@ class UserSeeder extends Seeder
             'view_orders', 'create_orders', 'update_orders', 'delete_orders',
             'view_pos', 'process_sale',
             'view_inventory', 'create_inventory', 'update_inventory', 'delete_inventory',
+            'view_units', 'create_units', 'update_units', 'delete_units',
             'view_purchases', 'create_purchases', 'update_purchases', 'delete_purchases',
             'view_suppliers', 'create_suppliers', 'update_suppliers', 'delete_suppliers',
             'view_crm_dashboard', 'view_customers', 'create_customers', 'update_customers', 'delete_customers',

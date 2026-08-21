@@ -77,4 +77,9 @@ class Branch extends Model
     {
         return $this->status === 'active';
     }
+
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
+    {
+        return \Modules\Branch\Database\Factories\BranchFactory::new();
+    }
 }

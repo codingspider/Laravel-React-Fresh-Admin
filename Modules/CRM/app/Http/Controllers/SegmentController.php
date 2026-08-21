@@ -11,6 +11,7 @@ use Modules\CRM\Http\Requests\UpdateSegmentRequest;
 use Modules\CRM\Http\Resources\SegmentResource;
 use Modules\CRM\Models\Segment;
 use Modules\CRM\Services\SegmentService;
+use Modules\Customer\Models\Customer;
 
 class SegmentController extends Controller
 {
@@ -77,7 +78,7 @@ $filters = [
         $this->authorizeAction($request, 'create_segments');
 
         $data = $request->validated();
-        $data['restaurant_id'] = $data['restaurant_id'] ?? $this->restaurantId($request);
+        $data['restaurant_id'] = $this->resolveTenantId($request, $data['restaurant_id'] ?? null);
 
         if (!$data['restaurant_id']) {
             return response()->json([
@@ -157,7 +158,9 @@ $filters = [
         $existing = Segment::findOrFail($id);
         $this->ensureOwned($existing->restaurant_id, $this->restaurantId($request));
 
-        $segment = $this->service->assignCustomers($id, $request->input('customer_ids'));
+        $customerIds = $this->filterOwnedIds($request, Customer::class, $request->input('customer_ids', []));
+
+        $segment = $this->service->assignCustomers($id, $customerIds);
 
         return response()->json([
             'status' => 'success',

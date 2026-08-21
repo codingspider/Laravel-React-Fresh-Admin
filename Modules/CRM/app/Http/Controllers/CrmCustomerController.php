@@ -9,6 +9,7 @@ use Modules\CRM\Http\Controllers\Traits\CrmAccess;
 use Modules\CRM\Http\Requests\StoreCrmCustomerRequest;
 use Modules\CRM\Http\Requests\UpdateCrmCustomerRequest;
 use Modules\CRM\Http\Resources\CrmCustomerResource;
+use Modules\CRM\Models\Segment;
 use Modules\CRM\Services\CrmCustomerService;
 use Modules\Customer\Models\Customer;
 
@@ -62,13 +63,17 @@ class CrmCustomerController extends Controller
         $this->authorizeAction($request, 'create_customers');
 
         $data = $request->validated();
-        $data['restaurant_id'] = $data['restaurant_id'] ?? $this->restaurantId($request);
+        $data['restaurant_id'] = $this->resolveTenantId($request, $data['restaurant_id'] ?? null);
 
         if (!$data['restaurant_id']) {
             return response()->json([
                 'status' => 'error',
                 'message' => trans($this->langKey . '.restaurant_required'),
             ], 422);
+        }
+
+        if (!empty($data['segment_ids'])) {
+            $data['segment_ids'] = $this->filterOwnedIds($request, Segment::class, $data['segment_ids']);
         }
 
         $data['is_active'] = $data['is_active'] ?? true;
@@ -91,7 +96,11 @@ class CrmCustomerController extends Controller
         $this->ensureOwned($existing->restaurant_id, $this->restaurantId($request));
 
         $data = $request->validated();
-        $data['restaurant_id'] = $data['restaurant_id'] ?? $existing->restaurant_id;
+        $data['restaurant_id'] = $this->resolveTenantId($request, $existing->restaurant_id);
+
+        if (!empty($data['segment_ids'])) {
+            $data['segment_ids'] = $this->filterOwnedIds($request, Segment::class, $data['segment_ids']);
+        }
 
         $customer = $this->service->update($id, $data);
 

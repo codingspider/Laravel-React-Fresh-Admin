@@ -171,6 +171,7 @@ import MenuCategoryEdit from "../components/menu/MenuCategoryEdit";
 import MenuItemList from "../components/menu/MenuItemList";
 import MenuItemCreate from "../components/menu/MenuItemCreate";
 import MenuItemEdit from "../components/menu/MenuItemEdit";
+import MenuItemView from "../components/menu/MenuItemView";
 import ModifierGroupList from "../components/menu/ModifierGroupList";
 import ModifierGroupCreate from "../components/menu/ModifierGroupCreate";
 import ModifierGroupEdit from "../components/menu/ModifierGroupEdit";
@@ -184,6 +185,7 @@ import TableEdit from "../components/table/TableEdit";
 import ReservationList from "../components/table/ReservationList";
 import ReservationCreate from "../components/table/ReservationCreate";
 import ReservationEdit from "../components/table/ReservationEdit";
+import ReservationView from "../components/table/ReservationView";
 
 import POSScreen from "../components/pos/POSScreen";
 import POSSalesList from "../components/pos/POSSalesList";
@@ -535,6 +537,7 @@ export const superAdminRoutes = [
     { path: "/menu/items", element: <MenuItemList /> },
     { path: "/menu/item/create", element: <MenuItemCreate /> },
     { path: "/menu/item/edit/:id", element: <MenuItemEdit /> },
+    { path: "/menu/item/view/:id", element: <MenuItemView /> },
 
     // Phase 1 — Modifier Groups
     { path: "/menu/modifier-groups", element: <ModifierGroupList /> },
@@ -555,6 +558,7 @@ export const superAdminRoutes = [
     { path: "/table-management/reservations", element: <ReservationList /> },
     { path: "/table-management/reservation/create", element: <ReservationCreate /> },
     { path: "/table-management/reservation/edit/:id", element: <ReservationEdit /> },
+    { path: "/table-management/reservation/view/:id", element: <ReservationView /> },
 
     // Phase 2 — POS
     { path: "/pos/terminal", element: <POSScreen /> },

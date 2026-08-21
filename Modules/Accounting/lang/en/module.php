@@ -4,6 +4,7 @@ return [
     'account_adjusted' => 'Account adjusted successfully.',
     'activated' => 'Account activated successfully.',
     'already_exists' => 'Account already exists.',
+    'account_mismatch' => 'The selected account does not belong to your restaurant.',
     'balance_mismatch' => 'Balance mismatch detected.',
     'bulk_deleted' => '{count} accounts deleted successfully.',
     'bulk_updated' => '{count} accounts updated successfully.',

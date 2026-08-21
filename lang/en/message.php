@@ -2390,4 +2390,12 @@ return [
     'reservations' => 'Reservations',
     'tables' => 'Tables',
     'coupons' => 'Coupons',
+    'add_branch' => 'Add Branch',
+    'add_menu_category' => 'Add Menu Category',
+
+    'discount_value' => 'Discount Value',
+    'min_order_amount' => 'Minimum Order Amount',
+    'max_discount_amount' => 'Maximum Discount Amount',
+    'usage_limit' => 'Usage Limit',
+    'per_customer_limit' => 'Per Customer Limit',
 ];

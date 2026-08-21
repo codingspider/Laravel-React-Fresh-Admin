@@ -127,11 +127,18 @@ const CustomerDisplaySettings = () => {
     };
 
     const openMonitor = () => {
-        const url = restaurantId ? `/customer-display?restaurant_id=${restaurantId}` : '/customer-display';
-        window.open(url, '_blank', 'noopener,noreferrer');
+        window.open(buildMonitorUrl(), '_blank', 'noopener,noreferrer');
     };
 
-    const monitorUrl = restaurantId ? `${window.location.origin}/customer-display?restaurant_id=${restaurantId}` : `${window.location.origin}/customer-display`;
+    const buildMonitorUrl = () => {
+        const params = new URLSearchParams();
+        if (restaurantId) params.set('restaurant_id', restaurantId);
+        if (user?.branch_id) params.set('branch_id', user.branch_id);
+        const qs = params.toString();
+        return qs ? `/customer-display?${qs}` : '/customer-display';
+    };
+
+    const monitorUrl = `${window.location.origin}${buildMonitorUrl()}`;
 
     const panelBg = colors.bgCard;
     const panelBorder = colors.borderDefault;

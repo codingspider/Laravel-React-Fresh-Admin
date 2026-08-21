@@ -11,6 +11,7 @@ import api from '../../../axios';
 import { POS_COUPONS, POS_COUPON } from '../../../routes/apiRoutes';
 import useThemeColors from '../../../hooks/useThemeColors';
 import { usePermission } from '../../../context/PermissionContext';
+import { utcToZonedInput } from '../../../utils/dateTime';
 
 const defaultForm = {
   code: '',
@@ -34,6 +35,7 @@ export default function CouponFormModal({ isOpen, onClose, coupon, onSaved }) {
   const [saving, setSaving] = useState(false);
 
   const editingId = coupon?.id || null;
+  const timezone = coupon?.timezone || user?.restaurant?.timezone || 'UTC';
 
   useEffect(() => {
     if (isOpen) {
@@ -47,14 +49,14 @@ export default function CouponFormModal({ isOpen, onClose, coupon, onSaved }) {
           usage_limit: coupon.usage_limit?.toString() || '',
           per_customer_limit: coupon.per_customer_limit?.toString() || '',
           is_active: coupon.is_active,
-          starts_at: coupon.starts_at ? coupon.starts_at.slice(0, 16) : '',
-          expires_at: coupon.expires_at ? coupon.expires_at.slice(0, 16) : '',
+          starts_at: utcToZonedInput(coupon.starts_at, timezone) || '',
+          expires_at: utcToZonedInput(coupon.expires_at, timezone) || '',
         });
       } else {
         setForm(defaultForm);
       }
     }
-  }, [isOpen, coupon]);
+  }, [isOpen, coupon, timezone]);
 
   const updateField = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
@@ -70,6 +72,7 @@ export default function CouponFormModal({ isOpen, onClose, coupon, onSaved }) {
         per_customer_limit: form.per_customer_limit ? parseInt(form.per_customer_limit) : null,
         starts_at: form.starts_at || null,
         expires_at: form.expires_at || null,
+        timezone,
         restaurant_id: user?.restaurant_id || null,
       };
 

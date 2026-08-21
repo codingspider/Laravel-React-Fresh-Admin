@@ -24,6 +24,7 @@ class CouponResource extends JsonResource
             'is_active' => $this->is_active,
             'starts_at' => $this->starts_at?->toISOString(),
             'expires_at' => $this->expires_at?->toISOString(),
+            'timezone' => $this->branch?->timezone ?: $this->restaurant?->timezone,
             'is_valid' => $this->isValid(),
             'restaurant' => $this->whenLoaded('restaurant'),
             'created_at' => $this->created_at?->toISOString(),

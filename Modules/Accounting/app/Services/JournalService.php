@@ -65,7 +65,7 @@ class JournalService
 
     public function createMultiple(int $restaurantId, array $data): array
     {
-        $voucher = $data['reference_id'] ?: $this->generateVoucher($restaurantId, 'MANUAL');
+        $voucher = $data['reference_id'] ?? $this->generateVoucher($restaurantId, 'MANUAL');
 
         return DB::transaction(function () use ($restaurantId, $data, $voucher) {
             $created = [];

@@ -5,12 +5,16 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Controllers\Concerns\AuthorizesRestaurant;
 use Modules\Accounting\Http\Requests\StoreExpenseCategoryRequest;
 use Modules\Accounting\Http\Requests\UpdateExpenseCategoryRequest;
+use Modules\Accounting\Models\ExpenseCategory;
 use Modules\Accounting\Services\ExpenseCategoryService;
 
 class ExpenseCategoryController extends Controller
 {
+    use AuthorizesRestaurant;
+
     protected string $langKey = 'accounting::module';
 
     public function __construct(protected ExpenseCategoryService $service) {}
@@ -66,6 +70,8 @@ class ExpenseCategoryController extends Controller
             ], 404);
         }
 
+        $this->authorizeOwned($request, $category->restaurant_id);
+
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.fetched'),
@@ -75,6 +81,9 @@ class ExpenseCategoryController extends Controller
 
     public function update(UpdateExpenseCategoryRequest $request, int $id): JsonResponse
     {
+        $existing = ExpenseCategory::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
+
         $data = $request->validated();
 
         $category = $this->service->update($id, $data);
@@ -88,6 +97,9 @@ class ExpenseCategoryController extends Controller
 
     public function destroy(Request $request, int $id): JsonResponse
     {
+        $existing = ExpenseCategory::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
+
         $this->service->delete($id);
 
         return response()->json([

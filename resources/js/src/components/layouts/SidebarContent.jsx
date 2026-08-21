@@ -363,7 +363,7 @@ const navItems = (t) => [
         excludeRole: 'super_admin',
         children: [
             { path: USER_LIST_PATH, label: t('all_users'), permission: 'view_user' },
-            { path: ROLE_LIST_PATH, label: t('roles_permissions'), permission: 'role_list' },
+            { path: ROLE_LIST_PATH, label: t('roles_permissions'), permission: 'role_list', role: 'restaurant_owner' },
         ],
     },
 
@@ -426,6 +426,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
         if (hasChildren) {
             const visibleChildren = item.children.filter(child => {
                 if (child.permission && !can(child.permission)) return false;
+                if (child.role && !hasRole(child.role)) return false;
                 if (child.excludeRole && hasRole(child.excludeRole)) return false;
                 return true;
             });

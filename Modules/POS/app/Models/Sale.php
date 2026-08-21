@@ -124,7 +124,8 @@ class Sale extends Model
         $date = now()->format('Ymd');
 
         return \Illuminate\Support\Facades\DB::transaction(function () use ($restaurantId, $prefix, $date, $startNumber) {
-            $lastSale = self::where('restaurant_id', $restaurantId)
+            $lastSale = self::withTrashed()
+                ->where('restaurant_id', $restaurantId)
                 ->where('invoice_number', 'like', "{$prefix}{$date}-%")
                 ->orderByDesc('id')
                 ->lockForUpdate()

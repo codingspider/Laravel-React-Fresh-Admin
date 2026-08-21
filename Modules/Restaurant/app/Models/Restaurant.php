@@ -90,6 +90,11 @@ class Restaurant extends Model
         return 'slug';
     }
 
+    protected static function newFactory(): \Illuminate\Database\Eloquent\Factories\Factory
+    {
+        return \Modules\Restaurant\Database\Factories\RestaurantFactory::new();
+    }
+
     public function owner(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'owner_id');

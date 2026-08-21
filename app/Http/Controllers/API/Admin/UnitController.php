@@ -72,6 +72,11 @@ class UnitController extends Controller
     {
         $unit = Unit::findOrFail($id);
 
+        $restaurantId = getRestaurantId();
+        if ($restaurantId && $unit->restaurant_id != $restaurantId) {
+            abort(403, 'Unauthorized');
+        }
+
         return response()->json([
             'status' => 'success',
             'data' => $unit,

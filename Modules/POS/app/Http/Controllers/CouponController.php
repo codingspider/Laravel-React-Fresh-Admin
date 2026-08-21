@@ -10,6 +10,9 @@ use Modules\POS\Http\Requests\StoreCouponRequest;
 use Modules\POS\Http\Requests\ValidateCouponRequest;
 use Modules\POS\Resources\CouponResource;
 use Modules\POS\Models\Coupon;
+use Carbon\Carbon;
+use Modules\Branch\Models\Branch;
+use Modules\Restaurant\Models\Restaurant;
 
 class CouponController extends Controller
 {
@@ -18,6 +21,39 @@ class CouponController extends Controller
     public function __construct(CouponService $service)
     {
         $this->service = $service;
+    }
+
+    /**
+     * Resolve the effective timezone for the coupon and convert the wall-clock
+     * start/expiry datetimes into UTC instants before persisting. Each branch
+     * (and fallback restaurant) can define its own timezone.
+     */
+    protected function normalizeDates(array $data, Request $request): array
+    {
+        $timezone = $data['timezone'] ?? $request->input('timezone');
+
+        if (!$timezone) {
+            $branchId = $data['branch_id'] ?? null;
+            $timezone = $branchId ? Branch::find($branchId)?->timezone : null;
+        }
+
+        if (!$timezone) {
+            $restaurantId = $data['restaurant_id'] ?? null;
+            $timezone = $restaurantId ? Restaurant::find($restaurantId)?->timezone : null;
+        }
+
+        $timezone = $timezone ?: config('app.timezone');
+        unset($data['timezone']);
+
+        if (in_array($timezone, timezone_identifiers_list(), true)) {
+            foreach (['starts_at', 'expires_at'] as $field) {
+                if (!empty($data[$field])) {
+                    $data[$field] = Carbon::parse($data[$field], $timezone)->utc();
+                }
+            }
+        }
+
+        return $data;
     }
 
     public function index(Request $request): JsonResponse
@@ -58,6 +94,8 @@ class CouponController extends Controller
         $data['restaurant_id'] = $restaurantId;
         $data['used_count'] = 0;
 
+        $data = $this->normalizeDates($data, $request);
+
         $coupon = $this->service->create($data);
 
         return response()->json([
@@ -69,6 +107,8 @@ class CouponController extends Controller
 
     public function show(Coupon $coupon): JsonResponse
     {
+        $this->authorizeCoupon($coupon);
+
         return response()->json([
             'status' => 'success',
             'data' => new CouponResource($coupon),
@@ -77,6 +117,7 @@ class CouponController extends Controller
 
     public function update(StoreCouponRequest $request, Coupon $coupon): JsonResponse
     {
+        $this->authorizeCoupon($coupon);
         $data = $request->validated();
 
         if (empty($data['restaurant_id'])) {
@@ -90,6 +131,8 @@ class CouponController extends Controller
             ], 422);
         }
 
+        $data = $this->normalizeDates($data, $request);
+
         $coupon = $this->service->update($coupon->id, $data);
 
         return response()->json([
@@ -101,12 +144,20 @@ class CouponController extends Controller
 
     public function destroy(Coupon $coupon): JsonResponse
     {
+        $this->authorizeCoupon($coupon);
         $this->service->delete($coupon->id);
 
         return response()->json([
             'status' => 'success',
             'message' => trans('pos::module.deleted'),
         ]);
+    }
+
+    protected function authorizeCoupon(Coupon $coupon): void
+    {
+        if (getRestaurantId() && $coupon->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
     }
 
     public function validateCoupon(ValidateCouponRequest $request): JsonResponse

@@ -5,6 +5,7 @@ namespace Modules\Accounting\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Controllers\Concerns\AuthorizesRestaurant;
 use Modules\Accounting\Http\Requests\StoreAccountRequest;
 use Modules\Accounting\Http\Requests\UpdateAccountRequest;
 use Modules\Accounting\Services\AccountService;
@@ -12,6 +13,8 @@ use Modules\Accounting\Models\Account;
 
 class AccountController extends Controller
 {
+    use AuthorizesRestaurant;
+
     protected string $langKey = 'accounting::module';
 
     public function __construct(protected AccountService $service) {}
@@ -68,6 +71,8 @@ class AccountController extends Controller
             ], 404);
         }
 
+        $this->authorizeOwned($request, $account->restaurant_id);
+
         return response()->json([
             'status' => 'success',
             'message' => trans($this->langKey . '.fetched'),
@@ -77,6 +82,9 @@ class AccountController extends Controller
 
     public function update(UpdateAccountRequest $request, int $id): JsonResponse
     {
+        $existing = Account::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
+
         $data = $request->validated();
 
         $account = $this->service->update($id, $data);
@@ -90,6 +98,9 @@ class AccountController extends Controller
 
     public function destroy(Request $request, int $id): JsonResponse
     {
+        $existing = Account::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
+
         $this->service->delete($id);
 
         return response()->json([

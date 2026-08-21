@@ -4,14 +4,18 @@ namespace Modules\Accounting\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Modules\Accounting\Http\Controllers\Concerns\AuthorizesRestaurant;
 use Modules\Accounting\Http\Requests\StoreJournalEntryRequest;
 use Modules\Accounting\Http\Requests\UpdateJournalEntryRequest;
 use Modules\Accounting\Services\JournalService;
 use Modules\Accounting\Http\Resources\JournalEntryResource;
 use Modules\Accounting\Models\Account;
+use Modules\Accounting\Models\JournalEntry;
 
 class JournalController extends Controller
 {
+    use AuthorizesRestaurant;
+
     protected $journalService;
     protected string $langKey = 'accounting::module';
 
@@ -43,6 +47,8 @@ class JournalController extends Controller
             ], 404);
         }
 
+        $this->authorizeOwned($request, $entry->restaurant_id);
+
         return response()->json([
             'status' => 'success',
             'message' => trans('accounting::module.journal_entry_fetched'),
@@ -55,6 +61,12 @@ class JournalController extends Controller
         $restaurantId = getRestaurantId($request->user());
 
         $data = $request->validated();
+
+        $this->authorizeAccounts(
+            $request,
+            $data['account_id'] ?? null,
+            ...array_map(fn ($entry) => $entry['account_id'] ?? null, $data['entries'] ?? [])
+        );
 
         $data['restaurant_id'] = $restaurantId;
 
@@ -79,6 +91,9 @@ class JournalController extends Controller
     public function update(UpdateJournalEntryRequest $request, int $id)
     {
         $data = $request->validated();
+
+        $existing = JournalEntry::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
 
         try {
             if (!empty($data['entries'])) {
@@ -107,6 +122,9 @@ class JournalController extends Controller
 
     public function destroy(Request $request, int $id)
     {
+        $existing = JournalEntry::findOrFail($id);
+        $this->authorizeOwned($request, $existing->restaurant_id);
+
         try {
             $this->journalService->delete($id);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {

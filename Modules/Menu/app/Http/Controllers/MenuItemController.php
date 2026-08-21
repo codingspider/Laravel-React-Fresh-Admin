@@ -79,6 +79,9 @@ class MenuItemController extends Controller
     public function show($id): JsonResponse
     {
         $item = $this->service->find($id);
+        if (getRestaurantId() && $item->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
 
         return response()->json([
             'status' => 'success',
@@ -90,6 +93,10 @@ class MenuItemController extends Controller
     public function update(UpdateMenuItemRequest $request, $id): JsonResponse
     {
         $item = $this->service->find($id);
+        if (getRestaurantId() && $item->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
@@ -109,6 +116,11 @@ class MenuItemController extends Controller
 
     public function destroy($id): JsonResponse
     {
+        $item = $this->service->find($id);
+        if (getRestaurantId() && $item->restaurant_id != getRestaurantId()) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->service->delete($id);
 
         return response()->json([
