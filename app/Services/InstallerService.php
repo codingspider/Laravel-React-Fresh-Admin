@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Modules\Restaurant\Models\Restaurant;
+use Modules\Branch\Models\Branch;
 use Spatie\Permission\Models\Role;
 use Hash;
 
@@ -122,9 +124,14 @@ class InstallerService
             $envContent .= "\nAPP_KEY=\n";
         }
 
-        $envContent = $this->setEnvValue($envContent, 'SANCTUM_STATEFUL_DOMAINS', $this->getStatefulDomains($data['APP_URL'] ?? 'http://localhost'));
-        $envContent = $this->setEnvValue($envContent, 'SESSION_DOMAIN', $this->getSessionDomain($data['APP_URL'] ?? 'http://localhost'));
-        $envContent = $this->setEnvValue($envContent, 'VITE_API_URL', ($data['APP_URL'] ?? 'http://localhost') . '/api');
+        $appUrl = $data['APP_URL'] ?? 'http://localhost';
+
+        $envContent = $this->setEnvValue($envContent, 'SANCTUM_STATEFUL_DOMAINS', $this->getStatefulDomains($appUrl));
+        $envContent = $this->setEnvValue($envContent, 'SESSION_DOMAIN', $this->getSessionDomain($appUrl));
+        // Secure cookies are only sent by browsers over HTTPS; forcing them on
+        // an HTTP install silently breaks authentication.
+        $envContent = $this->setEnvValue($envContent, 'SESSION_SECURE_COOKIE', str_starts_with($appUrl, 'https://') ? 'true' : 'false');
+        $envContent = $this->setEnvValue($envContent, 'VITE_API_URL', $appUrl . '/api');
         $envContent = $this->setEnvValue($envContent, 'PWA_NAME', $data['APP_NAME'] ?? 'Laravel');
         $envContent = $this->setEnvValue($envContent, 'PWA_SHORT_NAME', $data['APP_NAME'] ?? 'Laravel');
 
@@ -246,6 +253,12 @@ class InstallerService
 
     public function generateAppKey(): string
     {
+        $existing = config('app.key');
+
+        if (!empty($existing)) {
+            return $existing;
+        }
+
         $key = 'base64:' . base64_encode(random_bytes(32));
 
         $envPath = base_path('.env');
@@ -284,6 +297,41 @@ class InstallerService
 
             Log::info('Installer: Role assigned to user.');
         }
+
+        // Create default restaurant for this admin
+        $restaurant = Restaurant::create([
+            'owner_id' => $user->id,
+            'name' => $data['name'] . "'s Restaurant",
+            'slug' => 'default-restaurant',
+            'email' => $data['email'],
+            'phone' => '',
+            'address' => '',
+            'city' => '',
+            'state' => '',
+            'country' => 'US',
+            'zip_code' => '',
+            'timezone' => 'UTC',
+            'currency' => 'USD',
+            'currency_symbol' => '$',
+            'tax_rate' => 0,
+            'tax_name' => 'Tax',
+            'tax_inclusive' => false,
+            'status' => 'active',
+        ]);
+
+        // Link user to restaurant
+        $user->update(['restaurant_id' => $restaurant->id]);
+
+        // Create main branch for the restaurant
+        Branch::create([
+            'restaurant_id' => $restaurant->id,
+            'name' => 'Main Branch',
+            'slug' => 'main-branch',
+            'is_main' => true,
+            'status' => 'active',
+        ]);
+
+        Log::info('Installer: Restaurant and branch created.');
 
         // Reload relationships
         $user->load('roles');

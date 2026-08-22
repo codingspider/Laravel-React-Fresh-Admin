@@ -121,8 +121,11 @@ class InstallerController extends Controller
                     $kernel->output()
                 );
 
+                // Seed roles and permissions only. The admin user is created
+                // manually in the following installer step (/install/admin).
                 $kernel->call('db:seed', [
                     '--force' => true,
+                    '--class' => 'UserSeeder',
                 ]);
 
                 file_put_contents(

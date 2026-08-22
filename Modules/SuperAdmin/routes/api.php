@@ -14,7 +14,7 @@ Route::prefix('api/v1')->middleware(['api', 'cookie.filter'])->group(function ()
 });
 
 // Authenticated super admin routes
-Route::prefix('api/v1')->middleware(['api', 'auth:sanctum', 'cookie.filter', 'throttle:120,1'])->group(function () {
+Route::prefix('api/v1')->middleware(['api', 'cookie.filter', 'auth:sanctum', 'throttle:120,1'])->group(function () {
     Route::apiResource('superadmins', SuperAdminController::class);
     Route::get('dashboard/stats', [DashboardController::class, 'stats']);
     Route::get('dashboard/platform-stats', [DashboardController::class, 'platformStats']);
