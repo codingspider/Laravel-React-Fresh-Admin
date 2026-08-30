@@ -1,0 +1,2171 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant POS — Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0fdfa', 100: '#ccfbf1', 200: '#99f6e4', 300: '#5eead4',
+                            400: '#2dd4bf', 500: '#14b8a6', 600: '#0d9488', 700: '#0f766e',
+                            800: '#115e59', 900: '#134e4a', 950: '#042f2e',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        html, body { margin: 0 !important; padding: 0 !important; overflow-x: hidden; }
+        .doc-layout { display: flex; min-height: 100vh; }
+        .doc-sidebar { width: 288px; flex-shrink: 0; }
+        .doc-main { flex: 1; min-width: 0; }
+        .sidebar-link.active { background: rgba(13, 148, 136, 0.1); color: #0d9488; font-weight: 600; }
+        .sidebar-link:hover { background: rgba(13, 148, 136, 0.05); }
+        code { font-family: 'JetBrains Mono', monospace; }
+        .gradient-text { background: linear-gradient(135deg, #0d9488, #14b8a6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        @media (max-width: 1023px) {
+            .doc-sidebar { display: none; }
+            .doc-sidebar.mobile-open { display: block; position: fixed; top: 0; left: 0; z-index: 50; height: 100vh; box-shadow: 4px 0 24px rgba(0,0,0,0.15); }
+            .doc-main { margin-left: 0 !important; }
+        }
+        @media (min-width: 1024px) {
+            .doc-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50 font-sans text-gray-800 antialiased">
+
+    <div class="doc-layout">
+
+    <!-- Mobile Menu Button -->
+    <button id="menuBtn"
+        class="lg:hidden fixed top-4 left-4 z-[60] bg-white rounded-lg shadow-md p-2 border border-gray-200">
+        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+    </button>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="doc-sidebar bg-white border-r border-gray-200">
+        <div class="p-6 border-b border-gray-100">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 bg-gradient-to-br from-brand-600 to-brand-500 rounded-xl flex items-center justify-center shadow-md">
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-900">Restaurant POS</h1>
+                    <p class="text-xs text-gray-500">Documentation v1.0</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="p-4 space-y-1">
+            <p class="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Getting Started</p>
+            <a href="#welcome"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Welcome</a>
+            <a href="#features"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Features</a>
+            <a href="#requirements"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Requirements</a>
+            <a href="#installation"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Installation</a>
+            <a href="#configuration"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Configuration</a>
+
+            <p class="px-3 py-2 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Modules</p>
+            <a href="#modules"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Module Overview</a>
+            <a href="#restaurant"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Restaurant &
+                Branch</a>
+            <a href="#menu" class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Menu
+                Management</a>
+            <a href="#pos-module"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">POS Terminal</a>
+            <a href="#orders"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Orders &
+                Kitchen</a>
+            <a href="#inventory-mod"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Inventory &
+                Purchasing</a>
+            <a href="#tables"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Tables &
+                Reservations</a>
+            <a href="#crm-mod" class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">CRM
+                & Loyalty</a>
+            <a href="#hrm" class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">HRM &
+                Payroll</a>
+            <a href="#accounting-mod"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Accounting</a>
+            <a href="#reports-mod"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Reports</a>
+            <a href="#subscriptions"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">SaaS &
+                Subscriptions</a>
+
+            <p class="px-3 py-2 mt-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">Advanced</p>
+            <a href="#roles" class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Roles
+                & Permissions</a>
+            <a href="#api" class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">API
+                Reference</a>
+            <a href="#security"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Security</a>
+            <a href="#customization"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Customization</a>
+            <a href="#updates"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Updates &
+                Support</a>
+            <a href="#changelog"
+                class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">Changelog</a>
+            <a href="#faq" class="sidebar-link block px-3 py-2 text-sm rounded-lg text-gray-600 transition-all">FAQ</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="doc-main">
+
+        <!-- Hero -->
+        <section id="welcome"
+            class="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-600 to-brand-500 text-white">
+            <div class="absolute inset-0 opacity-10">
+                <div class="absolute -top-24 -right-24 w-96 h-96 bg-white rounded-full blur-3xl"></div>
+                <div class="absolute -bottom-32 -left-16 w-80 h-80 bg-white rounded-full blur-3xl"></div>
+            </div>
+            <div class="relative max-w-4xl mx-auto px-6 pt-6 pb-10 lg:pt-8 lg:pb-14">
+                <div
+                    class="inline-flex items-center gap-2 bg-white/15 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 mb-6">
+                    <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                    <span class="text-sm font-medium text-white/90">v1.0 — Latest Release</span>
+                </div>
+                <h1 class="text-4xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                    Restaurant POS<br />
+                    <span class="text-brand-200">Management System</span>
+                </h1>
+                <p class="mt-6 text-lg text-white/80 max-w-2xl leading-relaxed">
+                    A complete, modular, production-ready Restaurant Management & Point of Sale platform built for
+                    single and multi-branch restaurant operations. Powered by Laravel 12 and React 19.
+                </p>
+                <div class="flex flex-wrap gap-3 mt-8">
+                    <a href="#installation"
+                        class="inline-flex items-center gap-2 bg-white text-brand-700 font-semibold px-6 py-3 rounded-xl hover:bg-brand-50 transition-colors shadow-lg">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                        Get Started
+                    </a>
+                    <a href="#features"
+                        class="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 text-white font-semibold px-6 py-3 rounded-xl hover:bg-white/20 transition-colors">
+                        Explore Features
+                    </a>
+                </div>
+                <div class="flex flex-wrap gap-6 mt-10 text-sm text-white/70">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Laravel 12 + React 19
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        38 Business Modules
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        Multi-Branch Support
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        SaaS Ready
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="max-w-4xl mx-auto px-6 py-12 space-y-20">
+
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- FEATURES -->
+            <!-- ═══════════════════════════════════════════ -->
+            <section id="features">
+                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Features</h2>
+                <p class="mt-3 text-gray-500 text-lg">Everything you need to run a modern restaurant — and then some.
+                </p>
+
+                <div class="grid md:grid-cols-2 gap-5 mt-8">
+                    <!-- Feature Cards -->
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">POS Terminal</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Touch-friendly point of sale with
+                            hold/recall, split bills, merge orders, coupons, discounts, and multiple payment methods.
+                        </p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Menu Management</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Categories, items, modifiers, modifier
+                            groups, pricing variants, image uploads, and branch-specific menus.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Kitchen Display (KDS)</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Real-time kitchen order board with chef
+                            assignment, priority queuing, and order status tracking.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Table Management</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Floor plans, table layouts, QR code
+                            ordering, table status tracking, and reservations.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Inventory & Purchasing</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Stock tracking, purchase orders, GRN,
+                            stock transfers, adjustments, waste tracking, and supplier management.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">CRM & Loyalty</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Customer database, segments, follow-ups,
+                            notes, loyalty points, rewards, and redemption.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Accounting</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Chart of accounts, income/expense
+                            tracking, cash & bank, journal entries, general ledger, trial balance, P&L, and balance
+                            sheet.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 20h5v-2a3 3 0 00-3-3h-1m-5 5v-2a3 3 0 00-3-3H6a3 3 0 00-3 3v2h14zM9 7a3 3 0 116 0 3 3 0 01-6 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">HRM & Payroll</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Departments, designations, employees,
+                            attendance, leave management, holidays, shifts, and payroll processing.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">Reports & Analytics</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Sales, purchase, tax, expense reports,
+                            platform analytics for super admin, and exportable data.</p>
+                    </div>
+
+                    <div
+                        class="bg-white rounded-2xl border border-gray-200 p-6 hover:shadow-lg hover:border-brand-200 transition-all group">
+                        <div
+                            class="w-11 h-11 bg-brand-50 rounded-xl flex items-center justify-center mb-4 group-hover:bg-brand-100 transition-colors">
+                            <svg class="w-6 h-6 text-brand-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+                            </svg>
+                        </div>
+                        <h3 class="font-bold text-gray-900">SaaS & Subscriptions</h3>
+                        <p class="mt-2 text-sm text-gray-500 leading-relaxed">Built-in multi-tenant SaaS with plans,
+                            packages, subscriptions, module access control, and super admin dashboard.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- REQUIREMENTS -->
+            <!-- ═══════════════════════════════════════════ -->
+            <section id="requirements">
+                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Server Requirements</h2>
+                <p class="mt-3 text-gray-500 text-lg">Ensure your server meets these requirements before installation.
+                </p>
+
+                <div class="mt-8 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                    <div class="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100">
+                        <div class="p-6">
+                            <h3 class="font-bold text-gray-900 flex items-center gap-2 mb-4">
+                                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 12h14" />
+                                </svg>
+                                Backend
+                            </h3>
+                            <ul class="space-y-2.5 text-sm text-gray-600">
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>PHP 8.2 or higher</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Laravel 12.x</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>MySQL 8.0+ / MariaDB 10.6+
+                                </li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Composer 2.x</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Node.js 20+ & npm</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>PHP Extensions: pdo_mysql,
+                                    mbstring, openssl, xml, ctype, curl, gd, zip, bcmath, fileinfo, tokenizer, json</li>
+                            </ul>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="font-bold text-gray-900 flex items-center gap-2 mb-4">
+                                <svg class="w-5 h-5 text-brand-600" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                </svg>
+                                Frontend
+                            </h3>
+                            <ul class="space-y-2.5 text-sm text-gray-600">
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>React 19.x</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Chakra UI 2.x</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Vite 7.x</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>React Router DOM 7.x</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>React Hook Form 7.x</li>
+                                <li class="flex items-center gap-2"><span
+                                        class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Tailwind CSS 4.x (dev)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                    <svg class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                    <div class="text-sm text-amber-800">
+                        <strong>Note:</strong> Redis is optional but recommended for caching. The application will work
+                        with file-based caching.
+                    </div>
+                </div>
+            </section>
+
+            <!-- ═══════════════════════════════════════════ -->
+            <!-- INSTALLATION -->
+            <!-- ═══════════════════════════════════════════ -->
+            <section id="installation">
+                <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Installation</h2>
+                <p class="mt-3 text-gray-500 text-lg">Follow these steps to get the application running on your server.
+                </p>
+
+                <div class="mt-8 space-y-6">
+                    <!-- Step 1 -->
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                1</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-900">Extract & Upload</h3>
+                                <p class="mt-1 text-sm text-gray-500">Extract the downloaded zip file and upload all
+                                    files to your server's public directory (or subdirectory).</p>
+                                <div class="mt-3 bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                    <code class="text-sm text-green-400 font-mono">
+                                        # Upload to your server<br>
+                                        scp -r ./restaurant user@your-server:/var/www/html/restaurant
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                2</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-900">Install PHP Dependencies</h3>
+                                <p class="mt-1 text-sm text-gray-500">Navigate to the project root and run Composer
+                                    install.</p>
+                                <div class="mt-3 bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                    <code class="text-sm text-green-400 font-mono">
+                                        cd restaurant<br>
+                                        composer install
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                3</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-900">Configure Environment</h3>
+                                <p class="mt-1 text-sm text-gray-500">Copy the example environment file and configure
+                                    your database and application settings.</p>
+                                <div class="mt-3 bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                    <code class="text-sm text-green-400 font-mono">
+                                        # Windows<br>
+                                        copy .env.example .env<br><br>
+                                        # macOS / Linux<br>
+                                        cp .env.example .env
+                                    </code>
+                                </div>
+                                <p class="mt-3 text-sm text-gray-500">Edit <code
+                                        class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600">.env</code> and set
+                                    your database credentials, <code
+                                        class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600">APP_URL</code>, and
+                                    <code class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600">FRONTEND_URL</code>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                4</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-900">Generate App Key & Run Migrations</h3>
+                                <p class="mt-1 text-sm text-gray-500">Generate the encryption key and create all
+                                    database tables with seed data.</p>
+                                <div class="mt-3 bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                    <code class="text-sm text-green-400 font-mono">
+                                        php artisan key:generate<br>
+                                        php artisan migrate --seed
+                                    </code>
+                                </div>
+                                <div
+                                    class="mt-3 bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+                                    This creates default users (Super Admin, Admin, Restaurant Owner) with password
+                                    <code class="font-mono font-bold">123456789</code>.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                5</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-900">Install Frontend & Build</h3>
+                                <p class="mt-1 text-sm text-gray-500">Install Node dependencies and build the React
+                                    frontend.</p>
+                                <div class="mt-3 bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                    <code class="text-sm text-green-400 font-mono">
+                                        npm install<br>
+                                        npm run build
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                6</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-gray-900">Start the Server</h3>
+                                <p class="mt-1 text-sm text-gray-500">Launch the Laravel development server.</p>
+                                <div class="mt-3 bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                    <code class="text-sm text-green-400 font-mono">
+                                        php artisan serve
+                                    </code>
+                                </div>
+                                <p class="mt-3 text-sm text-gray-500">Visit <code
+                                        class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600">http://localhost:8000</code>
+                                    in your browser.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Optional Demo Data -->
+                    <div class="bg-gradient-to-r from-brand-50 to-teal-50 border border-brand-200 rounded-2xl p-6">
+                        <div class="flex items-start gap-4">
+                            <div
+                                class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                !</div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-brand-800">Optional: Load Demo Data</h3>
+                                <p class="mt-1 text-sm text-brand-700">Seed sample menu items, tables, and categories
+                                    for testing.</p>
+                                <div class="mt-3 bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                                    <code class="text-sm text-green-400 font-mono">
+                                        php artisan db:seed --class=Database\Seeders\DemoSeeder
+                                    </code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Web Installer -->
+                    <div
+                        class="bg-gradient-to-r from-purple-50 to-brand-50 border border-purple-200 rounded-2xl overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-start gap-4">
+                                <div
+                                    class="w-8 h-8 bg-purple-600 text-white rounded-lg flex items-center justify-center text-sm font-bold shrink-0">
+                                    W</div>
+                                <div class="flex-1">
+                                    <h3 class="font-bold text-purple-900">Alternative: Web Installer (Recommended for
+                                        Beginners)</h3>
+                                    <p class="mt-1 text-sm text-purple-700">A built-in web installation wizard — no
+                                        command line needed. Just upload files and follow the steps in your browser.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step Overview -->
+                        <div class="px-6 pb-4">
+                            <div class="flex items-center gap-2 overflow-x-auto pb-2">
+                                <span
+                                    class="shrink-0 bg-purple-600 text-white text-xs font-bold px-3 py-1.5 rounded-full">Step
+                                    1</span>
+                                <span class="text-purple-300">→</span>
+                                <span
+                                    class="shrink-0 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full">Step
+                                    2</span>
+                                <span class="text-purple-300">→</span>
+                                <span
+                                    class="shrink-0 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full">Step
+                                    3</span>
+                                <span class="text-purple-300">→</span>
+                                <span
+                                    class="shrink-0 bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-full">Step
+                                    4</span>
+                                <span class="text-purple-300">→</span>
+                                <span
+                                    class="shrink-0 bg-green-100 text-green-700 text-xs font-bold px-3 py-1.5 rounded-full">Complete</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 1: Requirements -->
+                        <div class="px-6 pb-4">
+                            <div class="bg-white rounded-xl border border-purple-100 overflow-hidden">
+                                <div class="flex items-center gap-3 px-5 py-3 bg-purple-600 text-white">
+                                    <span
+                                        class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                                    <h4 class="font-bold text-sm">Server Requirements</h4>
+                                    <span class="ml-auto text-xs text-white/70 font-mono">GET /install</span>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <p class="text-sm text-gray-600">The installer checks your server environment to
+                                        ensure compatibility.</p>
+
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">PHP
+                                            Version Check</p>
+                                        <div class="bg-gray-50 rounded-lg p-3 flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-green-500 shrink-0" fill="none"
+                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            <span class="text-sm text-gray-700">Requires <code
+                                                    class="bg-gray-200 px-1 rounded font-mono text-xs">PHP ≥ 8.2</code></span>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                            Required PHP Extensions (10)</p>
+                                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                openssl</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                pdo</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                mbstring</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                tokenizer</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                json</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                curl</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                xml</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                bcmath</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                gd</div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg p-2 text-center text-xs font-mono text-gray-700">
+                                                zip</div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-xs text-blue-800 flex items-start gap-2">
+                                        <svg class="w-4 h-4 text-blue-500 mt-0.5 shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                        <span><strong>Note:</strong> The <strong>Next</strong> button is disabled if any
+                                            check fails. Fix the failing requirement on your server before
+                                            proceeding.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Permissions -->
+                        <div class="px-6 pb-4">
+                            <div class="bg-white rounded-xl border border-purple-100 overflow-hidden">
+                                <div class="flex items-center gap-3 px-5 py-3 bg-purple-600 text-white">
+                                    <span
+                                        class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                                    <h4 class="font-bold text-sm">Directory Permissions</h4>
+                                    <span class="ml-auto text-xs text-white/70 font-mono">GET
+                                        /install/permissions</span>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <p class="text-sm text-gray-600">Checks that key directories are writable by the web
+                                        server. If not, the installer attempts to fix permissions automatically on
+                                        submit.</p>
+
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                                            Directories Checked</p>
+                                        <div class="space-y-1.5">
+                                            <div
+                                                class="bg-gray-50 rounded-lg px-3 py-2 flex items-center justify-between">
+                                                <code class="text-xs font-mono text-gray-700">storage/framework/</code>
+                                                <span class="text-xs text-gray-400">0755</span>
+                                            </div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg px-3 py-2 flex items-center justify-between">
+                                                <code
+                                                    class="text-xs font-mono text-gray-700">storage/framework/sessions/</code>
+                                                <span class="text-xs text-gray-400">0755</span>
+                                            </div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg px-3 py-2 flex items-center justify-between">
+                                                <code
+                                                    class="text-xs font-mono text-gray-700">storage/framework/views/</code>
+                                                <span class="text-xs text-gray-400">0755</span>
+                                            </div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg px-3 py-2 flex items-center justify-between">
+                                                <code
+                                                    class="text-xs font-mono text-gray-700">storage/framework/cache/</code>
+                                                <span class="text-xs text-gray-400">0755</span>
+                                            </div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg px-3 py-2 flex items-center justify-between">
+                                                <code class="text-xs font-mono text-gray-700">storage/logs/</code>
+                                                <span class="text-xs text-gray-400">0755</span>
+                                            </div>
+                                            <div
+                                                class="bg-gray-50 rounded-lg px-3 py-2 flex items-center justify-between">
+                                                <code class="text-xs font-mono text-gray-700">bootstrap/cache/</code>
+                                                <span class="text-xs text-gray-400">0755</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div
+                                        class="bg-green-50 border border-green-200 rounded-lg p-3 text-xs text-green-800 flex items-start gap-2">
+                                        <svg class="w-4 h-4 text-green-500 mt-0.5 shrink-0" fill="none"
+                                            stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M5 13l4 4L19 7" />
+                                        </svg>
+                                        <span><strong>Auto-fix:</strong> Clicking <strong>Next</strong> will
+                                            automatically create missing directories and set <code
+                                                class="bg-green-100 px-1 rounded font-mono">chmod 775</code>
+                                            permissions.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Environment -->
+                        <div class="px-6 pb-4">
+                            <div class="bg-white rounded-xl border border-purple-100 overflow-hidden">
+                                <div class="flex items-center gap-3 px-5 py-3 bg-purple-600 text-white">
+                                    <span
+                                        class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs font-bold">3</span>
+                                    <h4 class="font-bold text-sm">Environment Configuration</h4>
+                                    <span class="ml-auto text-xs text-white/70 font-mono">GET
+                                        /install/environment</span>
+                                </div>
+                                <div class="p-5 space-y-4">
+                                    <p class="text-sm text-gray-600">Configure your application and database settings.
+                                        The installer writes your <code
+                                            class="bg-gray-100 px-1 rounded text-brand-600 font-mono text-xs">.env</file> and generates the app encryption key automatically.</p>
+
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Form Fields</p>
+                                        <div class="overflow-x-auto">
+                                            <table class="w-full text-xs">
+                                                <thead>
+                                                    <tr class="border-b border-gray-200">
+                                                        <th class="text-left py-2 pr-4 font-semibold text-gray-600">Field</th>
+                                                        <th class="text-left py-2 pr-4 font-semibold text-gray-600">Default</th>
+                                                        <th class="text-left py-2 font-semibold text-gray-600">Required</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody class="divide-y divide-gray-50">
+                                                    <tr><td class="py-1.5 pr-4 font-mono text-brand-600">APP_NAME</td><td class="py-1.5 pr-4 text-gray-500">Laravel</td><td class="py-1.5 text-gray-400">Yes</td></tr>
+                                                    <tr><td class="py-1.5 pr-4 font-mono text-brand-600">APP_URL</td><td class="py-1.5 pr-4 text-gray-500">http://localhost</td><td class="py-1.5 text-gray-400">Yes</td></tr>
+                                                    <tr><td class="py-1.5 pr-4 font-mono text-brand-600">DB_HOST</td><td class="py-1.5 pr-4 text-gray-500">127.0.0.1</td><td class="py-1.5 text-gray-400">Yes</td></tr>
+                                                    <tr><td class="py-1.5 pr-4 font-mono text-brand-600">DB_PORT</td><td class="py-1.5 pr-4 text-gray-500">3306</td><td class="py-1.5 text-gray-400">Yes</td></tr>
+                                                    <tr><td class="py-1.5 pr-4 font-mono text-brand-600">DB_DATABASE</td><td class="py-1.5 pr-4 text-gray-500">(empty)</td><td class="py-1.5 text-gray-400">Yes</td></tr>
+                                                    <tr><td class="py-1.5 pr-4 font-mono text-brand-600">DB_USERNAME</td><td class="py-1.5 pr-4 text-gray-500">(empty)</td><td class="py-1.5 text-gray-400">Yes</td></tr>
+                                                    <tr><td class="py-1.5 pr-4 font-mono text-brand-600">DB_PASSWORD</td><td class="py-1.5 pr-4 text-gray-500">(empty)</td><td class="py-1.5 text-gray-400">No</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">What Happens on Submit</p>
+                                        <ul class="space-y-1.5 text-xs text-gray-600">
+                                            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span>Tests database connection with provided credentials</li>
+                                            <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span>Writes all values to <code class="bg-gray-100 px-1 rounded font-mono">.env</code>
+                                        </li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span>Auto-configures
+                                            <code
+                                                class="bg-gray-100 px-1 rounded font-mono">SANCTUM_STATEFUL_DOMAINS</code>
+                                            and <code class="bg-gray-100 px-1 rounded font-mono">SESSION_DOMAIN</code>
+                                        </li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span>Generates
+                                            the <code class="bg-gray-100 px-1 rounded font-mono">APP_KEY</code> if not
+                                            set</li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span>Sets
+                                            <code class="bg-gray-100 px-1 rounded font-mono">VITE_API_URL</code> and
+                                            <code class="bg-gray-100 px-1 rounded font-mono">PWA_NAME</code>
+                                            automatically
+                                        </li>
+                                        </ul>
+                                </div>
+
+                                <div
+                                    class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800 flex items-start gap-2">
+                                    <svg class="w-4 h-4 text-amber-500 mt-0.5 shrink-0" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                                    </svg>
+                                    <span><strong>Error:</strong> If the database connection fails, you'll be redirected
+                                        back with an error on the DB_HOST field. Verify your database server is running
+                                        and credentials are correct.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3.5: Progress -->
+                    <div class="px-6 pb-4">
+                        <div class="bg-white rounded-xl border border-purple-100 overflow-hidden">
+                            <div class="flex items-center gap-3 px-5 py-3 bg-purple-500 text-white">
+                                <span
+                                    class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs font-bold">⚡</span>
+                                <h4 class="font-bold text-sm">Database Migration & Seeding</h4>
+                                <span class="ml-auto text-xs text-white/70 font-mono">GET /install/progress</span>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <p class="text-sm text-gray-600">After environment configuration, the installer runs
+                                    database migrations and seeds in the background.</p>
+
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">What
+                                        Runs Automatically</p>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><code
+                                                class="bg-gray-100 px-1 rounded font-mono">php artisan migrate --force</code>
+                                            — creates all database tables</li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><code
+                                                class="bg-gray-100 px-1 rounded font-mono">php artisan db:seed --force --class=UserSeeder</code>
+                                            — seeds roles & permissions</li>
+                                    </ul>
+                                </div>
+
+                                <div class="bg-gray-50 rounded-lg p-3 text-xs text-gray-600">
+                                    <p class="font-semibold text-gray-700 mb-1">Progress Tracking:</p>
+                                    <p>The page polls the server every 2 seconds. When complete, it automatically
+                                        proceeds to Step 4. If an error occurs, an alert is shown with the error
+                                        message.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4: Admin Account -->
+                    <div class="px-6 pb-4">
+                        <div class="bg-white rounded-xl border border-purple-100 overflow-hidden">
+                            <div class="flex items-center gap-3 px-5 py-3 bg-purple-600 text-white">
+                                <span
+                                    class="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center text-xs font-bold">4</span>
+                                <h4 class="font-bold text-sm">Admin Account & Restaurant Setup</h4>
+                                <span class="ml-auto text-xs text-white/70 font-mono">GET /install/admin</span>
+                            </div>
+                            <div class="p-5 space-y-4">
+                                <p class="text-sm text-gray-600">Create your super admin account and default restaurant.
+                                    This is the final step.</p>
+
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Form
+                                        Fields</p>
+                                    <div class="overflow-x-auto">
+                                        <table class="w-full text-xs">
+                                            <thead>
+                                                <tr class="border-b border-gray-200">
+                                                    <th class="text-left py-2 pr-4 font-semibold text-gray-600">Field
+                                                    </th>
+                                                    <th class="text-left py-2 pr-4 font-semibold text-gray-600">
+                                                        Validation</th>
+                                                    <th class="text-left py-2 font-semibold text-gray-600">Required</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="divide-y divide-gray-50">
+                                                <tr>
+                                                    <td class="py-1.5 pr-4 font-mono text-brand-600">Admin Name</td>
+                                                    <td class="py-1.5 pr-4 text-gray-500">string, max 255</td>
+                                                    <td class="py-1.5 text-gray-400">Yes</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="py-1.5 pr-4 font-mono text-brand-600">Admin Email</td>
+                                                    <td class="py-1.5 pr-4 text-gray-500">valid email, unique in users
+                                                        table</td>
+                                                    <td class="py-1.5 text-gray-400">Yes</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="py-1.5 pr-4 font-mono text-brand-600">Password</td>
+                                                    <td class="py-1.5 pr-4 text-gray-500">min 8 characters</td>
+                                                    <td class="py-1.5 text-gray-400">Yes</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="py-1.5 pr-4 font-mono text-brand-600">Confirm Password
+                                                    </td>
+                                                    <td class="py-1.5 pr-4 text-gray-500">must match password</td>
+                                                    <td class="py-1.5 text-gray-400">Yes</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">What
+                                        Gets Created</p>
+                                    <ul class="space-y-1.5 text-xs text-gray-600">
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><strong>Super
+                                                Admin user</strong> with the provided name, email, and hashed password
+                                        </li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><strong>Default
+                                                Restaurant</strong> named "{Admin Name}'s Restaurant" with USD currency,
+                                            UTC timezone</li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><strong>Main
+                                                Branch</strong> created under the default restaurant</li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><strong>super_admin
+                                                role</strong> assigned to the user (via Spatie Permission)</li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><code
+                                                class="bg-gray-100 px-1 rounded font-mono">storage/installed</code>
+                                            marker file written</li>
+                                        <li class="flex items-center gap-2"><span
+                                                class="w-1.5 h-1.5 bg-purple-500 rounded-full shrink-0"></span><code
+                                                class="bg-gray-100 px-1 rounded font-mono">SESSION_DRIVER</code> updated
+                                            from <code class="bg-gray-100 px-1 rounded font-mono">file</code> to <code
+                                                class="bg-gray-100 px-1 rounded font-mono">database</code></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Complete -->
+                    <div class="px-6 pb-6">
+                        <div
+                            class="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 p-5">
+                            <div class="flex items-center gap-3">
+                                <div
+                                    class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center shrink-0">
+                                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-green-900">Installation Complete!</h4>
+                                    <p class="text-sm text-green-700">You'll be redirected to the Home page. Use the
+                                        admin credentials you just created to sign in.</p>
+                                </div>
+                            </div>
+                            <div class="mt-3 bg-white rounded-lg p-3 border border-green-100">
+                                <p class="text-xs text-gray-500 mb-1">Home URL:</p>
+                                <code class="text-sm font-mono text-brand-600">https://yourdomain.com</code>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Security Warning -->
+                    <div class="px-6 pb-6">
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                            <svg class="w-5 h-5 text-amber-500 mt-0.5 shrink-0" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                            </svg>
+                            <div class="text-sm text-amber-800">
+                                <strong>Important:</strong> The <code
+                                    class="bg-amber-100 px-1 rounded font-mono">storage/installed</code> file acts as a
+                                lock. Once installed, the <code
+                                    class="bg-amber-100 px-1 rounded font-mono">/install</code> route becomes
+                                inaccessible. To reinstall, delete the <code
+                                    class="bg-amber-100 px-1 rounded font-mono">storage/installed</code> file and drop
+                                all database tables.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- CONFIGURATION -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="configuration">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Configuration</h2>
+            <p class="mt-3 text-gray-500 text-lg">Key environment variables and configuration options.</p>
+
+            <div class="mt-8 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-bold text-gray-900">.env Variables</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100">
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Variable</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Default</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">APP_NAME</td>
+                                <td class="px-6 py-3 text-gray-500">Laravel</td>
+                                <td class="px-6 py-3 text-gray-600">Application name</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">APP_URL</td>
+                                <td class="px-6 py-3 text-gray-500">http://localhost</td>
+                                <td class="px-6 py-3 text-gray-600">Application URL</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">FRONTEND_URL</td>
+                                <td class="px-6 py-3 text-gray-500">http://localhost:5173</td>
+                                <td class="px-6 py-3 text-gray-600">React SPA URL</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">DB_CONNECTION</td>
+                                <td class="px-6 py-3 text-gray-500">mysql</td>
+                                <td class="px-6 py-3 text-gray-600">Database driver</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">DB_HOST</td>
+                                <td class="px-6 py-3 text-gray-500">127.0.0.1</td>
+                                <td class="px-6 py-3 text-gray-600">Database host</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">DB_PORT</td>
+                                <td class="px-6 py-3 text-gray-500">3306</td>
+                                <td class="px-6 py-3 text-gray-600">Database port</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">DB_DATABASE</td>
+                                <td class="px-6 py-3 text-gray-500">restaurant</td>
+                                <td class="px-6 py-3 text-gray-600">Database name</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">SESSION_DRIVER</td>
+                                <td class="px-6 py-3 text-gray-500">file</td>
+                                <td class="px-6 py-3 text-gray-600">Session storage driver</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">CACHE_STORE</td>
+                                <td class="px-6 py-3 text-gray-500">file</td>
+                                <td class="px-6 py-3 text-gray-600">Cache driver</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">TWILIO_SID</td>
+                                <td class="px-6 py-3 text-gray-500">(empty)</td>
+                                <td class="px-6 py-3 text-gray-600">Twilio Account SID for SMS</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">VITE_APP_NAME</td>
+                                <td class="px-6 py-3 text-gray-500">${APP_NAME}</td>
+                                <td class="px-6 py-3 text-gray-600">Frontend display name</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3 font-mono text-brand-600 text-xs">VITE_API_URL</td>
+                                <td class="px-6 py-3 text-gray-500">http://localhost/api</td>
+                                <td class="px-6 py-3 text-gray-600">Frontend API base URL</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-bold text-gray-900">Writable Directories</h3>
+                </div>
+                <div class="p-6">
+                    <p class="text-sm text-gray-500 mb-3">Ensure the following directories have write permissions:</p>
+                    <div class="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                        <code class="text-sm text-green-400 font-mono">
+                                chmod -R 775 storage/<br>
+                                chmod -R 775 bootstrap/cache/<br>
+                                chmod -R 775 public/storage/
+                            </code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- MODULE OVERVIEW -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="modules">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Module Overview</h2>
+            <p class="mt-3 text-gray-500 text-lg">The application is built with a modular architecture using nWidart
+                Laravel Modules. All 38 modules can be enabled or disabled.</p>
+
+            <div class="mt-8 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-bold text-gray-900">All Modules</h3>
+                </div>
+                <div class="p-6">
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Restaurant</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Branch</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Auth</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Menu</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Table Management</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>POS</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Orders</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>KOT</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Kitchen Display</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Customer Display</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Customer</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>CRM</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Loyalty</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Inventory</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Purchase</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Supplier</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Recipe</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Finance</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Accounting</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Invoice</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Employee</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>HRM</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Payroll</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Shift</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Subscription</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Plan</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Package</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>SuperAdmin</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Reports</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Analytics</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Marketing</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Notification</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Review</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Delivery</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Reservation</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Currency</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Guest Order</div>
+                        <div class="flex items-center gap-2 text-sm text-gray-700"><span
+                                class="w-2 h-2 bg-green-400 rounded-full shrink-0"></span>Installer</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-3">Module Structure</h3>
+                <p class="text-sm text-gray-500 mb-4">Each module follows a consistent internal architecture:</p>
+                <div class="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                    <code class="text-sm text-green-400 font-mono leading-relaxed">
+                            Modules/{Module}/<br>
+                            ├── app/<br>
+                            │   ├── Http/Controllers/<br>
+                            │   ├── Http/Requests/<br>
+                            │   ├── Models/<br>
+                            │   ├── Services/<br>
+                            │   ├── Repositories/<br>
+                            │   └── Resources/<br>
+                            ├── database/migrations/<br>
+                            ├── database/seeders/<br>
+                            ├── lang/en/<br>
+                            ├── routes/api.php<br>
+                            ├── config/config.php<br>
+                            └── module.json
+                        </code>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- MODULE DETAILS (abbreviated) -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="restaurant">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Restaurant & Branch</h2>
+            <p class="mt-3 text-gray-500 text-lg">Manage restaurant profiles, working hours, tax settings, and
+                multi-branch operations.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Create and manage multiple restaurants
+                    </li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Multi-branch support with
+                        branch-specific settings</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Working hours configuration per
+                        restaurant</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Tax
+                        settings (percentage or fixed amount)</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Currency and timezone configuration
+                    </li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Business settings (logo, address,
+                        contact info)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="menu">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Menu Management</h2>
+            <p class="mt-3 text-gray-500 text-lg">Full menu system with categories, items, modifiers, and branch
+                assignments.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Menu
+                        categories with tree structure</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Menu
+                        items with images, pricing, descriptions, and availability status</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Modifier groups (e.g., "Size",
+                        "Toppings") with options</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Branch-specific menu item assignment
+                        and pricing</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Item
+                        availability toggle per branch</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="pos-module">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">POS Terminal</h2>
+            <p class="mt-3 text-gray-500 text-lg">Touch-friendly point of sale with advanced order management features.
+            </p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Touch-optimized interface with category
+                        browsing</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Hold
+                        & recall orders</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Split
+                        bills and merge orders</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Discount and coupon support</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Multiple payment methods (Cash, Card,
+                        Bkash, Nagad, Rocket, USDT, etc.)</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Partial payments and multiple payment
+                        types per order</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Refund processing</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>POS
+                        session management (start/close)</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Sales
+                        history with detailed receipts</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Customer display system (CDS) for
+                        secondary screens</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="orders">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Orders & Kitchen</h2>
+            <p class="mt-3 text-gray-500 text-lg">End-to-end order flow from POS to kitchen to customer.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Order Types</h4>
+                    <p class="text-sm text-gray-500 mt-1">Dine-in, Takeaway, and Delivery order types with type-specific
+                        workflows.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Kitchen Order Tickets (KOT)</h4>
+                    <p class="text-sm text-gray-500 mt-1">Auto-generated kitchen tickets with item details, modifiers,
+                        and special instructions.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Kitchen Display System (KDS)</h4>
+                    <p class="text-sm text-gray-500 mt-1">Real-time order board with chef assignment, priority queuing,
+                        status updates (New → Preparing → Ready → Served), and filtering.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Guest Ordering</h4>
+                    <p class="text-sm text-gray-500 mt-1">QR code-based public ordering — customers scan a table QR,
+                        browse the menu, and place orders without an account.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="inventory-mod">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Inventory & Purchasing</h2>
+            <p class="mt-3 text-gray-500 text-lg">Complete supply chain management from procurement to stock tracking.
+            </p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Inventory items with categories, units,
+                        and stock levels</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Stock
+                        movements tracking (in, out, transfer, adjustment, waste)</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Stock
+                        transfers between branches</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Stock
+                        adjustments with approval workflow</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Waste
+                        tracking and reporting</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Purchase orders with GRN (Goods
+                        Received Note)</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Purchase returns and payment tracking
+                    </li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Supplier management with contacts,
+                        documents, transactions, and ratings</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Recipe management linking menu items to
+                        inventory ingredients</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="tables">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Tables & Reservations</h2>
+            <p class="mt-3 text-gray-500 text-lg">Floor plan management, QR ordering, and reservation system.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Floor
+                        plan creation and management</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Table
+                        layout with capacity, status, and QR codes</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Table
+                        status tracking (Available, Occupied, Reserved)</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>QR
+                        code generation for each table</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Reservation system with confirm, seat,
+                        complete, cancel, and no-show status</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="crm-mod">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">CRM & Loyalty</h2>
+            <p class="mt-3 text-gray-500 text-lg">Customer relationship management and loyalty rewards.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">CRM</h4>
+                    <p class="text-sm text-gray-500 mt-1">Customer database with purchase history, notes, segments, and
+                        follow-up scheduling.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Loyalty Programme</h4>
+                    <p class="text-sm text-gray-500 mt-1">Points earning and redemption rules, loyalty tiers, customer
+                        loyalty dashboard, and transaction history.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="hrm">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">HRM & Payroll</h2>
+            <p class="mt-3 text-gray-500 text-lg">Human resource management with attendance, leave, and payroll.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Departments and designations</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Employee profiles with
+                        department/designation assignment</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Attendance tracking
+                        (check-in/check-out)</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Leave
+                        requests with approval workflow</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Holiday management</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Shift
+                        management</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Payroll processing with salary
+                        calculation</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="accounting-mod">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Accounting</h2>
+            <p class="mt-3 text-gray-500 text-lg">Double-entry accounting system with full financial reporting.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Chart
+                        of Accounts with tree structure</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Income and expense tracking</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Cash
+                        & bank account management</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Journal entries with double-entry
+                        bookkeeping</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>General ledger with account-level
+                        filtering</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Trial
+                        balance report</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Profit & Loss statement</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Balance sheet</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Cash
+                        flow report</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="reports-mod">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Reports</h2>
+            <p class="mt-3 text-gray-500 text-lg">Comprehensive reporting across all business operations.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <ul class="space-y-2 text-sm text-gray-600">
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Sales
+                        report with date range and branch filtering</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Purchase report</li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Tax
+                        report</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Expense report</li>
+                    <li class="flex items-center gap-2"><span
+                            class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Platform overview report (Super Admin)
+                    </li>
+                    <li class="flex items-center gap-2"><span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Plan,
+                        package, subscription, and restaurant reports (Super Admin)</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="subscriptions">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">SaaS & Subscriptions</h2>
+            <p class="mt-3 text-gray-500 text-lg">Built-in multi-tenant SaaS infrastructure.</p>
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6 space-y-4">
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Plans & Packages</h4>
+                    <p class="text-sm text-gray-500 mt-1">Create subscription plans with feature packages that control
+                        module access per restaurant.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Subscription Management</h4>
+                    <p class="text-sm text-gray-500 mt-1">Assign plans to restaurants, track subscription status, and
+                        control feature access via module permissions.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-900 text-sm">Super Admin Dashboard</h4>
+                    <p class="text-sm text-gray-500 mt-1">Platform-wide analytics, restaurant management, plan/package
+                        CRUD, and subscription reports.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- ROLES & PERMISSIONS -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="roles">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Roles & Permissions</h2>
+            <p class="mt-3 text-gray-500 text-lg">Granular access control using Spatie Laravel Permission.</p>
+
+            <div class="mt-8 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-bold text-gray-900">Default Roles</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100">
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Role</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            <tr>
+                                <td class="px-6 py-3"><code
+                                        class="bg-brand-50 text-brand-700 px-2 py-0.5 rounded text-xs font-mono">super_admin</code>
+                                </td>
+                                <td class="px-6 py-3 text-gray-600">Full access to all modules and settings</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3"><code
+                                        class="bg-brand-50 text-brand-700 px-2 py-0.5 rounded text-xs font-mono">admin</code>
+                                </td>
+                                <td class="px-6 py-3 text-gray-600">Full access (kept for extensibility)</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-3"><code
+                                        class="bg-brand-50 text-brand-700 px-2 py-0.5 rounded text-xs font-mono">restaurant_owner</code>
+                                </td>
+                                <td class="px-6 py-3 text-gray-600">Full access to own restaurant data</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-3">Permission Pattern</h3>
+                <p class="text-sm text-gray-500">Permissions follow the pattern: <code
+                        class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">{action}_{entity}</code></p>
+                <div class="mt-3 flex flex-wrap gap-2">
+                    <span class="bg-gray-100 text-gray-700 text-xs font-mono px-2 py-1 rounded">view_restaurants</span>
+                    <span class="bg-gray-100 text-gray-700 text-xs font-mono px-2 py-1 rounded">create_menu_items</span>
+                    <span
+                        class="bg-gray-100 text-gray-700 text-xs font-mono px-2 py-1 rounded">update_reservations</span>
+                    <span class="bg-gray-100 text-gray-700 text-xs font-mono px-2 py-1 rounded">delete_floors</span>
+                    <span class="bg-gray-100 text-gray-700 text-xs font-mono px-2 py-1 rounded">process_sale</span>
+                    <span
+                        class="bg-gray-100 text-gray-700 text-xs font-mono px-2 py-1 rounded">manage_kitchen_orders</span>
+                </div>
+                <p class="mt-3 text-sm text-gray-500">Actions: <code
+                        class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">view</code>, <code
+                        class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">create</code>, <code
+                        class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">update</code>, <code
+                        class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">delete</code>. Total: 120+ permissions
+                    seeded via <code
+                        class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">UserSeeder</code>.</p>
+            </div>
+
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-3">Frontend Permission Check</h3>
+                <div class="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                    <code class="text-sm text-green-400 font-mono">
+                            <span class="text-purple-400">import</span> { usePermission } <span class="text-purple-400">from</span> <span class="text-yellow-300">'../../context/PermissionContext'</span>;<br><br>
+                            <span class="text-purple-400">const</span> { can, hasRole } = <span class="text-blue-300">usePermission</span>();<br><br>
+                            <span class="text-gray-500">// Permission check</span><br>
+                            {`{can('create_restaurants') && <Button>Add Restaurant</Button>}`}<br><br>
+                            <span class="text-gray-500">// Role check</span><br>
+                            {`{hasRole('super_admin') && <AdminPanel />}`}
+                        </code>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- API REFERENCE -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="api">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">API Reference</h2>
+            <p class="mt-3 text-gray-500 text-lg">RESTful API with consistent response format and Sanctum
+                authentication.</p>
+
+            <div class="mt-8 bg-white rounded-2xl border border-gray-200 p-6">
+                <h3 class="font-bold text-gray-900 mb-3">Response Format</h3>
+                <div class="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                    <code class="text-sm font-mono">
+                            <span class="text-blue-300">{</span><br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">"status"</span>: <span class="text-green-300">"success"</span>,<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">"message"</span>: <span class="text-green-300">"Data retrieved successfully"</span>,<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">"data"</span>: <span class="text-blue-300">{ ... }</span>,<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">"errors"</span>: <span class="text-blue-300">{}</span>,<br>
+                            &nbsp;&nbsp;<span class="text-yellow-300">"meta"</span>: <span class="text-blue-300">{ "total"</span>: <span class="text-orange-300">100</span> <span class="text-blue-300">}</span><br>
+                            <span class="text-blue-300">}</span>
+                        </code>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+                <div class="px-6 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-bold text-gray-900">Key Endpoints</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="border-b border-gray-100">
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Method</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Endpoint</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Auth</th>
+                                <th class="px-6 py-3 text-left font-semibold text-gray-600">Description</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50 text-xs">
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-mono font-bold">POST</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/login</td>
+                                <td class="px-6 py-2 text-gray-400">No</td>
+                                <td class="px-6 py-2 text-gray-600">Authenticate user</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-mono font-bold">POST</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/register</td>
+                                <td class="px-6 py-2 text-gray-400">No</td>
+                                <td class="px-6 py-2 text-gray-600">Register new user</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono font-bold">GET</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/user</td>
+                                <td class="px-6 py-2 text-gray-400">Yes</td>
+                                <td class="px-6 py-2 text-gray-600">Get authenticated user</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-mono font-bold">POST</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/api/v1/pos</td>
+                                <td class="px-6 py-2 text-gray-400">Yes</td>
+                                <td class="px-6 py-2 text-gray-600">Create POS sale</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono font-bold">GET</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/api/v1/menu/items</td>
+                                <td class="px-6 py-2 text-gray-400">Yes</td>
+                                <td class="px-6 py-2 text-gray-600">List menu items</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono font-bold">GET</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/api/v1/kitchen/display</td>
+                                <td class="px-6 py-2 text-gray-400">Yes</td>
+                                <td class="px-6 py-2 text-gray-600">Kitchen display board</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-mono font-bold">GET</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/api/guest/menu</td>
+                                <td class="px-6 py-2 text-gray-400">No</td>
+                                <td class="px-6 py-2 text-gray-600">Public guest menu</td>
+                            </tr>
+                            <tr>
+                                <td class="px-6 py-2"><span
+                                        class="bg-green-100 text-green-700 px-1.5 py-0.5 rounded font-mono font-bold">POST</span>
+                                </td>
+                                <td class="px-6 py-2 font-mono text-gray-600">/api/guest/order</td>
+                                <td class="px-6 py-2 text-gray-400">No</td>
+                                <td class="px-6 py-2 text-gray-600">Place guest order</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- SECURITY -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="security">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Security</h2>
+            <p class="mt-3 text-gray-500 text-lg">Built-in security features to protect your application and data.</p>
+
+            <div class="mt-8 grid md:grid-cols-2 gap-4">
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center"><svg
+                                class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg></div>
+                        <h4 class="font-semibold text-gray-900 text-sm">HTTP-Only Cookie Auth</h4>
+                    </div>
+                    <p class="text-xs text-gray-500">No localStorage tokens. Sanctum stateful SPA authentication with
+                        secure cookies.</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center"><svg
+                                class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg></div>
+                        <h4 class="font-semibold text-gray-900 text-sm">CSRF Protection</h4>
+                    </div>
+                    <p class="text-xs text-gray-500">Cross-site request forgery protection on all forms and
+                        state-changing requests.</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center"><svg
+                                class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4" />
+                            </svg></div>
+                        <h4 class="font-semibold text-gray-900 text-sm">Password Hashing</h4>
+                    </div>
+                    <p class="text-xs text-gray-500">Bcrypt with 12 rounds. Never stored in plain text.</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center"><svg
+                                class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg></div>
+                        <h4 class="font-semibold text-gray-900 text-sm">Rate Limiting</h4>
+                    </div>
+                    <p class="text-xs text-gray-500">Request throttling (120 requests/minute) on all API routes.</p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center"><svg
+                                class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                            </svg></div>
+                        <h4 class="font-semibold text-gray-900 text-sm">Activity Logging</h4>
+                    </div>
+                    <p class="text-xs text-gray-500">All write operations are logged with user, IP, and request details.
+                    </p>
+                </div>
+                <div class="bg-white rounded-2xl border border-gray-200 p-5">
+                    <div class="flex items-center gap-3 mb-3">
+                        <div class="w-9 h-9 bg-green-50 rounded-lg flex items-center justify-center"><svg
+                                class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                            </svg></div>
+                        <h4 class="font-semibold text-gray-900 text-sm">Data Isolation</h4>
+                    </div>
+                    <p class="text-xs text-gray-500">Restaurant-scoped middleware ensures each restaurant only sees its
+                        own data.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- CUSTOMIZATION -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="customization">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Customization</h2>
+            <p class="mt-3 text-gray-500 text-lg">How to customize and extend the application.</p>
+
+            <div class="mt-8 space-y-6">
+                <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">Theme & Branding</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Edit <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">resources/js/src/theme.js</code>
+                            to change brand colors, fonts, shadows, and component styles</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Light and dark mode supported via
+                            semantic tokens</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Change <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">VITE_APP_NAME</code>
+                            in <code class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">.env</code> to
+                            rename the application</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">Adding New Modules</h3>
+                    <div class="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                        <code class="text-sm text-green-400 font-mono">
+                                php artisan module:make NewModule<br><br>
+                                <span class="text-gray-500"># Register in modules_statuses.json</span><br>
+                                <span class="text-gray-500"># Add permissions to UserSeeder.php</span><br>
+                                <span class="text-gray-500"># Add sidebar items in SidebarContent.jsx</span>
+                            </code>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">Localization</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Backend: <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">Modules/{Module}/lang/en/</code>
+                        </li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Frontend: <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">react-i18next</code>
+                            with English and Bengali locales</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Use <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">t('key')</code> for
+                            all frontend strings</li>
+                    </ul>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">PWA Support</h3>
+                    <p class="text-sm text-gray-500">The app supports Progressive Web App installation. Configure the
+                        manifest in <code
+                            class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">vite.config.js</code>.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- UPDATES & SUPPORT -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="updates">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Updates & Support</h2>
+            <p class="mt-3 text-gray-500 text-lg">How to update and get help.</p>
+
+            <div class="mt-8 space-y-6">
+                <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">Updating the Application</h3>
+                    <div class="bg-gray-900 rounded-xl p-4 overflow-x-auto">
+                        <code class="text-sm text-green-400 font-mono">
+                                <span class="text-gray-500"># 1. Backup your database and files</span><br>
+                                <span class="text-gray-500"># 2. Upload new files (overwrite)</span><br>
+                                composer install<br>
+                                php artisan migrate<br>
+                                npm install && npm run build<br>
+                                php artisan config:clear<br>
+                                php artisan cache:clear
+                            </code>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                    <h3 class="font-bold text-gray-900 mb-3">Support</h3>
+                    <ul class="space-y-2 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Email support via CodeCanyon
+                            comment section</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Response time: within 24-48 hours
+                            on business days</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Please provide your server details
+                            and error logs when reporting issues</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- CHANGELOG -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="changelog">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">Changelog</h2>
+            <p class="mt-3 text-gray-500 text-lg">Release history and version notes.</p>
+
+            <div class="mt-8 space-y-4">
+                <div class="bg-white rounded-2xl border border-gray-200 p-6">
+                    <div class="flex items-center gap-3 mb-3">
+                        <span class="bg-brand-100 text-brand-700 text-xs font-bold px-3 py-1 rounded-full">v1.0.0</span>
+                        <span class="text-sm text-gray-400">Initial Release</span>
+                    </div>
+                    <ul class="space-y-1.5 text-sm text-gray-600">
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Complete restaurant POS system with
+                            38 modules</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Laravel 12 + React 19 + Chakra UI
+                            stack</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Multi-branch support with
+                            role-based access control</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>SaaS subscription system with
+                            plan/package management</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Full accounting, HRM, CRM,
+                            inventory, and reporting modules</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Kitchen Display System and Customer
+                            Display System</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>QR code guest ordering</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>PWA support with offline
+                            capabilities</li>
+                        <li class="flex items-center gap-2"><span
+                                class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>Web-based installation wizard</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════════ -->
+        <!-- FAQ -->
+        <!-- ═══════════════════════════════════════════ -->
+        <section id="faq">
+            <h2 class="text-3xl font-extrabold text-gray-900 tracking-tight">FAQ</h2>
+            <p class="mt-3 text-gray-500 text-lg">Frequently asked questions.</p>
+
+            <div class="mt-8 space-y-4">
+                <details class="bg-white rounded-2xl border border-gray-200 group">
+                    <summary
+                        class="px-6 py-4 cursor-pointer font-semibold text-gray-900 flex items-center justify-between hover:bg-gray-50 rounded-2xl transition-colors">
+                        What are the default login credentials?
+                        <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4 text-sm text-gray-600">
+                        <p class="mb-2"><strong>Super Admin:</strong> <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">superadmin@gmail.com</code> / <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">123456789</code></p>
+                        <p class="mb-2"><strong>Admin:</strong> <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">admin@gmail.com</code> / <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">123456789</code></p>
+                        <p><strong>Restaurant Owner:</strong> <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">owner@gmail.com</code> / <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">123456789</code></p>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-2xl border border-gray-200 group">
+                    <summary
+                        class="px-6 py-4 cursor-pointer font-semibold text-gray-900 flex items-center justify-between hover:bg-gray-50 rounded-2xl transition-colors">
+                        Can I disable modules I don't need?
+                        <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4 text-sm text-gray-600">
+                        Yes. Edit <code
+                            class="bg-gray-100 px-1.5 py-0.5 rounded text-brand-600 font-mono">modules_statuses.json</code>
+                        in the project root to enable or disable any module. Disabled modules won't load routes,
+                        migrations, or appear in the sidebar.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-2xl border border-gray-200 group">
+                    <summary
+                        class="px-6 py-4 cursor-pointer font-semibold text-gray-900 flex items-center justify-between hover:bg-gray-50 rounded-2xl transition-colors">
+                        How do I add a new language?
+                        <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4 text-sm text-gray-600">
+                        <p class="mb-2"><strong>Backend:</strong> Create a new locale folder under <code
+                                class="bg-gray-100 px-1.5 py-0.5 rounded font-mono">Modules/{Module}/lang/{locale}/</code>
+                            and add translated strings.</p>
+                        <p><strong>Frontend:</strong> Add a new translation file in the i18n configuration and update
+                            the language switcher component.</p>
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-2xl border border-gray-200 group">
+                    <summary
+                        class="px-6 py-4 cursor-pointer font-semibold text-gray-900 flex items-center justify-between hover:bg-gray-50 rounded-2xl transition-colors">
+                        Is this application production-ready?
+                        <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4 text-sm text-gray-600">
+                        Yes. The application is built with production-grade security (CSRF, rate limiting, input
+                        validation, data isolation), follows Laravel best practices, uses PSR-12 coding standards, and
+                        includes activity logging and error handling. It is designed for CodeCanyon commercial
+                        distribution.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-2xl border border-gray-200 group">
+                    <summary
+                        class="px-6 py-4 cursor-pointer font-semibold text-gray-900 flex items-center justify-between hover:bg-gray-50 rounded-2xl transition-colors">
+                        Can I use this as a SaaS platform?
+                        <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4 text-sm text-gray-600">
+                        Absolutely. The application includes a complete SaaS infrastructure with subscription plans,
+                        feature packages, module access control, and a super admin dashboard for managing all tenants.
+                        Each restaurant operates in its own isolated data scope.
+                    </div>
+                </details>
+
+                <details class="bg-white rounded-2xl border border-gray-200 group">
+                    <summary
+                        class="px-6 py-4 cursor-pointer font-semibold text-gray-900 flex items-center justify-between hover:bg-gray-50 rounded-2xl transition-colors">
+                        What payment methods are supported?
+                        <svg class="w-5 h-5 text-gray-400 group-open:rotate-180 transition-transform" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                        </svg>
+                    </summary>
+                    <div class="px-6 pb-4 text-sm text-gray-600">
+                        Cash, Card, Cheque, Bank Transfer, Bkash, Nagad, Rocket, USDT, and Other. Multiple payment types
+                        can be used per order for split payments.
+                    </div>
+                </details>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 pt-10 pb-8 mt-12">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-9 h-9 bg-gradient-to-br from-brand-600 to-brand-500 rounded-xl flex items-center justify-center shadow-md">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                        </svg>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">Restaurant POS</p>
+                        <p class="text-xs text-gray-400">Documentation v1.0</p>
+                    </div>
+                </div>
+                <p class="text-xs text-gray-400">&copy; 2026 Restaurant POS. All rights reserved.</p>
+            </div>
+        </footer>
+
+        </div>
+    </div>
+
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const sidebar = document.getElementById('sidebar');
+
+        menuBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('mobile-open');
+        });
+
+        // Close sidebar on link click (mobile)
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('mobile-open');
+            });
+        });
+
+        // Active section highlighting
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.sidebar-link');
+
+        // Set welcome as active by default
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#welcome') {
+                link.classList.add('active');
+            }
+        });
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    navLinks.forEach(link => {
+                        link.classList.remove('active');
+                        if (link.getAttribute('href') === '#' + entry.target.id) {
+                            link.classList.add('active');
+                        }
+                    });
+                }
+            });
+        }, { rootMargin: '-10% 0px -80% 0px' });
+
+        sections.forEach(section => observer.observe(section));
+
+        // Scroll to hash on load
+        if (window.location.hash) {
+            const target = document.querySelector(window.location.hash);
+            if (target) {
+                setTimeout(() => target.scrollIntoView({ behavior: 'smooth' }), 100);
+            }
+        }
+    </script>
+
+</body>
+
+</html>

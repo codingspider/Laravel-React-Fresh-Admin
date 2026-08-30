@@ -46,10 +46,8 @@ import {
 
 const defaultConfig = {
     email_enabled: true,
-    sms_enabled: false,
     whatsapp_enabled: false,
     email: { host: "", port: 587, username: "", password: "", encryption: "tls", from_email: "", from_name: "" },
-    sms: { provider: "twilio", sid: "", token: "", from: "" },
     whatsapp: { sid: "", token: "", from: "" },
 };
 
@@ -57,7 +55,6 @@ const mergeConfig = (config) => ({
     ...defaultConfig,
     ...config,
     email: { ...defaultConfig.email, ...(config?.email || {}) },
-    sms: { ...defaultConfig.sms, ...(config?.sms || {}) },
     whatsapp: { ...defaultConfig.whatsapp, ...(config?.whatsapp || {}) },
 });
 
@@ -75,7 +72,7 @@ const NotificationSettings = () => {
     const [templates, setTemplates] = useState([]);
     const [templatesLoading, setTemplatesLoading] = useState(false);
     const [templateModal, setTemplateModal] = useState({ open: false, editing: null });
-    const [testModal, setTestModal] = useState({ open: false, body: "", to: "", channel: "sms", template: null });
+    const [testModal, setTestModal] = useState({ open: false, body: "", to: "", channel: "whatsapp", template: null });
     const [emailModal, setEmailModal] = useState({ open: false, to: "" });
     const [sendingEmail, setSendingEmail] = useState(false);
 
@@ -97,7 +94,6 @@ const NotificationSettings = () => {
         const errorMessage = errorResponse?.errors
             ? Object.values(errorResponse.errors).flat().join(" ")
             : errorResponse?.message || t("something_went_wrong");
-
         toast({ title: t("error"), description: errorMessage, status: "error", duration: 4000, isClosable: true });
     };
 
@@ -186,7 +182,7 @@ const NotificationSettings = () => {
             open: true,
             editing: template || null,
             name: template?.name || "",
-            channel: template?.channel || "sms",
+            channel: "whatsapp",
             body: template?.body || "",
             is_active: template?.is_active ?? true,
         });
@@ -196,11 +192,10 @@ const NotificationSettings = () => {
         const payload = {
             branch_id: branchId,
             name: templateModal.name,
-            channel: templateModal.channel,
+            channel: "whatsapp",
             body: templateModal.body,
             is_active: templateModal.is_active,
         };
-
         try {
             if (templateModal.editing) {
                 await api.put(UPDATE_SMS_TEMPLATE_V1(templateModal.editing.id), payload);
@@ -218,7 +213,6 @@ const NotificationSettings = () => {
 
     const deleteTemplate = async (template) => {
         if (!window.confirm(t("delete_template_confirm"))) return;
-
         try {
             await api.delete(DELETE_SMS_TEMPLATE_V1(template.id), { data: { branch_id: branchId } });
             toast({ title: t("template_deleted"), status: "success", duration: 3000, isClosable: true });
@@ -244,7 +238,7 @@ const NotificationSettings = () => {
         setTestModal({
             open: true,
             template,
-            channel: template?.channel || "sms",
+            channel: "whatsapp",
             body: template?.body || "",
             to: "",
         });
@@ -254,7 +248,7 @@ const NotificationSettings = () => {
         try {
             await api.post(TEST_SMS_V1, {
                 branch_id: branchId,
-                channel: testModal.channel,
+                channel: "whatsapp",
                 to: testModal.to,
                 body: testModal.body,
             });
@@ -275,10 +269,7 @@ const NotificationSettings = () => {
     const sendTestEmail = async () => {
         setSendingEmail(true);
         try {
-            await api.post(TEST_EMAIL_V1, {
-                branch_id: branchId,
-                to: emailModal.to,
-            });
+            await api.post(TEST_EMAIL_V1, { branch_id: branchId, to: emailModal.to });
             toast({ title: t("test_email_sent"), status: "success", duration: 3000, isClosable: true });
             setEmailModal({ open: false, to: "" });
         } catch (err) {
@@ -302,63 +293,7 @@ const NotificationSettings = () => {
         );
     }
 
-    const channelTemplates = (channel) => templates.filter((t) => t.channel === channel);
-    const renderTemplates = (channel) => (
-        <VStack spacing={3} align="stretch">
-            {channelTemplates(channel).map((template) => {
-                const isSystem = template.restaurant_id === null;
-                return (
-                <Flex
-                    key={template.id}
-                    justify="space-between"
-                    align="center"
-                    p={4}
-                    bg={colors.bgSubtle}
-                    borderRadius="lg"
-                    border="1px solid"
-                    borderColor={colors.borderInput}
-                >
-                    <Box flex={1} mr={4}>
-                        <Text fontWeight="semibold" color={colors.textPrimary} fontSize="sm">
-                            {template.name} {isSystem && <Badge colorScheme="gray" ml={1}>{t("default_branch")}</Badge>}
-                        </Text>
-                        <Text fontSize="xs" color={colors.textSecondary} noOfLines={2}>
-                            {template.body}
-                        </Text>
-                    </Box>
-                    <HStack spacing={1}>
-                        {!isSystem && (
-                            <Switch
-                                colorScheme="teal"
-                                isChecked={!!template.is_active}
-                                onChange={() => toggleTemplate(template)}
-                                size="sm"
-                            />
-                        )}
-                        <Tooltip label={t("test_message")}>
-                            <IconButton size="sm" variant="ghost" icon={<MdSend />} onClick={() => openTestModal(template)} />
-                        </Tooltip>
-                        {!isSystem && (
-                            <>
-                                <Tooltip label={t("edit_template")}>
-                                    <IconButton size="sm" variant="ghost" icon={<MdEdit />} onClick={() => openTemplateModal(template)} />
-                                </Tooltip>
-                                <Tooltip label={t("delete_template")}>
-                                    <IconButton size="sm" variant="ghost" colorScheme="red" icon={<MdDelete />} onClick={() => deleteTemplate(template)} />
-                                </Tooltip>
-                            </>
-                        )}
-                    </HStack>
-                </Flex>
-                );
-            })}
-            {channelTemplates(channel).length === 0 && (
-                <Text fontSize="sm" color={colors.textSecondary}>
-                    {t("no_templates")}
-                </Text>
-            )}
-        </VStack>
-    );
+    const whatsappTemplates = templates.filter((t) => t.channel === "whatsapp");
 
     return (
         <Box>
@@ -376,20 +311,17 @@ const NotificationSettings = () => {
                     {...inputProps}
                 >
                     {branches.map((branch) => (
-                        <option key={branch.id} value={branch.id}>
-                            {branch.name}
-                        </option>
+                        <option key={branch.id} value={branch.id}>{branch.name}</option>
                     ))}
                 </Select>
             </FormControl>
 
             {/* Channel toggles */}
-            <SimpleGrid columns={{ base: 1, md: 3 }} spacing={4} mb={6}>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4} mb={8}>
                 {[
-                    { key: "email_enabled", label: t("email_notifications") },
-                    { key: "sms_enabled", label: t("sms_notifications") },
-                    { key: "whatsapp_enabled", label: t("whatsapp_notifications") },
-                ].map(({ key, label }) => (
+                    { key: "email_enabled", label: t("email_notifications"), icon: "✉️" },
+                    { key: "whatsapp_enabled", label: t("whatsapp_notifications"), icon: "💬" },
+                ].map(({ key, label, icon }) => (
                     <Flex
                         key={key}
                         justify="space-between"
@@ -397,10 +329,13 @@ const NotificationSettings = () => {
                         p={4}
                         bg={colors.bgSubtle}
                         borderRadius="lg"
+                        border="1px solid"
+                        borderColor={colors.borderInput}
                     >
-                        <Text fontWeight="semibold" fontSize="sm" color={colors.textPrimary}>
-                            {label}
-                        </Text>
+                        <HStack spacing={2}>
+                            <Text fontSize="lg">{icon}</Text>
+                            <Text fontWeight="semibold" fontSize="sm" color={colors.textPrimary}>{label}</Text>
+                        </HStack>
                         <Switch
                             colorScheme="teal"
                             isChecked={!!config[key]}
@@ -411,96 +346,85 @@ const NotificationSettings = () => {
                 ))}
             </SimpleGrid>
 
-            {/* SMTP settings */}
-            <Flex justify="space-between" align="center" mb={1}>
-                <Text fontWeight="bold" color={colors.textPrimary}>
-                    {t("smtp_settings")}
-                </Text>
-                <Button
-                    size="sm"
-                    leftIcon={<MdSend />}
-                    variant="outline"
-                    colorScheme="teal"
-                    onClick={() => setEmailModal({ open: true, to: "" })}
-                >
-                    {t("test_email")}
-                </Button>
-            </Flex>
-            <Text fontSize="xs" color={colors.textSecondary} mb={3}>
-                {t("test_email_help")}
-            </Text>
-            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} mb={8}>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("host")}</FormLabel>
-                    <Input {...inputProps} value={config.email.host} onChange={(e) => setConfigPath("email.host", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("port")}</FormLabel>
-                    <Input
-                        type="number"
-                        {...inputProps}
-                        value={config.email.port}
-                        onChange={(e) => setConfigPath("email.port", e.target.value)}
-                    />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("username")}</FormLabel>
-                    <Input {...inputProps} value={config.email.username} onChange={(e) => setConfigPath("email.username", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("password")}</FormLabel>
-                    <Input type="password" {...inputProps} value={config.email.password} onChange={(e) => setConfigPath("email.password", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("encryption")}</FormLabel>
-                    <Select {...inputProps} value={config.email.encryption} onChange={(e) => setConfigPath("email.encryption", e.target.value)}>
-                        <option value="tls">TLS</option>
-                        <option value="ssl">SSL</option>
-                    </Select>
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("from_email")}</FormLabel>
-                    <Input {...inputProps} value={config.email.from_email} onChange={(e) => setConfigPath("email.from_email", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("from_name")}</FormLabel>
-                    <Input {...inputProps} value={config.email.from_name} onChange={(e) => setConfigPath("email.from_name", e.target.value)} />
-                </FormControl>
-            </SimpleGrid>
+            {/* ── Email (SMTP) Settings ── */}
+            <Box mb={8}>
+                <Flex justify="space-between" align="center" mb={1}>
+                    <HStack spacing={2}>
+                        <Badge colorScheme="blue" fontSize="xs">EMAIL</Badge>
+                        <Text fontWeight="bold" color={colors.textPrimary}>{t("smtp_settings")}</Text>
+                    </HStack>
+                    <Button
+                        size="sm"
+                        leftIcon={<MdSend />}
+                        variant="outline"
+                        colorScheme="teal"
+                        onClick={() => setEmailModal({ open: true, to: "" })}
+                    >
+                        {t("test_email")}
+                    </Button>
+                </Flex>
+                <Text fontSize="xs" color={colors.textSecondary} mb={3}>{t("test_email_help")}</Text>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("host")}</FormLabel>
+                        <Input {...inputProps} value={config.email.host} onChange={(e) => setConfigPath("email.host", e.target.value)} />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("port")}</FormLabel>
+                        <Input type="number" {...inputProps} value={config.email.port} onChange={(e) => setConfigPath("email.port", e.target.value)} />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("username")}</FormLabel>
+                        <Input {...inputProps} value={config.email.username} onChange={(e) => setConfigPath("email.username", e.target.value)} />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("password")}</FormLabel>
+                        <Input type="password" {...inputProps} value={config.email.password} onChange={(e) => setConfigPath("email.password", e.target.value)} />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("encryption")}</FormLabel>
+                        <Select {...inputProps} value={config.email.encryption} onChange={(e) => setConfigPath("email.encryption", e.target.value)}>
+                            <option value="tls">TLS</option>
+                            <option value="ssl">SSL</option>
+                        </Select>
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("from_email")}</FormLabel>
+                        <Input {...inputProps} value={config.email.from_email} onChange={(e) => setConfigPath("email.from_email", e.target.value)} />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("from_name")}</FormLabel>
+                        <Input {...inputProps} value={config.email.from_name} onChange={(e) => setConfigPath("email.from_name", e.target.value)} />
+                    </FormControl>
+                </SimpleGrid>
+            </Box>
 
-            {/* Twilio SMS settings */}
-            <Text fontWeight="bold" color={colors.textPrimary} mb={1}>
-                {t("twilio_settings")}
-            </Text>
-            <Text fontSize="xs" color={colors.textSecondary} mb={3}>
-                {t("credentials_help")}
-            </Text>
-            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={6} mb={8}>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("account_sid")}</FormLabel>
-                    <Input {...inputProps} value={config.sms.sid} onChange={(e) => setConfigPath("sms.sid", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("auth_token")}</FormLabel>
-                    <Input type="password" {...inputProps} value={config.sms.token} onChange={(e) => setConfigPath("sms.token", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("from_number")}</FormLabel>
-                    <Input {...inputProps} value={config.sms.from} onChange={(e) => setConfigPath("sms.from", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("whatsapp")} {t("account_sid")}</FormLabel>
-                    <Input {...inputProps} value={config.whatsapp.sid} onChange={(e) => setConfigPath("whatsapp.sid", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("whatsapp")} {t("auth_token")}</FormLabel>
-                    <Input type="password" {...inputProps} value={config.whatsapp.token} onChange={(e) => setConfigPath("whatsapp.token", e.target.value)} />
-                </FormControl>
-                <FormControl>
-                    <FormLabel {...labelProps}>{t("whatsapp")} {t("from_number")}</FormLabel>
-                    <Input {...inputProps} value={config.whatsapp.from} onChange={(e) => setConfigPath("whatsapp.from", e.target.value)} />
-                </FormControl>
-            </SimpleGrid>
+            {/* ── WhatsApp (Twilio) Settings ── */}
+            <Box mb={8}>
+                <Flex justify="space-between" align="center" mb={1}>
+                    <HStack spacing={2}>
+                        <Badge colorScheme="green" fontSize="xs">WHATSAPP</Badge>
+                        <Text fontWeight="bold" color={colors.textPrimary}>Twilio {t("whatsapp")} Settings</Text>
+                    </HStack>
+                </Flex>
+                <Text fontSize="xs" color={colors.textSecondary} mb={3}>
+                    {t("credentials_help")} Configure your Twilio WhatsApp API credentials below.
+                </Text>
+                <SimpleGrid columns={{ base: 1, md: 2 }} spacing={5}>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("account_sid")}</FormLabel>
+                        <Input {...inputProps} value={config.whatsapp.sid} onChange={(e) => setConfigPath("whatsapp.sid", e.target.value)} placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx" />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("auth_token")}</FormLabel>
+                        <Input type="password" {...inputProps} value={config.whatsapp.token} onChange={(e) => setConfigPath("whatsapp.token", e.target.value)} />
+                    </FormControl>
+                    <FormControl>
+                        <FormLabel {...labelProps}>{t("whatsapp")} {t("from_number")}</FormLabel>
+                        <Input {...inputProps} value={config.whatsapp.from} onChange={(e) => setConfigPath("whatsapp.from", e.target.value)} placeholder="+14155238886" />
+                    </FormControl>
+                </SimpleGrid>
+            </Box>
 
             {/* Save settings */}
             <Flex justify="flex-end" mb={10}>
@@ -519,46 +443,79 @@ const NotificationSettings = () => {
                 </Button>
             </Flex>
 
-            {/* Templates */}
-            <Flex justify="space-between" align="center" mb={1}>
-                <Text fontWeight="bold" color={colors.textPrimary}>
-                    {t("sms_templates")}
-                </Text>
-                <Button size="sm" leftIcon={<MdAdd />} colorScheme="teal" onClick={() => openTemplateModal(null)}>
-                    {t("add_template")}
-                </Button>
-            </Flex>
-            <Text fontSize="xs" color={colors.textSecondary} mb={4}>
-                {t("sms_templates_help")}
-            </Text>
-
-            {templatesLoading ? (
-                <Flex justify="center" py={6}>
-                    <Spinner color="teal.500" />
+            {/* ── WhatsApp Templates ── */}
+            <Box>
+                <Flex justify="space-between" align="center" mb={1}>
+                    <HStack spacing={2}>
+                        <Badge colorScheme="green" fontSize="xs">WHATSAPP</Badge>
+                        <Text fontWeight="bold" color={colors.textPrimary}>{t("sms_templates")}</Text>
+                    </HStack>
+                    <Button size="sm" leftIcon={<MdAdd />} colorScheme="teal" onClick={() => openTemplateModal(null)}>
+                        {t("add_template")}
+                    </Button>
                 </Flex>
-            ) : (
-                <SimpleGrid columns={{ base: 1, lg: 2 }} spacing={6}>
-                    <Box>
-                        <HStack mb={2}>
-                            <Badge colorScheme="blue">{t("sms")}</Badge>
-                        </HStack>
-                        {renderTemplates("sms")}
-                    </Box>
-                    <Box>
-                        <HStack mb={2}>
-                            <Badge colorScheme="green">{t("whatsapp")}</Badge>
-                        </HStack>
-                        {renderTemplates("whatsapp")}
-                    </Box>
-                </SimpleGrid>
-            )}
+                <Text fontSize="xs" color={colors.textSecondary} mb={4}>{t("sms_templates_help")}</Text>
 
-            {/* Template modal */}
-            <Modal
-                isOpen={templateModal.open}
-                onClose={() => setTemplateModal({ open: false, editing: null })}
-                size="xl"
-            >
+                {templatesLoading ? (
+                    <Flex justify="center" py={6}>
+                        <Spinner color="teal.500" />
+                    </Flex>
+                ) : (
+                    <VStack spacing={3} align="stretch">
+                        {whatsappTemplates.map((template) => {
+                            const isSystem = template.restaurant_id === null;
+                            return (
+                                <Flex
+                                    key={template.id}
+                                    justify="space-between"
+                                    align="center"
+                                    p={4}
+                                    bg={colors.bgSubtle}
+                                    borderRadius="lg"
+                                    border="1px solid"
+                                    borderColor={colors.borderInput}
+                                >
+                                    <Box flex={1} mr={4}>
+                                        <Text fontWeight="semibold" color={colors.textPrimary} fontSize="sm">
+                                            {template.name} {isSystem && <Badge colorScheme="gray" ml={1}>{t("default_branch")}</Badge>}
+                                        </Text>
+                                        <Text fontSize="xs" color={colors.textSecondary} noOfLines={2}>{template.body}</Text>
+                                    </Box>
+                                    <HStack spacing={1}>
+                                        {!isSystem && (
+                                            <Switch
+                                                colorScheme="teal"
+                                                isChecked={!!template.is_active}
+                                                onChange={() => toggleTemplate(template)}
+                                                size="sm"
+                                            />
+                                        )}
+                                        <Tooltip label={t("test_message")}>
+                                            <IconButton size="sm" variant="ghost" icon={<MdSend />} onClick={() => openTestModal(template)} />
+                                        </Tooltip>
+                                        {!isSystem && (
+                                            <>
+                                                <Tooltip label={t("edit_template")}>
+                                                    <IconButton size="sm" variant="ghost" icon={<MdEdit />} onClick={() => openTemplateModal(template)} />
+                                                </Tooltip>
+                                                <Tooltip label={t("delete_template")}>
+                                                    <IconButton size="sm" variant="ghost" colorScheme="red" icon={<MdDelete />} onClick={() => deleteTemplate(template)} />
+                                                </Tooltip>
+                                            </>
+                                        )}
+                                    </HStack>
+                                </Flex>
+                            );
+                        })}
+                        {whatsappTemplates.length === 0 && (
+                            <Text fontSize="sm" color={colors.textSecondary}>{t("no_templates")}</Text>
+                        )}
+                    </VStack>
+                )}
+            </Box>
+
+            {/* ── Template Modal ── */}
+            <Modal isOpen={templateModal.open} onClose={() => setTemplateModal({ open: false, editing: null })} size="xl">
                 <ModalOverlay />
                 <ModalContent bg={colors.bgCard}>
                     <ModalHeader color={colors.textPrimary}>
@@ -576,17 +533,6 @@ const NotificationSettings = () => {
                                 />
                             </FormControl>
                             <FormControl isRequired>
-                                <FormLabel {...labelProps}>{t("channel")}</FormLabel>
-                                <Select
-                                    {...inputProps}
-                                    value={templateModal.channel || "sms"}
-                                    onChange={(e) => setTemplateModal((prev) => ({ ...prev, channel: e.target.value }))}
-                                >
-                                    <option value="sms">{t("sms")}</option>
-                                    <option value="whatsapp">{t("whatsapp")}</option>
-                                </Select>
-                            </FormControl>
-                            <FormControl isRequired>
                                 <FormLabel {...labelProps}>{t("message_body")}</FormLabel>
                                 <Textarea
                                     rows={5}
@@ -594,14 +540,10 @@ const NotificationSettings = () => {
                                     value={templateModal.body || ""}
                                     onChange={(e) => setTemplateModal((prev) => ({ ...prev, body: e.target.value }))}
                                 />
-                                <Text fontSize="xs" color={colors.textSecondary} mt={1}>
-                                    {t("template_body_help")}
-                                </Text>
+                                <Text fontSize="xs" color={colors.textSecondary} mt={1}>{t("template_body_help")}</Text>
                             </FormControl>
                             <Flex justify="space-between" align="center">
-                                <Text fontSize="sm" fontWeight="semibold" color={colors.textPrimary}>
-                                    {t("status")}
-                                </Text>
+                                <Text fontSize="sm" fontWeight="semibold" color={colors.textPrimary}>{t("status")}</Text>
                                 <Switch
                                     colorScheme="teal"
                                     isChecked={templateModal.is_active ?? true}
@@ -611,17 +553,13 @@ const NotificationSettings = () => {
                         </VStack>
                     </ModalBody>
                     <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={() => setTemplateModal({ open: false, editing: null })}>
-                            {t("cancel")}
-                        </Button>
-                        <Button colorScheme="teal" onClick={saveTemplate}>
-                            {templateModal.editing ? t("update") : t("save")}
-                        </Button>
+                        <Button variant="ghost" mr={3} onClick={() => setTemplateModal({ open: false, editing: null })}>{t("cancel")}</Button>
+                        <Button colorScheme="teal" onClick={saveTemplate}>{templateModal.editing ? t("update") : t("save")}</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
 
-            {/* Test send modal */}
+            {/* ── Test WhatsApp Modal ── */}
             <Modal isOpen={testModal.open} onClose={() => setTestModal((prev) => ({ ...prev, open: false }))}>
                 <ModalOverlay />
                 <ModalContent bg={colors.bgCard}>
@@ -629,17 +567,10 @@ const NotificationSettings = () => {
                     <ModalCloseButton />
                     <ModalBody>
                         <VStack spacing={4} align="stretch">
-                            <FormControl isRequired>
-                                <FormLabel {...labelProps}>{t("channel")}</FormLabel>
-                                <Select
-                                    {...inputProps}
-                                    value={testModal.channel}
-                                    onChange={(e) => setTestModal((prev) => ({ ...prev, channel: e.target.value }))}
-                                >
-                                    <option value="sms">{t("sms")}</option>
-                                    <option value="whatsapp">{t("whatsapp")}</option>
-                                </Select>
-                            </FormControl>
+                            <HStack spacing={2} mb={2}>
+                                <Badge colorScheme="green">WHATSAPP</Badge>
+                                <Text fontSize="sm" color={colors.textSecondary}>via Twilio</Text>
+                            </HStack>
                             <FormControl isRequired>
                                 <FormLabel {...labelProps}>{t("to_number")}</FormLabel>
                                 <Input
@@ -661,16 +592,13 @@ const NotificationSettings = () => {
                         </VStack>
                     </ModalBody>
                     <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={() => setTestModal((prev) => ({ ...prev, open: false }))}>
-                            {t("cancel")}
-                        </Button>
-                        <Button leftIcon={<MdSend />} colorScheme="teal" onClick={sendTest}>
-                            {t("send")}
-                        </Button>
+                        <Button variant="ghost" mr={3} onClick={() => setTestModal((prev) => ({ ...prev, open: false }))}>{t("cancel")}</Button>
+                        <Button leftIcon={<MdSend />} colorScheme="teal" onClick={sendTest}>{t("send")}</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
-            {/* Test email modal */}
+
+            {/* ── Test Email Modal ── */}
             <Modal isOpen={emailModal.open} onClose={() => setEmailModal({ open: false, to: "" })}>
                 <ModalOverlay />
                 <ModalContent bg={colors.bgCard}>
@@ -678,9 +606,7 @@ const NotificationSettings = () => {
                     <ModalCloseButton />
                     <ModalBody>
                         <VStack spacing={4} align="stretch">
-                            <Text fontSize="sm" color={colors.textSecondary}>
-                                {t("test_email_help")}
-                            </Text>
+                            <Text fontSize="sm" color={colors.textSecondary}>{t("test_email_help")}</Text>
                             <FormControl isRequired>
                                 <FormLabel {...labelProps}>{t("email_recipient")}</FormLabel>
                                 <Input
@@ -694,18 +620,8 @@ const NotificationSettings = () => {
                         </VStack>
                     </ModalBody>
                     <ModalFooter>
-                        <Button variant="ghost" mr={3} onClick={() => setEmailModal({ open: false, to: "" })}>
-                            {t("cancel")}
-                        </Button>
-                        <Button
-                            leftIcon={<MdSend />}
-                            colorScheme="teal"
-                            onClick={sendTestEmail}
-                            isLoading={sendingEmail}
-                            loadingText={t("saving_data")}
-                        >
-                            {t("send")}
-                        </Button>
+                        <Button variant="ghost" mr={3} onClick={() => setEmailModal({ open: false, to: "" })}>{t("cancel")}</Button>
+                        <Button leftIcon={<MdSend />} colorScheme="teal" onClick={sendTestEmail} isLoading={sendingEmail} loadingText={t("saving_data")}>{t("send")}</Button>
                     </ModalFooter>
                 </ModalContent>
             </Modal>
