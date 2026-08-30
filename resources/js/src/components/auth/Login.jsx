@@ -182,7 +182,7 @@ export default function Login() {
                         <Icon as={UtensilsCrossed} color="white" boxSize={5} />
                     </Flex>
                     <Text color="white" fontSize="xl" fontWeight="extrabold" letterSpacing="tight">
-                        RestaurantOS
+                        {import.meta.env.VITE_APP_NAME}
                     </Text>
                 </Flex>
 
@@ -196,9 +196,7 @@ export default function Login() {
                         letterSpacing="tight"
                         color="white"
                     >
-                        Manage smarter.
-                        <br />
-                        Run your whole restaurant.
+                        Manage smarter. Run your whole restaurant.
                     </Heading>
                     <Text mt={4} fontSize="sm" lineHeight="relaxed" color="whiteAlpha.800">
                         One cloud workspace for restaurant owners — order management, revenue tracking, and complete business analytics.
@@ -273,7 +271,7 @@ export default function Login() {
                         <Icon as={UtensilsCrossed} boxSize={[4.5]} />
                     </Flex>
                     <Text fontSize="xl" fontWeight="extrabold" letterSpacing="tight" color={colors.textHeading}>
-                        RestaurantOS
+                        {import.meta.env.VITE_APP_NAME}
                     </Text>
                 </Flex>
 
@@ -423,7 +421,7 @@ export default function Login() {
                                 </Button>
 
                                 <Text textAlign="center" fontSize="sm" color={colors.textSecondary}>
-                                    New to RestaurantOS?{' '}
+                                    New to {import.meta.env.VITE_APP_NAME}?{' '}
                                     <ChakraLink
                                         as={ReactRouterLink}
                                         to={REGISTER}
@@ -441,7 +439,7 @@ export default function Login() {
 
                 {/* Footer */}
                 <Text mt={6} textAlign="center" fontSize="xs" color={colors.textSecondary}>
-                    © RestaurantOS · <ChakraLink _hover={{ color: colors.textPrimary }}>Privacy</ChakraLink> · <ChakraLink _hover={{ color: colors.textPrimary }}>Terms</ChakraLink>
+                    © {import.meta.env.VITE_APP_NAME} · <ChakraLink _hover={{ color: colors.textPrimary }}>Privacy</ChakraLink> · <ChakraLink _hover={{ color: colors.textPrimary }}>Terms</ChakraLink>
                 </Text>
             </Flex>
         </Flex>
