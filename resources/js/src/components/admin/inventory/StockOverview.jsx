@@ -25,7 +25,7 @@ export default function StockOverview() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -80,7 +80,7 @@ export default function StockOverview() {
     const app_name = localStorage.getItem("app_name");
     document.title = `${app_name} | ${t("stock_management")}`;
     fetchData();
-    api.get(`${LIST_INVENTORY_CATEGORY}?per_page=200`).then((res) => setCategories(res.data?.data?.data || res.data?.data || [])).catch(() => {});
+    api.get(`${LIST_INVENTORY_CATEGORY}?per_page=200`).then((res) => setCategories(res.data?.data?.data || res.data?.data || [])).catch(() => { });
   }, [fetchData, t]);
 
   const openAdjust = (item) => {
@@ -253,33 +253,33 @@ export default function StockOverview() {
             <Flex direction="column" gap={4}>
               <Text fontSize="sm" fontWeight="600">{selectedItem?.name}</Text>
               <Text fontSize="xs" color={colors.textSecondary}>{t("current_stock")}: <b>{selectedItem?.current_stock}</b></Text>
-             <FormControl isRequired>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("quantity")}</FormLabel>
-                 <Input
-                   type="number" min="0" step="0.01" value={adjustForm.quantity}
-                   onChange={(e) => setAdjustForm((f) => ({ ...f, quantity: e.target.value }))}
-                   bg={colors.bgInput}
-                   borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                 />
-               </FormControl>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("reason")}</FormLabel>
-                 <Select value={adjustForm.type} onChange={(e) => setAdjustForm((f) => ({ ...f, type: e.target.value }))} bg={colors.bgInput}
-                   borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                 >
-                   <option value="adjustment">{t("adjustment")}</option>
-                   <option value="sale">{t("sale")}</option>
-                   <option value="waste">{t("waste")}</option>
-                   <option value="expired">{t("expired")}</option>
-                   <option value="return">{t("return")}</option>
-                 </Select>
-               </FormControl>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("notes")}</FormLabel>
-                 <Input value={adjustForm.notes} onChange={(e) => setAdjustForm((f) => ({ ...f, notes: e.target.value }))} bg={colors.bgInput}
-                   borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                 />
-               </FormControl>
+              <FormControl isRequired>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("quantity")}</FormLabel>
+                <Input
+                  type="number" min="0" step="0.01" value={adjustForm.quantity}
+                  onChange={(e) => setAdjustForm((f) => ({ ...f, quantity: e.target.value }))}
+                  bg={colors.bgInput}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                />
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("reason")}</FormLabel>
+                <Select value={adjustForm.type} onChange={(e) => setAdjustForm((f) => ({ ...f, type: e.target.value }))} bg={colors.bgInput}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                >
+                  <option value="adjustment">{t("adjustment")}</option>
+                  <option value="sale">{t("sale")}</option>
+                  <option value="waste">{t("waste")}</option>
+                  <option value="expired">{t("expired")}</option>
+                  <option value="return">{t("return")}</option>
+                </Select>
+              </FormControl>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("notes")}</FormLabel>
+                <Input value={adjustForm.notes} onChange={(e) => setAdjustForm((f) => ({ ...f, notes: e.target.value }))} bg={colors.bgInput}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                />
+              </FormControl>
             </Flex>
           </ModalBody>
           <ModalFooter>

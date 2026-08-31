@@ -20,7 +20,7 @@ export default function PurchaseList() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -62,7 +62,7 @@ export default function PurchaseList() {
     const app_name = localStorage.getItem("app_name");
     document.title = `${app_name} | ${t("purchase_management")}`;
     fetchData();
-    api.get(`${LIST_SUPPLIER}?per_page=200`).then((res) => setSuppliers(res.data?.data?.data || res.data?.data || [])).catch(() => {});
+    api.get(`${LIST_SUPPLIER}?per_page=200`).then((res) => setSuppliers(res.data?.data?.data || res.data?.data || [])).catch(() => { });
   }, [fetchData, t]);
 
   const deleteItem = async (id) => {

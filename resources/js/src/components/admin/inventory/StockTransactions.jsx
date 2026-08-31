@@ -17,7 +17,7 @@ export default function StockTransactions() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -50,7 +50,7 @@ export default function StockTransactions() {
     const app_name = localStorage.getItem("app_name");
     document.title = `${app_name} | ${t("stock_transactions")}`;
     fetchData();
-    api.get(`${LIST_INVENTORY_ITEM}?per_page=200`).then((res) => setItems(res.data?.data?.data || res.data?.data || [])).catch(() => {});
+    api.get(`${LIST_INVENTORY_ITEM}?per_page=200`).then((res) => setItems(res.data?.data?.data || res.data?.data || [])).catch(() => { });
   }, [fetchData, t]);
 
   const typeColors = {

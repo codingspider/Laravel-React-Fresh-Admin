@@ -30,7 +30,7 @@ export default function PayrollList() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -48,10 +48,10 @@ export default function PayrollList() {
     const params = {
       page: pageIndex + 1,
       per_page: pageSize,
-     search: globalFilter || "",
-   };
-  if (branchFilter) params.branch_id = branchFilter;
-  if (statusFilter) params.status = statusFilter;
+      search: globalFilter || "",
+    };
+    if (branchFilter) params.branch_id = branchFilter;
+    if (statusFilter) params.status = statusFilter;
 
     api.get(LIST_PAYROLL, { params })
       .then((res) => {
@@ -155,7 +155,7 @@ export default function PayrollList() {
           </Badge>
         );
       },
-     },
+    },
     {
       header: t("branch"),
       cell: ({ row }) => (

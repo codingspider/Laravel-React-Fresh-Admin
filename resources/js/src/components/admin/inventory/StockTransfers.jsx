@@ -18,7 +18,7 @@ export default function StockTransfers() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -61,7 +61,7 @@ export default function StockTransfers() {
       const unwrap = (r) => r.data?.data?.data || r.data?.data || [];
       setBranches(unwrap(b));
       setItems(unwrap(i));
-    }).catch(() => {});
+    }).catch(() => { });
   }, [fetchData, t]);
 
   const openCreate = () => {
@@ -179,51 +179,51 @@ export default function StockTransfers() {
           <ModalHeader>{t("create_transfer")}</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-             <Flex direction="column" gap={4}>
-               <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
-                 <FormControl isRequired>
-                   <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("from_branch")}</FormLabel>
-                   <Select value={form.from_branch_id} onChange={(e) => setForm((f) => ({ ...f, from_branch_id: e.target.value }))} placeholder={t("select_branch")} bg={colors.bgInput}
-                     borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                   >
-                     {(Array.isArray(branches) ? branches : []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                   </Select>
-                 </FormControl>
-                 <FormControl isRequired>
-                   <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("to_branch")}</FormLabel>
-                   <Select value={form.to_branch_id} onChange={(e) => setForm((f) => ({ ...f, to_branch_id: e.target.value }))} placeholder={t("select_branch")} bg={colors.bgInput}
-                     borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                   >
-                     {(Array.isArray(branches) ? branches : []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                   </Select>
-                 </FormControl>
-               </SimpleGrid>
-               <FormControl>
-                 <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("notes")}</FormLabel>
-                 <Input value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} bg={colors.bgInput}
-                   borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                 />
-               </FormControl>
-               <Box>
-                 <Flex justify="space-between" align="center" mb={2}>
-                   <Text fontSize="sm" fontWeight="600">{t("items")}</Text>
-                   <Button size="xs" colorScheme="teal" leftIcon={<AddIcon />} onClick={() => setForm((f) => ({ ...f, items: [...f.items, { item_id: "", quantity: "" }] }))}>{t("add_item")}</Button>
-                 </Flex>
-                 {form.items.map((line, index) => (
-                   <Flex key={index} gap={2} mb={2}>
-                     <Select value={line.item_id} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].item_id = e.target.value; return { ...f, items }; })} placeholder={t("select_item")} flex="2" bg={colors.bgInput}
-                       borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                     >
-                       {(Array.isArray(items) ? items : []).map((it) => <option key={it.id} value={it.id}>{it.name}</option>)}
-                     </Select>
-                     <Input type="number" min="0" step="0.01" placeholder={t("quantity")} value={line.quantity} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].quantity = e.target.value; return { ...f, items }; })} bg={colors.bgInput}
-                       borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
-                     />
-                     <IconButton size="sm" variant="ghost" colorScheme="red" icon={<DeleteIcon />} aria-label={t("remove")} onClick={() => setForm((f) => ({ ...f, items: f.items.filter((_, i) => i !== index) }))} />
-                   </Flex>
-                 ))}
-               </Box>
-             </Flex>
+            <Flex direction="column" gap={4}>
+              <SimpleGrid columns={{ base: 1, md: 2 }} spacing={4}>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("from_branch")}</FormLabel>
+                  <Select value={form.from_branch_id} onChange={(e) => setForm((f) => ({ ...f, from_branch_id: e.target.value }))} placeholder={t("select_branch")} bg={colors.bgInput}
+                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                  >
+                    {(Array.isArray(branches) ? branches : []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </Select>
+                </FormControl>
+                <FormControl isRequired>
+                  <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("to_branch")}</FormLabel>
+                  <Select value={form.to_branch_id} onChange={(e) => setForm((f) => ({ ...f, to_branch_id: e.target.value }))} placeholder={t("select_branch")} bg={colors.bgInput}
+                    borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                  >
+                    {(Array.isArray(branches) ? branches : []).map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </Select>
+                </FormControl>
+              </SimpleGrid>
+              <FormControl>
+                <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("notes")}</FormLabel>
+                <Input value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} bg={colors.bgInput}
+                  borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                />
+              </FormControl>
+              <Box>
+                <Flex justify="space-between" align="center" mb={2}>
+                  <Text fontSize="sm" fontWeight="600">{t("items")}</Text>
+                  <Button size="xs" colorScheme="teal" leftIcon={<AddIcon />} onClick={() => setForm((f) => ({ ...f, items: [...f.items, { item_id: "", quantity: "" }] }))}>{t("add_item")}</Button>
+                </Flex>
+                {form.items.map((line, index) => (
+                  <Flex key={index} gap={2} mb={2}>
+                    <Select value={line.item_id} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].item_id = e.target.value; return { ...f, items }; })} placeholder={t("select_item")} flex="2" bg={colors.bgInput}
+                      borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                    >
+                      {(Array.isArray(items) ? items : []).map((it) => <option key={it.id} value={it.id}>{it.name}</option>)}
+                    </Select>
+                    <Input type="number" min="0" step="0.01" placeholder={t("quantity")} value={line.quantity} onChange={(e) => setForm((f) => { const items = [...f.items]; items[index].quantity = e.target.value; return { ...f, items }; })} bg={colors.bgInput}
+                      borderRadius="md" border="1px solid" borderColor={colors.borderInput} focusBorderColor="teal.500" _hover={{ borderColor: "gray.300" }}
+                    />
+                    <IconButton size="sm" variant="ghost" colorScheme="red" icon={<DeleteIcon />} aria-label={t("remove")} onClick={() => setForm((f) => ({ ...f, items: f.items.filter((_, i) => i !== index) }))} />
+                  </Flex>
+                ))}
+              </Box>
+            </Flex>
           </ModalBody>
           <ModalFooter>
             <Button variant="ghost" mr={3} onClick={onClose}>{t("cancel")}</Button>

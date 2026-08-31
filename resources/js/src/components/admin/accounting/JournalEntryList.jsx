@@ -26,7 +26,7 @@ export default function JournalEntryList() {
     const [data, setData] = useState([]);
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize] = useState(15);
+    const [pageSize] = useState(10);
     const [pageCount, setPageCount] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [totalItems, setTotalItems] = useState(0);
@@ -70,7 +70,7 @@ export default function JournalEntryList() {
 
     const fetchAccounts = useCallback(async () => {
         try {
-             const res = await api.get(JOURNAL_LEDGER);
+            const res = await api.get(JOURNAL_LEDGER);
             const accs = res.data?.data?.accounts || [];
             setAccounts(accs);
         } catch (err) {
@@ -246,16 +246,16 @@ export default function JournalEntryList() {
                             borderRadius="md"
                             fontSize="sm"
                             color="red.500"
-                                    onClick={async () => {
-                                    if (window.confirm(t("confirm_delete"))) {
-                                        try {
-                                            await api.delete(DELETE_JOURNAL(row.original.id));
-                                            fetchData();
-                                        } catch (err) {
-                                            console.error("Delete failed:", err);
-                                        }
+                            onClick={async () => {
+                                if (window.confirm(t("confirm_delete"))) {
+                                    try {
+                                        await api.delete(DELETE_JOURNAL(row.original.id));
+                                        fetchData();
+                                    } catch (err) {
+                                        console.error("Delete failed:", err);
                                     }
-                                }}
+                                }
+                            }}
                         >
                             {t("delete")}
                         </MenuItem>

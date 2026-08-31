@@ -25,7 +25,7 @@ import useThemeColors from "../../../hooks/useThemeColors";
 export default function VatList({ vats, onSuccess, onOpenCreate, onOpenEdit }) {
     const [globalFilter, setGlobalFilter] = useState("");
     const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize] = useState(15);
+    const [pageSize] = useState(10);
     const { t } = useTranslation();
     const toast = useToast();
     const colors = useThemeColors();

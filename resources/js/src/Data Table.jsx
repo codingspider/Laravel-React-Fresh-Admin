@@ -118,7 +118,6 @@ export default function TanStackTable({
     const paginationContainerBorder = isDark
         ? "rgba(45,212,191,0.08)"
         : "rgba(45,212,191,0.18)";
-    const paginationNavBg = isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.02)";
 
     return (
         <Box>

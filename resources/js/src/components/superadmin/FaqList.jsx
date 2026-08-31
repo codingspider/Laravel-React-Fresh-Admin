@@ -36,7 +36,7 @@ const FaqList = () => {
     const [loading, setLoading] = useState(true);
     const [globalFilter, setGlobalFilter] = useState('');
     const [pageIndex, setPageIndex] = useState(0);
-    const [pageSize] = useState(15);
+    const [pageSize] = useState(10);
 
     const fetchFaqs = useCallback(async () => {
         setLoading(true);

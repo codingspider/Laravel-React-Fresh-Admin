@@ -27,7 +27,7 @@ export default function LeaveList() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -67,7 +67,7 @@ export default function LeaveList() {
   const fetchEmployees = () => {
     api.get(LIST_EMPLOYEE, { params: { per_page: 200 } })
       .then((res) => setEmployees(res.data?.data?.data || res.data?.data || []))
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {

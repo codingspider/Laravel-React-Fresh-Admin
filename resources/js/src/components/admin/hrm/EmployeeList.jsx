@@ -28,13 +28,13 @@ export default function EmployeeList() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
   const [summary, setSummary] = useState({});
-    const [statusFilter, setStatusFilter] = useState("");
-    const [branchFilter, setBranchFilter] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -45,8 +45,8 @@ export default function EmployeeList() {
     const params = {
       page: pageIndex + 1,
       per_page: pageSize,
-       search: globalFilter || "",
-     };
+      search: globalFilter || "",
+    };
     if (branchFilter) params.branch_id = branchFilter;
     if (statusFilter) params.status = statusFilter;
 

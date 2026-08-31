@@ -20,7 +20,7 @@ export default function RecipeCategoryList() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -34,9 +34,9 @@ export default function RecipeCategoryList() {
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-const res = await api.get(LIST_RECIPE_CATEGORY, {
-      params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || "", branch_id: branchFilter || "" },
-    });
+      const res = await api.get(LIST_RECIPE_CATEGORY, {
+        params: { page: pageIndex + 1, per_page: pageSize, search: globalFilter || "", branch_id: branchFilter || "" },
+      });
       const items = res.data?.data?.data || res.data?.data || [];
       const total = res.data?.meta?.total || res.data?.data?.total || items.length;
       setData(items);

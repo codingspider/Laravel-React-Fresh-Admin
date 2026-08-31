@@ -26,16 +26,16 @@ export default function AttendanceList() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
   const [summary, setSummary] = useState({});
   const [employeeFilter, setEmployeeFilter] = useState("");
   const [employees, setEmployees] = useState([]);
-   const [dateFrom, setDateFrom] = useState("");
-   const [dateTo, setDateTo] = useState("");
-   const [branchFilter, setBranchFilter] = useState(null);
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [branchFilter, setBranchFilter] = useState(null);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const toast = useToast();
@@ -80,7 +80,7 @@ export default function AttendanceList() {
     document.title = `${app_name} | ${t("attendance")}`;
     fetchData();
     fetchEmployees();
-   }, [pageIndex, globalFilter, employeeFilter, dateFrom, dateTo, branchFilter, t]);
+  }, [pageIndex, globalFilter, employeeFilter, dateFrom, dateTo, branchFilter, t]);
 
   const columns = [
     {

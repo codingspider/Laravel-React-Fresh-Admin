@@ -28,7 +28,7 @@ export default function DesignationList() {
   const [data, setData] = useState([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize] = useState(15);
+  const [pageSize] = useState(10);
   const [pageCount, setPageCount] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
   const [totalItems, setTotalItems] = useState(0);
@@ -68,7 +68,7 @@ export default function DesignationList() {
   const fetchDepartments = () => {
     api.get(LIST_DEPARTMENT, { params: { per_page: 200 } })
       .then((res) => setDepartments(res.data?.data?.data || res.data?.data || []))
-      .catch(() => {});
+      .catch(() => { });
   };
 
   useEffect(() => {
