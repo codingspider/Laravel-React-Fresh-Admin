@@ -238,7 +238,7 @@ const MenuCategoryEdit = () => {
                                         </Select>
                                     </FormControl>
 
-                                    <FormControl>
+                                    <FormControl isRequired isInvalid={errors.sort_order}>
                                         <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>
                                             {t("sort_order")}
                                         </FormLabel>

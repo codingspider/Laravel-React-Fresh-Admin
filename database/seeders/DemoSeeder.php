@@ -94,10 +94,10 @@ class DemoSeeder extends Seeder
 
     public function run(): void
     {
-        $restaurant = Restaurant::where('slug', 'default-restaurant')->first();
+        $restaurant = Restaurant::first();
 
         if (!$restaurant) {
-            $this->command->warn('DemoSeeder skipped: run "php artisan db:seed" first to create the default restaurant.');
+            $this->command->warn('DemoSeeder skipped: no restaurant found. Run AdminSeeder first.');
             return;
         }
 
