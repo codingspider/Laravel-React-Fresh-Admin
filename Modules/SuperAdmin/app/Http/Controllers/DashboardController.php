@@ -3,20 +3,21 @@
 namespace Modules\SuperAdmin\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\InventoryCategory;
+use App\Models\InventoryItem;
+use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\Accounting\Models\Expense;
+use Modules\Menu\Models\MenuCategory;
+use Modules\Menu\Models\MenuItem;
+use Modules\Plan\Models\Plan;
+use Modules\POS\Models\Payment;
 use Modules\POS\Models\Sale;
 use Modules\POS\Models\SaleItem;
-use Modules\POS\Models\Payment;
-use Modules\Menu\Models\MenuItem;
-use Modules\Menu\Models\MenuCategory;
-use Modules\Accounting\Models\Expense;
-use App\Models\InventoryItem;
-use App\Models\InventoryCategory;
-use Carbon\Carbon;
 use Modules\Restaurant\Models\Restaurant;
-use Modules\Plan\Models\Plan;
 use Modules\Subscription\Models\Subscription;
 
 class DashboardController extends Controller
@@ -196,9 +197,9 @@ class DashboardController extends Controller
         $totalUsers = \App\Models\User::where('restaurant_id', $restaurantId)
             ->when($branchId, fn ($q, $b) => $q->where('branch_id', $b))
             ->count();
-        $totalMenus = MenuCategory::where('restaurant_id', $restaurantId)->count();
-        $totalProducts = MenuItem::where('restaurant_id', $restaurantId)->count();
-        $totalCategories = InventoryCategory::where('restaurant_id', $restaurantId)->count();
+        $totalMenus = MenuItem::where('restaurant_id', $restaurantId)->count();
+        $totalProducts = InventoryItem::where('restaurant_id', $restaurantId)->count();
+        $totalCategories = MenuCategory::where('restaurant_id', $restaurantId)->count();
 
         // ── Hourly Sales Trend ──
         $hourlyQuery = Sale::where('restaurant_id', $restaurantId)
