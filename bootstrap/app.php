@@ -30,6 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->encryptCookies(except: ['access_token']);
 
+        $middleware->validateCsrfTokens(except: [
+            'install/*',
+            'installer/*',
+        ]);
+
         $middleware->statefulApi();
         $middleware->prependToGroup('api', \App\Http\Middleware\CookieFilter::class);
         $middleware->appendToGroup('api', \App\Http\Middleware\CheckPermission::class);

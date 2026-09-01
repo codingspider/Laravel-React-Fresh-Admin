@@ -105,7 +105,6 @@ class InstallerService
         $replacements = [
             'APP_NAME' => $data['APP_NAME'] ?? 'Laravel',
             'APP_URL' => $data['APP_URL'] ?? 'http://localhost:8000',
-            'FRONTEND_URL' => $data['FRONTEND_URL'] ?? ($data['APP_URL'] ?? 'http://localhost'),
             'DB_HOST' => $data['DB_HOST'] ?? '127.0.0.1',
             'DB_PORT' => $data['DB_PORT'] ?? '3306',
             'DB_DATABASE' => $data['DB_DATABASE'] ?? '',
@@ -126,12 +125,11 @@ class InstallerService
 
         $appUrl = $data['APP_URL'] ?? 'http://localhost';
 
+        $envContent = $this->setEnvValue($envContent, 'VITE_API_URL', rtrim($appUrl, '/') . '/api');
+        $envContent = $this->setEnvValue($envContent, 'FRONTEND_URL', $appUrl);
         $envContent = $this->setEnvValue($envContent, 'SANCTUM_STATEFUL_DOMAINS', $this->getStatefulDomains($appUrl));
         $envContent = $this->setEnvValue($envContent, 'SESSION_DOMAIN', $this->getSessionDomain($appUrl));
-        // Secure cookies are only sent by browsers over HTTPS; forcing them on
-        // an HTTP install silently breaks authentication.
         $envContent = $this->setEnvValue($envContent, 'SESSION_SECURE_COOKIE', str_starts_with($appUrl, 'https://') ? 'true' : 'false');
-        $envContent = $this->setEnvValue($envContent, 'VITE_API_URL', $appUrl . '/api');
         $envContent = $this->setEnvValue($envContent, 'PWA_NAME', $data['APP_NAME'] ?? 'Laravel');
         $envContent = $this->setEnvValue($envContent, 'PWA_SHORT_NAME', $data['APP_NAME'] ?? 'Laravel');
 
@@ -153,7 +151,7 @@ class InstallerService
         }
 
         $replacements = [
-            'SESSION_DRIVER' => 'database',
+            'SESSION_DRIVER' => 'file',
             'CACHE_STORE' => 'file',
             'QUEUE_CONNECTION' => 'sync',
         ];
@@ -161,6 +159,16 @@ class InstallerService
         foreach ($replacements as $key => $value) {
             $envContent = $this->setEnvValue($envContent, $key, $value);
         }
+
+        // Ensure domain-related values stay consistent with APP_URL
+        preg_match('/^APP_URL=(.*)/m', $envContent, $match);
+        $appUrl = trim($match[1] ?? 'http://localhost');
+
+        $envContent = $this->setEnvValue($envContent, 'VITE_API_URL', rtrim($appUrl, '/') . '/api');
+        $envContent = $this->setEnvValue($envContent, 'FRONTEND_URL', $appUrl);
+        $envContent = $this->setEnvValue($envContent, 'SANCTUM_STATEFUL_DOMAINS', $this->getStatefulDomains($appUrl));
+        $envContent = $this->setEnvValue($envContent, 'SESSION_DOMAIN', $this->getSessionDomain($appUrl));
+        $envContent = $this->setEnvValue($envContent, 'SESSION_SECURE_COOKIE', str_starts_with($appUrl, 'https://') ? 'true' : 'false');
 
         return File::put($envPath, $envContent) !== false;
     }
@@ -275,35 +283,53 @@ class InstallerService
 
     public function createAdmin(array $data): User
     {
-        Log::info('Installer: Looking for super_admin role...');
 
-        $role = Role::where('name', 'super_admin')
+        $superAdminRole = Role::where('name', 'super_admin')
             ->where('guard_name', 'web')
             ->first();
 
-        Log::info('Installer: Role found: ' . ($role?->name ?? 'none'));
+        $ownerRole = Role::where('name', 'restaurant_owner')
+            ->where('guard_name', 'web')
+            ->first();
 
-        $user = User::create([
+        // Create super admin user (from installer form)
+        $superAdmin = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => Hash::make($data['password']),
             'email_verified_at' => now(),
         ]);
 
-        Log::info('Installer: User created with ID: ' . $user->id);
+        Log::info('Installer: Super admin created with ID: ' . $superAdmin->id);
 
-        if ($role) {
-            $user->assignRole($role);
-
-            Log::info('Installer: Role assigned to user.');
+        if ($superAdminRole) {
+            $superAdmin->assignRole($superAdminRole);
         }
 
-        // Create default restaurant for this admin
+        // Create restaurant owner user
+        $ownerName = $data['owner_name'] ?? $data['name'] . ' Owner';
+        $ownerEmail = $data['owner_email'] ?? 'owner@example.com';
+        $ownerPassword = $data['owner_password'] ?? $data['password'];
+
+        $restaurantOwner = User::create([
+            'name' => $ownerName,
+            'email' => $ownerEmail,
+            'password' => Hash::make($ownerPassword),
+            'email_verified_at' => now(),
+        ]);
+
+        Log::info('Installer: Restaurant owner created with ID: ' . $restaurantOwner->id);
+
+        if ($ownerRole) {
+            $restaurantOwner->assignRole($ownerRole);
+        }
+
+        // Create restaurant owned by restaurant owner
         $restaurant = Restaurant::create([
-            'owner_id' => $user->id,
-            'name' => $data['name'] . "'s Restaurant",
+            'owner_id' => $restaurantOwner->id,
+            'name' => $data['restaurant_name'] ?? $data['name'] . "'s Restaurant",
             'slug' => 'default-restaurant',
-            'email' => $data['email'],
+            'email' => $ownerEmail,
             'phone' => '',
             'address' => '',
             'city' => '',
@@ -319,8 +345,11 @@ class InstallerService
             'status' => 'active',
         ]);
 
-        // Link user to restaurant
-        $user->update(['restaurant_id' => $restaurant->id]);
+        // Link restaurant owner to restaurant
+        $restaurantOwner->update(['restaurant_id' => $restaurant->id]);
+
+        // Link super admin to restaurant
+        $superAdmin->update(['restaurant_id' => $restaurant->id]);
 
         // Create main branch for the restaurant
         Branch::create([
@@ -331,12 +360,10 @@ class InstallerService
             'status' => 'active',
         ]);
 
-        Log::info('Installer: Restaurant and branch created.');
-
         // Reload relationships
-        $user->load('roles');
+        $superAdmin->load('roles');
 
-        return $user;
+        return $superAdmin;
     }
 
     public function markAsInstalled(): bool

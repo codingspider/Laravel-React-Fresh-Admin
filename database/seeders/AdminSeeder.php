@@ -13,7 +13,7 @@ class AdminSeeder extends Seeder
 {
     public function run(): void
     {
-        // Create Super Admin User
+        // Create Super Admin User (no restaurant link)
         $superAdmin = User::firstOrCreate(
             ['email' => 'superadmin@gmail.com'],
             [
@@ -25,19 +25,7 @@ class AdminSeeder extends Seeder
         );
         $superAdmin->assignRole('super_admin');
 
-        // Create Admin User
-        $admin = User::firstOrCreate(
-            ['email' => 'admin@gmail.com'],
-            [
-                'name' => 'Admin',
-                'email' => 'admin@gmail.com',
-                'password' => Hash::make('123456789'),
-                'email_verified_at' => now(),
-            ]
-        );
-        $admin->assignRole('admin');
-
-        // Create Restaurant Owner User (linked to restaurant)
+        // Create Restaurant Owner User
         $restaurantOwner = User::firstOrCreate(
             ['email' => 'owner@gmail.com'],
             [
@@ -49,7 +37,7 @@ class AdminSeeder extends Seeder
         );
         $restaurantOwner->assignRole('restaurant_owner');
 
-        // Create Restaurant
+        // Create Restaurant (owned by restaurant owner)
         $restaurant = Restaurant::firstOrCreate(
             ['slug' => 'default-restaurant'],
             [
@@ -73,9 +61,14 @@ class AdminSeeder extends Seeder
             ]
         );
 
-        // Update user with restaurant_id
+        // Link restaurant owner to restaurant
         if (!$restaurantOwner->restaurant_id) {
             $restaurantOwner->update(['restaurant_id' => $restaurant->id]);
+        }
+
+        // Link super admin to restaurant
+        if (!$superAdmin->restaurant_id) {
+            $superAdmin->update(['restaurant_id' => $restaurant->id]);
         }
 
         // Create Main Branch

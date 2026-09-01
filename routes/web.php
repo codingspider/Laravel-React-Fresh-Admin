@@ -21,7 +21,6 @@ if (!$isInstalled) {
     Route::get('/install/progress', [InstallerController::class, 'progress'])->name('installer.progress');
     Route::get('/install/progress/check', [InstallerController::class, 'checkProgress'])->name('installer.progress.check');
 
-
     Route::get('/', function () {
         return redirect()->route('installer.index');
     });
