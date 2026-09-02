@@ -571,18 +571,36 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
 
     const SidebarLogo = ({ collapsed = false }) => (
         <Flex align="center" gap={3} px={collapsed ? 0 : 1}>
-            <Flex
-                bg="brand.600"
-                color="white"
-                w={9}
-                h={9}
-                borderRadius="lg"
-                align="center"
-                justify="center"
-                flexShrink={0}
-            >
-                <Icon as={UtensilsCrossed} boxSize={5} />
-            </Flex>
+            {restaurant?.logo ? (
+                <Flex
+                    w={9}
+                    h={9}
+                    borderRadius="lg"
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
+                    overflow="hidden"
+                >
+                    <img
+                        src={`/${restaurant.logo}`}
+                        alt={restaurant?.name || 'Logo'}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    />
+                </Flex>
+            ) : (
+                <Flex
+                    bg="brand.600"
+                    color="white"
+                    w={9}
+                    h={9}
+                    borderRadius="lg"
+                    align="center"
+                    justify="center"
+                    flexShrink={0}
+                >
+                    <Icon as={UtensilsCrossed} boxSize={5} />
+                </Flex>
+            )}
             {!collapsed && (
                 <Text
                     fontSize="lg"

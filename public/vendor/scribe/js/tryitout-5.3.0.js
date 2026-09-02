@@ -83,8 +83,6 @@ function cancelTryOut(endpointId) {
 }
 
 function makeAPICall(method, path, body = {}, query = {}, headers = {}, endpointId = null) {
-    console.log({endpointId, path, body, query, headers});
-
     if (!(body instanceof FormData) && typeof body !== "string") {
         body = JSON.stringify(body)
     }
@@ -94,19 +92,19 @@ function makeAPICall(method, path, body = {}, query = {}, headers = {}, endpoint
     // We need this function because if you try to set an array or object directly to a URLSearchParams object,
     // you'll get [object Object] or the array.toString()
     function addItemToSearchParamsObject(key, value, searchParams) {
-            if (Array.isArray(value)) {
-                value.forEach((v, i) => {
-                    // Append {filters: [first, second]} as filters[0]=first&filters[1]second
-                    addItemToSearchParamsObject(key + '[' + i + ']', v, searchParams);
-                })
-            } else if (typeof value === 'object' && value !== null) {
-                Object.keys(value).forEach((i) => {
-                    // Append {filters: {name: first}} as filters[name]=first
-                    addItemToSearchParamsObject(key + '[' + i + ']', value[i], searchParams);
-                });
-            } else {
-                searchParams.append(key, value);
-            }
+        if (Array.isArray(value)) {
+            value.forEach((v, i) => {
+                // Append {filters: [first, second]} as filters[0]=first&filters[1]second
+                addItemToSearchParamsObject(key + '[' + i + ']', v, searchParams);
+            })
+        } else if (typeof value === 'object' && value !== null) {
+            Object.keys(value).forEach((i) => {
+                // Append {filters: {name: first}} as filters[name]=first
+                addItemToSearchParamsObject(key + '[' + i + ']', value[i], searchParams);
+            });
+        } else {
+            searchParams.append(key, value);
+        }
     }
 
     Object.keys(query)
@@ -167,7 +165,7 @@ function handleResponse(endpointId, response, status, headers) {
     const statusEl = document.querySelector('#execution-response-status-' + endpointId);
     statusEl.textContent = ` (${status})`;
     document.querySelector('#execution-results-' + endpointId).hidden = false;
-    statusEl.scrollIntoView({behavior: "smooth", block: "center"});
+    statusEl.scrollIntoView({ behavior: "smooth", block: "center" });
 }
 
 function handleError(endpointId, err) {
@@ -181,7 +179,7 @@ function handleError(endpointId, err) {
     $errorMessageEl.textContent = errorMessage + $errorMessageEl.textContent;
     const errorEl = document.querySelector('#execution-error-' + endpointId);
     errorEl.hidden = false;
-    errorEl.scrollIntoView({behavior: "smooth", block: "center"});
+    errorEl.scrollIntoView({ behavior: "smooth", block: "center" });
 
 }
 
@@ -189,7 +187,7 @@ async function executeTryOut(endpointId, form) {
     const executeBtn = document.querySelector(`#btn-executetryout-${endpointId}`);
     executeBtn.textContent = executeBtn.dataset.loadingText;
     executeBtn.disabled = true;
-    executeBtn.scrollIntoView({behavior: "smooth", block: "center"});
+    executeBtn.scrollIntoView({ behavior: "smooth", block: "center" });
 
     let body;
     let setter;
@@ -276,10 +274,8 @@ async function executeTryOut(endpointId, form) {
         })
         .catch(err => {
             if (err.name === "AbortError") {
-                console.log("Request cancelled");
                 return;
             }
-            console.log("Error while making request: ", err);
             handleError(endpointId, err);
         })
         .finally(() => {

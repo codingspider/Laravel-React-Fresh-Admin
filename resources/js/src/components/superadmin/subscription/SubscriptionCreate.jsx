@@ -362,7 +362,7 @@ const SubscriptionCreate = () => {
                                     </Select>
                                 </FormControl>
 
-                                <FormControl>
+                                <FormControl isRequired>
                                     <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("payment_amount")}</FormLabel>
                                     <Input
                                         {...register("payment_amount")}
@@ -380,7 +380,7 @@ const SubscriptionCreate = () => {
                                     />
                                 </FormControl>
 
-                                <FormControl>
+                                <FormControl isRequired>
                                     <FormLabel fontSize="sm" fontWeight="semibold" color={labelColor} mb={2}>{t("payment_date")}</FormLabel>
                                     <Input
                                         {...register("payment_date")}

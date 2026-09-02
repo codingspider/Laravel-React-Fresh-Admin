@@ -1,5 +1,6 @@
-import React, {useEffect, useState} from "react";
-import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator,
+import React, { useEffect, useState } from "react";
+import {
+    Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator,
     Box,
     Card,
     CardHeader,
@@ -10,9 +11,9 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel, TabIndicator,
     BreadcrumbItem,
     BreadcrumbLink,
     Text,
- } from '@chakra-ui/react';
+} from '@chakra-ui/react';
 
- import {
+import {
     MdReceiptLong,
     MdSettings,
     MdAttachMoney,
@@ -104,32 +105,32 @@ const General = () => {
                                 flexWrap={{ base: "nowrap", md: "wrap" }}
                                 overflowX={{ base: "auto", md: "visible" }}
                                 sx={{
-                                "&::-webkit-scrollbar": { display: "none" },
+                                    "&::-webkit-scrollbar": { display: "none" },
                                 }}
                             >
                                 <Tab whiteSpace="nowrap">
-                                <Box as={MdSettings} mr={2} />
-                                {t("general")}
+                                    <Box as={MdSettings} mr={2} />
+                                    {t("general")}
                                 </Tab>
 
                                 <Tab whiteSpace="nowrap">
-                                <Box as={MdReceiptLong} mr={2} />
-                                {t("invoice_setting")}
+                                    <Box as={MdReceiptLong} mr={2} />
+                                    {t("invoice_setting")}
                                 </Tab>
 
                                 <Tab whiteSpace="nowrap">
-                                <Box as={MdAttachMoney} mr={2} />
-                                {t("currency")}
+                                    <Box as={MdAttachMoney} mr={2} />
+                                    {t("currency")}
                                 </Tab>
 
                                 <Tab whiteSpace="nowrap">
-                                <Box as={MdNotificationsActive} mr={2} />
-                                {t("notification")}
+                                    <Box as={MdNotificationsActive} mr={2} />
+                                    {t("notification")}
                                 </Tab>
 
                                 <Tab whiteSpace="nowrap">
-                                <Box as={MdQrCodeScanner} mr={2} />
-                                {t("qr_ordering")}
+                                    <Box as={MdQrCodeScanner} mr={2} />
+                                    {t("qr_ordering")}
                                 </Tab>
                             </TabList>
                             <TabIndicator

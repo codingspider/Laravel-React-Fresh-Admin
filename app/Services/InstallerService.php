@@ -327,7 +327,7 @@ class InstallerService
         // Create restaurant owned by restaurant owner
         $restaurant = Restaurant::create([
             'owner_id' => $restaurantOwner->id,
-            'name' => $data['restaurant_name'] ?? $data['name'] . "'s Restaurant",
+            'name' => env('RESTAURANT_NAME') ?? $data['name'] . "'s Restaurant",
             'slug' => 'default-restaurant',
             'email' => $ownerEmail,
             'phone' => '',

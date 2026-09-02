@@ -271,7 +271,7 @@ export const GET_JOURNAL = (id) => `/journal/${id}`;
 export const UPDATE_JOURNAL = (id) => `/journal/${id}`;
 export const DELETE_JOURNAL = (id) => `/journal/${id}`;
 export const JOURNAL_CREATE_DATA = '/journal/create-data';
-export const JOURNAL_LEDGER = '/journal/ledger';export const LEDGER_ACCOUNTS = '/journal/ledger';
+export const JOURNAL_LEDGER = '/journal/ledger'; export const LEDGER_ACCOUNTS = '/journal/ledger';
 export const LEDGER_BY_ACCOUNT = (accountId) => `/journal/ledger/account/${accountId}`;
 export const TRIAL_BALANCE = '/journal/trial-balance';
 

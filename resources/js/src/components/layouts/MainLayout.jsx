@@ -4,6 +4,7 @@ import { Outlet, useLocation } from 'react-router-dom';
 import SidebarContent from './SidebarContent';
 import TopNav from './TopNav';
 import useThemeColors from '../../hooks/useThemeColors';
+import { usePermission } from '../../context/PermissionContext';
 
 export default function MainLayout() {
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -11,8 +12,21 @@ export default function MainLayout() {
     const [isLargerThanLG] = useMediaQuery('(min-width: 992px)');
     const location = useLocation();
     const colors = useThemeColors();
+    const { restaurant } = usePermission();
 
     const sidebarW = isCollapsed ? '72px' : '260px';
+
+    useEffect(() => {
+        if (restaurant?.logo) {
+            let link = document.querySelector("link[rel~='icon']");
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                document.head.appendChild(link);
+            }
+            link.href = `/${restaurant.logo}`;
+        }
+    }, [restaurant?.logo]);
 
     useEffect(() => {
         if (isLargerThanLG) {

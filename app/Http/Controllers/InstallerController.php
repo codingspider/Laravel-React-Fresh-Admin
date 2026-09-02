@@ -207,7 +207,6 @@ class InstallerController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'restaurant_name' => 'nullable|string|max:255',
             'owner_name' => 'required|string|max:255',
             'owner_email' => 'required|email|max:255|unique:users,email',
             'owner_password' => 'required|string|min:8',

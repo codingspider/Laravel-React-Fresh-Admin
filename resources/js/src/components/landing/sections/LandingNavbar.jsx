@@ -63,14 +63,17 @@ export default function LandingNavbar({ settings }) {
             <Container maxW="1200px" px={{ base: 4, md: 8 }}>
                 <Flex justify="space-between" align="center" h="72px">
                     <HStack spacing={3}>
-                        <Box
-                            bg="teal.500"
-                            p={2}
-                            borderRadius="lg"
-                            color="white"
-                        >
-                            <UtensilsCrossed size={22} />
-                        </Box>
+                        {settings.site_logo ? (
+                            <img
+                                src={settings.site_logo}
+                                alt={settings.site_name}
+                                style={{ height: 50, objectFit: 'contain' }}
+                            />
+                        ) : (
+                            <Box bg="teal.500" p={2} borderRadius="lg" color="white">
+                                <UtensilsCrossed size={22} />
+                            </Box>
+                        )}
                         <Text fontWeight="800" fontSize="lg" letterSpacing="tight">
                             {settings.site_name}
                         </Text>

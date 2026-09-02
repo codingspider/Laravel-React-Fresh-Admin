@@ -9,7 +9,7 @@
         <div class="list-item {{ $phpVersionOk ? 'ok' : 'fail' }}">
             <span class="list-item-name">PHP Version</span>
             <span class="list-item-status">
-                PHP {{ config('installer.required_php_version', '8.2.0') }} or higher
+                PHP {{ config('installer.required_php_version', '8.4') }} or higher
                 <span class="{{ $phpVersionOk ? 'check-icon' : 'cross-icon' }}">{!! $phpVersionOk ? '&#10003;' : '&#10007;' !!}</span>
             </span>
         </div>

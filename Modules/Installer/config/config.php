@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'required_php_version' => '8.2.0',
+    'required_php_version' => '8.4',
     'required_extensions' => [
         'openssl',
         'pdo',

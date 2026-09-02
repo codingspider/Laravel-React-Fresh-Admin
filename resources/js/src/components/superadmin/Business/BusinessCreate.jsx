@@ -46,13 +46,12 @@ const BusinessCreate = () => {
     const [currencies, setCurrency] = useState([]);
     const [timezones, setTimezone] = useState([]);
     const [plans, setPlans] = useState([]);
-    const [show, setShow] = useState(false); 
+    const [show, setShow] = useState(false);
     const handleClick = () => setShow(!show);
 
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-            console.log(data);
             const res = await api.post(STORE_BUSINESS, data);
             reset();
             toast({
@@ -93,12 +92,12 @@ const BusinessCreate = () => {
         const res = await api.get(GET_CURRENCIES);
         setCurrency(res.data.data);
     };
-    
+
     const getTimezones = async () => {
         const res = await api.get(GET_TIMEZONES);
         setTimezone(res.data.data);
     };
-    
+
     const getAllPlans = async () => {
         const res = await api.get(GET_ALL_PLANS);
         setPlans(res.data.data);
@@ -167,7 +166,7 @@ const BusinessCreate = () => {
                             <form onSubmit={handleSubmit(onSubmit)}>
                                 {/* Plan Info */}
                                 <Text fontSize="2xl" mb={5}>{t('business_info')}</Text>
-                                
+
                                 <SimpleGrid
                                     columns={{ base: 1, md: 2 }}
                                     spacing={6}
@@ -408,7 +407,7 @@ const BusinessCreate = () => {
                                             transition="all 0.2s"
                                         />
                                     </FormControl>
-                                    
+
                                     <FormControl isRequired>
                                         <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("username")}</FormLabel>
                                         <Input
@@ -469,47 +468,47 @@ const BusinessCreate = () => {
                                     <FormControl id="password">
                                         <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("password")}</FormLabel>
                                         <InputGroup size='md'>
-                                        <Input
-                                            {...register("password", { required: true })}
-                                            pr='4.5rem'
-                                            type={show ? 'text' : 'password'}
-                                            placeholder='Enter password'
-                                            bg={colors.bgInput}
-                                            border="1px solid"
-                                            borderColor={colors.borderInput}
-                                            borderRadius="md"
-                                            focusBorderColor="teal.500"
-                                            _hover={{ borderColor: "gray.300" }}
-                                            size="md"
-                                            transition="all 0.2s"
-                                        />
-                                        <InputRightElement width='4.5rem'>
-                                            <Button h='1.75rem' size='sm' onClick={handleClick}>
-                                            {show ? 'Hide' : 'Show'}
-                                            </Button>
-                                        </InputRightElement>
+                                            <Input
+                                                {...register("password", { required: true })}
+                                                pr='4.5rem'
+                                                type={show ? 'text' : 'password'}
+                                                placeholder='Enter password'
+                                                bg={colors.bgInput}
+                                                border="1px solid"
+                                                borderColor={colors.borderInput}
+                                                borderRadius="md"
+                                                focusBorderColor="teal.500"
+                                                _hover={{ borderColor: "gray.300" }}
+                                                size="md"
+                                                transition="all 0.2s"
+                                            />
+                                            <InputRightElement width='4.5rem'>
+                                                <Button h='1.75rem' size='sm' onClick={handleClick}>
+                                                    {show ? 'Hide' : 'Show'}
+                                                </Button>
+                                            </InputRightElement>
                                         </InputGroup>
                                     </FormControl>
 
                                     <FormControl isRequired>
                                         <FormLabel fontSize="sm" fontWeight="semibold" color={colors.textPrimary} mb={2}>{t("allow_login")}</FormLabel>
                                         <RadioGroup defaultValue='1'>
-                                        <Stack spacing={5} direction='row'>
-                                            <Radio {...register('allow_login')} colorScheme='green' value='1'>
-                                            {t('yes')}
-                                            </Radio>
+                                            <Stack spacing={5} direction='row'>
+                                                <Radio {...register('allow_login')} colorScheme='green' value='1'>
+                                                    {t('yes')}
+                                                </Radio>
 
-                                            <Radio {...register('allow_login')} colorScheme='red' value='0'>
-                                            {t('no')}
-                                            </Radio>
-                                      
-                                        </Stack>
+                                                <Radio {...register('allow_login')} colorScheme='red' value='0'>
+                                                    {t('no')}
+                                                </Radio>
+
+                                            </Stack>
                                         </RadioGroup>
                                     </FormControl>
-                                    
+
 
                                 </SimpleGrid>
-                                
+
                                 <Text fontSize="2xl" mb={5} mt={5}>{t('payment_info')}</Text>
 
                                 <SimpleGrid

@@ -41,12 +41,7 @@
             {{-- Restaurant Owner Section --}}
             <div
                 style="margin-top: 24px; margin-bottom: 8px; font-size: 15px; font-weight: 600; color: #0d9488; border-bottom: 1px solid #e0f2f1; padding-bottom: 6px;">
-                Restaurant Owner</div>
-
-            <div class="form-group">
-                <label>Restaurant Name</label>
-                <input type="text" name="restaurant_name" value="{{ old('restaurant_name') }}"
-                    placeholder="My Restaurant">
+                Restaurant Owner
             </div>
 
             <div class="form-group">

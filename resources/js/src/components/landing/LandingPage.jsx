@@ -65,6 +65,19 @@ export default function LandingPage() {
     }, []);
 
     useEffect(() => {
+        if (settings.site_logo) {
+            let link = document.querySelector("link[rel~='icon']");
+            if (!link) {
+                link = document.createElement('link');
+                link.rel = 'icon';
+                document.head.appendChild(link);
+            }
+            link.href = settings.site_logo;
+            link.type = settings.site_logo.endsWith('.svg') ? 'image/svg+xml' : 'image/png';
+        }
+    }, [settings.site_logo]);
+
+    useEffect(() => {
         let active = true;
         api.get(FAQS_API)
             .then((res) => {
