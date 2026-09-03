@@ -26,7 +26,7 @@ class OcrController extends Controller
             file_get_contents($fullPath),
             'menu.png'
         )->post('https://api.ocr.space/parse/image', [
-            'apikey' => env('OCR_API_KEY'),
+            'apikey' => config('services.ocr.api_key', ''),
             'language' => 'eng',
             'isOverlayRequired' => false,
         ]);

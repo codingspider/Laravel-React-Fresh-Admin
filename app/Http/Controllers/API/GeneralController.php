@@ -8,6 +8,7 @@ use App\Models\Timezone;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\API\BaseController;
+use Illuminate\Support\Facades\Log;
 
 class GeneralController extends BaseController
 {
@@ -15,9 +16,10 @@ class GeneralController extends BaseController
     {
         try {
             $currency = Currency::all();
-            return $this->sendResponse($currency, 'Currency retrived successfully.');
+            return $this->sendResponse($currency, 'Currency retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Currency fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve currencies.', [], 500);
         }
     }
     
@@ -25,9 +27,10 @@ class GeneralController extends BaseController
     {
         try {
             $currency = Timezone::all();
-            return $this->sendResponse($currency, 'Timezone retrived successfully.');
+            return $this->sendResponse($currency, 'Timezone retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Timezone fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve timezones.', [], 500);
         }
     }
     
@@ -35,9 +38,10 @@ class GeneralController extends BaseController
     {
         try {
             $plans = Plan::where('is_active',1)->get();
-            return $this->sendResponse($plans, 'Plan retrived successfully.');
+            return $this->sendResponse($plans, 'Plans retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Plans fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve plans.', [], 500);
         }
     }
 }

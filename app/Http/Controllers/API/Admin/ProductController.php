@@ -60,9 +60,10 @@ class ProductController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Product creation failed: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'Failed to create product.',
             ], 500);
         }
     }
@@ -125,9 +126,10 @@ class ProductController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Product update failed: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'Failed to update product.',
             ], 500);
         }
     }

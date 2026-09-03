@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VatSettingRequest;
 use App\Http\Controllers\API\BaseController;
+use Illuminate\Support\Facades\Log;
 
 class VatController extends BaseController
 {
@@ -18,7 +19,8 @@ class VatController extends BaseController
             $vats = Vat::with('branch')->get();
             return $this->sendResponse($vats, 'Data retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage());
+            \Log::error('VAT fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve VAT data.', [], 500);
         }
     }
     
@@ -28,7 +30,8 @@ class VatController extends BaseController
             $vats = Vat::with('branch')->get();
             return $this->sendResponse($vats, 'Data retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage());
+            \Log::error('VAT fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve VAT data.', [], 500);
         }
     }
 
@@ -47,7 +50,8 @@ class VatController extends BaseController
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('VAT creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to save VAT.', [], 500);
         }
     }
 
@@ -56,9 +60,9 @@ class VatController extends BaseController
     {
         $vat = Vat::find($id);
         if (!$vat) {
-            return $this->sendError('Vat Not Found !', 404);
+            return $this->sendError('Vat not found.', [], 404);
         }
-        return $this->sendResponse($vat, 'Vat retrived successfully.');
+        return $this->sendResponse($vat, 'Vat retrieved successfully.');
     }
 
     // Update
@@ -68,7 +72,7 @@ class VatController extends BaseController
         try {
             $vat = Vat::find($id);
             if (!$vat) {
-                return $this->sendError('Vat Not Found !', 404);
+                return $this->sendError('Vat not found.', [], 404);
             }
 
             $vat->update($request->validated());
@@ -77,7 +81,8 @@ class VatController extends BaseController
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('VAT update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update VAT.', [], 500);
         }
     }
 
@@ -87,12 +92,13 @@ class VatController extends BaseController
         try {
             $vat = Vat::find($id);
             if (!$vat) {
-                return $this->sendError('Vat not found.', 404);
+                return $this->sendError('Vat not found.', [], 404);
             }
             $vat->delete();
             return $this->sendResponse([], 'Vat deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('VAT deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete VAT.', [], 500);
         }
     }
 }

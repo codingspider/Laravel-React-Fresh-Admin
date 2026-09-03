@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\API\BaseController;
 
 class CategoryController extends BaseController
@@ -33,7 +34,8 @@ class CategoryController extends BaseController
 
             return $this->sendResponse($categories, 'Category retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Category fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve categories.', [], 500);
         }
     }
     
@@ -43,7 +45,8 @@ class CategoryController extends BaseController
             $categories = Category::all();
             return $this->sendResponse($categories, 'Category retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Category fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve categories.', [], 500);
         }
     }
 
@@ -69,21 +72,17 @@ class CategoryController extends BaseController
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'           => 'required|string|max:255',
             'description'  => 'nullable',
             'image' => 'sometimes|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
-
         DB::beginTransaction();
         try {
             $category = new Category();
-            $category->name = $request->name;
-            $category->description = $request->description;
+            $category->name = $validated['name'];
+            $category->description = $validated['description'] ?? null;
             $category->business_id = user_business_id();
             $category->created_by = createdBy();
 
@@ -102,7 +101,8 @@ class CategoryController extends BaseController
             return $this->sendResponse($category, 'Category saved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Category creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create category.', [], 500);
         }
     }
 
@@ -111,20 +111,16 @@ class CategoryController extends BaseController
      */
     public function update(Request $request, Category $category)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'           => 'required|string|max:255',
             'description'  => 'nullable',
             'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
-
         DB::beginTransaction();
         try {
-            $category->name = $request->name;
-            $category->description = $request->description;
+            $category->name = $validated['name'];
+            $category->description = $validated['description'] ?? null;
 
             if ($request->hasFile('image')) {
                 $category->image = uploadImage(
@@ -140,7 +136,8 @@ class CategoryController extends BaseController
             return $this->sendResponse($category, 'Category updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Category update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update category.', [], 500);
         }
     }
 
@@ -155,7 +152,8 @@ class CategoryController extends BaseController
             activityLog('category','deleted','User '.user_full_name().' deleted category '.$category->name);
             return $this->sendResponse([], 'Category deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Category deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete category.', [], 500);
         }
     }
 }

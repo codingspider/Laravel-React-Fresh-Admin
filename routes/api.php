@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Route;
 use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 
-Route::controller(RegisterController::class)->group(function(){
+Route::controller(RegisterController::class)->middleware('throttle:10,1')->group(function(){
     Route::post('register', 'register')->middleware(['web']);
     Route::post('login', 'login')->middleware(['web']);
     Route::post('forgot-password', 'forgotPassword')->middleware(['web']);
@@ -158,7 +158,7 @@ Route::middleware(['cookie.filter', 'auth:sanctum'])->get('/user', function (Req
 Route::get('/translations', function (\Illuminate\Http\Request $request) {
     $locale = $request->query('lang', config('app.locale'));
 
-    $supported = ['en', 'bn'];
+    $supported = ['en', 'bn', 'hi', 'es', 'fr'];
     if (!in_array($locale, $supported)) {
         $locale = config('app.fallback_locale');
     }

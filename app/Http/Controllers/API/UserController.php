@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\API\BaseController;
 
 class UserController extends BaseController
@@ -32,105 +33,90 @@ class UserController extends BaseController
             }
 
             $data = $query->paginate(10);
-            return $this->sendResponse($data, 'User retrived successfully.');
+            return $this->sendResponse($data, 'Users retrieved successfully.');
 
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Users fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve users.', [], 500);
         }
     }
     
     public function edit($id)
     {
         try {
-            $owner = User::find($id);
-            return $this->sendResponse($owner, 'User retrived successfully.');
+            $owner = User::findOrFail($id);
+            return $this->sendResponse($owner, 'User retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('User fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve user.', [], 500);
         }
     }
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'      => 'required',
             'email'     => 'required|email|unique:users,email',
             'role'      => 'required',
             'password'  => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', 422, $validator->errors());
-        }
-
         DB::beginTransaction();
 
         try {
-            // Check if user already exists
-            $existingUser = User::where('email', $request->email)->first();
-            if ($existingUser) {
-                return $this->sendError('User with this email already exists.');
-            }
-
-            $userData = [
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => Hash::make($request->password),
-                'role' => $request->role
-            ];
-
-            // store new user
-            $user = User::create($userData);
+            $user = User::create([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'password' => Hash::make($validated['password']),
+            ]);
             DB::commit();
 
             return $this->sendResponse(['user' => $user], 'User saved successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('User creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create user.', [], 500);
         }
     }
     
     public function update(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'      => 'required',
-            'email'     => 'required|email|unique:users,email',
-            'role'      => 'required',
-            'password'  => 'required',
+            'email'     => 'required|email|unique:users,email,' . $request->id,
+            'password'  => 'nullable',
         ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', 422, $validator->errors());
-        }
 
         DB::beginTransaction();
 
         try {
-            $user = User::find($request->id);
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->role = $request->role;
+            $user = User::findOrFail($request->id);
+            $user->name = $validated['name'];
+            $user->email = $validated['email'];
+            if (!empty($validated['password'])) {
+                $user->password = Hash::make($validated['password']);
+            }
             $user->save();
             DB::commit();
-            return $this->sendResponse(['user' => $user], 'User saved successfully.');
+            return $this->sendResponse(['user' => $user], 'User updated successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('User update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update user.', [], 500);
         }
     }
 
     public function delete($id)
     {
         try {
-            $user = User::find($id);
-            if (!$user) {
-                return $this->sendError('User not found.', 404);
-            }
+            $user = User::findOrFail($id);
             $user->delete();
             return $this->sendResponse([], 'User deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('User deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete user.', [], 500);
         }
     }
 }

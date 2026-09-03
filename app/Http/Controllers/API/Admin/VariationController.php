@@ -8,6 +8,7 @@ use App\Models\VariationItem;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\API\BaseController;
 
 class VariationController extends BaseController
@@ -18,7 +19,8 @@ class VariationController extends BaseController
             $variation = Variation::with('variation_items', 'branch')->whereIn('branch_id', getBranchIds())->latest()->paginate(10);
             return $this->sendResponse($variation, 'Data retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Variation fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve variations.', [], 500);
         }
     }
     
@@ -28,7 +30,8 @@ class VariationController extends BaseController
             $variation = Variation::with('variation_items')->whereIn('branch_id', getBranchIds())->get();
             return $this->sendResponse($variation, 'Data retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Variation fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve variations.', [], 500);
         }
     }
 
@@ -45,25 +48,23 @@ class VariationController extends BaseController
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'     => 'required',
             'branch_id'     => 'required',
+            'lines' => 'required|array',
+            'lines.*.name' => 'nullable|string',
+            'lines.*.price' => 'nullable|numeric',
         ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
 
         DB::beginTransaction();
         try {
             $variation = new Variation();
-            $variation->name = $request->name;
-            $variation->branch_id = $request->branch_id;
+            $variation->name = $validated['name'];
+            $variation->branch_id = $validated['branch_id'];
             $variation->created_by = createdBy();
             $variation->save();
 
-            // Use a different variable name inside the loop
-            foreach ($request->lines as $lineData) {
+            foreach ($validated['lines'] as $lineData) {
                 $item = new VariationItem();
                 $item->variation_id = $variation->id;
                 $item->name = $lineData['name'] ?? null;
@@ -78,7 +79,8 @@ class VariationController extends BaseController
             return $this->sendResponse($variation, 'Data saved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Variation creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create variation.', [], 500);
         }
 
     }
@@ -88,26 +90,25 @@ class VariationController extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'     => 'required',
             'branch_id'     => 'required',
+            'lines' => 'required|array',
+            'lines.*.name' => 'nullable|string',
+            'lines.*.price' => 'nullable|numeric',
         ]);
-
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
 
         DB::beginTransaction();
         try {
             $variation = Variation::find($id);
-            $variation->name = $request->name;
-            $variation->branch_id = $request->branch_id;
+            $variation->name = $validated['name'];
+            $variation->branch_id = $validated['branch_id'];
             $variation->save();
 
             $variation->variation_items()->delete();
 
             // Use a different variable name inside the loop
-            foreach ($request->lines as $lineData) {
+            foreach ($validated['lines'] as $lineData) {
                 $item = new VariationItem();
                 $item->variation_id = $variation->id;
                 $item->name = $lineData['name'] ?? null;
@@ -122,7 +123,8 @@ class VariationController extends BaseController
             return $this->sendResponse($variation, 'Data saved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Variation update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update variation.', [], 500);
         }
     }
 
@@ -138,7 +140,8 @@ class VariationController extends BaseController
             activityLog('variation','deleted','User '.auth()->user()->name.' deleted variation '.$variation->name);
             return $this->sendResponse([], 'Data deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Variation deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete variation.', [], 500);
         }
     }
 }

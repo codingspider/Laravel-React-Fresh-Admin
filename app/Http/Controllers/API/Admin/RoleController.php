@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API\Admin;
 use App\Http\Controllers\API\BaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Permission;
@@ -29,7 +30,8 @@ class RoleController extends BaseController
 
             return $this->sendResponse($roles, 'Roles retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Roles fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve roles.', [], 500);
         }
     }
 
@@ -53,7 +55,8 @@ class RoleController extends BaseController
 
             return $this->sendResponse($roles, 'Role retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Role fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve role.', [], 500);
         }
     }
 
@@ -108,7 +111,7 @@ class RoleController extends BaseController
         $restaurantId = getRestaurantId();
         $branchId = $request->input('branch_id');
 
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => [
                 'required',
                 'string',
@@ -123,23 +126,19 @@ class RoleController extends BaseController
             'permissions.*' => 'string',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
-
         DB::beginTransaction();
         try {
             $role = new Role();
-            $role->name = $request->name;
+            $role->name = $validated['name'];
             $role->guard_name = 'web';
             $role->restaurant_id = $restaurantId;
-            $role->branch_id = $branchId;
+            $role->branch_id = $validated['branch_id'] ?? null;
             $role->save();
 
             // Create permissions if not exist & assign
             $permissions = [];
 
-            foreach ($request->permissions ?? [] as $perm) {
+            foreach ($validated['permissions'] ?? [] as $perm) {
                 $permissions[] = Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
             }
 
@@ -152,7 +151,8 @@ class RoleController extends BaseController
             return $this->sendResponse($role, 'Role saved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Role creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create role.', [], 500);
         }
     }
 
@@ -170,7 +170,7 @@ class RoleController extends BaseController
         $restaurantId = getRestaurantId();
         $branchId = $request->input('branch_id');
 
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => [
                 'required',
                 'string',
@@ -186,20 +186,15 @@ class RoleController extends BaseController
             'permissions.*' => 'string',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
-
         DB::beginTransaction();
 
         try {
-            // Update role name and branch
-            $role->name = $request->name;
-            $role->branch_id = $branchId;
+            $role->name = $validated['name'];
+            $role->branch_id = $validated['branch_id'] ?? null;
             $role->save();
 
             // Sync permissions (IMPORTANT)
-            $role->syncPermissions($request->permissions ?? []);
+            $role->syncPermissions($validated['permissions'] ?? []);
 
             activityLog(
                 'role',
@@ -215,11 +210,8 @@ class RoleController extends BaseController
             );
         } catch (\Exception $e) {
             DB::rollBack();
-
-            return $this->sendError(
-                'Server Error: ' . $e->getMessage(),
-                500
-            );
+            \Log::error('Role update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update role.', [], 500);
         }
     }
 
@@ -240,7 +232,8 @@ class RoleController extends BaseController
             $role->delete();
             return $this->sendResponse([], 'Role deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Role deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete role.', [], 500);
         }
     }
 

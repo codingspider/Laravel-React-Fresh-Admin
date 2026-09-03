@@ -8,7 +8,7 @@ export const LanguageProvider = ({ children, api }) => {
 
   const changeLanguage = async (lng) => {
     try {
-      const res = await api.apiGet(`/translations`, { params: { lang: lng } });
+      const res = await api.apiGet(`/translations`, { lang: lng });
       const data = res.data;
 
       i18n.addResourceBundle(lng, 'translation', data.messages, true, true);

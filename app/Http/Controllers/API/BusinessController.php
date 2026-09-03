@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Services\BusinessCreationService;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreBusinessRequest;
 use App\Http\Controllers\API\BaseController;
 
@@ -25,9 +26,9 @@ class BusinessController extends BaseController
     {
         try {
             $business = Business::paginate(10);
-            return $this->sendResponse($business, 'Business retrived successfully.');
-        } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            return $this->sendResponse($business, 'Business retrived successfully.');        } catch (\Exception $e) {
+            \Log::error('Business fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve businesses.', [], 500);
         }
     }
     
@@ -35,9 +36,11 @@ class BusinessController extends BaseController
     {
         try {
             $plans = Plan::whereIsActive(1)->get();
-            return $this->sendResponse($plans, 'Plan retrived successfully.');
+            return $this->sendResponse($plans, 'Plans retrieved successfully.');
+
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Plans fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve plans.', [], 500);
         }
     }
 
@@ -50,13 +53,14 @@ class BusinessController extends BaseController
     {
         DB::beginTransaction();
         try {
-            $result = $service->create($request->all());
+            $result = $service->create($request->validated());
             DB::commit();
             return $this->sendResponse($result, 'Business created successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Business creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create business.', [], 500);
         }
     }
 
@@ -69,9 +73,10 @@ class BusinessController extends BaseController
     {
         try {
             $plan = Business::find($id);
-            return $this->sendResponse($plan, 'Business retrived successfully.');
+            return $this->sendResponse($plan, 'Business retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Business fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve business.', [], 500);
         }
     }
 
@@ -82,7 +87,7 @@ class BusinessController extends BaseController
      */
     public function update(Request $request, Business $business)
     {
-        $validator = Validator::make($request->all(), [
+        $request->validate([
             'name' => 'required',
             'price' => 'required',
             'billing_cycle' => 'required',
@@ -91,26 +96,19 @@ class BusinessController extends BaseController
             'invoice_limit' => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
-
         DB::beginTransaction();
         try {
-            $business->name = $request->name;
-            $business->is_active = $request->is_active;
-            $business->price = $request->price;
-            $business->billing_cycle = $request->billing_cycle;
-            $business->branch_limit = $request->branch_limit;
-            $business->user_limit = $request->user_limit;
-            $business->invoice_limit = $request->invoice_limit;
-            $business->save();
+            $business->update($request->only([
+                'name', 'is_active', 'price', 'billing_cycle',
+                'branch_limit', 'user_limit', 'invoice_limit',
+            ]));
 
             DB::commit();
             return $this->sendResponse($business, 'Business updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Business update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update business.', [], 500);
         }
     }
 
@@ -125,12 +123,13 @@ class BusinessController extends BaseController
         try {
             $business = Business::find($id);
             if (!$business) {
-                return $this->sendError('Business not found.', 404);
+                return $this->sendError('Business not found.', [], 404);
             }
             $business->delete();
             return $this->sendResponse([], 'Business deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Business deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete business.', [], 500);
         }
     }
 }

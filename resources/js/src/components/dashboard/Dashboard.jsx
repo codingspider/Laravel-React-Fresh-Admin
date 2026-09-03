@@ -61,11 +61,11 @@ import PageHeader from '../ui/PageHeader';
 import StatCard from '../ui/StatCard';
 import useThemeColors from '../../hooks/useThemeColors';
 
-const statsData = [
-    { title: 'Total Revenue', value: '$45,231.89', change: '+20.1%', trend: 'up', icon: DollarSign, iconColor: 'green.600', iconBg: 'green.50' },
-    { title: 'Total Orders', value: '+2,350', change: '+15.5%', trend: 'up', icon: ShoppingCart, iconColor: 'blue.600', iconBg: 'blue.50' },
-    { title: 'Total Products', value: '+12,234', change: '-4.5%', trend: 'down', icon: Package, iconColor: 'purple.600', iconBg: 'purple.50' },
-    { title: 'Active Users', value: '573', change: '+2.1%', trend: 'up', icon: Users, iconColor: 'orange.600', iconBg: 'orange.50' },
+const statsData = (t) => [
+    { title: t('total_revenue'), value: '$45,231.89', change: '+20.1%', trend: 'up', icon: DollarSign, iconColor: 'green.600', iconBg: 'green.50' },
+    { title: t('total_orders'), value: '+2,350', change: '+15.5%', trend: 'up', icon: ShoppingCart, iconColor: 'blue.600', iconBg: 'blue.50' },
+    { title: t('total_products'), value: '+12,234', change: '-4.5%', trend: 'down', icon: Package, iconColor: 'purple.600', iconBg: 'purple.50' },
+    { title: t('active_users'), value: '573', change: '+2.1%', trend: 'up', icon: Users, iconColor: 'orange.600', iconBg: 'orange.50' },
 ];
 
 const lineChartData = [
@@ -87,10 +87,10 @@ const barChartData = [
     { name: 'Sun', sales: 3490 },
 ];
 
-const pieChartData = [
-    { name: 'Dine-in', value: 400 },
-    { name: 'Takeaway', value: 300 },
-    { name: 'Delivery', value: 200 },
+const pieChartData = (t) => [
+    { name: t('dine_in'), value: 400 },
+    { name: t('takeaway'), value: 300 },
+    { name: t('delivery'), value: 200 },
 ];
 const COLORS = ['#0D9488', '#14B8A6', '#5EEAD4'];
 
@@ -162,11 +162,11 @@ export default function Dashboard() {
     return (
         <Box>
             <PageHeader
-                title="Dashboard"
-                subtitle="Welcome back! Here's an overview of your restaurant."
+                title={t('dashboard')}
+                subtitle={t('welcome_back_here') + " " + t('overview_of_restaurant')}
                 breadcrumbs={[
-                    { label: 'Home', path: '/dashboard' },
-                    { label: 'Dashboard', isCurrent: true },
+                    { label: t('home'), path: '/dashboard' },
+                    { label: t('dashboard'), isCurrent: true },
                 ]}
             />
 
@@ -176,7 +176,7 @@ export default function Dashboard() {
                 gap={{ base: 4, md: 6 }}
                 mb={{ base: 6, md: 8 }}
             >
-                {statsData.map((stat, i) => (
+                {statsData(t).map((stat, i) => (
                     <StatCard key={i} {...stat} />
                 ))}
             </Grid>
@@ -198,20 +198,20 @@ export default function Dashboard() {
                     <Flex justify="space-between" align="center" mb={6} wrap="wrap" gap={3}>
                         <Box>
                             <Heading size="md" fontWeight="bold" color={colors.textHeading}>
-                                Revenue Overview
+                                {t('revenue_overview')}
                             </Heading>
                             <Text fontSize="sm" color={colors.textSecondary} mt={1}>
-                                Monthly revenue and profit
+                                {t('monthly_revenue_and_profit')}
                             </Text>
                         </Box>
                         <HStack spacing={2}>
                             <Box display={{ base: 'none', md: 'flex' }} align="center" gap={1.5}>
                                 <Box w={2.5} h={2.5} borderRadius="full" bg="brand.500" />
-                                <Text fontSize="xs" color={colors.textSecondary}>Revenue</Text>
+                                <Text fontSize="xs" color={colors.textSecondary}>{t('revenue')}</Text>
                             </Box>
                             <Box display={{ base: 'none', md: 'flex' }} align="center" gap={1.5}>
                                 <Box w={2.5} h={2.5} borderRadius="full" bg="purple.500" />
-                                <Text fontSize="xs" color={colors.textSecondary}>Profit</Text>
+                                <Text fontSize="xs" color={colors.textSecondary}>{t('profit')}</Text>
                             </Box>
                         </HStack>
                     </Flex>
@@ -248,16 +248,16 @@ export default function Dashboard() {
                     borderColor={borderColor}
                 >
                     <Heading size="md" fontWeight="bold" mb={1} color={colors.textHeading}>
-                        Order Types
+                        {t('order_types')}
                     </Heading>
                     <Text fontSize="sm" color={colors.textSecondary} mb={6}>
-                        Distribution by order type
+                        {t('distribution_by_order_type')}
                     </Text>
                     <Box h={{ base: '180px', md: '200px' }} mb={6}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={pieChartData}
+                                    data={pieChartData(t)}
                                     cx="50%"
                                     cy="50%"
                                     innerRadius={{ base: 50, md: 60 }}
@@ -265,7 +265,7 @@ export default function Dashboard() {
                                     paddingAngle={5}
                                     dataKey="value"
                                 >
-                                    {pieChartData.map((entry, index) => (
+                                    {pieChartData(t).map((entry, index) => (
                                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                                     ))}
                                 </Pie>
@@ -274,7 +274,7 @@ export default function Dashboard() {
                         </ResponsiveContainer>
                     </Box>
                     <VStack spacing={3} align="stretch">
-                        {pieChartData.map((entry, index) => (
+                        {pieChartData(t).map((entry, index) => (
                             <Flex key={entry.name} justify="space-between" align="center">
                                 <HStack spacing={2.5}>
                                     <Box w={3} h={3} borderRadius="full" bg={COLORS[index]} />
@@ -306,10 +306,10 @@ export default function Dashboard() {
                     <Flex justify="space-between" align="center" mb={6}>
                         <Box>
                             <Heading size="md" fontWeight="bold" color={colors.textHeading}>
-                                Sales This Week
+                                {t('sales_this_week')}
                             </Heading>
                             <Text fontSize="sm" color={colors.textSecondary} mt={1}>
-                                Daily breakdown
+                                {t('daily_breakdown')}
                             </Text>
                         </Box>
                         <IconButton
@@ -346,10 +346,10 @@ export default function Dashboard() {
                 >
                     <Flex justify="space-between" align="center" mb={6}>
                         <Heading size="md" fontWeight="bold" color={colors.textHeading}>
-                            Recent Activity
+                            {t('recent_activity')}
                         </Heading>
                         <Button variant="secondary" size="sm">
-                            View All
+                            {t('view_all')}
                         </Button>
                     </Flex>
                     <VStack spacing={0} align="stretch" divider={<Divider borderColor={borderColor} />}>
@@ -402,10 +402,10 @@ export default function Dashboard() {
                 >
                     <Box>
                         <Heading size="md" fontWeight="bold" color={colors.textHeading}>
-                            Recent Orders
+                            {t('recent_orders')}
                         </Heading>
                         <Text fontSize="sm" color={colors.textSecondary} mt={1}>
-                            Latest transactions
+                            {t('latest_transactions')}
                         </Text>
                     </Box>
                     <HStack spacing={2}>
@@ -417,12 +417,12 @@ export default function Dashboard() {
                             onChange={(e) => setFilterStatus(e.target.value)}
                             focusBorderColor="brand.500"
                         >
-                            <option>All</option>
-                            <option>Completed</option>
-                            <option>Pending</option>
-                            <option>Failed</option>
+                            <option>{t('all')}</option>
+                            <option>{t('completed')}</option>
+                            <option>{t('pending')}</option>
+                            <option>{t('failed')}</option>
                         </Select>
-                        <Tooltip label="Export" hasArrow>
+                        <Tooltip label={t('export')} hasArrow>
                             <IconButton
                                 size="sm"
                                 variant="ghost"
@@ -439,7 +439,7 @@ export default function Dashboard() {
                     <Table variant="simple" size="sm">
                         <Thead>
                             <Tr>
-                                {['Order', 'Customer', 'Status', 'Date', 'Amount'].map((key) => (
+                                {                                [t('order'), t('customer'), t('status'), t('date'), t('amount')].map((key) => (
                                     <Th
                                         key={key}
                                         fontSize="xs"
@@ -513,7 +513,7 @@ export default function Dashboard() {
                     gap={3}
                 >
                     <Text fontSize="sm" color={colors.textSecondary}>
-                        Showing 1-5 of 124 results
+                        {t('showing_1_to_5_of_124_results')}
                     </Text>
                     <HStack spacing={1}>
                         <Button variant="ghost" size="sm" isDisabled>

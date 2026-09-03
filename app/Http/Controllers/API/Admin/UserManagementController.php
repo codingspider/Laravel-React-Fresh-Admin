@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Role;
 
@@ -33,7 +34,8 @@ class UserManagementController extends BaseController
 
             return $this->sendResponse($data, 'Users retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage());
+            \Log::error('Users fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve users.', [], 500);
         }
     }
 
@@ -49,7 +51,7 @@ class UserManagementController extends BaseController
 
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|min:6',
@@ -58,22 +60,18 @@ class UserManagementController extends BaseController
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors()->toArray(), 422);
-        }
-
         DB::beginTransaction();
 
         try {
             $user = User::create([
-                'name'          => $request->name,
-                'email'         => $request->email,
-                'password'      => Hash::make($request->password),
-                'restaurant_id' => $request->restaurant_id ?? getRestaurantId(),
-                'branch_id'     => $request->branch_id ?? null,
+                'name'          => $validated['name'],
+                'email'         => $validated['email'],
+                'password'      => Hash::make($validated['password']),
+                'restaurant_id' => $validated['restaurant_id'] ?? getRestaurantId(),
+                'branch_id'     => $validated['branch_id'] ?? null,
             ]);
 
-            $role = Role::findById($request->role, 'web');
+            $role = Role::findById($validated['role'], 'web');
             $user->assignRole($role);
 
             DB::commit();
@@ -81,7 +79,8 @@ class UserManagementController extends BaseController
             return $this->sendResponse($user->load('roles'), 'User created successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('User creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create user.', [], 500);
         }
     }
 
@@ -93,7 +92,7 @@ class UserManagementController extends BaseController
             return $this->sendError('User not found.', [], 404);
         }
 
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|min:6',
@@ -102,27 +101,23 @@ class UserManagementController extends BaseController
             'branch_id' => 'nullable|exists:branches,id',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors()->toArray(), 422);
-        }
-
         DB::beginTransaction();
 
         try {
             $updateData = [
-                'name'          => $request->name,
-                'email'         => $request->email,
-                'restaurant_id' => $request->restaurant_id ?? $user->restaurant_id,
-                'branch_id'     => $request->branch_id ?? $user->branch_id,
+                'name'          => $validated['name'],
+                'email'         => $validated['email'],
+                'restaurant_id' => $validated['restaurant_id'] ?? $user->restaurant_id,
+                'branch_id'     => $validated['branch_id'] ?? $user->branch_id,
             ];
 
-            if ($request->filled('password')) {
-                $updateData['password'] = Hash::make($request->password);
+            if (!empty($validated['password'])) {
+                $updateData['password'] = Hash::make($validated['password']);
             }
 
             $user->update($updateData);
 
-            $role = Role::findById($request->role, 'web');
+            $role = Role::findById($validated['role'], 'web');
             $user->syncRoles([$role]);
 
             DB::commit();
@@ -130,7 +125,8 @@ class UserManagementController extends BaseController
             return $this->sendResponse($user->load(['roles', 'permissions']), 'User updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('User update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update user.', [], 500);
         }
     }
 
@@ -145,7 +141,8 @@ class UserManagementController extends BaseController
             $user->delete();
             return $this->sendResponse([], 'User deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('User deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete user.', [], 500);
         }
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\API\BaseController;
 
 
@@ -28,10 +29,11 @@ class PLanController extends BaseController
     {
         try {
             $plans = Plan::paginate(10);
-            return $this->sendResponse($plans, 'Plan retrived successfully.');
+            return $this->sendResponse($plans, 'Plans retrieved successfully.');
 
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Plans fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve plans.', [], 500);
         }
     }
     
@@ -39,10 +41,11 @@ class PLanController extends BaseController
     {
         try {
             $plans = Plan::whereIsActive(1)->get();
-            return $this->sendResponse($plans, 'Plan retrived successfully.');
+            return $this->sendResponse($plans, 'Plans retrieved successfully.');
 
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Plans fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve plans.', [], 500);
         }
     }
 
@@ -53,7 +56,7 @@ class PLanController extends BaseController
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => 'required',
             'price' => 'required',
             'billing_cycle' => 'required',
@@ -62,20 +65,16 @@ class PLanController extends BaseController
             'invoice_limit' => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.'. $validator->errors());
-        }
-
         DB::beginTransaction();
         try {
-            $data = $request->all();
-            $plan = Plan::create($data);
+            $plan = Plan::create($validated);
             DB::commit();
             return $this->sendResponse(['plan' => $plan], 'Plan saved successfully.');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Plan creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create plan.', [], 500);
         }
     }
 
@@ -88,10 +87,11 @@ class PLanController extends BaseController
     {
         try {
             $plan = Plan::find($id);
-            return $this->sendResponse($plan, 'Plan retrived successfully.');
+            return $this->sendResponse($plan, 'Plan retrieved successfully.');
 
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Plan fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve plan.', [], 500);
         }
     }
 
@@ -102,7 +102,7 @@ class PLanController extends BaseController
      */
     public function update(Request $request, Plan $plan)
     {
-        $validator = Validator::make($request->all(), [
+        $validated = $request->validate([
             'name' => 'required',
             'price' => 'required',
             'billing_cycle' => 'required',
@@ -111,26 +111,16 @@ class PLanController extends BaseController
             'invoice_limit' => 'required',
         ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors(), 422);
-        }
-
         DB::beginTransaction();
         try {
-            $plan->name = $request->name;
-            $plan->is_active = $request->is_active;
-            $plan->price = $request->price;
-            $plan->billing_cycle = $request->billing_cycle;
-            $plan->branch_limit = $request->branch_limit;
-            $plan->user_limit = $request->user_limit;
-            $plan->invoice_limit = $request->invoice_limit;
-            $plan->save();
+            $plan->update($validated);
 
             DB::commit();
             return $this->sendResponse($plan, 'Plan updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Plan update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update plan.', [], 500);
         }
     }
 
@@ -150,7 +140,8 @@ class PLanController extends BaseController
             $plan->delete();
             return $this->sendResponse([], 'Plan deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Plan deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete plan.', [], 500);
         }
     }
 }

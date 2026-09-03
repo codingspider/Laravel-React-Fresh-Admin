@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Requests\AddonRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\API\BaseController;
 
 class AddonController extends BaseController
@@ -18,7 +19,8 @@ class AddonController extends BaseController
             $addons = Addon::with('branch')->whereIn('branch_id', getBranchIds())->paginate(10);
             return $this->sendResponse($addons, 'Addons retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Addon fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve addons.', [], 500);
         }
     }
     
@@ -28,7 +30,8 @@ class AddonController extends BaseController
             $addons = Addon::whereIn('branch_id', getBranchIds())->get();
             return $this->sendResponse($addons, 'Addons retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: '.$e->getMessage());
+            \Log::error('Addon fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve addons.', [], 500);
         }
     }
 
@@ -69,7 +72,8 @@ class AddonController extends BaseController
             return $this->sendResponse($addon, 'Addon saved successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Addon creation failed: ' . $e->getMessage());
+            return $this->sendError('Failed to create addon.', [], 500);
         }
     }
 
@@ -91,7 +95,8 @@ class AddonController extends BaseController
             return $this->sendResponse($addon, 'Addon updated successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return $this->sendError('Server Error: '.$e->getMessage(), 500);
+            \Log::error('Addon update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update addon.', [], 500);
         }
     }
 
@@ -106,7 +111,8 @@ class AddonController extends BaseController
             activityLog('addon','deleted','User '.auth()->user()->name.' deleted addon '.$addon->name);
             return $this->sendResponse([], 'Data deleted successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error: ' . $e->getMessage(), 500);
+            \Log::error('Addon deletion failed: ' . $e->getMessage());
+            return $this->sendError('Failed to delete addon.', [], 500);
         }
     }
 }

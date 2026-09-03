@@ -10,6 +10,7 @@ use App\Http\Requests\InvoiceSettingRequest;
 use App\Http\Requests\UpdateBusinessRequest;
 use App\Http\Requests\UpdateCurrencyRequest;
 use App\Http\Requests\NotificationSettingRequest;
+use Illuminate\Support\Facades\Log;
 
 class BusinessController extends BaseController
 {
@@ -27,7 +28,8 @@ class BusinessController extends BaseController
 
             return $this->sendResponse($restaurant, 'Restaurant retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.' . $e->getMessage());
+            \Log::error('Restaurant fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve restaurant.', [], 500);
         }
     }
 
@@ -54,7 +56,8 @@ class BusinessController extends BaseController
 
             return $this->sendResponse($restaurant, 'Restaurant updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.' . $e->getMessage());
+            \Log::error('Restaurant update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update restaurant.', [], 500);
         }
     }
 
@@ -79,7 +82,8 @@ class BusinessController extends BaseController
 
             return $this->sendResponse($restaurant, 'Currency updated successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.' . $e->getMessage());
+            \Log::error('Currency update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to update currency.', [], 500);
         }
     }
 
@@ -97,7 +101,8 @@ class BusinessController extends BaseController
 
             return $this->sendResponse($restaurant->invoiceSettings(), 'Invoice setting retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.' . $e->getMessage());
+            \Log::error('Invoice setting fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve invoice settings.', [], 500);
         }
     }
 
@@ -133,7 +138,8 @@ class BusinessController extends BaseController
 
             return $this->sendResponse($restaurant->receipt_settings, 'Invoice setting saved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.' . $e->getMessage());
+            \Log::error('Invoice setting update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to save invoice settings.', [], 500);
         }
     }
 
@@ -151,7 +157,8 @@ class BusinessController extends BaseController
 
             return $this->sendResponse($restaurant->notification_settings ?: [], 'Notification setting retrieved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.' . $e->getMessage());
+            \Log::error('Notification setting fetch failed: ' . $e->getMessage());
+            return $this->sendError('Failed to retrieve notification settings.', [], 500);
         }
     }
 
@@ -176,7 +183,8 @@ class BusinessController extends BaseController
 
             return $this->sendResponse($settings, 'Notification setting saved successfully.');
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.' . $e->getMessage());
+            \Log::error('Notification setting update failed: ' . $e->getMessage());
+            return $this->sendError('Failed to save notification settings.', [], 500);
         }
     }
 

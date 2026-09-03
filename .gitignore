@@ -19,7 +19,23 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/install.php
+storage/installed
+/storage/install_done
+/storage/install_error
+/storage/install.log
 /vendor
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Development artifacts
+pending task
+fix-i18n.js
+fix-i18n.ps1
+AGENTS.md
+requirements.md
+accounting.md
+TESTING_CHECKLIST.md
+codecanyon.md
+coding_rules.md

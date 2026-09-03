@@ -20,21 +20,18 @@ class RegisterController extends BaseController
 {
 
     public function register(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
+    {        $request->validate([
             'name' => 'required',
             'email' => 'required|email',
             'password' => 'required',
             'c_password' => 'required|same:password',
         ]);
-   
-        if($validator->fails()){
-            return $this->sendError('Validation Error.', $validator->errors(), 422);       
-        }
-   
-        $input = $request->all();
-        $input['password'] = Hash::make($input['password']);
-        $user = User::create($input);
+
+        $user = User::create([
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')),
+        ]);
 
         $role = Role::where('name', 'superadmin')->first();
         if ($role) {
@@ -53,7 +50,10 @@ class RegisterController extends BaseController
     
     public function storeBusinessInfo(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        $validator = Validator::make($request->only([
+            'restaurant_name', 'phone', 'email', 'address', 'city', 'state', 'country', 'zip_code',
+            'currency', 'timezone', 'first_name', 'last_name', 'username', 'email_owner', 'password',
+        ]), [
             // Restaurant info
             'restaurant_name' => 'required|string|max:255',
             'phone'           => 'nullable|string|max:255',
@@ -149,10 +149,14 @@ class RegisterController extends BaseController
                 'trace' => $e->getTraceAsString(),
             ]);
 
+            \Log::error('Business info storage failed: ' . $e->getMessage(), [
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+            ]);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Something went wrong. Please try again.',
-                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -207,7 +211,7 @@ class RegisterController extends BaseController
                 'name' => $user->name,
                 'role' => $user->roles->first()?->name,
                 'permissions' => $user->getAllPermissions()->pluck('name'),
-                'app_name' => $restaurant?->name ?: env("APP_NAME")
+                'app_name' => $restaurant?->name ?: config('app.name', 'Restaurant')
             ])->cookie($cookie);
         }
 
@@ -217,15 +221,11 @@ class RegisterController extends BaseController
     public function forgotPassword(Request $request)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'email' => 'required|email|exists:users,email',
-            ]);
+        $request->validate([
+            'email' => 'required|email|exists:users,email',
+        ]);
 
-            if ($validator->fails()) {
-                return $this->sendError('Validation Error.'. $validator->errors());
-            }
-
-            $user = User::where('email', $request->email)->first();
+        $user = User::where('email', $request->email)->first();
 
             // Generate token
             $token = Str::random(60);
@@ -246,23 +246,19 @@ class RegisterController extends BaseController
             return $this->sendResponse(['email' => $user->email], 'Reset password email sent successfully.');
 
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.'.$e->getMessage());
+            \Log::error('Forgot password failed: ' . $e->getMessage());
+            return $this->sendError('Failed to process password reset request.', [], 500);
         }
     }
 
     public function resetPassword(Request $request)
     {
         try {
-            // Validate input
-            $validator = Validator::make($request->all(), [
+            $request->validate([
                 'email' => 'required|email|exists:users,email',
                 'token' => 'required',
                 'password' => 'required|min:6',
             ]);
-
-            if ($validator->fails()) {
-                return $this->sendError('Validation Error.'. $validator->errors(), 422);
-            }
 
             // Attempt to reset the user's password
             $status = Password::reset(
@@ -278,11 +274,12 @@ class RegisterController extends BaseController
             if ($status === Password::PASSWORD_RESET) {
                 return $this->sendResponse([], 'Password has been reset successfully.');
             } else {
-                return $this->sendError('Reset failed.', ['error' => __($status)], 400);
+                return $this->sendError('Reset failed.', [], 400);
             }
 
         } catch (\Exception $e) {
-            return $this->sendError('Something went wrong.', ['error' => $e->getMessage()], 500);
+            \Log::error('Password reset failed: ' . $e->getMessage());
+            return $this->sendError('Something went wrong. Please try again.', [], 500);
         }
     }
 }

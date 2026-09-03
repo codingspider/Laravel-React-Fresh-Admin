@@ -7,6 +7,7 @@ use App\Models\InventoryCategory;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
 class InventoryItemController extends Controller
@@ -73,9 +74,10 @@ class InventoryItemController extends Controller
             ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Inventory item creation failed: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'Failed to create inventory item.',
             ], 500);
         }
     }
@@ -168,9 +170,10 @@ class InventoryItemController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
+            \Log::error('Inventory item update failed: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'Failed to update inventory item.',
             ], 500);
         }
     }

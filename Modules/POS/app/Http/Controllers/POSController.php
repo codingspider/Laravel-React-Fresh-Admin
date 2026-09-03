@@ -19,6 +19,8 @@ use Modules\POS\Services\PosService;
 use Modules\POS\Repositories\PosSessionRepository;
 use Modules\POS\Repositories\SaleRepository;
 use Modules\POS\Models\Sale;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class POSController extends Controller
 {
@@ -265,21 +267,33 @@ class POSController extends Controller
 
         $subtotal = array_sum(array_column($allItems, 'total'));
 
-        $firstSale->update([
-            'subtotal' => $subtotal,
-            'discount_amount' => $totalDiscount,
-            'tax_amount' => $totalTax,
-            'total' => $subtotal - $totalDiscount + $totalTax,
-        ]);
+        DB::beginTransaction();
+        try {
+            $firstSale->update([
+                'subtotal' => $subtotal,
+                'discount_amount' => $totalDiscount,
+                'tax_amount' => $totalTax,
+                'total' => $subtotal - $totalDiscount + $totalTax,
+            ]);
 
-        $firstSale->items()->delete();
-        foreach ($allItems as $itemData) {
-            $firstSale->items()->create($itemData);
+            $firstSale->items()->delete();
+            foreach ($allItems as $itemData) {
+                $firstSale->items()->create($itemData);
+            }
+
+            $otherSaleIds = $sales->pluck('id')->filter(fn($id) => $id !== $firstSale->id)->toArray();
+            \Modules\POS\Models\Payment::whereIn('sale_id', $otherSaleIds)->delete();
+            \Modules\POS\Models\Sale::whereIn('id', $otherSaleIds)->delete();
+
+            DB::commit();
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Bill merge failed: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to merge bills.',
+            ], 500);
         }
-
-        $otherSaleIds = $sales->pluck('id')->filter(fn($id) => $id !== $firstSale->id)->toArray();
-        \Modules\POS\Models\Payment::whereIn('sale_id', $otherSaleIds)->delete();
-        \Modules\POS\Models\Sale::whereIn('id', $otherSaleIds)->delete();
 
         $firstSale->load(['items.menuItem', 'customer', 'table']);
 

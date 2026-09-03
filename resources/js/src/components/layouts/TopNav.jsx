@@ -70,9 +70,10 @@ import { useCurrencyFormatter } from '../../useCurrencyFormatter';
 
 const ThemeToggle = () => {
     const { colorMode, toggleColorMode } = useColorMode();
+    const { t } = useTranslation();
 
     return (
-        <Tooltip label={colorMode === 'light' ? 'Dark Mode' : 'Light Mode'} hasArrow placement="bottom">
+        <Tooltip label={colorMode === 'light' ? t('Dark Mode') : t('Light Mode')} hasArrow placement="bottom">
             <IconButton
                 variant="ghost"
                 onClick={toggleColorMode}
@@ -99,8 +100,11 @@ const LanguageSelector = () => {
             focusBorderColor="brand.500"
             variant="outline"
         >
-            <option value="en">EN</option>
-            <option value="bn">BN</option>
+            <option value="en">English</option>
+            <option value="bn">বাংলা</option>
+            <option value="hi">हिन्दी</option>
+            <option value="es">Español</option>
+            <option value="fr">Français</option>
         </Select>
     );
 };
@@ -355,6 +359,7 @@ const NotificationBell = () => {
 function ProfileMenu() {
     const navigate = useNavigate();
     const { user } = usePermission();
+    const { t } = useTranslation();
     const colors = useThemeColors();
     const bg = colors.bgCard;
     const borderColor = colors.borderSubtle;
@@ -413,7 +418,7 @@ function ProfileMenu() {
                     fontSize="sm"
                     onClick={() => navigate('/profile')}
                 >
-                    Profile
+                    {t('Profile')}
                 </MenuItem>
 
                 <MenuDivider />
@@ -426,27 +431,28 @@ function ProfileMenu() {
                     fontSize="sm"
                     _hover={{ bg: 'red.50', _dark: { bg: 'red.900' } }}
                 >
-                    Logout
+                    {t('Logout')}
                 </MenuItem>
             </MenuList>
         </Menu>
     );
 }
 
-const QUICK_ACTIONS = [
-    { label: 'New Sale', icon: ShoppingCart, bg: 'linear-gradient(135deg, #0d9488, #14b8a6)', path: '/pos/terminal', permission: 'process_sale' },
-    { label: 'Orders', icon: Receipt, bg: 'linear-gradient(135deg, #f59e0b, #f97316)', path: '/pos/sales', permission: 'view_pos' },
-    { label: 'Accounts', icon: Wallet, bg: 'linear-gradient(135deg, #667eea, #764ba2)', path: '/accounting/dashboard', permission: 'access_business_settings' },
-    { label: 'Profit & Loss', icon: TrendingUp, bg: 'linear-gradient(135deg, #f093fb, #f5576c)', path: '/accounting/reports/profit-loss', permission: 'view_reports' },
+const QUICK_ACTIONS = (t) => [
+    { label: t('New Sale'), icon: ShoppingCart, bg: 'linear-gradient(135deg, #0d9488, #14b8a6)', path: '/pos/terminal', permission: 'process_sale' },
+    { label: t('Orders'), icon: Receipt, bg: 'linear-gradient(135deg, #f59e0b, #f97316)', path: '/pos/sales', permission: 'view_pos' },
+    { label: t('Accounts'), icon: Wallet, bg: 'linear-gradient(135deg, #667eea, #764ba2)', path: '/accounting/dashboard', permission: 'access_business_settings' },
+    { label: t('Profit & Loss'), icon: TrendingUp, bg: 'linear-gradient(135deg, #f093fb, #f5576c)', path: '/accounting/reports/profit-loss', permission: 'view_reports' },
 ];
 
 function QuickActions() {
     const navigate = useNavigate();
     const { can, hasRole } = usePermission();
+    const { t } = useTranslation();
 
     if (hasRole('super_admin')) return null;
 
-    const visibleActions = QUICK_ACTIONS.filter((action) => !action.permission || can(action.permission));
+    const visibleActions = QUICK_ACTIONS(t).filter((action) => !action.permission || can(action.permission));
 
     if (visibleActions.length === 0) return null;
 

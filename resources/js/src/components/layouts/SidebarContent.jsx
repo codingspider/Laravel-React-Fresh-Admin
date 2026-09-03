@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Box,
@@ -16,6 +16,8 @@ import { Link as ReactRouterLink } from 'react-router-dom';
 import { Link as ChakraLink } from '@chakra-ui/react';
 import { useLocation } from 'react-router-dom';
 import useThemeColors from '../../hooks/useThemeColors';
+import api from '../../axios';
+import { WEBSITE_SETTINGS } from '../../routes/apiRoutes';
 import {
     LayoutDashboard,
     Users,
@@ -396,8 +398,19 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
     const { can, hasRole, restaurant } = usePermission();
     const { t } = useTranslation();
     const [openMenus, setOpenMenus] = useState({});
+    const [siteLogo, setSiteLogo] = useState(null);
     const location = useLocation();
     const colors = useThemeColors();
+    const isSuperAdmin = hasRole('super_admin');
+
+    useEffect(() => {
+        if (!isSuperAdmin) return;
+        api.get(WEBSITE_SETTINGS)
+            .then((res) => {
+                setSiteLogo(res.data?.data?.site_logo || null);
+            })
+            .catch(() => setSiteLogo(null));
+    }, [isSuperAdmin]);
 
     const bg = colors.bgCard;
     const borderColor = colors.borderDefault;
@@ -569,9 +582,11 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
         );
     };
 
+    const logoUrl = isSuperAdmin ? siteLogo : restaurant?.logo;
+
     const SidebarLogo = ({ collapsed = false }) => (
         <Flex align="center" gap={3} px={collapsed ? 0 : 1}>
-            {restaurant?.logo ? (
+            {logoUrl ? (
                 <Flex
                     w={9}
                     h={9}
@@ -582,7 +597,7 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                     overflow="hidden"
                 >
                     <img
-                        src={`/${restaurant.logo}`}
+                        src={logoUrl.startsWith('http') ? logoUrl : `/${logoUrl}`}
                         alt={restaurant?.name || 'Logo'}
                         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                     />
@@ -609,7 +624,9 @@ export default function SidebarContent({ isCollapsed, setIsCollapsed, isMobileOp
                     bgClip="text"
                     noOfLines={1}
                 >
-                    {restaurant?.name || localStorage.getItem('app_name') || 'Restaurant'}
+                    {isSuperAdmin
+                        ? localStorage.getItem('app_name') || 'Admin'
+                        : restaurant?.name || localStorage.getItem('app_name') || 'Restaurant'}
                 </Text>
             )}
         </Flex>
