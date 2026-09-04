@@ -2,8 +2,20 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Subscription\Http\Controllers\API\SubscriptionController;
+use Modules\Subscription\Http\Controllers\API\StripeController;
 
 Route::prefix('v1')->middleware(['auth:sanctum','throttle:120,1'])->group(function () {
+    // Stripe config (publishable key for frontend)
+    Route::get('stripe/config', [StripeController::class, 'config']);
+
+    // Stripe checkout (restaurant owner)
+    Route::post('stripe/checkout-session', [StripeController::class, 'createCheckoutSession']);
+    Route::post('stripe/payment-intent', [StripeController::class, 'createPaymentIntent']);
+    Route::post('stripe/confirm-payment', [StripeController::class, 'confirmPayment']);
+
+    // Stripe webhook (inside auth group for route registration, but Stripe uses signature)
+    Route::post('stripe/webhook', [StripeController::class, 'webhook']);
+
     Route::get('subscription/modules', function (\Illuminate\Http\Request $request) {
         $user = $request->user();
 

@@ -126,6 +126,8 @@ import {
     CUSTOMER_DISPLAY_SETTINGS_PATH,
     SETTINGS_PATH,
     GENERAL_SETTINGS_PATH,
+    STRIPE_SETTINGS_PATH,
+    SUBSCRIPTION_RENEWAL_PATH,
 } from '../../routes/superAdminRoutes';
 import { usePermission } from '../../context/PermissionContext';
 
@@ -380,10 +382,20 @@ const navItems = (t) => [
     },
 
     {
-        path: SETTINGS_PATH,
         icon: Settings,
         label: t('settings'),
         role: 'super_admin',
+        children: [
+            { path: SETTINGS_PATH, label: t('website_settings') },
+            { path: STRIPE_SETTINGS_PATH, label: t('stripe_settings') },
+        ],
+    },
+    {
+        path: SUBSCRIPTION_RENEWAL_PATH,
+        icon: CreditCard,
+        label: t('renew_subscription'),
+        permission: 'access_business_settings',
+        excludeRole: 'super_admin',
     },
     {
         path: GENERAL_SETTINGS_PATH,

@@ -2,6 +2,7 @@ import ProtectedRoute from "../ProtectedRoute";
 import Dashboard from "../components/superadmin/Dashboard";
 import SuperAdminDashboard from "../components/superadmin/SuperAdminDashboard";
 import WebsiteSettings from "../components/superadmin/WebsiteSettings";
+import StripeSettings from "../components/superadmin/StripeSettings";
 import FaqList from "../components/superadmin/FaqList";
 import FaqForm from "../components/superadmin/FaqForm";
 import SaveOrder from "../components/order/SaveOrder";
@@ -94,6 +95,7 @@ import PackageView from "../components/superadmin/package/PackageView";
 import SubscriptionList from "../components/superadmin/subscription/SubscriptionList";
 import SubscriptionCreate from "../components/superadmin/subscription/SubscriptionCreate";
 import SubscriptionEdit from "../components/superadmin/subscription/SubscriptionEdit";
+import SubscriptionRenewal from "../components/subscription/SubscriptionRenewal";
 
 import BusinessList from "../components/superadmin/Business/BusinessList";
 import BusinessCreate from "../components/superadmin/Business/BusinessCreate";
@@ -239,6 +241,7 @@ export const CUSTOMER_DISPLAY_SETTINGS_PATH = "/customer-display/settings";
 
 export const SETTINGS_PATH = "/settings";
 export const GENERAL_SETTINGS_PATH = "/settings/general";
+export const STRIPE_SETTINGS_PATH = "/settings/stripe";
 
 export const USER_LIST_PATH = "/user/list";
 export const USER_ADD_PATH = "/user/create";
@@ -273,6 +276,7 @@ export const PACKAGE_EDIT_PATH = "/package/edit/:id";
 export const SUBSCRIPTION_LIST_PATH = "/subscription/list";
 export const SUBSCRIPTION_ADD_PATH = "/subscription/create";
 export const SUBSCRIPTION_EDIT_PATH = "/subscription/edit/:id";
+export const SUBSCRIPTION_RENEWAL_PATH = "/subscription/renew";
 
 export const INVENTORY_ITEM_LIST_PATH = "/inventory/list";
 export const INVENTORY_ITEM_ADD_PATH = "/inventory/create";
@@ -424,6 +428,7 @@ export const superAdminRoutes = [
     { path: DASHBOARD_PATH, element: <SuperAdminDashboard /> },
     { path: `/settings`, element: <WebsiteSettings /> },
     { path: `/settings/general`, element: <General /> },
+    { path: `/settings/stripe`, element: <StripeSettings /> },
     { path: `/save/order`, element: <SaveOrder /> },
 
     { path: FAQ_LIST_PATH, element: <FaqList /> },
@@ -470,6 +475,7 @@ export const superAdminRoutes = [
     { path: SUBSCRIPTION_LIST_PATH, element: <SubscriptionList /> },
     { path: SUBSCRIPTION_ADD_PATH, element: <SubscriptionCreate /> },
     { path: SUBSCRIPTION_EDIT_PATH, element: <SubscriptionEdit /> },
+    { path: SUBSCRIPTION_RENEWAL_PATH, element: <SubscriptionRenewal /> },
 
     { path: INVENTORY_ITEM_LIST_PATH, element: <InventoryItemList /> },
     { path: INVENTORY_ITEM_ADD_PATH, element: <InventoryItemCreate /> },

@@ -433,8 +433,14 @@ export const DELETE_CUSTOMER = (id) => `/v1/customers/${id}`;
 export const DASHBOARD_STATS = '/v1/dashboard/stats';
 export const PLATFORM_STATS = '/v1/dashboard/platform-stats';
 
+// Subscription Renewal
+export const STRIPE_CONFIG = '/v1/stripe/config';
+export const STRIPE_CHECKOUT_SESSION = '/v1/stripe/checkout-session';
+export const STRIPE_PAYMENT_INTENT = '/v1/stripe/payment-intent';
+
 // Front Website
 export const WEBSITE_SETTINGS = '/v1/website/settings';
+export const STRIPE_SETTINGS = '/v1/stripe/settings';
 export const FAQS_API = '/v1/faqs';
 export const FAQS_ADMIN = '/v1/faqs/all';
 export const FAQ_API = (id) => `/v1/faqs/${id}`;
