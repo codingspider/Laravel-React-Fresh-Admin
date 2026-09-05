@@ -12,6 +12,7 @@ Route::prefix('v1')->middleware(['auth:sanctum','throttle:120,1'])->group(functi
     Route::post('stripe/checkout-session', [StripeController::class, 'createCheckoutSession']);
     Route::post('stripe/payment-intent', [StripeController::class, 'createPaymentIntent']);
     Route::post('stripe/confirm-payment', [StripeController::class, 'confirmPayment']);
+    Route::get('stripe/my-subscription', [StripeController::class, 'mySubscription']);
 
     // Stripe webhook (inside auth group for route registration, but Stripe uses signature)
     Route::post('stripe/webhook', [StripeController::class, 'webhook']);

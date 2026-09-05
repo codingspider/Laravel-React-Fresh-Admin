@@ -146,12 +146,45 @@ class CheckPermission
      */
     protected ?array $knownPermissions = null;
 
+    /**
+     * Routes that are public (no auth) or should skip permission checks.
+     */
+    protected array $excludedPaths = [
+        'plans/pub',
+        'stripe/webhook',
+    ];
+
     public function handle(Request $request, Closure $next)
     {
         $user = $request->user();
 
-        if (!$user || isSuperAdmin($user)) {
+        // Unauthenticated users — let auth middleware handle it
+        if (!$user) {
             return $next($request);
+        }
+
+        // Super admins bypass all permission checks
+        if (isSuperAdmin($user)) {
+            return $next($request);
+        }
+
+        // Check if route is excluded from permission checks
+        $path = $this->normalizePath($request);
+        if ($path !== null && in_array($path, $this->excludedPaths, true)) {
+            return $next($request);
+        }
+
+        // Check if the route actually requires authentication
+        // If the route doesn't have auth:sanctum middleware, skip permission check
+        $route = $request->route();
+        if ($route) {
+            $middlewareAliases = $route->gatherMiddleware();
+            $hasAuth = collect($middlewareAliases)->contains(function ($m) {
+                return str_contains($m, 'auth');
+            });
+            if (!$hasAuth) {
+                return $next($request);
+            }
         }
 
         $permission = $this->resolvePermission($request);

@@ -114,7 +114,7 @@ export default function SubscriptionRenewal() {
 
             const [plansRes, subRes, configRes] = await Promise.all([
                 api.get('/v1/plans/pub'),
-                api.get('/v1/subscriptions', { params: { per_page: 1, status: 'active' } }),
+                api.get('/v1/stripe/my-subscription'),
                 api.get('/v1/stripe/config').catch(() => ({ data: { data: { enabled: false } } })),
             ]);
 
@@ -123,9 +123,9 @@ export default function SubscriptionRenewal() {
             );
             setPlans(activePlans);
 
-            const subs = subRes.data?.data || [];
-            if (subs.length > 0) {
-                setCurrentSubscription(subs[0]);
+            const sub = subRes.data?.data || null;
+            if (sub) {
+                setCurrentSubscription(sub);
             }
 
             setStripeConfig(configRes.data?.data || { enabled: false });

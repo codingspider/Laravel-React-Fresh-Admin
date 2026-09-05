@@ -48,6 +48,37 @@ class StripeController extends Controller
     }
 
     /**
+     * Get the current user's own subscription (no view_subscriptions permission needed).
+     */
+    public function mySubscription(): JsonResponse
+    {
+        $restaurantId = getRestaurantId();
+
+        if (!$restaurantId) {
+            return response()->json([
+                'status' => 'success',
+                'data' => null,
+            ]);
+        }
+
+        $subscription = Subscription::where('restaurant_id', $restaurantId)
+            ->with('plan')
+            ->latest()
+            ->first();
+
+        Log::info('mySubscription fetched', [
+            'restaurant_id' => $restaurantId,
+            'subscription_id' => $subscription?->id,
+            'status' => $subscription?->status,
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $subscription,
+        ]);
+    }
+
+    /**
      * Create a Stripe Checkout session for subscription renewal.
      */
     public function createCheckoutSession(Request $request): JsonResponse
